@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 const kHeadingTextStyle = TextStyle(
   fontSize: 26,
   fontWeight: FontWeight.bold,
+  color: kDarkBlueColor,
 );
 
 const kTitleTextStyle = TextStyle(
   fontSize: 36,
   fontWeight: FontWeight.bold,
+  color: kDarkBlueColor,
 );
 
 const kDarkBlueColor = Color.fromRGBO(1, 23, 47, 1);

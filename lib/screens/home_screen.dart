@@ -26,39 +26,45 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Consumer<UserData>(
-        builder: (context, userData, child) {
-          return Container(
-            margin: EdgeInsets.symmetric(vertical: 40),
-            child: Column(
-              children: [
-                Text(
-                  userData.userHabits.length == 0
-                      ? 'You don\'t have any habits added yet.'
-                      : 'Habits',
-                  style: kHeadingTextStyle,
-                  textAlign: TextAlign.center,
-                ),
-                ListView.builder(
-                  itemBuilder: (context, index) {
-                    return RadioListTile(
-                        title: Text(
-                          userData.userHabits[index].name,
-                        ),
-                        value: userData.userHabits[index].isCompleted,
-                        groupValue: true,
-                        onChanged: (changedValue) {
-                          userData.userHabits[index].isCompleted =
-                              changedValue as bool;
-                        });
-                  },
-                  itemCount: userData.userHabits.length,
-                ),
-              ],
+      body: HabitsSection(),
+    );
+  }
+}
+
+class HabitsSection extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<UserData>(
+      builder: (context, userData, child) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Habits',
+              style: kHeadingTextStyle,
             ),
-          );
-        },
-      ),
+            Expanded(
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return RadioListTile(
+                    title: Text(
+                      userData.userHabits[index].name,
+                    ),
+                    value: userData.userHabits[index].isCompleted,
+                    groupValue: true,
+                    onChanged: (changedValue) {
+                      userData.userHabits[index].isCompleted =
+                          changedValue as bool;
+                      userData.updateUserHabits();
+                    },
+                  );
+                },
+                itemCount: userData.userHabits.length,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
