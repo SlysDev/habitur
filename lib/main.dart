@@ -14,6 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 // Providers
 import 'providers/user_data.dart';
 import 'providers/settings_data.dart';
+import 'providers/loading_data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,6 +62,8 @@ class Habitur extends StatelessWidget {
         ),
         providers: [
           ChangeNotifierProvider<UserData>(create: (context) => UserData()),
+          ChangeNotifierProvider<LoadingData>(
+              create: (context) => LoadingData()),
           ChangeNotifierProvider<SettingsData>(
               create: (context) => SettingsData()),
         ]);

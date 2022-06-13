@@ -43,6 +43,9 @@ dependencies:
   flutter_feather_icons: ^2.0.0+1
   http: ^0.13.4
   fl_chart: ^0.51.0
+  ionicons: ^0.1.2
+  blurry_modal_progress_hud: ^1.0.3
+  progress_indicators: ^1.0.0
 
 dev_dependencies:
   flutter_test:

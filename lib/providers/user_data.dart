@@ -11,6 +11,7 @@ class UserData extends ChangeNotifier {
   List<Habit> _userHabits = [
     Habit(name: 'Shower', difficulty: 0.2),
   ];
+  int habiturRating = 100;
   void updateUserHabits() {
     notifyListeners();
   }
