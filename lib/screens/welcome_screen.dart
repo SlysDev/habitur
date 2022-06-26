@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:habitur/screens/login_screen.dart';
 import '../constants.dart';
 import '../components/accent_elevated_button.dart';
 import '../components/grayscale_elevated_button.dart';
@@ -49,12 +50,11 @@ class WelcomeScreen extends StatelessWidget {
           SizedBox(
             height: 40,
           ),
-          LightElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, 'login_screen');
-            },
-            child: Text('Login'),
-          ),
+          AsideButton(
+              text: 'Login',
+              onPressed: () {
+                Navigator.pushNamed(context, 'login_screen');
+              })
         ],
       ),
     );

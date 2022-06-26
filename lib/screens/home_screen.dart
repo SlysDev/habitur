@@ -1,103 +1,142 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:habitur/constants.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-import 'package:ionicons/ionicons.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
-import '../providers/user_data.dart';
+import 'package:habitur/providers/user_data.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:habitur/components/habit_card.dart';
+import 'package:habitur/constants.dart';
+import 'package:ionicons/ionicons.dart';
 
 class HomeScreen extends StatelessWidget {
+  final _firestore = FirebaseFirestore.instance;
+  String timeOfDay = 'Day';
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, 'settings_screen');
-            },
-            icon: Icon(
-              Icons.menu_rounded,
-              color: kDarkBlueColor,
-              size: 30,
+    DateTime currentTime = DateTime.now();
+    // Calculate the time of day
+    if (currentTime.hour > 3 && currentTime.hour < 12) {
+      timeOfDay = 'Morning';
+    } else if (currentTime.hour > 12 && currentTime.hour < 18) {
+      timeOfDay = 'Afternoon';
+    } else {
+      timeOfDay = 'Evening';
+    }
+    return Consumer<UserData>(
+      builder: (context, userData, child) {
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            automaticallyImplyLeading: false,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, 'settings_screen');
+                },
+                icon: const Icon(
+                  Icons.menu_rounded,
+                  color: kDarkBlueColor,
+                  size: 30,
+                ),
+              ),
+            ],
+          ),
+          body: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Good $timeOfDay, ',
+                    style: kHeadingTextStyle,
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    DateFormat('EEEE, d').format(DateTime.now()),
+                  ),
+                  const SizedBox(
+                    height: 80,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        HabitCard(
+                          title: 'Test',
+                          onTap: () {},
+                        ),
+                        HabitCard(
+                          title: 'Test',
+                          onTap: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
-      body: HabitsSection(),
-	  bottomNavigationBar: BottomNavigationBar(
-		  showSelectedLabels: false,
-		  showUnselectedLabels: false,
-		  selectedItemColor: kDarkBlueColor,
-		  unselectedItemColor: kLightAccent,
-		  unselectedIconTheme: IconThemeData(
-			  opacity: 0.5,
-			  ),
-		  selectedIconTheme: IconThemeData(
-			  opacity: 1,
-			  shadows: [
-				  Shadow(
-					  blurRadius: 60,
-					  color: Colors.black54,
-					  ),
-			  ],
-			  ),
-			items: [
-			  BottomNavigationBarItem(
-				  icon: Icon(Ionicons.albums),
-				  label: 'Home'
-			  ),
-			  BottomNavigationBarItem(
-				  icon: Icon(Ionicons.stats_chart),
-				  label: 'Stats'
-			  ),
-			  BottomNavigationBarItem(
-				  icon: Icon(Ionicons.home),
-				  label: 'Something'
-			  ),
-			]
-		  ),
+          bottomNavigationBar: NavBar(),
+        );
+      },
     );
   }
 }
 
-class HabitsSection extends StatelessWidget {
+class NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserData>(
-      builder: (context, userData, child) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              'Habits',
-              style: kHeadingTextStyle,
+    return Container(
+      padding: EdgeInsets.only(bottom: 30),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          NavItem(
+            icon: Icon(
+              Icons.home_filled,
+              color: kLightAccent,
+              size: 25,
             ),
-            Expanded(
-              child: ListView.builder(
-                itemBuilder: (context, index) {
-                  return RadioListTile(
-                    title: Text(
-                      userData.userHabits[index].name,
-                    ),
-                    value: userData.userHabits[index].isCompleted,
-                    groupValue: true,
-                    onChanged: (changedValue) {
-                      userData.userHabits[index].isCompleted =
-                          changedValue as bool;
-                      userData.updateUserHabits();
-                    },
-                  );
-                },
-                itemCount: userData.userHabits.length,
-              ),
+            onPressed: () {},
+          ),
+          Container(
+            padding: EdgeInsets.only(bottom: 10),
+            child: ElevatedButton(
+              onPressed: () {},
+              child: Icon(Icons.add),
             ),
-          ],
-        );
-      },
+          ),
+          NavItem(
+            icon: Icon(
+              Icons.line_axis_rounded,
+              color: kLightAccent,
+              size: 25,
+            ),
+            onPressed: () {},
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NavItem extends StatelessWidget {
+  void Function() onPressed;
+  Icon icon;
+  NavItem({required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: IconButton(
+        onPressed: onPressed,
+        icon: icon,
+      ),
     );
   }
 }
