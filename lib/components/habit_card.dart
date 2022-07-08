@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 
 class HabitCard extends StatelessWidget {
   String title;
   void Function() onTap;
+  Color color;
   HabitCard({
     required this.title,
     required this.onTap,
+    required this.color,
   });
   @override
   Widget build(BuildContext context) {
@@ -17,7 +21,7 @@ class HabitCard extends StatelessWidget {
         width: 250,
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         decoration: BoxDecoration(
-          color: kDarkBlueColor,
+          color: color,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -29,30 +33,12 @@ class HabitCard extends StatelessWidget {
             const SizedBox(
               height: 15,
             ),
-            Row(
-              children: [
-                RoundedWhiteCheckbox(
-                  value: true,
-                ),
-                RoundedWhiteCheckbox(
-                  value: true,
-                ),
-                RoundedWhiteCheckbox(
-                  value: true,
-                ),
-                RoundedWhiteCheckbox(
-                  value: false,
-                ),
-                RoundedWhiteCheckbox(
-                  value: false,
-                ),
-                RoundedWhiteCheckbox(
-                  value: false,
-                ),
-                RoundedWhiteCheckbox(
-                  value: false,
-                ),
-              ],
+            LinearPercentIndicator(
+              percent: 0.5,
+              barRadius: Radius.circular(30),
+              lineHeight: 12.0,
+              progressColor: Colors.white,
+              backgroundColor: Colors.white24,
             ),
           ],
         ),

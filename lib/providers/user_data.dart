@@ -13,11 +13,15 @@ class UserData extends ChangeNotifier {
   final user = _auth.currentUser;
   late DocumentReference userDoc;
   final List<Habit> _userHabits = [
-    Habit(name: 'Shower', difficulty: 0.2),
+    Habit(title: 'Shower', category: 'lifestyle', difficulty: 0.2),
   ];
   int habiturRating = 100;
-  void updateUserHabits() {
+  void updateUserData() {
     notifyListeners();
+  }
+
+  void addUserHabit(Habit habit) {
+    _userHabits.add(habit);
   }
 
   UnmodifiableListView<Habit> get userHabits {

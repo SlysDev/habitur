@@ -12,7 +12,7 @@ class AccentElevatedButton extends StatelessWidget {
       onPressed: onPressed,
       child: child,
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(kTurqoiseAccent),
+        backgroundColor: MaterialStateProperty.all<Color>(kSlateGray),
         padding: MaterialStateProperty.all(EdgeInsets.zero),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(

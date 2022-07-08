@@ -27,7 +27,7 @@ class HabitsSection extends StatelessWidget {
                     onChanged: (changedValue) {
                       userData.userHabits[index].isCompleted =
                           changedValue as bool;
-                      userData.updateUserHabits();
+                      userData.updateUserData();
                     },
                   );
                 },

@@ -6,6 +6,7 @@ import 'screens/register_screen.dart';
 import "screens/login_screen.dart";
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/habit_selection_screen.dart';
 // Packages
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -41,7 +42,7 @@ class Habitur extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             textTheme: GoogleFonts.workSansTextTheme(),
-            primaryColor: kDarkBlueColor,
+            primaryColor: kDarkBlue,
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ButtonStyle(
                   textStyle: MaterialStateProperty.all(
@@ -52,11 +53,10 @@ class Habitur extends StatelessWidget {
                     ),
                   ),
                   elevation: MaterialStateProperty.all(10),
-                  shadowColor: MaterialStateProperty.all(kLightAccent),
+                  shadowColor: MaterialStateProperty.all(kSlateGray),
                   padding: MaterialStateProperty.all(
                       const EdgeInsets.symmetric(vertical: 15, horizontal: 30)),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(kDarkBlueColor),
+                  backgroundColor: MaterialStateProperty.all<Color>(kDarkBlue),
                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ))),
@@ -69,6 +69,7 @@ class Habitur extends StatelessWidget {
             'register_screen': (context) => RegisterScreen(),
             'home_screen': (context) => HomeScreen(),
             'settings_screen': (context) => SettingsScreen(),
+            'habit_selection_screen': (context) => HabitSelectionScreen(),
           },
         ));
   }

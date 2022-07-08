@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:ionicons/ionicons.dart';
@@ -22,7 +23,7 @@ class LoginScreen extends StatelessWidget {
           progressIndicator: HeartbeatProgressIndicator(
             child: const Icon(
               Ionicons.walk,
-              color: kTurqoiseAccent,
+              color: kSlateGray,
               size: 50,
             ),
           ),
@@ -88,22 +89,6 @@ class LoginScreen extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class AsideButton extends StatelessWidget {
-  String text;
-  void Function() onPressed;
-  AsideButton({required this.text, required this.onPressed});
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Text(
-        text,
-        style: TextStyle(color: kTurqoiseAccent),
-      ),
     );
   }
 }

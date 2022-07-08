@@ -1,4 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:habitur/components/navbar.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:intl/intl.dart';
@@ -35,7 +37,7 @@ class HomeScreen extends StatelessWidget {
                 },
                 icon: const Icon(
                   Icons.menu_rounded,
-                  color: kDarkBlueColor,
+                  color: kDarkBlue,
                   size: 30,
                 ),
               ),
@@ -61,82 +63,35 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(
                     height: 80,
                   ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        HabitCard(
-                          title: 'Test',
-                          onTap: () {},
-                        ),
-                        HabitCard(
-                          title: 'Test',
-                          onTap: () {},
-                        ),
-                      ],
+                  Expanded(
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ListView.builder(
+                          itemBuilder: (context, index) {
+                            return HabitCard(
+                                title: userData.userHabits[index].title,
+                                onTap: () {
+                                  userData.userHabits[index].isCompleted =
+                                      !userData.userHabits[index].isCompleted;
+                                  userData.updateUserData();
+                                },
+                                color: userData.userHabits[index].isCompleted ==
+                                        true
+                                    ? kAoEnglish
+                                    : kDarkBlue);
+                          },
+                          itemCount: userData.userHabits.length),
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          bottomNavigationBar: NavBar(),
+          bottomNavigationBar: NavBar(
+            currentPage: 'home',
+          ),
         );
       },
-    );
-  }
-}
-
-class NavBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(bottom: 30),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          NavItem(
-            icon: Icon(
-              Icons.home_filled,
-              color: kLightAccent,
-              size: 25,
-            ),
-            onPressed: () {},
-          ),
-          Container(
-            padding: EdgeInsets.only(bottom: 10),
-            child: ElevatedButton(
-              onPressed: () {},
-              child: Icon(Icons.add),
-            ),
-          ),
-          NavItem(
-            icon: Icon(
-              Icons.line_axis_rounded,
-              color: kLightAccent,
-              size: 25,
-            ),
-            onPressed: () {},
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class NavItem extends StatelessWidget {
-  void Function() onPressed;
-  Icon icon;
-  NavItem({required this.icon, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: IconButton(
-        onPressed: onPressed,
-        icon: icon,
-      ),
     );
   }
 }

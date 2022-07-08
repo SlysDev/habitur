@@ -3,25 +3,25 @@ import 'package:flutter/material.dart';
 const kHeadingTextStyle = TextStyle(
   fontSize: 26,
   fontWeight: FontWeight.bold,
-  color: kDarkBlueColor,
+  color: kDarkBlue,
 );
 
 const kTitleTextStyle = TextStyle(
   fontSize: 36,
   fontWeight: FontWeight.bold,
-  color: kDarkBlueColor,
+  color: kDarkBlue,
 );
 
 const kErrorTextStyle = TextStyle(
   fontSize: 36,
   fontWeight: FontWeight.bold,
-  color: kDarkBlueColor,
+  color: kDarkBlue,
 );
 
-const kDarkBlueColor = Color.fromRGBO(1, 23, 47, 1);
-const kLightAccent = Color.fromRGBO(108, 121, 135, 1);
-const kTurqoiseAccent = Color.fromRGBO(0, 45, 45, 1);
-const kBeige = Color.fromRGBO(226, 232, 206, 1);
+const kDarkBlue = Color.fromRGBO(1, 23, 47, 1);
+const kSlateGray = Color.fromRGBO(108, 121, 135, 1);
+const kAoEnglish = Color.fromRGBO(25, 131, 11, 1);
+const kBarnRed = Color.fromRGBO(111, 26, 7, 1);
 
 Map<int, Color> colorCodes = {
   50: const Color.fromRGBO(1, 23, 47, .1),
@@ -45,7 +45,7 @@ const kHabiturLogo = Image(
 
 InputDecoration kFilledTextFieldInputDecoration = InputDecoration(
   filled: true,
-  fillColor: kLightAccent,
+  fillColor: kSlateGray,
   contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
   border: OutlineInputBorder(
     borderSide: const BorderSide(color: Colors.transparent),

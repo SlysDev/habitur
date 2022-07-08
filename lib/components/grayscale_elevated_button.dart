@@ -12,7 +12,7 @@ class LightElevatedButton extends StatelessWidget {
       onPressed: onPressed,
       child: child,
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(kLightAccent),
+        backgroundColor: MaterialStateProperty.all<Color>(kSlateGray),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
