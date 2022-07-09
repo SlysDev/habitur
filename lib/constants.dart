@@ -22,6 +22,7 @@ const kDarkBlue = Color.fromRGBO(1, 23, 47, 1);
 const kSlateGray = Color.fromRGBO(108, 121, 135, 1);
 const kAoEnglish = Color.fromRGBO(25, 131, 11, 1);
 const kBarnRed = Color.fromRGBO(111, 26, 7, 1);
+const kNeutralBlue = Color.fromRGBO(51, 70, 89, 1);
 
 Map<int, Color> colorCodes = {
   50: const Color.fromRGBO(1, 23, 47, .1),

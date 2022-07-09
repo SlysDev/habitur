@@ -1,46 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
 class HabitCard extends StatelessWidget {
   String title;
   void Function() onTap;
   Color color;
+  void Function(DismissDirection) onDismissed;
   HabitCard({
     required this.title,
     required this.onTap,
     required this.color,
+    required this.onDismissed,
   });
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 30),
-        width: 250,
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(20),
+      child: Dismissible(
+        onDismissed: onDismissed,
+        key: Key(title),
+        background: Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20), color: kBarnRed),
+          child: const Icon(
+            Icons.delete,
+            color: Colors.white,
+          ),
         ),
-        child: Column(
-          children: [
-            Text(
-              title,
-              style: kHeadingTextStyle.copyWith(color: Colors.white),
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            LinearPercentIndicator(
-              percent: 0.5,
-              barRadius: Radius.circular(30),
-              lineHeight: 12.0,
-              progressColor: Colors.white,
-              backgroundColor: Colors.white24,
-            ),
-          ],
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            children: [
+              Text(
+                title,
+                style: kHeadingTextStyle.copyWith(color: Colors.white),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              LinearPercentIndicator(
+                percent: 0.5,
+                barRadius: const Radius.circular(30),
+                lineHeight: 12.0,
+                progressColor: Colors.white,
+                backgroundColor: Colors.white24,
+              ),
+            ],
+          ),
         ),
       ),
     );

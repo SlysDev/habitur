@@ -14,6 +14,8 @@ class UserData extends ChangeNotifier {
   late DocumentReference userDoc;
   final List<Habit> _userHabits = [
     Habit(title: 'Shower', category: 'lifestyle', difficulty: 0.2),
+    Habit(title: 'Meditate', category: 'mindfulness', difficulty: 0.3),
+    Habit(title: 'Pushups', category: 'physical', difficulty: 0.3),
   ];
   int habiturRating = 100;
   void updateUserData() {
@@ -22,6 +24,12 @@ class UserData extends ChangeNotifier {
 
   void addUserHabit(Habit habit) {
     _userHabits.add(habit);
+    notifyListeners();
+  }
+
+  void removeUserHabit(int index) {
+    _userHabits.removeAt(index);
+    notifyListeners();
   }
 
   UnmodifiableListView<Habit> get userHabits {

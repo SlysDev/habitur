@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/providers/user_data.dart';
@@ -7,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_card.dart';
 import 'package:habitur/constants.dart';
-import 'package:ionicons/ionicons.dart';
 
 class HomeScreen extends StatelessWidget {
   final _firestore = FirebaseFirestore.instance;
@@ -51,7 +49,7 @@ class HomeScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Good $timeOfDay, ',
+                    'Good $timeOfDay, fellow habitur',
                     style: kHeadingTextStyle,
                   ),
                   const SizedBox(
@@ -69,6 +67,10 @@ class HomeScreen extends StatelessWidget {
                       child: ListView.builder(
                           itemBuilder: (context, index) {
                             return HabitCard(
+                                onDismissed: (direction) {
+                                  Provider.of<UserData>(context, listen: false)
+                                      .removeUserHabit(index);
+                                },
                                 title: userData.userHabits[index].title,
                                 onTap: () {
                                   userData.userHabits[index].isCompleted =
