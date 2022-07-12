@@ -6,11 +6,15 @@ class HabitCard extends StatelessWidget {
   String title;
   void Function() onTap;
   Color color;
+  double progress;
+  bool completed;
   void Function(DismissDirection) onDismissed;
   HabitCard({
     required this.title,
+    required this.progress,
     required this.onTap,
     required this.color,
+    required this.completed,
     required this.onDismissed,
   });
   @override
@@ -31,7 +35,7 @@ class HabitCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
           decoration: BoxDecoration(
-            color: color,
+            color: !completed ? color : kSlateGray.withOpacity(0.5),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
@@ -44,7 +48,7 @@ class HabitCard extends StatelessWidget {
                 height: 15,
               ),
               LinearPercentIndicator(
-                percent: 0.5,
+                percent: progress,
                 barRadius: const Radius.circular(30),
                 lineHeight: 12.0,
                 progressColor: Colors.white,

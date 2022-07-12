@@ -27,7 +27,9 @@ class NavBar extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 showModalBottomSheet(
-                    context: context, builder: (context) => AddHabitScreen());
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => AddHabitScreen());
               },
               child: Icon(Icons.add),
             ),

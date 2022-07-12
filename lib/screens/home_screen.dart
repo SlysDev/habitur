@@ -46,17 +46,22 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Good $timeOfDay, fellow habitur',
-                    style: kHeadingTextStyle,
+                    'Good $timeOfDay',
+                    style: kTitleTextStyle,
                   ),
                   const SizedBox(
                     height: 10,
                   ),
                   Text(
-                    DateFormat('EEEE, d').format(DateTime.now()),
+                    'Today is ' +
+                        DateFormat('EEEE,').format(DateTime.now()) +
+                        ' ' +
+                        DateFormat('d').format(DateTime.now()) +
+                        '/' +
+                        DateFormat('M').format(DateTime.now()),
                   ),
                   const SizedBox(
                     height: 80,
@@ -67,20 +72,32 @@ class HomeScreen extends StatelessWidget {
                       child: ListView.builder(
                           itemBuilder: (context, index) {
                             return HabitCard(
+                                progress: userData
+                                        .userHabits[index].currentCompletions /
+                                    userData
+                                        .userHabits[index].requiredCompletions,
+                                completed: userData.userHabits[index]
+                                            .currentCompletions ==
+                                        userData.userHabits[index]
+                                            .requiredCompletions
+                                    ? true
+                                    : false,
                                 onDismissed: (direction) {
                                   Provider.of<UserData>(context, listen: false)
                                       .removeUserHabit(index);
                                 },
                                 title: userData.userHabits[index].title,
                                 onTap: () {
-                                  userData.userHabits[index].isCompleted =
-                                      !userData.userHabits[index].isCompleted;
-                                  userData.updateUserData();
+                                  if (userData.userHabits[index]
+                                          .currentCompletions !=
+                                      userData.userHabits[index]
+                                          .requiredCompletions) {
+                                    userData
+                                        .userHabits[index].currentCompletions++;
+                                    userData.updateUserData();
+                                  }
                                 },
-                                color: userData.userHabits[index].isCompleted ==
-                                        true
-                                    ? kAoEnglish
-                                    : kDarkBlue);
+                                color: userData.userHabits[index].color);
                           },
                           itemCount: userData.userHabits.length),
                     ),

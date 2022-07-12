@@ -55,7 +55,7 @@ class Habitur extends StatelessWidget {
                   elevation: MaterialStateProperty.all(10),
                   shadowColor: MaterialStateProperty.all(kSlateGray),
                   padding: MaterialStateProperty.all(
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 30)),
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 40)),
                   backgroundColor: MaterialStateProperty.all<Color>(kDarkBlue),
                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),

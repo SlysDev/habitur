@@ -12,11 +12,7 @@ class UserData extends ChangeNotifier {
   CollectionReference users = _firestore.collection('users');
   final user = _auth.currentUser;
   late DocumentReference userDoc;
-  final List<Habit> _userHabits = [
-    Habit(title: 'Shower', category: 'lifestyle', difficulty: 0.2),
-    Habit(title: 'Meditate', category: 'mindfulness', difficulty: 0.3),
-    Habit(title: 'Pushups', category: 'physical', difficulty: 0.3),
-  ];
+  final List<Habit> _userHabits = [];
   int habiturRating = 100;
   void updateUserData() {
     notifyListeners();

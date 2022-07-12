@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 
+const kSubHeadingTextStyle = TextStyle(
+  fontSize: 18,
+  fontWeight: FontWeight.bold,
+  color: kNeutralBlue,
+);
 const kHeadingTextStyle = TextStyle(
   fontSize: 26,
   fontWeight: FontWeight.bold,
-  color: kDarkBlue,
+  color: kNeutralBlue,
 );
 
 const kTitleTextStyle = TextStyle(
   fontSize: 36,
   fontWeight: FontWeight.bold,
-  color: kDarkBlue,
+  color: kNeutralBlue,
 );
 
 const kErrorTextStyle = TextStyle(
@@ -61,5 +66,7 @@ InputDecoration kFilledTextFieldInputDecoration = InputDecoration(
     borderRadius: BorderRadius.circular(30),
   ),
   hintText: 'Enter your email',
-  hintStyle: const TextStyle(color: Colors.white),
+  hintStyle: TextStyle(
+    color: Colors.white.withOpacity(0.5),
+  ),
 );

@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:habitur/constants.dart';
+
 class Habit {
   String title;
   String category;
@@ -5,7 +8,14 @@ class Habit {
   int proficiencyRating = 0;
   int streak = 0;
   double difficulty;
-  List daysOfCompletion = [];
+  int requiredCompletions;
+  int currentCompletions = 0;
+  List requiredDatesOfCompletion = [];
+  List currentDatesOfCompletion = [];
+  Color color = kDarkBlue;
   Habit(
-      {required this.title, required this.category, required this.difficulty});
+      {required this.title,
+      required this.category,
+      required this.difficulty,
+      this.requiredCompletions = 1});
 }

@@ -47,6 +47,7 @@ dependencies:
   blurry_modal_progress_hud: ^1.0.3
   progress_indicators: ^1.0.0
   percent_indicator: ^4.2.2
+  simple_animations: ^4.2.0
 
 dev_dependencies:
   flutter_test:
