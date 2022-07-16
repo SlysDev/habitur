@@ -8,12 +8,29 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_card.dart';
 import 'package:habitur/constants.dart';
+import 'package:cron/cron.dart';
 
 class HomeScreen extends StatelessWidget {
   final _firestore = FirebaseFirestore.instance;
   String timeOfDay = 'Day';
   @override
   Widget build(BuildContext context) {
+    final cron = Cron();
+    cron.schedule(Schedule.parse('0 0 * * *'), () async {
+      try {
+        Provider.of<UserData>(context, listen: false).resetDailyHabits();
+        print(Provider.of<UserData>(context, listen: false).userHabits);
+      } catch (e, st) {
+        print(e);
+      }
+      Provider.of<UserData>(context, listen: false).resetDailyHabits();
+    });
+    cron.schedule(Schedule.parse('0 0 * * 1'), () async {
+      Provider.of<UserData>(context, listen: false).resetWeeklyHabits();
+    });
+    cron.schedule(Schedule.parse('0 0 1 * *'), () async {
+      Provider.of<UserData>(context, listen: false).resetMonthlyHabits();
+    });
     DateTime currentTime = DateTime.now();
     // Calculate the time of day
     if (currentTime.hour > 3 && currentTime.hour < 12) {

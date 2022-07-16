@@ -12,7 +12,7 @@ class UserData extends ChangeNotifier {
   CollectionReference users = _firestore.collection('users');
   final user = _auth.currentUser;
   late DocumentReference userDoc;
-  final List<Habit> _userHabits = [];
+  List<Habit> _userHabits = [];
   int habiturRating = 100;
   void updateUserData() {
     notifyListeners();
@@ -29,9 +29,11 @@ class UserData extends ChangeNotifier {
   }
 
   void resetDailyHabits() {
+    print(_userHabits);
     _userHabits.forEach((element) {
       if (element.resetPeriod == 'Daily') {
         element.resetHabitCompletions();
+        element.currentCompletions = 0;
       } else {
         return;
       }

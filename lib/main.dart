@@ -31,16 +31,6 @@ void main() async {
 class Habitur extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final cron = Cron();
-    cron.schedule(Schedule.parse('0 0 * * *'), () async {
-      Provider.of<UserData>(context).resetDailyHabits();
-    });
-    cron.schedule(Schedule.parse('0 0 * * 1'), () async {
-      Provider.of<UserData>(context).resetWeeklyHabits();
-    });
-    cron.schedule(Schedule.parse('0 0 1 * *'), () async {
-      Provider.of<UserData>(context).resetMonthlyHabits();
-    });
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<UserData>(create: (context) => UserData()),
