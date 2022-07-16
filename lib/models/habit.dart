@@ -11,7 +11,6 @@ class Habit {
   double difficulty;
   int requiredCompletions;
   int currentCompletions = 0;
-  int nextCompletion = 0;
   int totalCompletions = 0;
   List requiredDatesOfCompletion = [];
   List currentDatesOfCompletion = [];
@@ -19,7 +18,7 @@ class Habit {
   DateTime dateCreated;
   Color color = kDarkBlue;
   void incrementCompletion() {
-    nextCompletion++;
+    currentCompletions++;
     totalCompletions++;
   }
 

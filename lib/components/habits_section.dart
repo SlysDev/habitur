@@ -20,7 +20,7 @@ class HabitsSection extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return RadioListTile(
                     title: Text(
-                      userData.userHabits[index].name,
+                      userData.userHabits[index].title,
                     ),
                     value: userData.userHabits[index].isCompleted,
                     groupValue: true,

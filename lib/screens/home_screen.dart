@@ -76,11 +76,7 @@ class HomeScreen extends StatelessWidget {
                                 .contains(
                                     DateFormat('EEEE').format(DateTime.now()))
                             ? HabitCard(
-                                currentValue: userData
-                                        .userHabits[index].currentCompletions /
-                                    userData
-                                        .userHabits[index].requiredCompletions,
-                                afterValue: userData
+                                progress: userData
                                         .userHabits[index].currentCompletions /
                                     userData
                                         .userHabits[index].requiredCompletions,
