@@ -392,8 +392,12 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             title: habitTitle,
                             category: '',
                             difficulty: 0,
+                            dateCreated: DateTime.now(),
+                            resetPeriod: selectedPeriod,
+                            requiredDatesOfCompletion: daysActive,
                             requiredCompletions: habitCompletions),
                       );
+                      print(daysActive);
                       Navigator.pop(context);
                     },
                     child: const Text('Create'),

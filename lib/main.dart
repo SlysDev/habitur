@@ -12,6 +12,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cron/cron.dart';
+import 'package:intl/intl.dart';
 // Providers
 import 'providers/user_data.dart';
 import 'providers/settings_data.dart';
@@ -29,6 +31,16 @@ void main() async {
 class Habitur extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final cron = Cron();
+    cron.schedule(Schedule.parse('0 0 * * *'), () async {
+      Provider.of<UserData>(context).resetDailyHabits();
+    });
+    cron.schedule(Schedule.parse('0 0 * * 1'), () async {
+      Provider.of<UserData>(context).resetWeeklyHabits();
+    });
+    cron.schedule(Schedule.parse('0 0 1 * *'), () async {
+      Provider.of<UserData>(context).resetMonthlyHabits();
+    });
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<UserData>(create: (context) => UserData()),

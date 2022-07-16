@@ -28,6 +28,39 @@ class UserData extends ChangeNotifier {
     notifyListeners();
   }
 
+  void resetDailyHabits() {
+    _userHabits.forEach((element) {
+      if (element.resetPeriod == 'Daily') {
+        element.resetHabitCompletions();
+      } else {
+        return;
+      }
+    });
+    notifyListeners();
+  }
+
+  void resetWeeklyHabits() {
+    _userHabits.forEach((element) {
+      if (element.resetPeriod == 'Weekly') {
+        element.resetHabitCompletions();
+      } else {
+        return;
+      }
+    });
+    notifyListeners();
+  }
+
+  void resetMonthlyHabits() {
+    _userHabits.forEach((element) {
+      if (element.resetPeriod == 'Monthly') {
+        element.resetHabitCompletions();
+      } else {
+        return;
+      }
+    });
+    notifyListeners();
+  }
+
   UnmodifiableListView<Habit> get userHabits {
     return UnmodifiableListView(_userHabits);
   }
