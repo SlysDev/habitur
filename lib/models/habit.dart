@@ -8,6 +8,7 @@ class Habit {
   bool isCompleted = false;
   int proficiencyRating = 0;
   int streak = 0;
+  DateTime dueDate;
   double difficulty;
   int requiredCompletions;
   int currentCompletions = 0;
@@ -22,6 +23,11 @@ class Habit {
     totalCompletions++;
   }
 
+  void decrementCompletion() {
+    currentCompletions--;
+    totalCompletions--;
+  }
+
   void resetHabitCompletions() {
     currentCompletions = 0;
   }
@@ -32,6 +38,7 @@ class Habit {
       required this.difficulty,
       required this.dateCreated,
       required this.resetPeriod,
+      required this.dueDate,
       this.requiredDatesOfCompletion = const [],
       this.requiredCompletions = 1});
 }

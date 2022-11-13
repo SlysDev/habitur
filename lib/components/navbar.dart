@@ -19,7 +19,20 @@ class NavBar extends StatelessWidget {
               size: 25,
             ),
             onPressed: () {
-              Navigator.popAndPushNamed(context, 'home_screen');
+              Navigator.pop(context);
+            },
+          ),
+          NavItem(
+            icon: Icon(
+              Icons.bar_chart,
+              color: currentPage == 'statistics' ? kDarkBlue : kSlateGray,
+            ),
+            onPressed: () {
+              if (currentPage == 'home') {
+                Navigator.pushNamed(context, 'statistics_screen');
+              } else {
+                Navigator.popAndPushNamed(context, 'statistics_screen');
+              }
             },
           ),
           Container(
@@ -41,7 +54,24 @@ class NavBar extends StatelessWidget {
               size: 25,
             ),
             onPressed: () {
-              Navigator.popAndPushNamed(context, 'habit_selection_screen');
+              if (currentPage == 'home') {
+                Navigator.pushNamed(context, 'habit_selection_screen');
+              } else {
+                Navigator.popAndPushNamed(context, 'habit_selection_screen');
+              }
+            },
+          ),
+          NavItem(
+            icon: Icon(
+              Icons.settings,
+              color: currentPage == 'settings' ? kDarkBlue : kSlateGray,
+            ),
+            onPressed: () {
+              if (currentPage == 'home') {
+                Navigator.pushNamed(context, 'settings_screen');
+              } else {
+                Navigator.popAndPushNamed(context, 'settings_screen');
+              }
             },
           ),
         ],

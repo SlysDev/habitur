@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 const kSubHeadingTextStyle = TextStyle(
   fontSize: 18,
@@ -12,15 +13,19 @@ const kHeadingTextStyle = TextStyle(
 );
 
 const kTitleTextStyle = TextStyle(
-  fontSize: 36,
+  fontSize: 42,
   fontWeight: FontWeight.bold,
   color: kNeutralBlue,
 );
 
 const kErrorTextStyle = TextStyle(
-  fontSize: 36,
+  fontSize: 20,
   fontWeight: FontWeight.bold,
-  color: kDarkBlue,
+  color: Colors.red,
+);
+
+TextStyle kMainDescription = GoogleFonts.lato().copyWith(
+  fontSize: 18,
 );
 
 const kDarkBlue = Color.fromRGBO(1, 23, 47, 1);

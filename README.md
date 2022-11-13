@@ -1,19 +1,16 @@
-# Habitur
+# habitur
 
-Habitur is a habit building app centered around the idea of "Kaizen", the art of incremental progress.
+A new Flutter project.
 
-## Take it one step at a time
+## Getting Started
 
-Habitur provides you with approachable, sustainable habits, which you can unlock after mastering your previous habits.
+This project is a starting point for a Flutter application.
 
-After a few weeks, your habits will become painlessly embedded into your life.
+A few resources to get you started if this is your first Flutter project:
 
-## Master habits from the community
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-Feeling ambitious? Head to the community tab, and add habits created by users in the community.
-
-*Some community habits, if up to par with our standards, will be certified by the Habitur team.*
-
-## Be a Habitur
-
-Connect with our community on social media, and share your progress!
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.

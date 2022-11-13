@@ -15,18 +15,6 @@ class HabitSelectionScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, 'settings_screen');
-            },
-            icon: const Icon(
-              Icons.menu_rounded,
-              color: kDarkBlue,
-              size: 30,
-            ),
-          ),
-        ],
       ),
       body: Container(
         width: double.infinity,

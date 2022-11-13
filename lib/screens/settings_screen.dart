@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/components/navbar.dart';
 import 'package:habitur/constants.dart';
 import '../providers/settings_data.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,9 @@ class SettingsScreen extends StatelessWidget {
                 },
               );
             },
+          ),
+          bottomNavigationBar: NavBar(
+            currentPage: 'settings',
           ),
         );
       },

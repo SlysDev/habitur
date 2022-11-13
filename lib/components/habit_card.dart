@@ -6,6 +6,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 class HabitCard extends StatelessWidget {
   String title;
   void Function() onTap;
+  void Function() onLongPress;
   Color color;
   double progress;
   bool completed;
@@ -14,6 +15,7 @@ class HabitCard extends StatelessWidget {
     required this.title,
     required this.progress,
     required this.onTap,
+    required this.onLongPress,
     required this.color,
     required this.completed,
     required this.onDismissed,
@@ -21,6 +23,7 @@ class HabitCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onLongPress: onLongPress,
       onTap: onTap,
       child: Dismissible(
         onDismissed: onDismissed,

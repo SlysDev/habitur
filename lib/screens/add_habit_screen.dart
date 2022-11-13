@@ -386,12 +386,24 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                       : Container(),
                   ElevatedButton(
                     onPressed: () {
+                      DateTime today = DateTime.now();
+                      DateTime habitDueDate;
+                      if (selectedPeriod == 'Daily') {
+                        habitDueDate = today;
+                      } else if (selectedPeriod == 'Weekly') {
+                        habitDueDate = today.add(Duration(
+                            days: (DateTime.daysPerWeek) - (today.weekday)));
+                      } else {
+                        habitDueDate = today.add(Duration(days: 30));
+                        // Defaulting motnh to 30 days, may change later.
+                      }
                       Provider.of<UserData>(context, listen: false)
                           .addUserHabit(
                         Habit(
                             title: habitTitle,
                             category: '',
                             difficulty: 0,
+                            dueDate: habitDueDate,
                             dateCreated: DateTime.now(),
                             resetPeriod: selectedPeriod,
                             requiredDatesOfCompletion: daysActive,

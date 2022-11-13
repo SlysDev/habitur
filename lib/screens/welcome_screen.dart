@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/screens/login_screen.dart';
 import '../constants.dart';
@@ -10,53 +9,62 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              Flexible(child: kHabiturLogo),
-              Text(
-                'Habitur',
-                style: kTitleTextStyle,
-              )
-            ],
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Text(
-            'Glad to have you here.',
-            textAlign: TextAlign.center,
-            style: kHeadingTextStyle,
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Text(
-            'With Habitur, you can build your life, one habit at a time.',
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(
-            height: 60,
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, 'register_screen');
-            },
-            child: Text(
-              'Let\'s begin',
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            kHabiturLogo,
+            Text(
+              'Habitur',
+              style: kTitleTextStyle,
             ),
-          ),
-          SizedBox(
-            height: 40,
-          ),
-          AsideButton(
-              text: 'Login',
+            SizedBox(
+              height: 20,
+            ),
+            // Text(
+            //   'Glad to have you here.',
+            //   textAlign: TextAlign.center,
+            //   style: kHeadingTextStyle,
+            // ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              'Build your life, one habit at a time.',
+              textAlign: TextAlign.center,
+              style: kMainDescription,
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, 'login_screen');
-              })
-        ],
+                Navigator.pushNamed(context, 'register_screen');
+              },
+              child: Text(
+                'Let\'s begin',
+              ),
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            AsideButton(
+                text: 'Login',
+                onPressed: () {
+                  Navigator.pushNamed(context, 'login_screen');
+                }),
+            // Only for offline testing purposes
+            SizedBox(
+              height: 40,
+            ),
+            AsideButton(
+              text: 'Offline Login',
+              onPressed: () {
+                Navigator.pushNamed(context, 'home_screen_offline');
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
