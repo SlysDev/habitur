@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
 
@@ -397,13 +398,11 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         habitDueDate = today.add(Duration(days: 30));
                         // Defaulting motnh to 30 days, may change later.
                       }
-                      Provider.of<UserData>(context, listen: false)
-                          .addUserHabit(
+                      Provider.of<HabitManager>(context, listen: false)
+                          .addHabit(
                         Habit(
                             title: habitTitle,
                             category: '',
-                            difficulty: 0,
-                            dueDate: habitDueDate,
                             dateCreated: DateTime.now(),
                             resetPeriod: selectedPeriod,
                             requiredDatesOfCompletion: daysActive,

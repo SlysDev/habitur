@@ -8,37 +8,32 @@ class Habit {
   bool isCompleted = false;
   int proficiencyRating = 0;
   int streak = 0;
-  DateTime dueDate;
-  double difficulty;
   int requiredCompletions;
-  int currentCompletions = 0;
+  int completionsToday = 0;
   int totalCompletions = 0;
   List requiredDatesOfCompletion = [];
-  List currentDatesOfCompletion = [];
   String resetPeriod;
   DateTime dateCreated;
   Color color = kDarkBlue;
   void incrementCompletion() {
-    currentCompletions++;
+    completionsToday++;
     totalCompletions++;
   }
 
   void decrementCompletion() {
-    currentCompletions--;
+    completionsToday--;
     totalCompletions--;
   }
 
   void resetHabitCompletions() {
-    currentCompletions = 0;
+    completionsToday = 0;
   }
 
   Habit(
       {required this.title,
       required this.category,
-      required this.difficulty,
       required this.dateCreated,
       required this.resetPeriod,
-      required this.dueDate,
       this.requiredDatesOfCompletion = const [],
       this.requiredCompletions = 1});
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:habitur/modules/habit_reset_module.dart';
+import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/login_registration_state.dart';
 import 'package:habitur/screens/statistics_screen.dart';
 import 'constants.dart';
@@ -60,8 +60,8 @@ class Habitur extends StatelessWidget {
           ChangeNotifierProvider<UserData>(create: (context) => UserData()),
           ChangeNotifierProvider<LoginRegistrationState>(
               create: (context) => LoginRegistrationState()),
-          ChangeNotifierProvider<MHabitReset>(
-              create: (context) => MHabitReset()),
+          ChangeNotifierProvider<HabitManager>(
+              create: (context) => HabitManager()),
           ChangeNotifierProvider<Database>(create: (context) => Database()),
           ChangeNotifierProvider<LoadingData>(
               create: (context) => LoadingData()),

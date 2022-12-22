@@ -39,6 +39,7 @@ class HabitCard extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           curve: Curves.ease,
+          margin: const EdgeInsets.symmetric(vertical: 20),
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
           decoration: BoxDecoration(
             color: !completed ? color : kSlateGray.withOpacity(0.5),
