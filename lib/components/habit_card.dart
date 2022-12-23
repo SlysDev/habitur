@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/constants.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
@@ -10,7 +11,7 @@ class HabitCard extends StatelessWidget {
   Color color;
   double progress;
   bool completed;
-  void Function(DismissDirection) onDismissed;
+  void Function(BuildContext) onDismissed;
   HabitCard({
     required this.title,
     required this.progress,
@@ -20,26 +21,36 @@ class HabitCard extends StatelessWidget {
     required this.completed,
     required this.onDismissed,
   });
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onLongPress: onLongPress,
       onTap: onTap,
-      child: Dismissible(
-        onDismissed: onDismissed,
-        key: Key(title),
-        background: Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20), color: kBarnRed),
-          child: const Icon(
-            Icons.delete,
-            color: Colors.white,
-          ),
+      child: Slidable(
+        startActionPane: ActionPane(
+          motion: DrawerMotion(),
+          children: [
+            SlidableAction(
+              onPressed: onDismissed,
+              backgroundColor: Colors.red,
+              icon: Icons.delete,
+              borderRadius: BorderRadius.circular(20),
+              label: 'Delete',
+            ),
+            SlidableAction(
+              onPressed: (context) {},
+              backgroundColor: Colors.blue,
+              icon: Icons.edit,
+              borderRadius: BorderRadius.circular(20),
+              label: 'Edit',
+            ),
+          ],
         ),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           curve: Curves.ease,
-          margin: const EdgeInsets.symmetric(vertical: 20),
+          margin: EdgeInsets.symmetric(vertical: 20),
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
           decoration: BoxDecoration(
             color: !completed ? color : kSlateGray.withOpacity(0.5),

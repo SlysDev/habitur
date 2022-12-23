@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/habit.dart';
@@ -17,11 +18,15 @@ class HabitManager extends ChangeNotifier {
 
   void addHabit(Habit habit) {
     _habits.add(habit);
-    notifyListeners();
+    updateHabits();
   }
 
   void removeHabit(int index) {
     _habits.removeAt(index);
+    updateHabits();
+  }
+
+  void updateHabits() {
     notifyListeners();
   }
 
@@ -35,7 +40,7 @@ class HabitManager extends ChangeNotifier {
         return;
       }
     });
-    notifyListeners();
+    updateHabits();
   }
 
   void resetWeeklyHabits() {
@@ -57,7 +62,7 @@ class HabitManager extends ChangeNotifier {
         return;
       }
     });
-    notifyListeners();
+    updateHabits();
   }
 
   bool checkDailyHabits() {

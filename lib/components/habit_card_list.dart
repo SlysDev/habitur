@@ -26,18 +26,21 @@ class HabitCardList extends StatelessWidget {
                                   habitManager.habits[index].requiredCompletions
                               ? true
                               : false,
-                          onDismissed: (direction) {
+                          onDismissed: (context) {
                             habitManager.removeHabit(index);
+                            habitManager.updateHabits();
                           },
                           title: habitManager.habits[index].title,
                           onLongPress: () {
                             habitManager.habits[index].decrementCompletion();
+                            habitManager.updateHabits();
                           },
                           onTap: () {
                             if (habitManager.habits[index].completionsToday !=
                                 habitManager
                                     .habits[index].requiredCompletions) {
                               habitManager.habits[index].incrementCompletion();
+                              habitManager.updateHabits();
                             }
                           },
                           color: habitManager.habits[index].color)

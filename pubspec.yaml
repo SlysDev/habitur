@@ -41,6 +41,8 @@ dependencies:
     percent_indicator: ^4.2.2
     workmanager: ^0.5.0
     shared_preferences: ^2.0.15
+    hive: ^2.2.3
+    flutter_slidable: ^2.0.0
 
 dev_dependencies:
     flutter_test:

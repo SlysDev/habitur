@@ -15,6 +15,7 @@ class Database extends ChangeNotifier {
       'username': username,
       'email': email,
       'uid': uid,
+      'habits': [],
     });
     return;
   }
@@ -29,15 +30,15 @@ class Database extends ChangeNotifier {
     return _auth.currentUser;
   }
 
-  get habitCatalogue {
-    return _firestore.collection('habitCatalogue');
-  }
-
   void addHabit(Habit habit) {
     users.doc(_auth.currentUser!.uid.toString()).collection('habits').add({
       'title': habit.title,
       'category': habit.category,
       'streak': 0,
     });
+  }
+
+  void uploadHabits() {
+    //// TODO: Upload hive's storage of the habit list to Firebase  <22-12-22, slys> //
   }
 }
