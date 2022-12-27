@@ -15,6 +15,7 @@ import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:workmanager/workmanager.dart';
 // Providers
 import 'providers/user_data.dart';
@@ -40,6 +41,8 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await Hive.initFlutter();
+  await Hive.openBox("Habit_Database");
   Workmanager().registerPeriodicTask(
     "1",
     "testReset",

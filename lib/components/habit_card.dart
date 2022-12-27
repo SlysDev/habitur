@@ -12,6 +12,7 @@ class HabitCard extends StatelessWidget {
   double progress;
   bool completed;
   void Function(BuildContext) onDismissed;
+  void Function(BuildContext) onEdit;
   HabitCard({
     required this.title,
     required this.progress,
@@ -20,6 +21,7 @@ class HabitCard extends StatelessWidget {
     required this.color,
     required this.completed,
     required this.onDismissed,
+    required this.onEdit,
   });
 
   @override
@@ -38,13 +40,14 @@ class HabitCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               label: 'Delete',
             ),
-            SlidableAction(
-              onPressed: (context) {},
-              backgroundColor: Colors.blue,
-              icon: Icons.edit,
-              borderRadius: BorderRadius.circular(20),
-              label: 'Edit',
-            ),
+            // TODO: Add editing functionality  <23-12-22, slys> //
+            // SlidableAction(
+            //   onPressed: onEdit,
+            //   backgroundColor: Colors.blue,
+            //   icon: Icons.edit,
+            //   borderRadius: BorderRadius.circular(20),
+            //   label: 'Edit',
+            // ),
           ],
         ),
         child: AnimatedContainer(

@@ -16,7 +16,7 @@ class WelcomeScreen extends StatelessWidget {
             kHabiturLogo,
             Text(
               'Habitur',
-              style: kTitleTextStyle,
+              style: kTitleTextStyle.copyWith(fontSize: 64),
             ),
             SizedBox(
               height: 20,

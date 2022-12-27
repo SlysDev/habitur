@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/habit.dart';
+import 'database.dart';
 import 'dart:collection';
 
 class HabitManager extends ChangeNotifier {
-  final List<Habit> _habits = [];
+  List<Habit> _habits = [];
   late String weekDay;
   late String date;
   void getDay() {
@@ -18,15 +20,21 @@ class HabitManager extends ChangeNotifier {
 
   void addHabit(Habit habit) {
     _habits.add(habit);
-    updateHabits();
+    notifyListeners();
+  }
+
+  void loadHabits(habitList) {
+    _habits = habitList;
+    notifyListeners();
   }
 
   void removeHabit(int index) {
     _habits.removeAt(index);
-    updateHabits();
+    notifyListeners();
   }
 
-  void updateHabits() {
+  void updateHabits(context) {
+    Provider.of<Database>(context, listen: false).uploadHabits(context);
     notifyListeners();
   }
 
@@ -40,7 +48,7 @@ class HabitManager extends ChangeNotifier {
         return;
       }
     });
-    updateHabits();
+    notifyListeners();
   }
 
   void resetWeeklyHabits() {
@@ -62,7 +70,6 @@ class HabitManager extends ChangeNotifier {
         return;
       }
     });
-    updateHabits();
   }
 
   bool checkDailyHabits() {

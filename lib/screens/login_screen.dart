@@ -62,6 +62,8 @@ class LoginScreen extends StatelessWidget {
                     final newUser = await _auth.signInWithEmailAndPassword(
                         email: email, password: password);
                     if (newUser != null) {
+                      Provider.of<Database>(context, listen: false)
+                          .loadData(context);
                       Navigator.popAndPushNamed(context, 'home_screen');
                     }
                   } catch (e) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
+import '../components/rounded_tile.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
@@ -402,12 +403,13 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                           .addHabit(
                         Habit(
                             title: habitTitle,
-                            category: '',
                             dateCreated: DateTime.now(),
                             resetPeriod: selectedPeriod,
                             requiredDatesOfCompletion: daysActive,
                             requiredCompletions: habitCompletions),
                       );
+                      Provider.of<HabitManager>(context, listen: false)
+                          .updateHabits(context);
                       print(daysActive);
                       Navigator.pop(context);
                     },
@@ -417,36 +419,6 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class RoundedTile extends StatelessWidget {
-  final Widget child;
-  final void Function() onTap;
-  final Color color;
-  final EdgeInsets padding;
-  const RoundedTile(
-      {required this.color,
-      required this.child,
-      required this.onTap,
-      this.padding = const EdgeInsets.all(10)});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: EdgeInsets.all(2),
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: color,
-          ),
-          child: child,
         ),
       ),
     );

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitur/components/navbar.dart';
+import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/providers/user_data.dart';
