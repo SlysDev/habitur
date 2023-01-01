@@ -50,7 +50,7 @@ Map<int, Color> colorCodes = {
 MaterialColor kMaterialDarkBlueColor = MaterialColor(0xff01147f, colorCodes);
 
 const kHabiturLogo = Image(
-  image: AssetImage('assets/images/habitur-logo-transparent.png'),
+  image: AssetImage('assets/images/logo.png'),
   width: 200,
 );
 

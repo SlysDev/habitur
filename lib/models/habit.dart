@@ -8,7 +8,7 @@ class Habit {
   int proficiencyRating = 0;
   int streak = 0;
   int requiredCompletions;
-  int completionsToday;
+  int completionsToday = 0;
   int totalCompletions = 0;
   List requiredDatesOfCompletion = [];
   String resetPeriod;
@@ -34,8 +34,6 @@ class Habit {
       {required this.title,
       required this.dateCreated,
       required this.resetPeriod,
-      this.completionsToday = 0,
-      // this.lastSeen,
       this.requiredDatesOfCompletion = const [],
       this.requiredCompletions = 1});
 }

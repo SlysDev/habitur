@@ -35,8 +35,8 @@ class Database extends ChangeNotifier {
   void loadData(context) async {
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
-    CollectionReference habitsReference = userReference.collection('habits');
-    QuerySnapshot habitsSnapshot = await habitsReference.get();
+    CollectionReference _habitsReference = userReference.collection('habits');
+    QuerySnapshot habitsSnapshot = await _habitsReference.get();
 
     // Get data from docs and convert map to List
     final habitDocs = habitsSnapshot.docs;
@@ -48,12 +48,10 @@ class Database extends ChangeNotifier {
           resetPeriod: habit.get('resetPeriod'),
           // Converts timestamp to DateTime
           dateCreated: habit.get('dateCreated').toDate(),
-          completionsToday: habit.get('completionsToday'),
           requiredDatesOfCompletion: habit.get('requiredDatesOfCompletion'),
           requiredCompletions: habit.get('requiredCompletions'));
       habitList.add(loadedHabit);
     }
-    print(habitList);
     Provider.of<HabitManager>(context, listen: false).loadHabits(habitList);
     print('data loaded.');
   }
@@ -76,7 +74,6 @@ class Database extends ChangeNotifier {
         'resetPeriod': habit.resetPeriod,
         'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
         'requiredCompletions': habit.requiredCompletions,
-        'lastSeen': habit.lastSeen,
       });
     }
     print('uploaded to database.');

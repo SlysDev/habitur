@@ -13,23 +13,12 @@ import '../components/home_greeting_header.dart';
 import 'package:habitur/constants.dart';
 import '../components/habit_card_list.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   bool isOnline;
   HomeScreen({this.isOnline = true});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
   final _firestore = FirebaseFirestore.instance;
 
   @override
-  void initState() {
-    Provider.of<Database>(context, listen: false).loadData(context);
-    super.initState();
-  }
-
   Widget build(BuildContext context) {
     return Consumer<HabitManager>(
       builder: (context, habitManager, child) {
