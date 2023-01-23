@@ -45,7 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 HomeGreetingHeader(),
-                HabitCardList(),
+                HabitCardList(
+                  // Passes network status to card list
+                  isOnline: widget.isOnline,
+                ),
               ],
             ),
           ),

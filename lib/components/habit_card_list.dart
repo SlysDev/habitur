@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class HabitCardList extends StatelessWidget {
-  HabitCardList({context});
+  bool isOnline;
+  HabitCardList({context, this.isOnline = true});
   @override
   Widget build(BuildContext context) {
     return Consumer<HabitManager>(builder: (context, habitManager, child) {
@@ -15,7 +16,9 @@ class HabitCardList extends StatelessWidget {
           width: double.infinity,
           child: ListView.builder(
               itemBuilder: (context, index) {
-                return habitManager.habits[index].requiredDatesOfCompletion
+                habitManager.sortHabits();
+                return habitManager
+                        .sortedHabits[index].requiredDatesOfCompletion
                         .contains(DateFormat('EEEE').format(DateTime.now()))
                     ? HabitCard(
                         progress: habitManager.habits[index].completionsToday /

@@ -8,6 +8,7 @@ import 'dart:collection';
 
 class HabitManager extends ChangeNotifier {
   List<Habit> _habits = [];
+  late List<Habit> _sortedHabits;
   late String weekDay;
   late String date;
   void getDay() {
@@ -18,9 +19,24 @@ class HabitManager extends ChangeNotifier {
     return UnmodifiableListView(_habits);
   }
 
+  UnmodifiableListView<Habit> get sortedHabits {
+    return UnmodifiableListView(_sortedHabits);
+  }
+
   void addHabit(Habit habit) {
     _habits.add(habit);
     notifyListeners();
+  }
+
+  void sortHabits() {
+    _sortedHabits = _habits;
+    // Sorts the habits by urgency
+    _sortedHabits.sort(((Habit a, Habit b) =>
+        b.resetPeriod == 'Daily' && a.resetPeriod == 'Weekly' ||
+                b.resetPeriod == 'Daily' && a.resetPeriod == 'Monthly' ||
+                b.resetPeriod == 'Weekly' && a.resetPeriod == 'Monthly'
+            ? 1
+            : 0));
   }
 
   void loadHabits(habitList) {
@@ -35,6 +51,7 @@ class HabitManager extends ChangeNotifier {
 
   void updateHabits(context) {
     Provider.of<Database>(context, listen: false).uploadHabits(context);
+    sortHabits();
     notifyListeners();
   }
 

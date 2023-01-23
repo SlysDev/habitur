@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/local_storage.dart';
 import 'package:habitur/providers/login_registration_state.dart';
 import 'package:habitur/screens/statistics_screen.dart';
 import 'constants.dart';
@@ -69,6 +70,8 @@ class Habitur extends StatelessWidget {
               create: (context) => LoadingData()),
           ChangeNotifierProvider<SettingsData>(
               create: (context) => SettingsData()),
+          ChangeNotifierProvider<LocalStorage>(
+              create: (context) => LocalStorage()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
