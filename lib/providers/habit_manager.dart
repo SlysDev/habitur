@@ -62,6 +62,7 @@ class HabitManager extends ChangeNotifier {
         if (DateFormat('d').format(element.lastSeen) !=
             DateFormat('d').format(DateTime.now())) {
           element.resetHabitCompletions();
+          element.lastSeen = DateTime.now();
         }
       } else {
         return;

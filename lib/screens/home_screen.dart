@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     Provider.of<Database>(context, listen: false).loadData(context);
+    Provider.of<HabitManager>(context, listen: false).resetDailyHabits();
     super.initState();
   }
 
