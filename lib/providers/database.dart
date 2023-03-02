@@ -50,6 +50,7 @@ class Database extends ChangeNotifier {
           dateCreated: habit.get('dateCreated').toDate(),
           completionsToday: habit.get('completionsToday'),
           requiredDatesOfCompletion: habit.get('requiredDatesOfCompletion'),
+          lastSeen: habit.get('lastSeen').toDate(),
           requiredCompletions: habit.get('requiredCompletions'));
       habitList.add(loadedHabit);
     }

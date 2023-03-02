@@ -49,6 +49,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Passes network status to card list
                   isOnline: widget.isOnline,
                 ),
+                ElevatedButton(
+                    onPressed: () {
+                      Provider.of<Database>(context, listen: false)
+                          .loadData(context);
+                    },
+                    child: Text('loadData()'))
               ],
             ),
           ),

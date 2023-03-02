@@ -56,11 +56,13 @@ class HabitManager extends ChangeNotifier {
   }
 
   void resetDailyHabits() {
-    print(_habits);
     _habits.forEach((element) {
       if (element.resetPeriod == 'Daily') {
-        element.resetHabitCompletions();
-        element.completionsToday = 0;
+        // If the task was not created today, make it incomplete
+        if (DateFormat('d').format(element.lastSeen) !=
+            DateFormat('d').format(DateTime.now())) {
+          element.resetHabitCompletions();
+        }
       } else {
         return;
       }
@@ -82,11 +84,16 @@ class HabitManager extends ChangeNotifier {
   void resetMonthlyHabits() {
     _habits.forEach((element) {
       if (element.resetPeriod == 'Monthly') {
-        element.resetHabitCompletions();
+        // If the task was not created this month, make it incomplete
+        if (DateFormat('MMMM').format(element.dateCreated) !=
+            DateFormat('MMMM').format(DateTime.now())) {
+          element.resetHabitCompletions();
+        }
       } else {
         return;
       }
     });
+    notifyListeners();
   }
 
   bool checkDailyHabits() {

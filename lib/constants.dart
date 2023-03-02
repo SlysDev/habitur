@@ -6,6 +6,7 @@ const kSubHeadingTextStyle = TextStyle(
   fontWeight: FontWeight.bold,
   color: kNeutralBlue,
 );
+
 const kHeadingTextStyle = TextStyle(
   fontSize: 26,
   fontWeight: FontWeight.bold,

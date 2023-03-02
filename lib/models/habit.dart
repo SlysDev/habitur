@@ -34,8 +34,9 @@ class Habit {
       {required this.title,
       required this.dateCreated,
       required this.resetPeriod,
+      this.lastCompleted = '',
       this.completionsToday = 0,
-      // this.lastSeen,
+      required this.lastSeen,
       this.requiredDatesOfCompletion = const [],
       this.requiredCompletions = 1});
 }

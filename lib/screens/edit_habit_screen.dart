@@ -422,6 +422,7 @@ class _EditHabitDialogState extends State<EditHabitDialog> {
                                 title: habitTitle,
                                 dateCreated: DateTime.now(),
                                 resetPeriod: selectedPeriod,
+                                lastSeen: DateTime.now(),
                                 requiredDatesOfCompletion: daysActive,
                                 requiredCompletions: habitCompletions),
                           );
