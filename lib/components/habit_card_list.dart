@@ -20,48 +20,65 @@ class HabitCardList extends StatelessWidget {
                 return habitManager
                         .sortedHabits[index].requiredDatesOfCompletion
                         .contains(DateFormat('EEEE').format(DateTime.now()))
-                    ? HabitCard(
-                        progress: habitManager.habits[index].completionsToday /
-                            habitManager.habits[index].requiredCompletions,
-                        completed: habitManager
-                                    .habits[index].completionsToday ==
-                                habitManager.habits[index].requiredCompletions
-                            ? true
-                            : false,
-                        onDismissed: (context) {
-                          habitManager.removeHabit(index);
-                          habitManager.updateHabits(context);
-                        },
-                        onEdit: (context) {
-                          showDialog(
-                            context: context,
-                            barrierColor: Colors.white,
-                            builder: (BuildContext context) {
-                              return Card(
-                                child: EditHabitDialog(habitIndex: index),
-                              );
-                            },
-                          );
-                          // showModalBottomSheet(
-                          //     context: context,
-                          //     isScrollControlled: true,
-                          //     builder: (context) => EditHabitScreen(
-                          //           habitIndex: index,
-                          //         ));
-                        },
-                        title: habitManager.habits[index].title,
-                        onLongPress: () {
-                          habitManager.habits[index].decrementCompletion();
-                          habitManager.updateHabits(context);
-                        },
-                        onTap: () {
-                          if (habitManager.habits[index].completionsToday !=
-                              habitManager.habits[index].requiredCompletions) {
-                            habitManager.habits[index].incrementCompletion();
-                            habitManager.updateHabits(context);
-                          }
-                        },
-                        color: habitManager.habits[index].color)
+                    ? Column(
+                        children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          HabitCard(
+                              progress:
+                                  habitManager.habits[index].completionsToday /
+                                      habitManager
+                                          .habits[index].requiredCompletions,
+                              completed:
+                                  habitManager.habits[index].completionsToday ==
+                                          habitManager
+                                              .habits[index].requiredCompletions
+                                      ? true
+                                      : false,
+                              onDismissed: (context) {
+                                habitManager.removeHabit(index);
+                                habitManager.updateHabits(context);
+                              },
+                              onEdit: (context) {
+                                showDialog(
+                                  context: context,
+                                  barrierColor: Colors.white,
+                                  builder: (BuildContext context) {
+                                    return Card(
+                                      child: EditHabitDialog(habitIndex: index),
+                                    );
+                                  },
+                                );
+                                // showModalBottomSheet(
+                                //     context: context,
+                                //     isScrollControlled: true,
+                                //     builder: (context) => EditHabitScreen(
+                                //           habitIndex: index,
+                                //         ));
+                              },
+                              title: habitManager.habits[index].title,
+                              onLongPress: () {
+                                habitManager.habits[index]
+                                    .decrementCompletion();
+                                habitManager.updateHabits(context);
+                              },
+                              onTap: () {
+                                if (habitManager
+                                        .habits[index].completionsToday !=
+                                    habitManager
+                                        .habits[index].requiredCompletions) {
+                                  habitManager.habits[index]
+                                      .incrementCompletion();
+                                  habitManager.updateHabits(context);
+                                }
+                              },
+                              color: habitManager.habits[index].color),
+                          SizedBox(
+                            height: 20,
+                          )
+                        ],
+                      )
                     : Container();
               },
               itemCount: habitManager.habits.length),

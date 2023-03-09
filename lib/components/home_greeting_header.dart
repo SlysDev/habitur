@@ -26,9 +26,9 @@ class HomeGreetingHeader extends StatelessWidget {
         'Today is ' +
             DateFormat('EEEE,').format(DateTime.now()) +
             ' ' +
-            DateFormat('d').format(DateTime.now()) +
+            DateFormat('M').format(DateTime.now()) +
             '/' +
-            DateFormat('M').format(DateTime.now()),
+            DateFormat('d').format(DateTime.now()),
       ),
       const SizedBox(
         height: 80,

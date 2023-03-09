@@ -50,37 +50,40 @@ class HabitCard extends StatelessWidget {
             // ),
           ],
         ),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.ease,
-          margin: EdgeInsets.symmetric(vertical: 20),
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-          decoration: BoxDecoration(
-            color: !completed ? color : kSlateGray.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            children: [
-              Text(
-                title,
-                style: kHeadingTextStyle.copyWith(color: Colors.white),
+        child: Column(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.ease,
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+              decoration: BoxDecoration(
+                color: !completed ? color : kSlateGray.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(20),
               ),
-              const SizedBox(
-                height: 15,
+              child: Column(
+                children: [
+                  Text(
+                    title,
+                    style: kHeadingTextStyle.copyWith(color: Colors.white),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  LinearPercentIndicator(
+                    percent: progress,
+                    barRadius: const Radius.circular(30),
+                    lineHeight: 12.0,
+                    animation: true,
+                    animationDuration: 600,
+                    curve: Curves.easeInOut,
+                    animateFromLastPercent: true,
+                    progressColor: Colors.white,
+                    backgroundColor: Colors.white24,
+                  ),
+                ],
               ),
-              LinearPercentIndicator(
-                percent: progress,
-                barRadius: const Radius.circular(30),
-                lineHeight: 12.0,
-                animation: true,
-                animationDuration: 600,
-                curve: Curves.easeInOut,
-                animateFromLastPercent: true,
-                progressColor: Colors.white,
-                backgroundColor: Colors.white24,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
