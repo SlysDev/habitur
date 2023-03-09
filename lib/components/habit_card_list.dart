@@ -41,21 +41,12 @@ class HabitCardList extends StatelessWidget {
                                 habitManager.updateHabits(context);
                               },
                               onEdit: (context) {
-                                showDialog(
-                                  context: context,
-                                  barrierColor: Colors.white,
-                                  builder: (BuildContext context) {
-                                    return Card(
-                                      child: EditHabitDialog(habitIndex: index),
-                                    );
-                                  },
-                                );
-                                // showModalBottomSheet(
-                                //     context: context,
-                                //     isScrollControlled: true,
-                                //     builder: (context) => EditHabitScreen(
-                                //           habitIndex: index,
-                                //         ));
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => EditHabitScreen(
+                                              habitIndex: index,
+                                            )));
                               },
                               title: habitManager.habits[index].title,
                               onLongPress: () {

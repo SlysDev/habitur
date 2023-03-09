@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/local_storage.dart';
-import 'package:habitur/providers/login_registration_state.dart';
-import 'package:habitur/screens/statistics_screen.dart';
 import 'constants.dart';
 // Screens
 import 'screens/welcome_screen.dart';
@@ -10,6 +6,8 @@ import 'screens/register_screen.dart';
 import "screens/login_screen.dart";
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/edit_habit_screen.dart';
+import 'screens/statistics_screen.dart';
 // Packages
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -23,6 +21,9 @@ import 'providers/user_data.dart';
 import 'providers/settings_data.dart';
 import 'providers/loading_data.dart';
 import 'providers/database.dart';
+import 'providers/habit_manager.dart';
+import 'providers/local_storage.dart';
+import 'providers/login_registration_state.dart';
 
 // Background Tasks
 void callbackDispatcher() {

@@ -41,13 +41,13 @@ class HabitCard extends StatelessWidget {
               label: 'Delete',
             ),
             // TODO: Add editing functionality  <23-12-22, slys> //
-            // SlidableAction(
-            //   onPressed: onEdit,
-            //   backgroundColor: Colors.blue,
-            //   icon: Icons.edit,
-            //   borderRadius: BorderRadius.circular(20),
-            //   label: 'Edit',
-            // ),
+            SlidableAction(
+              onPressed: onEdit,
+              backgroundColor: Colors.blue,
+              icon: Icons.edit,
+              borderRadius: BorderRadius.circular(20),
+              label: 'Edit',
+            ),
           ],
         ),
         child: Column(
