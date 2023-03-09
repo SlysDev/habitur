@@ -74,7 +74,13 @@ class HabitManager extends ChangeNotifier {
   void resetWeeklyHabits() {
     _habits.forEach((element) {
       if (element.resetPeriod == 'Weekly') {
-        element.resetHabitCompletions();
+        // If its monday but its not the same day as when the habit was last seen, reset
+        if (DateFormat('d').format(element.lastSeen) == 'Monday' &&
+            DateFormat('d').format(DateTime.now()) !=
+                DateFormat('d').format(element.lastSeen)) {
+          element.resetHabitCompletions();
+          element.lastSeen = DateTime.now();
+        }
       } else {
         return;
       }
@@ -86,9 +92,10 @@ class HabitManager extends ChangeNotifier {
     _habits.forEach((element) {
       if (element.resetPeriod == 'Monthly') {
         // If the task was not created this month, make it incomplete
-        if (DateFormat('MMMM').format(element.dateCreated) !=
-            DateFormat('MMMM').format(DateTime.now())) {
+        if (DateFormat('m').format(element.lastSeen) !=
+            DateFormat('m').format(DateTime.now())) {
           element.resetHabitCompletions();
+          element.lastSeen = DateTime.now();
         }
       } else {
         return;
