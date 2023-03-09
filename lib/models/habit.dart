@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/providers/user_data.dart';
 import 'package:intl/intl.dart';
 
 class Habit {
@@ -16,12 +18,22 @@ class Habit {
   var lastCompleted;
   DateTime lastSeen = DateTime.now();
   Color color = kDarkBlue;
-  void incrementCompletion() {
+  void incrementCompletion(context) {
     completionsToday++;
     totalCompletions++;
+    if (completionsToday == requiredCompletions) {
+      isCompleted = true;
+      Provider.of<UserData>(context, listen: false).addFullHabitCompletion();
+      Provider.of<UserData>(context, listen: false).addHabiturRating();
+    }
   }
 
-  void decrementCompletion() {
+  void decrementCompletion(context) {
+    if (completionsToday == requiredCompletions) {
+      isCompleted = false;
+      Provider.of<UserData>(context, listen: false).removeFullHabitCompletion();
+      Provider.of<UserData>(context, listen: false).removeHabiturRating();
+    }
     completionsToday--;
     totalCompletions--;
   }

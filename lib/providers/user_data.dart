@@ -19,6 +19,22 @@ class UserData extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addHabiturRating({int amount = 10}) {
+    habiturRating += amount;
+  }
+
+  void removeHabiturRating({int amount = 10}) {
+    habiturRating -= amount;
+  }
+
+  void addFullHabitCompletion() {
+    totalHabitsCompleted++;
+  }
+
+  void removeFullHabitCompletion() {
+    totalHabitsCompleted--;
+  }
+
   UnmodifiableListView<Habit> get userHabits {
     return UnmodifiableListView(_userHabits);
   }

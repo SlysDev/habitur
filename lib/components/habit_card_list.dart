@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_card.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/user_data.dart';
 import 'package:habitur/screens/edit_habit_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -51,7 +52,7 @@ class HabitCardList extends StatelessWidget {
                               title: habitManager.habits[index].title,
                               onLongPress: () {
                                 habitManager.habits[index]
-                                    .decrementCompletion();
+                                    .decrementCompletion(context);
                                 habitManager.updateHabits(context);
                               },
                               onTap: () {
@@ -60,7 +61,7 @@ class HabitCardList extends StatelessWidget {
                                     habitManager
                                         .habits[index].requiredCompletions) {
                                   habitManager.habits[index]
-                                      .incrementCompletion();
+                                      .incrementCompletion(context);
                                   habitManager.updateHabits(context);
                                 }
                               },

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/providers/user_data.dart';
 import 'package:intl/intl.dart';
 
 class HomeGreetingHeader extends StatelessWidget {
@@ -33,6 +35,10 @@ class HomeGreetingHeader extends StatelessWidget {
       const SizedBox(
         height: 80,
       ),
+      Text(
+        Provider.of<UserData>(context).habiturRating.toString(),
+        style: kTitleTextStyle,
+      )
     ]);
   }
 }
