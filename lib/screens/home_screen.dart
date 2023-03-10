@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
@@ -26,8 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    Provider.of<Database>(context, listen: false).loadData(context);
-    Provider.of<HabitManager>(context, listen: false).resetDailyHabits();
+    if (widget.isOnline) {
+      Provider.of<Database>(context, listen: false).loadData(context);
+      Provider.of<HabitManager>(context, listen: false).resetDailyHabits();
+    }
     super.initState();
   }
 
@@ -50,12 +53,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Passes network status to card list
                   isOnline: widget.isOnline,
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      Provider.of<Database>(context, listen: false)
-                          .loadData(context);
-                    },
-                    child: Text('loadData()'))
+                AsideButton(
+                  onPressed: () {
+                    Provider.of<Database>(context, listen: false)
+                        .loadData(context);
+                  },
+                  text: 'load data',
+                ),
+                SizedBox(
+                  height: 20,
+                )
               ],
             ),
           ),

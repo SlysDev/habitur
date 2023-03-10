@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/providers/leveling_system.dart';
 import 'constants.dart';
 // Screens
 import 'screens/welcome_screen.dart';
@@ -60,6 +61,8 @@ class Habitur extends StatelessWidget {
               create: (context) => SettingsData()),
           ChangeNotifierProvider<LocalStorage>(
               create: (context) => LocalStorage()),
+          ChangeNotifierProvider<LevelingSystem>(
+              create: (context) => LevelingSystem()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

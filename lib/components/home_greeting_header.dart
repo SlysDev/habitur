@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/components/rounded_progress_bar.dart';
+import 'package:habitur/providers/leveling_system.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/providers/user_data.dart';
@@ -35,10 +38,42 @@ class HomeGreetingHeader extends StatelessWidget {
       const SizedBox(
         height: 80,
       ),
-      Text(
-        Provider.of<UserData>(context).habiturRating.toString(),
-        style: kTitleTextStyle,
-      )
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Container(width: 60, child: kHabiturLogo),
+          // Container(
+          //   child: Text(
+          //     Provider.of<LevelingSystem>(context).userLevel.toString(),
+          //     style: kTitleTextStyle,
+          //   ),
+          // ),
+          CircularPercentIndicator(
+            radius: 60,
+            lineWidth: 20,
+            progressColor: kDarkBlue,
+            curve: Curves.ease,
+            circularStrokeCap: CircularStrokeCap.round,
+            percent: Provider.of<LevelingSystem>(context).habiturRating /
+                Provider.of<LevelingSystem>(context).levelUpRequirement,
+            animation: true,
+            animateFromLastPercent: true,
+            center: Container(
+              child: Text(
+                Provider.of<LevelingSystem>(context).userLevel.toString(),
+                style: kTitleTextStyle,
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+        ],
+      ),
+      const SizedBox(
+        height: 20,
+      ),
     ]);
   }
 }

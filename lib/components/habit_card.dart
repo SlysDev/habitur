@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:habitur/constants.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
+import '../constants.dart';
+import './rounded_progress_bar.dart';
 
 class HabitCard extends StatelessWidget {
   String title;
@@ -69,42 +69,11 @@ class HabitCard extends StatelessWidget {
                   const SizedBox(
                     height: 15,
                   ),
-                  LinearPercentIndicator(
-                    percent: progress,
-                    barRadius: const Radius.circular(30),
-                    lineHeight: 12.0,
-                    animation: true,
-                    animationDuration: 600,
-                    curve: Curves.easeInOut,
-                    animateFromLastPercent: true,
-                    progressColor: Colors.white,
-                    backgroundColor: Colors.white24,
-                  ),
+                  RoundedProgressBar(progress: progress),
                 ],
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class RoundedWhiteCheckbox extends StatelessWidget {
-  bool value;
-  RoundedWhiteCheckbox({required this.value});
-  @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      fit: FlexFit.tight,
-      child: Checkbox(
-        fillColor: MaterialStateProperty.all(Colors.white),
-        value: value,
-        onChanged: null,
-        checkColor: Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-          side: const BorderSide(width: 20, color: Colors.white),
         ),
       ),
     );

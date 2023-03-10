@@ -14,17 +14,8 @@ class UserData extends ChangeNotifier {
   int totalHabitsCompleted = 0;
   late DocumentReference userDoc;
   final List<Habit> _userHabits = [];
-  int habiturRating = 100;
   void updateUserData() {
     notifyListeners();
-  }
-
-  void addHabiturRating({int amount = 10}) {
-    habiturRating += amount;
-  }
-
-  void removeHabiturRating({int amount = 10}) {
-    habiturRating -= amount;
   }
 
   void addFullHabitCompletion() {

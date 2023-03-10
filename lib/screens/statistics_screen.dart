@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/navbar.dart';
+import 'package:habitur/components/rounded_progress_bar.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/providers/leveling_system.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 
 class StatisticsScreen extends StatelessWidget {
   @override
@@ -18,18 +21,19 @@ class StatisticsScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          CircularPercentIndicator(
-            lineWidth: 15,
-            progressColor: kSlateGray,
-            backgroundColor: Colors.transparent,
-            animateFromLastPercent: true,
-            circularStrokeCap: CircularStrokeCap.round,
-            radius: 80,
-            percent: .6,
-            curve: Curves.ease,
-            center: Text(
-              '9',
-              style: kHeadingTextStyle.copyWith(fontSize: 50),
+          Center(
+            child: Text(
+              Provider.of<LevelingSystem>(context).userLevel.toString(),
+              style: kTitleTextStyle,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(20),
+            child: RoundedProgressBar(
+              color: kDarkBlue,
+              progress: Provider.of<LevelingSystem>(context).habiturRating /
+                  Provider.of<LevelingSystem>(context).levelUpRequirement,
             ),
           ),
         ],
