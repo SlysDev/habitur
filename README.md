@@ -1,16 +1,13 @@
-# habitur
+# Habitur
 
-A new Flutter project.
+A habit tracker that promotes gradual, consistent, and shared growth.
 
-## Getting Started
+## Gradual Growth
 
-This project is a starting point for a Flutter application.
+Growth with Habitur is gradual, from completing a habit once a month, to once a week, to daily. We'll handle this for you with auto-growth, but you can disable this and easily manage the habit yourself. (coming soon)
 
-A few resources to get you started if this is your first Flutter project:
+## Consistency
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+The "consistency" of your growth will stem from your Habitur rating, a metric that nicely tracks your progress with your habits. The more consistent you are, the more Habitur rating you gain from each habit completion.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+You will be motivated to grow your Habitur rating, but more importantly, to grow yourself.
