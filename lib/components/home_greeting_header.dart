@@ -28,52 +28,57 @@ class HomeGreetingHeader extends StatelessWidget {
         height: 10,
       ),
       Text(
-        'Today is ' +
-            DateFormat('EEEE,').format(DateTime.now()) +
-            ' ' +
-            DateFormat('M').format(DateTime.now()) +
-            '/' +
-            DateFormat('d').format(DateTime.now()),
+        'Today is ${DateFormat('EEEE,').format(DateTime.now())} ${DateFormat('M').format(DateTime.now())}/${DateFormat('d').format(DateTime.now())}',
       ),
       const SizedBox(
-        height: 80,
+        height: 40,
       ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Container(width: 60, child: kHabiturLogo),
-          // Container(
-          //   child: Text(
-          //     Provider.of<LevelingSystem>(context).userLevel.toString(),
-          //     style: kTitleTextStyle,
-          //   ),
-          // ),
-          CircularPercentIndicator(
-            radius: 60,
-            lineWidth: 20,
-            progressColor: kDarkBlue,
-            curve: Curves.ease,
-            circularStrokeCap: CircularStrokeCap.round,
-            percent: Provider.of<LevelingSystem>(context).habiturRating /
-                Provider.of<LevelingSystem>(context).levelUpRequirement,
-            animation: true,
-            animateFromLastPercent: true,
-            center: Container(
-              child: Text(
-                Provider.of<LevelingSystem>(context).userLevel.toString(),
-                style: kTitleTextStyle,
-              ),
-            ),
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-        ],
+      Center(
+        child: Text(
+          Provider.of<LevelingSystem>(context).userLevel.toString(),
+          style: kTitleTextStyle,
+          textAlign: TextAlign.center,
+        ),
       ),
-      const SizedBox(
-        height: 20,
+      Container(
+        width: 300,
+        margin: const EdgeInsets.only(top: 20),
+        child: RoundedProgressBar(
+          color: kDarkBlue,
+          progress: Provider.of<LevelingSystem>(context).habiturRating /
+              Provider.of<LevelingSystem>(context).levelUpRequirement,
+        ),
       ),
+      // Row(
+      //   mainAxisAlignment: MainAxisAlignment.center,
+      //   crossAxisAlignment: CrossAxisAlignment.center,
+      //   children: [
+      //     // Container(width: 60, child: kHabiturLogo),
+      //     // Container(
+      //     //   child: Text(
+      //     //     Provider.of<LevelingSystem>(context).userLevel.toString(),
+      //     //     style: kTitleTextStyle,
+      //     //   ),
+      //     // ),
+      //     // CircularPercentIndicator(
+      //     //   radius: 60,
+      //     //   lineWidth: 20,
+      //     //   progressColor: kDarkBlue,
+      //     //   curve: Curves.ease,
+      //     //   circularStrokeCap: CircularStrokeCap.round,
+      //     //   percent: Provider.of<LevelingSystem>(context).habiturRating /
+      //     //       Provider.of<LevelingSystem>(context).levelUpRequirement,
+      //     //   animation: true,
+      //     //   animateFromLastPercent: true,
+      //     //   center: Container(
+      //     //     child: Text(
+      //     //       Provider.of<LevelingSystem>(context).userLevel.toString(),
+      //     //       style: kTitleTextStyle,
+      //     //     ),
+      //     //   ),
+      //     // ),
+      //   ],
+      // ),
     ]);
   }
 }

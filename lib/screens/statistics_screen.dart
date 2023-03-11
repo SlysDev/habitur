@@ -22,20 +22,42 @@ class StatisticsScreen extends StatelessWidget {
       body: Column(
         children: [
           Center(
-            child: Text(
-              Provider.of<LevelingSystem>(context).userLevel.toString(),
-              style: kTitleTextStyle,
-              textAlign: TextAlign.center,
+            child: Container(
+              margin: EdgeInsets.only(top: 60),
+              child: CircularPercentIndicator(
+                radius: 100,
+                lineWidth: 30,
+                progressColor: kDarkBlue,
+                curve: Curves.ease,
+                circularStrokeCap: CircularStrokeCap.round,
+                percent: Provider.of<LevelingSystem>(context).habiturRating /
+                    Provider.of<LevelingSystem>(context).levelUpRequirement,
+                animation: true,
+                animateFromLastPercent: true,
+                center: Container(
+                  child: Text(
+                    Provider.of<LevelingSystem>(context).userLevel.toString(),
+                    style: kTitleTextStyle,
+                  ),
+                ),
+              ),
             ),
           ),
-          Container(
-            margin: EdgeInsets.all(20),
-            child: RoundedProgressBar(
-              color: kDarkBlue,
-              progress: Provider.of<LevelingSystem>(context).habiturRating /
-                  Provider.of<LevelingSystem>(context).levelUpRequirement,
-            ),
-          ),
+          // Center(
+          //   child: Text(
+          //     Provider.of<LevelingSystem>(context).userLevel.toString(),
+          //     style: kTitleTextStyle,
+          //     textAlign: TextAlign.center,
+          //   ),
+          // ),
+          // Container(
+          //   margin: EdgeInsets.all(20),
+          //   child: RoundedProgressBar(
+          //     color: kDarkBlue,
+          //     progress: Provider.of<LevelingSystem>(context).habiturRating /
+          //         Provider.of<LevelingSystem>(context).levelUpRequirement,
+          //   ),
+          // ),
         ],
       ),
       bottomNavigationBar: NavBar(
