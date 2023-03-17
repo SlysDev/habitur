@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     if (widget.isOnline) {
       Provider.of<Database>(context, listen: false).loadData(context);
-      Provider.of<HabitManager>(context, listen: false).resetDailyHabits();
+      print('done');
     }
     super.initState();
   }
@@ -52,13 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 HabitCardList(
                   // Passes network status to card list
                   isOnline: widget.isOnline,
-                ),
-                AsideButton(
-                  onPressed: () {
-                    Provider.of<Database>(context, listen: false)
-                        .loadData(context);
-                  },
-                  text: 'load data',
                 ),
                 SizedBox(
                   height: 20,

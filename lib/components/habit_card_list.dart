@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_card.dart';
+import 'package:habitur/constants.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:habitur/screens/edit_habit_screen.dart';
@@ -15,65 +16,73 @@ class HabitCardList extends StatelessWidget {
       return Expanded(
         child: SizedBox(
           width: double.infinity,
-          child: ListView.builder(
-              itemBuilder: (context, index) {
-                habitManager.sortHabits();
-                return habitManager
-                        .sortedHabits[index].requiredDatesOfCompletion
-                        .contains(DateFormat('EEEE').format(DateTime.now()))
-                    ? Column(
-                        children: [
-                          SizedBox(
-                            height: 20,
-                          ),
-                          HabitCard(
-                              progress:
-                                  habitManager.habits[index].completionsToday /
-                                      habitManager
-                                          .habits[index].requiredCompletions,
-                              completed:
-                                  habitManager.habits[index].completionsToday ==
-                                          habitManager
-                                              .habits[index].requiredCompletions
-                                      ? true
-                                      : false,
-                              onDismissed: (context) {
-                                habitManager.removeHabit(index);
-                                habitManager.updateHabits(context);
-                              },
-                              onEdit: (context) {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => EditHabitScreen(
-                                              habitIndex: index,
-                                            )));
-                              },
-                              title: habitManager.habits[index].title,
-                              onLongPress: () {
-                                habitManager.habits[index]
-                                    .decrementCompletion(context);
-                                habitManager.updateHabits(context);
-                              },
-                              onTap: () {
-                                if (habitManager
-                                        .habits[index].completionsToday !=
+          child: RefreshIndicator(
+            backgroundColor: kDarkBlue,
+            color: Colors.white,
+            onRefresh: () async {
+              habitManager.resetDailyHabits();
+              Future.delayed(Duration(seconds: 1));
+            },
+            child: ListView.builder(
+                itemBuilder: (context, index) {
+                  habitManager.sortHabits();
+                  return habitManager
+                          .sortedHabits[index].requiredDatesOfCompletion
+                          .contains(DateFormat('EEEE').format(DateTime.now()))
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: 20,
+                            ),
+                            HabitCard(
+                                progress: habitManager
+                                        .habits[index].completionsToday /
                                     habitManager
-                                        .habits[index].requiredCompletions) {
-                                  habitManager.habits[index]
-                                      .incrementCompletion(context);
+                                        .habits[index].requiredCompletions,
+                                completed: habitManager
+                                            .habits[index].completionsToday ==
+                                        habitManager
+                                            .habits[index].requiredCompletions
+                                    ? true
+                                    : false,
+                                onDismissed: (context) {
+                                  habitManager.removeHabit(index);
                                   habitManager.updateHabits(context);
-                                }
-                              },
-                              color: habitManager.habits[index].color),
-                          SizedBox(
-                            height: 20,
-                          )
-                        ],
-                      )
-                    : Container();
-              },
-              itemCount: habitManager.habits.length),
+                                },
+                                onEdit: (context) {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => EditHabitScreen(
+                                                habitIndex: index,
+                                              )));
+                                },
+                                title: habitManager.habits[index].title,
+                                onLongPress: () {
+                                  habitManager.habits[index]
+                                      .decrementCompletion(context);
+                                  habitManager.updateHabits(context);
+                                },
+                                onTap: () {
+                                  if (habitManager
+                                          .habits[index].completionsToday !=
+                                      habitManager
+                                          .habits[index].requiredCompletions) {
+                                    habitManager.habits[index]
+                                        .incrementCompletion(context);
+                                    habitManager.updateHabits(context);
+                                  }
+                                },
+                                color: habitManager.habits[index].color),
+                            SizedBox(
+                              height: 20,
+                            )
+                          ],
+                        )
+                      : Container();
+                },
+                itemCount: habitManager.habits.length),
+          ),
         ),
       );
     });

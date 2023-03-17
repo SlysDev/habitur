@@ -54,8 +54,8 @@ class Database extends ChangeNotifier {
           requiredCompletions: habit.get('requiredCompletions'));
       habitList.add(loadedHabit);
     }
-    print(habitList);
     Provider.of<HabitManager>(context, listen: false).loadHabits(habitList);
+    Provider.of<HabitManager>(context, listen: false).resetDailyHabits();
     print('data loaded.');
   }
 

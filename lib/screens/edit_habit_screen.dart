@@ -426,7 +426,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                             .updateHabits(context);
                         Navigator.pop(context);
                       },
-                      child: const Text('Edit'),
+                      child: const Text('Update'),
                     ),
                   ],
                 ),
