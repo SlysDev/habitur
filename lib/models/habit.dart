@@ -10,13 +10,13 @@ class Habit {
   bool isCompleted = false;
   int proficiencyRating = 0;
   int streak = 0;
+  List<DateTime> daysCompleted = [];
   int requiredCompletions;
   int completionsToday;
   int totalCompletions;
   List requiredDatesOfCompletion = [];
   String resetPeriod;
   DateTime dateCreated;
-  var lastCompleted;
   DateTime lastSeen = DateTime.now();
   Color color = kDarkBlue;
   void incrementCompletion(context) {
@@ -27,6 +27,7 @@ class Habit {
       Provider.of<UserData>(context, listen: false).addFullHabitCompletion();
       Provider.of<LevelingSystem>(context, listen: false).addHabiturRating();
     }
+    daysCompleted.add(DateTime.now());
   }
 
   void decrementCompletion(context) {
@@ -51,7 +52,6 @@ class Habit {
       {required this.title,
       required this.dateCreated,
       required this.resetPeriod,
-      this.lastCompleted = '',
       this.completionsToday = 0,
       required this.lastSeen,
       this.totalCompletions = 0,
