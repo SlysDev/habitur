@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/leveling_system.dart';
+import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
 
 final _auth = FirebaseAuth.instance;
@@ -17,15 +19,15 @@ class Database extends ChangeNotifier {
       'username': username,
       'email': email,
       'uid': uid,
-      'habits': [],
     });
     return;
   }
 
-  get userData {
+  get userData async {
     String uid = _auth.currentUser!.uid.toString();
     DocumentReference userDoc = users.doc(uid);
-    return userDoc;
+    DocumentSnapshot userSnapshot = await userDoc.get();
+    return userSnapshot;
   }
 
   get currentUser {
@@ -37,6 +39,11 @@ class Database extends ChangeNotifier {
         users.doc(_auth.currentUser!.uid.toString());
     CollectionReference habitsReference = userReference.collection('habits');
     QuerySnapshot habitsSnapshot = await habitsReference.get();
+    DocumentSnapshot userSnapshot = await userReference.get();
+    Provider.of<LevelingSystem>(context, listen: false).habiturRating =
+        userSnapshot.get('habiturRating');
+    Provider.of<UserData>(context, listen: false).username =
+        userSnapshot.get('username');
 
     // Get data from docs and convert map to List
     final habitDocs = habitsSnapshot.docs;
@@ -60,9 +67,14 @@ class Database extends ChangeNotifier {
     print('data loaded.');
   }
 
-  void uploadHabits(context) async {
+  void uploadData(context) async {
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
+    userReference.update({
+      'habiturRating':
+          Provider.of<LevelingSystem>(context, listen: false).habiturRating
+    });
+
     // First clear the collection
     var habitsCollection = await userReference.collection('habits').get();
     for (var habitDoc in habitsCollection.docs) {

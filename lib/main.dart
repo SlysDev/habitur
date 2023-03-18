@@ -68,7 +68,7 @@ class Habitur extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             textTheme: GoogleFonts.ralewayTextTheme(),
-            primaryColor: kDarkBlue,
+            primaryColor: kMainBlue,
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ButtonStyle(
                   textStyle: MaterialStateProperty.all(
@@ -82,7 +82,7 @@ class Habitur extends StatelessWidget {
                   shadowColor: MaterialStateProperty.all(kSlateGray),
                   padding: MaterialStateProperty.all(
                       const EdgeInsets.symmetric(vertical: 20, horizontal: 40)),
-                  backgroundColor: MaterialStateProperty.all<Color>(kDarkBlue),
+                  backgroundColor: MaterialStateProperty.all<Color>(kMainBlue),
                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ))),

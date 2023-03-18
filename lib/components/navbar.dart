@@ -16,7 +16,7 @@ class NavBar extends StatelessWidget {
           NavItem(
             icon: Icon(
               Icons.home_filled,
-              color: currentPage == 'home' ? kDarkBlue : kSlateGray,
+              color: currentPage == 'home' ? kMainBlue : kSlateGray,
               size: 25,
             ),
             onPressed: () {
@@ -26,7 +26,7 @@ class NavBar extends StatelessWidget {
           NavItem(
             icon: Icon(
               Icons.bar_chart,
-              color: currentPage == 'statistics' ? kDarkBlue : kSlateGray,
+              color: currentPage == 'statistics' ? kMainBlue : kSlateGray,
             ),
             onPressed: () {
               if (currentPage == 'home') {
@@ -51,7 +51,7 @@ class NavBar extends StatelessWidget {
           NavItem(
             icon: Icon(
               Icons.store,
-              color: currentPage == 'marketplace' ? kDarkBlue : kSlateGray,
+              color: currentPage == 'marketplace' ? kMainBlue : kSlateGray,
               size: 25,
             ),
             onPressed: () {
@@ -65,7 +65,7 @@ class NavBar extends StatelessWidget {
           NavItem(
             icon: Icon(
               Icons.settings,
-              color: currentPage == 'settings' ? kDarkBlue : kSlateGray,
+              color: currentPage == 'settings' ? kMainBlue : kSlateGray,
             ),
             onPressed: () {
               if (currentPage == 'home') {

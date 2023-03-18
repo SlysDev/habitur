@@ -16,7 +16,7 @@ class SettingsScreen extends StatelessWidget {
             itemBuilder: (BuildContext context, index) {
               return SwitchListTile(
                 activeColor: kSlateGray,
-                activeTrackColor: kDarkBlue,
+                activeTrackColor: kMainBlue,
                 inactiveTrackColor: kSlateGray,
                 inactiveThumbColor: Colors.white,
                 visualDensity: VisualDensity.comfortable,

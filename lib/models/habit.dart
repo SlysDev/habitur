@@ -14,11 +14,12 @@ class Habit {
   int requiredCompletions;
   int completionsToday;
   int totalCompletions;
+  int highestStreak;
   List requiredDatesOfCompletion = [];
   String resetPeriod;
   DateTime dateCreated;
   DateTime lastSeen = DateTime.now();
-  Color color = kDarkBlue;
+  Color color = kMainBlue;
   void incrementCompletion(context) {
     completionsToday++;
     totalCompletions++;
@@ -26,6 +27,7 @@ class Habit {
       isCompleted = true;
       Provider.of<UserData>(context, listen: false).addFullHabitCompletion();
       Provider.of<LevelingSystem>(context, listen: false).addHabiturRating();
+      streak++;
     }
     daysCompleted.add(DateTime.now());
   }
@@ -38,6 +40,7 @@ class Habit {
       isCompleted = false;
       Provider.of<UserData>(context, listen: false).removeFullHabitCompletion();
       Provider.of<LevelingSystem>(context, listen: false).removeHabiturRating();
+      streak--;
     }
     completionsToday--;
     totalCompletions--;
@@ -45,6 +48,9 @@ class Habit {
 
   void resetHabitCompletions() {
     completionsToday = 0;
+    if (streak > highestStreak) {
+      highestStreak = streak;
+    }
     streak = 0;
   }
 
@@ -52,6 +58,8 @@ class Habit {
       {required this.title,
       required this.dateCreated,
       required this.resetPeriod,
+      this.streak = 0,
+      this.highestStreak = 0,
       this.completionsToday = 0,
       required this.lastSeen,
       this.totalCompletions = 0,

@@ -27,7 +27,7 @@ class StatisticsScreen extends StatelessWidget {
               child: CircularPercentIndicator(
                 radius: 100,
                 lineWidth: 30,
-                progressColor: kDarkBlue,
+                progressColor: kMainBlue,
                 curve: Curves.ease,
                 circularStrokeCap: CircularStrokeCap.round,
                 percent: Provider.of<LevelingSystem>(context).habiturRating /
