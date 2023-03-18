@@ -12,7 +12,7 @@ class Habit {
   int streak = 0;
   int requiredCompletions;
   int completionsToday;
-  int totalCompletions = 0;
+  int totalCompletions;
   List requiredDatesOfCompletion = [];
   String resetPeriod;
   DateTime dateCreated;
@@ -44,6 +44,7 @@ class Habit {
 
   void resetHabitCompletions() {
     completionsToday = 0;
+    streak = 0;
   }
 
   Habit(
@@ -53,6 +54,7 @@ class Habit {
       this.lastCompleted = '',
       this.completionsToday = 0,
       required this.lastSeen,
+      this.totalCompletions = 0,
       this.requiredDatesOfCompletion = const [],
       this.requiredCompletions = 1});
 }

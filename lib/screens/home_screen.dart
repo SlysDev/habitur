@@ -41,6 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             shadowColor: Colors.transparent,
+            actions: [
+              Container(
+                margin: EdgeInsets.all(5),
+                child: IconButton(
+                    onPressed: () =>
+                        Navigator.pushNamed(context, 'profile-screen'),
+                    icon: Icon(
+                      Icons.menu_rounded,
+                      color: kNeutralBlue,
+                      size: 30,
+                    )),
+              )
+            ],
             automaticallyImplyLeading: false,
           ),
           body: Padding(

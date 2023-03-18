@@ -50,6 +50,7 @@ class Database extends ChangeNotifier {
           dateCreated: habit.get('dateCreated').toDate(),
           completionsToday: habit.get('completionsToday'),
           requiredDatesOfCompletion: habit.get('requiredDatesOfCompletion'),
+          totalCompletions: habit.get('totalCompletions'),
           lastSeen: habit.get('lastSeen').toDate(),
           requiredCompletions: habit.get('requiredCompletions'));
       habitList.add(loadedHabit);
@@ -77,6 +78,7 @@ class Database extends ChangeNotifier {
         'resetPeriod': habit.resetPeriod,
         'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
         'requiredCompletions': habit.requiredCompletions,
+        'totalCompletions': habit.totalCompletions,
         'lastSeen': habit.lastSeen,
       });
     }
