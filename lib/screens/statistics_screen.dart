@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:habitur/components/navbar.dart';
-import 'package:habitur/components/rounded_progress_bar.dart';
-import 'package:habitur/constants.dart';
-import 'package:habitur/providers/leveling_system.dart';
+import '../components/navbar.dart';
+import '../components/rounded_progress_bar.dart';
+import '../constants.dart';
+import '../providers/leveling_system.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
+import '../providers/user_data.dart';
 
 class StatisticsScreen extends StatelessWidget {
   @override
@@ -43,21 +44,9 @@ class StatisticsScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Center(
-          //   child: Text(
-          //     Provider.of<LevelingSystem>(context).userLevel.toString(),
-          //     style: kTitleTextStyle,
-          //     textAlign: TextAlign.center,
-          //   ),
-          // ),
-          // Container(
-          //   margin: EdgeInsets.all(20),
-          //   child: RoundedProgressBar(
-          //     color: kDarkBlue,
-          //     progress: Provider.of<LevelingSystem>(context).habiturRating /
-          //         Provider.of<LevelingSystem>(context).levelUpRequirement,
-          //   ),
-          // ),
+          SizedBox(
+            height: 20,
+          ),
         ],
       ),
       bottomNavigationBar: NavBar(

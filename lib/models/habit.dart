@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/providers/leveling_system.dart';
+import 'package:habitur/providers/statistics_manager.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/providers/user_data.dart';
@@ -25,7 +26,8 @@ class Habit {
     totalCompletions++;
     if (completionsToday == requiredCompletions) {
       isCompleted = true;
-      Provider.of<UserData>(context, listen: false).addFullHabitCompletion();
+      Provider.of<StatisticsManager>(context, listen: false)
+          .totalHabitsCompleted++;
       Provider.of<LevelingSystem>(context, listen: false).addHabiturRating();
       streak++;
     }
@@ -38,7 +40,8 @@ class Habit {
     }
     if (completionsToday == requiredCompletions) {
       isCompleted = false;
-      Provider.of<UserData>(context, listen: false).removeFullHabitCompletion();
+      Provider.of<StatisticsManager>(context, listen: false)
+          .totalHabitsCompleted++;
       Provider.of<LevelingSystem>(context, listen: false).removeHabiturRating();
       streak--;
     }

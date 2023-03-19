@@ -13,19 +13,10 @@ final _firestore = FirebaseFirestore.instance;
 class UserData extends ChangeNotifier {
   CollectionReference users = _firestore.collection('users');
   final user = _auth.currentUser;
-  int totalHabitsCompleted = 0;
   String username = 'User';
   final List<Habit> _userHabits = [];
   void updateUserData() {
     notifyListeners();
-  }
-
-  void addFullHabitCompletion() {
-    totalHabitsCompleted++;
-  }
-
-  void removeFullHabitCompletion() {
-    totalHabitsCompleted--;
   }
 
   UnmodifiableListView<Habit> get userHabits {
