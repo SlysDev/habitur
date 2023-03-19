@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:intl/intl.dart';
+import 'dart:math';
 
 class Habit {
   String title;
@@ -19,6 +20,7 @@ class Habit {
   List requiredDatesOfCompletion = [];
   String resetPeriod;
   DateTime dateCreated;
+  double confidenceLevel;
   DateTime lastSeen = DateTime.now();
   Color color = kMainBlue;
   void incrementCompletion(context) {
@@ -30,6 +32,8 @@ class Habit {
           .totalHabitsCompleted++;
       Provider.of<LevelingSystem>(context, listen: false).addHabiturRating();
       streak++;
+      confidenceLevel = confidenceLevel * pow(1.10, confidenceLevel);
+      print(confidenceLevel);
     }
     daysCompleted.add(DateTime.now());
   }
@@ -66,6 +70,7 @@ class Habit {
       this.completionsToday = 0,
       required this.lastSeen,
       this.totalCompletions = 0,
+      this.confidenceLevel = 1,
       this.requiredDatesOfCompletion = const [],
       this.requiredCompletions = 1});
 }

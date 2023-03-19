@@ -58,6 +58,9 @@ class Database extends ChangeNotifier {
           completionsToday: habit.get('completionsToday'),
           requiredDatesOfCompletion: habit.get('requiredDatesOfCompletion'),
           totalCompletions: habit.get('totalCompletions'),
+          streak: habit.get('streak'),
+          highestStreak: habit.get('highestStreak'),
+          confidenceLevel: habit.get('confidenceLevel'),
           lastSeen: habit.get('lastSeen').toDate(),
           requiredCompletions: habit.get('requiredCompletions'));
       habitList.add(loadedHabit);
@@ -88,6 +91,9 @@ class Database extends ChangeNotifier {
         'completionsToday': habit.completionsToday,
         'dateCreated': habit.dateCreated,
         'resetPeriod': habit.resetPeriod,
+        'streak': habit.streak,
+        'confidenceLevel': habit.confidenceLevel,
+        'highestStreak': habit.highestStreak,
         'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
         'requiredCompletions': habit.requiredCompletions,
         'totalCompletions': habit.totalCompletions,
