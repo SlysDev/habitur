@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:provider/provider.dart';
 
 class StatisticsManager extends ChangeNotifier {
   int totalHabitsCompleted = 0;
+  List<DataPoint> confidenceStats = [];
   double getAverageStreak(context) {
     int streakCount = 0;
     int streakTotal = 0;
@@ -25,6 +27,11 @@ class StatisticsManager extends ChangeNotifier {
       }
     }
     return longestHabitStreak;
+  }
+
+  void recordConfidenceLevel(context) {
+    confidenceStats.add(DataPoint(
+        date: DateTime.now(), value: getAverageConfidenceLevel(context)));
   }
 
   double getAverageConfidenceLevel(context) {

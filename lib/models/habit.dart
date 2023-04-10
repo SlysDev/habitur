@@ -33,6 +33,8 @@ class Habit {
       Provider.of<LevelingSystem>(context, listen: false).addHabiturRating();
       streak++;
       confidenceLevel = confidenceLevel * pow(1.10, confidenceLevel);
+      Provider.of<StatisticsManager>(context, listen: false)
+          .recordConfidenceLevel(context);
       print(confidenceLevel);
     }
     daysCompleted.add(DateTime.now());
