@@ -17,7 +17,6 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:workmanager/workmanager.dart';
 // Providers
 import 'providers/user_data.dart';
 import 'providers/settings_data.dart';
@@ -26,14 +25,6 @@ import 'providers/database.dart';
 import 'providers/habit_manager.dart';
 import 'providers/local_storage.dart';
 import 'providers/login_registration_state.dart';
-
-// Background Tasks
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) {
-    print("Task executing : $task");
-    return Future.value(true);
-  });
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

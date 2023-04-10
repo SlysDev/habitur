@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/providers/statistics_manager.dart';
 import 'package:provider/provider.dart';
 
 class LineGraph extends StatelessWidget {
@@ -8,13 +9,13 @@ class LineGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: LineChart(
-        LineChartData(
-          lineBarsData: [
-            LineChartBarData(),
-          ],
-        ),
-      ),
-    );
+        child: LineChart(LineChartData(lineBarsData: [
+      LineChartBarData(
+          spots: data
+              .map((dataPoint) => FlSpot(
+                  dataPoint.date.millisecondsSinceEpoch.toDouble(),
+                  dataPoint.value.toDouble()))
+              .toList())
+    ])));
   }
 }

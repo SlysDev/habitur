@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="5000"
+   height="5000"
+   viewBox="0 0 1322.9167 1322.9167"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.1 (c3084ef, 2021-09-22)"
+   sodipodi:docname="logo.svg"
+   inkscape:export-filename="/Users/jeremy/Development/Apps/habitur/assets/images/logo.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:pageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="px"
+     showgrid="false"
+     units="px"
+     inkscape:snap-page="true"
+     inkscape:zoom="0.03859689"
+     inkscape:cx="-919.76322"
+     inkscape:cy="3627.2352"
+     inkscape:window-width="1680"
+     inkscape:window-height="1022"
+     inkscape:window-x="240"
+     inkscape:window-y="1112"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="g3395" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g3292"
+       transform="matrix(139.33631,0,0,139.33631,-31.30555,-103.10506)">
+      <g
+         id="g3395"
+         transform="translate(-0.54645448,-0.02057093)">
+        <path
+           style="fill:#01172f;fill-opacity:1;stroke:none;stroke-width:0.315806px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 6.664495,8.1594677 c 0,0 -0.8089798,-3.408991 -0.9846124,-3.989544 C 5.4986554,3.5708773 2.2813185,4.6250088 6.664495,8.1594677 Z"
+           id="path2442"
+           sodipodi:nodetypes="csc" />
+        <ellipse
+           style="fill:#01172f;fill-opacity:1;stroke:none;stroke-width:0.723946;stroke-linecap:round;stroke-linejoin:round"
+           id="path2612"
+           cx="5.2320771"
+           cy="3.682344"
+           rx="0.65538555"
+           ry="0.82630986" />
+      </g>
+    </g>
+  </g>
+</svg>

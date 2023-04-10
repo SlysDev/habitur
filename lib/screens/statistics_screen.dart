@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/providers/statistics_manager.dart';
 import '../components/navbar.dart';
 import '../components/rounded_progress_bar.dart';
@@ -49,15 +50,8 @@ class StatisticsScreen extends StatelessWidget {
           SizedBox(
             height: 20,
           ),
-          LineChart(LineChartData(lineBarsData: [
-            LineChartBarData(
-                spots: Provider.of<StatisticsManager>(context)
-                    .confidenceStats
-                    .map((dataPoint) => FlSpot(
-                        dataPoint.date.millisecondsSinceEpoch.toDouble(),
-                        dataPoint.value.toDouble()))
-                    .toList())
-          ]))
+          LineGraph(
+              data: Provider.of<StatisticsManager>(context).confidenceStats),
         ],
       ),
       bottomNavigationBar: NavBar(

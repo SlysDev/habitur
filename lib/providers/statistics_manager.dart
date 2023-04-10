@@ -32,6 +32,7 @@ class StatisticsManager extends ChangeNotifier {
   void recordConfidenceLevel(context) {
     confidenceStats.add(DataPoint(
         date: DateTime.now(), value: getAverageConfidenceLevel(context)));
+    print(confidenceStats);
   }
 
   double getAverageConfidenceLevel(context) {
