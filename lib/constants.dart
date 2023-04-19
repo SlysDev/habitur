@@ -29,6 +29,7 @@ TextStyle kMainDescription = GoogleFonts.lato().copyWith(
   fontSize: 18,
 );
 
+const kLightBlue = Color.fromRGBO(61, 151, 250, 1);
 const kMainBlue = Color.fromRGBO(9, 45, 85, 1);
 const kSlateGray = Color.fromRGBO(108, 121, 135, 1);
 const kAoEnglish = Color.fromRGBO(25, 131, 11, 1);

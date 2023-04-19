@@ -35,6 +35,7 @@ class Habit {
       confidenceLevel = confidenceLevel * pow(1.10, confidenceLevel);
       Provider.of<StatisticsManager>(context, listen: false)
           .recordConfidenceLevel(context);
+      print('habit incremented');
       print(confidenceLevel);
     }
     daysCompleted.add(DateTime.now());

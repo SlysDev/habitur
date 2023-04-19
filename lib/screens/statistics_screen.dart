@@ -51,6 +51,7 @@ class StatisticsScreen extends StatelessWidget {
             height: 20,
           ),
           LineGraph(
+              height: 200,
               data: Provider.of<StatisticsManager>(context).confidenceStats),
         ],
       ),

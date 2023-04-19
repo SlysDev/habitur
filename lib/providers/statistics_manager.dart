@@ -10,7 +10,8 @@ class StatisticsManager extends ChangeNotifier {
   double getAverageStreak(context) {
     int streakCount = 0;
     int streakTotal = 0;
-    for (Habit habit in Provider.of<HabitManager>(context).habits) {
+    for (Habit habit
+        in Provider.of<HabitManager>(context, listen: false).habits) {
       streakCount++;
       streakTotal += habit.streak;
     }
@@ -19,7 +20,8 @@ class StatisticsManager extends ChangeNotifier {
 
   Habit longestStreak(context) {
     var longestHabitStreak;
-    for (Habit habit in Provider.of<HabitManager>(context).habits) {
+    for (Habit habit
+        in Provider.of<HabitManager>(context, listen: false).habits) {
       if (longestHabitStreak ??= null) {
         longestHabitStreak = habit;
       } else if (habit.streak > longestHabitStreak.streak) {
@@ -38,7 +40,8 @@ class StatisticsManager extends ChangeNotifier {
   double getAverageConfidenceLevel(context) {
     int habitNumber = 0;
     double totalHabitConfidence = 0;
-    for (Habit habit in Provider.of<HabitManager>(context).habits) {
+    for (Habit habit
+        in Provider.of<HabitManager>(context, listen: false).habits) {
       totalHabitConfidence += habit.confidenceLevel;
       habitNumber++;
     }
