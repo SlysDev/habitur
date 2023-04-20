@@ -48,7 +48,10 @@ class Habit {
     if (completionsToday == requiredCompletions) {
       isCompleted = false;
       Provider.of<StatisticsManager>(context, listen: false)
-          .totalHabitsCompleted++;
+          .totalHabitsCompleted--;
+      confidenceLevel = confidenceLevel * pow(0.90, confidenceLevel);
+      Provider.of<StatisticsManager>(context, listen: false)
+          .recordConfidenceLevel(context);
       Provider.of<LevelingSystem>(context, listen: false).removeHabiturRating();
       streak--;
     }
