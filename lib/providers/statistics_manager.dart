@@ -32,9 +32,20 @@ class StatisticsManager extends ChangeNotifier {
   }
 
   void recordConfidenceLevel(context) {
-    confidenceStats.add(DataPoint(
-        date: DateTime.now(), value: getAverageConfidenceLevel(context)));
-    print(confidenceStats);
+    // If the two dates are more than a minute apart
+    if (confidenceStats.isEmpty) {
+      confidenceStats.add(DataPoint(
+          date: DateTime.now(), value: getAverageConfidenceLevel(context)));
+    } else if (DateTime.now().hour >
+        confidenceStats[confidenceStats.length - 1].date.hour) {
+      confidenceStats.add(DataPoint(
+          date: DateTime.now(), value: getAverageConfidenceLevel(context)));
+    }
+    // Otherwise, update the most recent entry
+    else {
+      confidenceStats[confidenceStats.length - 1] = DataPoint(
+          date: DateTime.now(), value: getAverageConfidenceLevel(context));
+    }
   }
 
   double getAverageConfidenceLevel(context) {

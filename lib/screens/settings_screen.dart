@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/providers/database.dart';
 import '../providers/settings_data.dart';
 import 'package:provider/provider.dart';
 import '../models/setting.dart';
@@ -11,27 +12,38 @@ class SettingsScreen extends StatelessWidget {
     return Consumer<SettingsData>(
       builder: (context, settingsData, child) {
         return Scaffold(
-          body: ListView.builder(
-            itemCount: settingsData.settingsList.length,
-            itemBuilder: (BuildContext context, index) {
-              return SwitchListTile(
-                activeColor: kSlateGray,
-                activeTrackColor: kMainBlue,
-                inactiveTrackColor: kSlateGray,
-                inactiveThumbColor: Colors.white,
-                visualDensity: VisualDensity.comfortable,
-                value: settingsData.settingsList[index].settingValue,
-                selected: settingsData.settingsList[index].settingValue,
-                title: Text(
-                  settingsData.settingsList[index].settingName,
-                ),
-                onChanged: (newValue) {
-                  settingsData.settingsList[index].settingValue = newValue;
-                  settingsData.updateSettings();
+          body: Column(children: [
+            SizedBox(
+              height: 500,
+              child: ListView.builder(
+                itemCount: settingsData.settingsList.length,
+                itemBuilder: (BuildContext context, index) {
+                  return SwitchListTile(
+                    activeColor: kSlateGray,
+                    activeTrackColor: kMainBlue,
+                    inactiveTrackColor: kSlateGray,
+                    inactiveThumbColor: Colors.white,
+                    visualDensity: VisualDensity.comfortable,
+                    value: settingsData.settingsList[index].settingValue,
+                    selected: settingsData.settingsList[index].settingValue,
+                    title: Text(
+                      settingsData.settingsList[index].settingName,
+                    ),
+                    onChanged: (newValue) {
+                      settingsData.settingsList[index].settingValue = newValue;
+                      settingsData.updateSettings();
+                    },
+                  );
                 },
-              );
-            },
-          ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Provider.of<Database>(context, listen: false).loadData(context);
+              },
+              child: Text('load data'),
+            ),
+          ]),
           bottomNavigationBar: NavBar(
             currentPage: 'settings',
           ),

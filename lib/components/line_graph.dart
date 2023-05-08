@@ -39,9 +39,13 @@ class LineGraph extends StatelessWidget {
                 color: kMainBlue,
                 dotData: FlDotData(show: false),
                 isCurved: true,
+                preventCurveOverShooting: true,
+                curveSmoothness: 0.1,
                 spots: data
                     .map((dataPoint) => FlSpot(
-                        dataPoint.date.millisecondsSinceEpoch.toDouble(),
+                        (dataPoint.date.millisecondsSinceEpoch / 60000)
+                            .ceil()
+                            .toDouble(),
                         dataPoint.value.toDouble()))
                     .toList())
             // spots: [
