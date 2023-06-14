@@ -35,16 +35,8 @@ class HabitCardList extends StatelessWidget {
                               height: 20,
                             ),
                             HabitCard(
-                                progress: habitManager
-                                        .habits[index].completionsToday /
-                                    habitManager
-                                        .habits[index].requiredCompletions,
-                                completed: habitManager
-                                            .habits[index].completionsToday ==
-                                        habitManager
-                                            .habits[index].requiredCompletions
-                                    ? true
-                                    : false,
+                                progress: habitManager.calculateProgress(index),
+                                completed: habitManager.isHabitCompleted(index),
                                 onDismissed: (context) {
                                   habitManager.removeHabit(index);
                                   habitManager.updateHabits(context);
