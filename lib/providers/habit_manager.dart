@@ -39,16 +39,6 @@ class HabitManager extends ChangeNotifier {
             : 0));
   }
 
-  double calculateProgress(int habitIndex) {
-    final habit = _habits[habitIndex];
-    return habit.completionsToday / habit.requiredCompletions;
-  }
-
-  bool isHabitCompleted(int habitIndex) {
-    final habit = _habits[habitIndex];
-    return habit.completionsToday == habit.requiredCompletions;
-  }
-
   void loadHabits(habitList) {
     _habits = habitList;
     notifyListeners();

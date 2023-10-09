@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "habitur" "\0"
+            VALUE "FileDescription", "habitur_new_version" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "habitur" "\0"
+            VALUE "InternalName", "habitur_new_version" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2023 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "habitur.exe" "\0"
-            VALUE "ProductName", "habitur" "\0"
+            VALUE "OriginalFilename", "habitur_new_version.exe" "\0"
+            VALUE "ProductName", "habitur_new_version" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

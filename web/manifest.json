@@ -1,6 +1,6 @@
 {
-    "name": "habitur",
-    "short_name": "habitur",
+    "name": "habitur_new_version",
+    "short_name": "habitur_new_version",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
