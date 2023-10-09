@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/leveling_system.dart';
+import 'package:habitur/providers/statistics_manager.dart';
+import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
 
 final _auth = FirebaseAuth.instance;
@@ -17,26 +21,31 @@ class Database extends ChangeNotifier {
       'username': username,
       'email': email,
       'uid': uid,
-      'habits': [],
     });
     return;
   }
 
-  get userData {
+  get userData async {
     String uid = _auth.currentUser!.uid.toString();
     DocumentReference userDoc = users.doc(uid);
-    return userDoc;
+    DocumentSnapshot userSnapshot = await userDoc.get();
+    return userSnapshot;
   }
 
   get currentUser {
     return _auth.currentUser;
   }
 
-  void loadData(context) async {
+  void loadHabits(context) async {
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
     CollectionReference habitsReference = userReference.collection('habits');
     QuerySnapshot habitsSnapshot = await habitsReference.get();
+    DocumentSnapshot userSnapshot = await userReference.get();
+    Provider.of<LevelingSystem>(context, listen: false).habiturRating =
+        userSnapshot.get('habiturRating');
+    Provider.of<UserData>(context, listen: false).username =
+        userSnapshot.get('username');
 
     // Get data from docs and convert map to List
     final habitDocs = habitsSnapshot.docs;
@@ -51,6 +60,9 @@ class Database extends ChangeNotifier {
           completionsToday: habit.get('completionsToday'),
           requiredDatesOfCompletion: habit.get('requiredDatesOfCompletion'),
           totalCompletions: habit.get('totalCompletions'),
+          streak: habit.get('streak'),
+          highestStreak: habit.get('highestStreak'),
+          confidenceLevel: habit.get('confidenceLevel'),
           lastSeen: habit.get('lastSeen').toDate(),
           requiredCompletions: habit.get('requiredCompletions'));
       habitList.add(loadedHabit);
@@ -63,6 +75,7 @@ class Database extends ChangeNotifier {
   void uploadHabits(context) async {
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
+
     // First clear the collection
     var habitsCollection = await userReference.collection('habits').get();
     for (var habitDoc in habitsCollection.docs) {
@@ -76,6 +89,9 @@ class Database extends ChangeNotifier {
         'completionsToday': habit.completionsToday,
         'dateCreated': habit.dateCreated,
         'resetPeriod': habit.resetPeriod,
+        'streak': habit.streak,
+        'confidenceLevel': habit.confidenceLevel,
+        'highestStreak': habit.highestStreak,
         'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
         'requiredCompletions': habit.requiredCompletions,
         'totalCompletions': habit.totalCompletions,
@@ -84,5 +100,63 @@ class Database extends ChangeNotifier {
     }
     print('uploaded to database.');
     //// TODO: Upload hive's storage of the habit list to Firebase  <22-12-22, slys> //
+  }
+
+  void loadStatistics(context) async {
+    DocumentSnapshot userSnapshot =
+        await users.doc(_auth.currentUser!.uid.toString()).get();
+    List<DataPoint> confidenceList = [];
+    List confidenceStats = userSnapshot.get('stats')['confidenceStats'];
+    for (var dataPoint in confidenceStats) {
+      confidenceList.add(DataPoint(
+          date: dataPoint['date'].toDate(), value: dataPoint['value']));
+    }
+    Provider.of<StatisticsManager>(context, listen: false).confidenceStats =
+        confidenceList;
+
+    Provider.of<StatisticsManager>(context, listen: false)
+            .totalHabitsCompleted =
+        userSnapshot.get('stats')['totalHabitsCompleted'];
+    Provider.of<StatisticsManager>(context, listen: false).notifyListeners();
+  }
+
+  void uploadStatistics(context) async {
+    DocumentReference userReference =
+        users.doc(_auth.currentUser!.uid.toString());
+
+    userReference.set({
+      'habiturRating':
+          Provider.of<LevelingSystem>(context, listen: false).habiturRating,
+    }, SetOptions(merge: true));
+
+    DocumentSnapshot userSnapshot = await userReference.get();
+    userReference.set({
+      'stats': {
+        'totalHabitsCompleted':
+            Provider.of<StatisticsManager>(context, listen: false)
+                .totalHabitsCompleted,
+        // Converting confidenceStats into an array of normal objects
+        'confidenceStats':
+            Provider.of<StatisticsManager>(context, listen: false)
+                .confidenceStats
+                .map((dataPoint) => {
+                      'value': dataPoint.value,
+                      'date': dataPoint.date,
+                    })
+                .toList(),
+      }
+    }, SetOptions(merge: true));
+
+    print('stats uploaded');
+  }
+
+  void loadData(context) async {
+    loadHabits(context);
+    loadStatistics(context);
+  }
+
+  void uploadData(context) async {
+    uploadHabits(context);
+    uploadStatistics(context);
   }
 }

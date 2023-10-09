@@ -4,19 +4,19 @@ import 'package:google_fonts/google_fonts.dart';
 const kSubHeadingTextStyle = TextStyle(
   fontSize: 18,
   fontWeight: FontWeight.bold,
-  color: kNeutralBlue,
+  color: kMainBlue,
 );
 
 const kHeadingTextStyle = TextStyle(
   fontSize: 26,
   fontWeight: FontWeight.bold,
-  color: kNeutralBlue,
+  color: kMainBlue,
 );
 
 const kTitleTextStyle = TextStyle(
   fontSize: 42,
   fontWeight: FontWeight.bold,
-  color: kNeutralBlue,
+  color: kMainBlue,
 );
 
 const kErrorTextStyle = TextStyle(
@@ -29,11 +29,11 @@ TextStyle kMainDescription = GoogleFonts.lato().copyWith(
   fontSize: 18,
 );
 
-const kDarkBlue = Color.fromRGBO(1, 23, 47, 1);
+const kLightBlue = Color.fromRGBO(61, 151, 250, 1);
+const kMainBlue = Color.fromRGBO(9, 45, 85, 1);
 const kSlateGray = Color.fromRGBO(108, 121, 135, 1);
 const kAoEnglish = Color.fromRGBO(25, 131, 11, 1);
 const kBarnRed = Color.fromRGBO(111, 26, 7, 1);
-const kNeutralBlue = Color.fromRGBO(51, 70, 89, 1);
 
 Map<int, Color> colorCodes = {
   50: const Color.fromRGBO(1, 23, 47, .1),

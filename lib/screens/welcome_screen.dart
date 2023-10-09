@@ -29,10 +29,20 @@ class WelcomeScreen extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            Text(
-              'Build your life, one habit at a time.',
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  style: kMainDescription.copyWith(color: Colors.black),
+                  text: 'Making habits better, ',
+                ),
+                TextSpan(
+                    text: 'together',
+                    style: kMainDescription.copyWith(
+                      fontSize: 19,
+                      color: kLightBlue,
+                    )),
+              ]),
               textAlign: TextAlign.center,
-              style: kMainDescription,
             ),
             SizedBox(
               height: 40,
@@ -57,12 +67,12 @@ class WelcomeScreen extends StatelessWidget {
             SizedBox(
               height: 40,
             ),
-            AsideButton(
-              text: 'Offline Login',
-              onPressed: () {
-                Navigator.pushNamed(context, 'home_screen_offline');
-              },
-            ),
+            // AsideButton(
+            //   text: 'Offline Login',
+            //   onPressed: () {
+            //     Navigator.pushNamed(context, 'home_screen_offline');
+            //   },
+            // ),
           ],
         ),
       ),

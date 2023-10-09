@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_card.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:habitur/screens/edit_habit_screen.dart';
@@ -17,10 +18,11 @@ class HabitCardList extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           child: RefreshIndicator(
-            backgroundColor: kDarkBlue,
+            backgroundColor: kMainBlue,
             color: Colors.white,
             onRefresh: () async {
               habitManager.resetDailyHabits();
+              Provider.of<Database>(context, listen: false).loadData(context);
               Future.delayed(Duration(seconds: 1));
             },
             child: ListView.builder(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/providers/leveling_system.dart';
+import 'package:habitur/providers/statistics_manager.dart';
 import 'constants.dart';
 // Screens
 import 'screens/welcome_screen.dart';
@@ -16,7 +17,6 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:workmanager/workmanager.dart';
 // Providers
 import 'providers/user_data.dart';
 import 'providers/settings_data.dart';
@@ -26,21 +26,13 @@ import 'providers/habit_manager.dart';
 import 'providers/local_storage.dart';
 import 'providers/login_registration_state.dart';
 
-// Background Tasks
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) {
-    print("Task executing : $task");
-    return Future.value(true);
-  });
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await Hive.initFlutter();
-  await Hive.openBox("Habit_Database");
+  await Hive.openBox("habits_storage");
   runApp(Habitur());
 }
 
@@ -63,12 +55,14 @@ class Habitur extends StatelessWidget {
               create: (context) => LocalStorage()),
           ChangeNotifierProvider<LevelingSystem>(
               create: (context) => LevelingSystem()),
+          ChangeNotifierProvider<StatisticsManager>(
+              create: (context) => StatisticsManager()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             textTheme: GoogleFonts.ralewayTextTheme(),
-            primaryColor: kDarkBlue,
+            primaryColor: kMainBlue,
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ButtonStyle(
                   textStyle: MaterialStateProperty.all(
@@ -82,7 +76,7 @@ class Habitur extends StatelessWidget {
                   shadowColor: MaterialStateProperty.all(kSlateGray),
                   padding: MaterialStateProperty.all(
                       const EdgeInsets.symmetric(vertical: 20, horizontal: 40)),
-                  backgroundColor: MaterialStateProperty.all<Color>(kDarkBlue),
+                  backgroundColor: MaterialStateProperty.all<Color>(kMainBlue),
                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ))),

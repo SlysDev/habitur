@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
+import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/leveling_system.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -21,8 +22,9 @@ class HomeGreetingHeader extends StatelessWidget {
     }
     return Column(children: [
       Text(
-        'Good $timeOfDay',
+        'Good $timeOfDay, ${Provider.of<UserData>(context, listen: false).username}',
         style: kTitleTextStyle,
+        textAlign: TextAlign.center,
       ),
       const SizedBox(
         height: 10,
@@ -44,7 +46,7 @@ class HomeGreetingHeader extends StatelessWidget {
         width: 300,
         margin: const EdgeInsets.only(top: 20),
         child: RoundedProgressBar(
-          color: kDarkBlue,
+          color: kMainBlue,
           progress: Provider.of<LevelingSystem>(context).habiturRating /
               Provider.of<LevelingSystem>(context).levelUpRequirement,
         ),

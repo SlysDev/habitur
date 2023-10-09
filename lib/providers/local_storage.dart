@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class LocalStorage extends ChangeNotifier {
-  void initializeStorage() {
-    Hive.openBox('habits_storage');
+  void initializeStorage() async {
+    var habitsBox = await Hive.openBox('habits_storage');
   }
 }

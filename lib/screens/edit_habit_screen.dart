@@ -91,7 +91,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                               padding: EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                   color: selectedPeriod == 'Daily'
-                                      ? kNeutralBlue
+                                      ? kMainBlue
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(20)),
                               child: Text(
@@ -113,7 +113,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                               padding: EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                   color: selectedPeriod == 'Weekly'
-                                      ? kNeutralBlue
+                                      ? kMainBlue
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(20)),
                               child: Text(
@@ -135,7 +135,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                               padding: EdgeInsets.all(20),
                               decoration: BoxDecoration(
                                   color: selectedPeriod == 'Monthly'
-                                      ? kNeutralBlue
+                                      ? kMainBlue
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(20)),
                               child: Text(
@@ -205,7 +205,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                       // If monday isn't yet selected, add. Else, remove.
                                     },
                                     color: daysActive.contains('Monday')
-                                        ? kNeutralBlue
+                                        ? kMainBlue
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
@@ -233,7 +233,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                       }
                                     },
                                     color: daysActive.contains('Tuesday')
-                                        ? kNeutralBlue
+                                        ? kMainBlue
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
@@ -262,7 +262,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                       }
                                     },
                                     color: daysActive.contains('Wednesday')
-                                        ? kNeutralBlue
+                                        ? kMainBlue
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
@@ -291,7 +291,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                       }
                                     },
                                     color: daysActive.contains('Thursday')
-                                        ? kNeutralBlue
+                                        ? kMainBlue
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
@@ -320,7 +320,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                       }
                                     },
                                     color: daysActive.contains('Friday')
-                                        ? kNeutralBlue
+                                        ? kMainBlue
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
@@ -348,7 +348,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                       }
                                     },
                                     color: daysActive.contains('Saturday')
-                                        ? kNeutralBlue
+                                        ? kMainBlue
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
@@ -377,7 +377,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                       }
                                     },
                                     color: daysActive.contains('Sunday')
-                                        ? kNeutralBlue
+                                        ? kMainBlue
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
