@@ -16,6 +16,8 @@ class LineGraph extends StatelessWidget {
       width: width,
       child: LineChart(
         LineChartData(
+          maxY: 2,
+          minY: 0,
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
@@ -32,21 +34,21 @@ class LineGraph extends StatelessWidget {
           lineBarsData: [
             LineChartBarData(
                 isStrokeCapRound: true,
-                barWidth: 8,
+                barWidth: 1,
                 belowBarData: BarAreaData(
                     gradient:
                         const LinearGradient(colors: [kMainBlue, kSlateGray])),
                 color: kMainBlue,
-                dotData: FlDotData(show: false),
+                dotData: FlDotData(show: true),
                 isCurved: true,
                 preventCurveOverShooting: true,
                 curveSmoothness: 0.1,
                 spots: data
                     .map((dataPoint) => FlSpot(
-                        (dataPoint.date.millisecondsSinceEpoch / 60000)
+                        (dataPoint.date.millisecondsSinceEpoch)
                             .ceil()
                             .toDouble(),
-                        dataPoint.value.toDouble()))
+                        double.parse(dataPoint.value.toStringAsFixed(2))))
                     .toList())
             // spots: [
             //   FlSpot(0, 3),

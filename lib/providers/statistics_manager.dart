@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 class StatisticsManager extends ChangeNotifier {
   int totalHabitsCompleted = 0;
   List<DataPoint> confidenceStats = [];
+  List<DataPoint> displayedConfidenceStats = [];
+  int viewScale = 7; // days
   double getAverageStreak(context) {
     int streakCount = 0;
     int streakTotal = 0;
@@ -36,8 +38,8 @@ class StatisticsManager extends ChangeNotifier {
     if (confidenceStats.isEmpty) {
       confidenceStats.add(DataPoint(
           date: DateTime.now(), value: getAverageConfidenceLevel(context)));
-    } else if (DateTime.now().hour >
-        confidenceStats[confidenceStats.length - 1].date.hour) {
+    } else if (DateTime.now().second >
+        confidenceStats[confidenceStats.length - 1].date.second) {
       confidenceStats.add(DataPoint(
           date: DateTime.now(), value: getAverageConfidenceLevel(context)));
     }
@@ -46,6 +48,7 @@ class StatisticsManager extends ChangeNotifier {
       confidenceStats[confidenceStats.length - 1] = DataPoint(
           date: DateTime.now(), value: getAverageConfidenceLevel(context));
     }
+    initStatsDisplay();
   }
 
   double getAverageConfidenceLevel(context) {
@@ -57,5 +60,104 @@ class StatisticsManager extends ChangeNotifier {
       habitNumber++;
     }
     return totalHabitConfidence / habitNumber;
+  }
+
+  void initStatsDisplay() {
+    List<DataPoint> tempArray = [];
+    displayedConfidenceStats = [];
+    for (DataPoint dataPoint in confidenceStats) {
+      if (DateTime.now().difference(dataPoint.date).inDays <= viewScale) {
+        tempArray.add(dataPoint);
+      }
+    }
+    if (viewScale == 365) {
+      displayedConfidenceStats = monthlyDataGrouping();
+    } else if (viewScale == 31) {
+      displayedConfidenceStats = dailyDataGrouping();
+    } else {
+      displayedConfidenceStats = tempArray;
+    }
+    notifyListeners();
+  }
+
+  void weekConfidenceView() {
+    viewScale = 7;
+    initStatsDisplay();
+  }
+
+  void monthConfidenceView() {
+    viewScale = 31;
+    initStatsDisplay();
+  }
+
+  void yearConfidenceView() {
+    viewScale = 365;
+    initStatsDisplay();
+  }
+
+  List<DataPoint> monthlyDataGrouping() {
+    // Create a Map to group data points by month
+    Map<int, List<DataPoint>> groupedDataPoints = {};
+// Group data points by month
+    for (DataPoint dataPoint in confidenceStats) {
+      int month = dataPoint.date.month;
+      if (!groupedDataPoints.containsKey(month)) {
+        groupedDataPoints[month] = [];
+      }
+      groupedDataPoints[month]!.add(dataPoint);
+    }
+// Calculate the average for each group
+    List<DataPoint> monthlyAverages = [];
+    groupedDataPoints.forEach((month, confidenceStats) {
+      double averageValue = confidenceStats
+              .map((dataPoint) => dataPoint.value)
+              .reduce((value1, value2) => value1 + value2) /
+          confidenceStats.length;
+
+      DateTime averageDate = DateTime(
+        confidenceStats
+                .map((dataPoint) => dataPoint.date.year)
+                .reduce((year1, year2) => year1 + year2) ~/
+            confidenceStats.length,
+        month,
+        1, // Use 1 as the day, you can modify this based on your requirements
+      );
+
+      monthlyAverages.add(DataPoint(date: averageDate, value: averageValue));
+    });
+    return monthlyAverages;
+  }
+
+  List<DataPoint> dailyDataGrouping() {
+    // Create a Map to group data points by day
+    Map<int, List<DataPoint>> groupedDataPoints = {};
+// Group data points by day
+    for (DataPoint dataPoint in confidenceStats) {
+      int day = dataPoint.date.day;
+      if (!groupedDataPoints.containsKey(day)) {
+        groupedDataPoints[day] = [];
+      }
+      groupedDataPoints[day]!.add(dataPoint);
+    }
+// Calculate the average for each group
+    List<DataPoint> dailyAverages = [];
+    groupedDataPoints.forEach((day, confidenceStats) {
+      double averageValue = confidenceStats
+              .map((dataPoint) => dataPoint.value)
+              .reduce((value1, value2) => value1 + value2) /
+          confidenceStats.length;
+
+      DateTime averageDate = DateTime(
+        confidenceStats
+                .map((dataPoint) => dataPoint.date.month)
+                .reduce((month1, month2) => month1 + month2) ~/
+            confidenceStats.length,
+        day,
+        1, // Use 1 as the day, you can modify this based on your requirements
+      );
+
+      dailyAverages.add(DataPoint(date: averageDate, value: averageValue));
+    });
+    return dailyAverages;
   }
 }

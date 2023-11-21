@@ -105,14 +105,15 @@ class Database extends ChangeNotifier {
   void loadStatistics(context) async {
     DocumentSnapshot userSnapshot =
         await users.doc(_auth.currentUser!.uid.toString()).get();
-    List<DataPoint> confidenceList = [];
+    List<DataPoint> tempConfidenceList = [];
     List confidenceStats = userSnapshot.get('stats')['confidenceStats'];
     for (var dataPoint in confidenceStats) {
-      confidenceList.add(DataPoint(
+      tempConfidenceList.add(DataPoint(
           date: dataPoint['date'].toDate(), value: dataPoint['value']));
     }
     Provider.of<StatisticsManager>(context, listen: false).confidenceStats =
-        confidenceList;
+        tempConfidenceList;
+    Provider.of<StatisticsManager>(context, listen: false).initStatsDisplay();
 
     Provider.of<StatisticsManager>(context, listen: false)
             .totalHabitsCompleted =

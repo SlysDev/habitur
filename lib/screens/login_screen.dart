@@ -83,6 +83,16 @@ class LoginScreen extends StatelessWidget {
                 },
               ),
             ),
+            Container(
+              margin: const EdgeInsets.all(20),
+              child: AsideButton(
+                text: 'Offline Login',
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.popAndPushNamed(context, 'home_screen');
+                },
+              ),
+            ),
           ]),
         );
       },

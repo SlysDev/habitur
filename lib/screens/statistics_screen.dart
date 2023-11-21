@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/providers/statistics_manager.dart';
 import '../components/navbar.dart';
@@ -52,7 +53,38 @@ class StatisticsScreen extends StatelessWidget {
           ),
           LineGraph(
               height: 200,
-              data: Provider.of<StatisticsManager>(context).confidenceStats),
+              data: Provider.of<StatisticsManager>(context)
+                  .displayedConfidenceStats),
+          SizedBox(
+            height: 10,
+          ),
+          AsideButton(
+              onPressed: () {
+                Provider.of<StatisticsManager>(context, listen: false)
+                    .weekConfidenceView();
+              },
+              text: 'week view'),
+          SizedBox(
+            height: 10,
+          ),
+          AsideButton(
+              onPressed: () {
+                Provider.of<StatisticsManager>(context, listen: false)
+                    .monthConfidenceView();
+              },
+              text: 'month view'),
+          SizedBox(
+            height: 10,
+          ),
+          AsideButton(
+              onPressed: () {
+                Provider.of<StatisticsManager>(context, listen: false)
+                    .yearConfidenceView();
+              },
+              text: 'year view'),
+          SizedBox(
+            height: 20,
+          ),
         ],
       ),
       bottomNavigationBar: NavBar(
