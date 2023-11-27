@@ -1,7 +1,10 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/line_graph.dart';
+import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/statistics_manager.dart';
 import '../components/navbar.dart';
 import '../components/rounded_progress_bar.dart';
@@ -26,11 +29,9 @@ class StatisticsScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Column(
+      body: ListView(
         children: [
-          SizedBox(
-            height: 30,
-          ),
+          SizedBox(height: 30),
           Center(
             child: Container(
               margin: const EdgeInsets.only(top: 10),
@@ -53,70 +54,80 @@ class StatisticsScreen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
-            height: 10,
+          SizedBox(height: 10),
+          Center(
+            child: Text(
+              'Habitur Rating',
+              style: kHeadingTextStyle,
+            ),
           ),
-          Text(
-            'Habitur Rating',
-            style: kHeadingTextStyle,
-          ),
-          const SizedBox(
-            height: 40,
-          ),
-          LineGraph(
-              height: 200,
-              data: Provider.of<StatisticsManager>(context)
-                  .displayedConfidenceStats),
-          const SizedBox(
-            height: 10,
-          ),
-          DropdownMenu(
-            textStyle: const TextStyle(color: Colors.white),
-            inputDecorationTheme: InputDecorationTheme(
-              filled: true,
-              fillColor: kMainBlue,
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-              border: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.transparent),
-                borderRadius: BorderRadius.circular(30),
+          SizedBox(height: 40),
+          ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: Provider.of<HabitManager>(context).habits.length,
+            itemBuilder: (BuildContext context, int index) => Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.transparent),
-                borderRadius: BorderRadius.circular(30),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: Colors.transparent),
-                borderRadius: BorderRadius.circular(30),
+              elevation: 20,
+              margin: EdgeInsets.all(10),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        Provider.of<HabitManager>(context).habits[index].title,
+                        style: kHeadingTextStyle.copyWith(fontSize: 30),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    GridView.count(
+                      physics: new NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      shrinkWrap: true,
+                      childAspectRatio: 1.7,
+                      children: [
+                        _buildStat(
+                            "Completions",
+                            Provider.of<HabitManager>(context)
+                                .habits[index]
+                                .totalCompletions
+                                .toString()),
+                        _buildStat(
+                            "Streak 🔥",
+                            Provider.of<HabitManager>(context)
+                                .habits[index]
+                                .streak
+                                .toString()),
+                        _buildStat(
+                            "% Completion Rate",
+                            (Provider.of<HabitManager>(context)
+                                        .habits[index]
+                                        .completionRate *
+                                    100)
+                                .toStringAsFixed(1)),
+                        _buildStat(
+                            "Confidence Level",
+                            Provider.of<HabitManager>(context)
+                                .habits[index]
+                                .confidenceLevel
+                                .toStringAsFixed(2)),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-            menuStyle: MenuStyle(
-              backgroundColor: MaterialStateProperty.all(kMainBlue),
-            ),
-            dropdownMenuEntries: const <DropdownMenuEntry>[
-              DropdownMenuEntry(
-                value: 0,
-                label: 'This Week',
-              ),
-              DropdownMenuEntry(value: 1, label: 'This Month'),
-              DropdownMenuEntry(value: 2, label: 'This Year'),
-            ],
-            onSelected: (value) {
-              if (value == 0) {
-                Provider.of<StatisticsManager>(context, listen: false)
-                    .weekConfidenceView();
-              } else if (value == 1) {
-                Provider.of<StatisticsManager>(context, listen: false)
-                    .monthConfidenceView();
-              } else {
-                Provider.of<StatisticsManager>(context, listen: false)
-                    .yearConfidenceView();
-              }
-            },
           ),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
+          // ... (your existing code)
         ],
       ),
       bottomNavigationBar: NavBar(
@@ -124,4 +135,22 @@ class StatisticsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _buildStat(String label, String value) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Text(
+        value,
+        style: kHeadingTextStyle,
+      ),
+      SizedBox(height: 5),
+      Text(
+        label,
+        style: kMainDescription,
+        textAlign: TextAlign.center,
+      ),
+    ],
+  );
 }

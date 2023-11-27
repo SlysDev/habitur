@@ -67,6 +67,18 @@ class Habit {
     streak = 0;
   }
 
+  double get completionRate {
+    if (daysCompleted.isEmpty) {
+      return 0.0;
+    }
+
+    double rate =
+        daysCompleted.length / DateTime.now().difference(dateCreated).inDays;
+
+    // Handle the case where the completion rate is greater than 1 (100%)
+    return rate > 1.0 ? 1.0 : rate;
+  }
+
   Habit(
       {required this.title,
       required this.dateCreated,

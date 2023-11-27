@@ -12,11 +12,11 @@ class LineGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(40),
       height: height,
       width: width,
       child: LineChart(
         LineChartData(
-          gridData: FlGridData(show: false),
           maxY: 2,
           minY: 0,
           borderData: FlBorderData(show: false),
@@ -28,6 +28,7 @@ class LineGraph extends StatelessWidget {
           //   ),
           // ),
           titlesData: FlTitlesData(
+            show: false,
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: false,
@@ -42,7 +43,7 @@ class LineGraph extends StatelessWidget {
           lineBarsData: [
             LineChartBarData(
                 isStrokeCapRound: true,
-                barWidth: 7,
+                barWidth: 5,
                 belowBarData: BarAreaData(
                     gradient:
                         const LinearGradient(colors: [kMainBlue, kSlateGray])),
@@ -50,7 +51,7 @@ class LineGraph extends StatelessWidget {
                 dotData: FlDotData(show: false),
                 isCurved: true,
                 preventCurveOverShooting: false,
-                curveSmoothness: 0.4,
+                curveSmoothness: 0.2,
                 spots: data
                     .map((dataPoint) => FlSpot(
                         (dataPoint.date.millisecondsSinceEpoch)

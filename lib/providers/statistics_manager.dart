@@ -8,7 +8,7 @@ class StatisticsManager extends ChangeNotifier {
   int totalHabitsCompleted = 0;
   List<DataPoint> confidenceStats = [];
   List<DataPoint> displayedConfidenceStats = [];
-  int viewScale = 7; // days
+  int viewScale = 31;
   double getAverageStreak(context) {
     int streakCount = 0;
     int streakTotal = 0;
