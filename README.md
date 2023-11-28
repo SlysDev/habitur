@@ -1,5 +1,7 @@
 # Habitur: Social Accountability Habit Building App
 
+![Habitur Banner](docs/images/banner.svg)
+
 ## Overview
 
 Welcome to Habitur, your go-to app for building and maintaining positive habits with the power of social accountability. Habitur goes beyond traditional habit trackers by incorporating in-depth statistics, providing users with a comprehensive understanding of their habits. The app introduces a unique concept called the 'habit confidence level,' allowing users to gauge their progress at both a detailed and high-level overview.
