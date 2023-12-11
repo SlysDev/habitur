@@ -3,9 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:habitur/components/aside_button.dart';
+import 'package:habitur/components/habit_heat_map.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/statistics_manager.dart';
+import 'package:habitur/providers/summary_statistics_repository.dart';
 import '../components/navbar.dart';
 import '../components/rounded_progress_bar.dart';
 import '../constants.dart';
@@ -60,6 +62,14 @@ class StatisticsScreen extends StatelessWidget {
               'Habitur Rating',
               style: kHeadingTextStyle,
             ),
+          ),
+          HabitHeatMap(
+            data:
+                // Converts stats array into a map (list --> iterable --> map)
+                Map.fromIterable(
+                    Provider.of<SummaryStatisticsRepository>(context)
+                        .completionStats
+                        .map((element) => {element.date: element.value})),
           ),
           SizedBox(height: 40),
           ListView.builder(

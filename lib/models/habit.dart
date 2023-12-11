@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/models/data_point.dart';
 import 'package:habitur/providers/leveling_system.dart';
 import 'package:habitur/providers/statistics_manager.dart';
 import 'package:provider/provider.dart';
@@ -12,17 +13,21 @@ class Habit {
   bool isCompleted = false;
   int proficiencyRating = 0;
   int streak = 0;
-  List<DateTime> daysCompleted = [];
   int requiredCompletions;
   int completionsToday;
   int totalCompletions;
   int highestStreak;
-  List requiredDatesOfCompletion = [];
   String resetPeriod;
   DateTime dateCreated;
   double confidenceLevel;
   DateTime lastSeen = DateTime.now();
   Color color = kMainBlue;
+
+  List<DateTime> daysCompleted = [];
+  List requiredDatesOfCompletion = [];
+  List<DataPoint> confidenceStats = [];
+  List<DataPoint> completionStats = [];
+
   void incrementCompletion(context) {
     completionsToday++;
     totalCompletions++;
@@ -35,8 +40,6 @@ class Habit {
       confidenceLevel = confidenceLevel * pow(1.10, confidenceLevel);
       Provider.of<StatisticsManager>(context, listen: false)
           .recordConfidenceLevel(context);
-      print('habit incremented');
-      print(confidenceLevel);
     }
     daysCompleted.add(DateTime.now());
   }
@@ -90,5 +93,7 @@ class Habit {
       this.totalCompletions = 0,
       this.confidenceLevel = 1,
       this.requiredDatesOfCompletion = const [],
+      this.confidenceStats = const [],
+      this.completionStats = const [],
       this.requiredCompletions = 1});
 }
