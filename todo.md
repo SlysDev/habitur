@@ -2,8 +2,7 @@
 
 ## Statistics Management
 
-1. Write statistics manager so it can CRUD the habit-specific statistics, and the more
-   general statistics.
+1. Figure out why the habit heatmap doesn't display the data.
 
 ## Challenge Habits
 

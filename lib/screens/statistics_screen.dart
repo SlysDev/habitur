@@ -6,7 +6,7 @@ import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/habit_heat_map.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/statistics_manager.dart';
+import 'package:habitur/modules/statistics_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import '../components/navbar.dart';
 import '../components/rounded_progress_bar.dart';
