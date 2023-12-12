@@ -21,62 +21,49 @@ class StatisticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-        title: Container(
-          child: const Text(
-            'Statistics',
-            style: kTitleTextStyle,
-          ),
-        ),
-      ),
       body: ListView(
         children: [
           const SizedBox(height: 30),
           Center(
+            child: Text(
+              Provider.of<LevelingSystem>(context).userLevel.toString(),
+              style: kTitleTextStyle,
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Center(
             child: Container(
-              margin: const EdgeInsets.only(top: 10),
-              child: CircularPercentIndicator(
-                radius: 100,
-                lineWidth: 30,
-                progressColor: kMainBlue,
-                curve: Curves.ease,
-                circularStrokeCap: CircularStrokeCap.round,
-                percent: Provider.of<LevelingSystem>(context).habiturRating /
+              margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
+              child: RoundedProgressBar(
+                lineHeight: 25,
+                color: kMainBlue,
+                progress: Provider.of<LevelingSystem>(context).habiturRating /
                     Provider.of<LevelingSystem>(context).levelUpRequirement,
-                animation: true,
-                animateFromLastPercent: true,
-                center: Container(
-                  child: Text(
-                    Provider.of<LevelingSystem>(context).userLevel.toString(),
-                    style: kTitleTextStyle,
-                  ),
-                ),
               ),
             ),
           ),
           const SizedBox(height: 10),
-          const Center(
+          Center(
             child: Text(
-              'Habitur Rating',
-              style: kHeadingTextStyle,
-            ),
+                "${Provider.of<LevelingSystem>(context).habiturRating} / ${Provider.of<LevelingSystem>(context).levelUpRequirement}",
+                style: kHeadingTextStyle.copyWith(fontSize: 20)),
           ),
           SizedBox(
             height: 30,
           ),
-          HabitHeatMap(
-              data:
-                  // Converts stats array into a map (list --> iterable --> map)
-                  Map<DateTime, int>.fromEntries(
-                      Provider.of<SummaryStatisticsRepository>(context)
-                          .completionStats
-                          .map((dataPoint) => MapEntry(
-                              DateTime(dataPoint.date.year,
-                                  dataPoint.date.month, dataPoint.date.day),
-                              dataPoint.value)))),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 20),
+            child: HabitHeatMap(
+                data:
+                    // Converts stats array into a map (list --> iterable --> map)
+                    Map<DateTime, int>.fromEntries(
+                        Provider.of<SummaryStatisticsRepository>(context)
+                            .completionStats
+                            .map((dataPoint) => MapEntry(
+                                DateTime(dataPoint.date.year,
+                                    dataPoint.date.month, dataPoint.date.day),
+                                dataPoint.value)))),
+          ),
           const SizedBox(height: 40),
           ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 20),

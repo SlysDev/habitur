@@ -56,6 +56,7 @@ class Habit {
           .totalHabitsCompleted--;
       confidenceLevel = confidenceLevel * pow(0.90, confidenceLevel);
       statsManager.recordAverageConfidenceLevel(context);
+      daysCompleted.remove(daysCompleted.last);
       Provider.of<LevelingSystem>(context, listen: false).removeHabiturRating();
       streak--;
     }

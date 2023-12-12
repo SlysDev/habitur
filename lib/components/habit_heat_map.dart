@@ -21,10 +21,6 @@ class HabitHeatMap extends StatelessWidget {
         colorsets: {
           1: kMainBlue,
         },
-        onClick: (value) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text(value.toString())));
-        },
       ),
     );
   }
