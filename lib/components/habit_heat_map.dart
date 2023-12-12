@@ -5,20 +5,19 @@ import 'package:habitur/constants.dart';
 class HabitHeatMap extends StatelessWidget {
   double size;
   Map<DateTime, int> data;
-  HabitHeatMap({this.size = 20.0, required this.data});
+  HabitHeatMap({this.size = 40.0, required this.data});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: HeatMap(
+      child: HeatMapCalendar(
         size: size,
+        flexible: true,
+        fontSize: size / 2.5,
+        margin: EdgeInsets.all(5),
         datasets: data,
-        startDate: DateTime.now().subtract(Duration(days: 30)),
-        endDate: DateTime.now(),
         colorMode: ColorMode.opacity,
-        showText: false,
         defaultColor: Colors.white,
-        scrollable: true,
         colorsets: {
           1: kMainBlue,
         },

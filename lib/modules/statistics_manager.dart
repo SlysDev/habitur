@@ -9,7 +9,8 @@ import 'package:provider/provider.dart';
 class StatisticsManager {
   void logHabitCompletion(BuildContext context) {
     List<DataPoint> completionStats =
-        Provider.of<SummaryStatisticsRepository>(context).completionStats;
+        Provider.of<SummaryStatisticsRepository>(context, listen: false)
+            .completionStats;
 
     // Check if there's an entry for the current day
     int currentDayIndex = completionStats.indexWhere(
@@ -34,10 +35,16 @@ class StatisticsManager {
     }
 
     // Notify the display manager to update
-    Provider.of<StatisticsDisplayManager>(context).initStatsDisplay(context);
+    recordAverageConfidenceLevel(context);
+    Provider.of<StatisticsDisplayManager>(context, listen: false)
+        .initStatsDisplay(context);
+    print('Date: ' +
+        completionStats.last.date.toString() +
+        " Value: " +
+        completionStats.last.value.toString());
   }
 
-  void recordConfidenceLevel(context) {
+  void recordAverageConfidenceLevel(context) {
     List<DataPoint> confidenceStats =
         Provider.of<SummaryStatisticsRepository>(context, listen: false)
             .confidenceStats;

@@ -8,6 +8,7 @@ import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/modules/statistics_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
+import 'package:intl/intl.dart';
 import '../components/navbar.dart';
 import '../components/rounded_progress_bar.dart';
 import '../constants.dart';
@@ -63,14 +64,19 @@ class StatisticsScreen extends StatelessWidget {
               style: kHeadingTextStyle,
             ),
           ),
-          HabitHeatMap(
-            data:
-                // Converts stats array into a map (list --> iterable --> map)
-                Map.fromIterable(
-                    Provider.of<SummaryStatisticsRepository>(context)
-                        .completionStats
-                        .map((element) => {element.date: element.value})),
+          SizedBox(
+            height: 30,
           ),
+          HabitHeatMap(
+              data:
+                  // Converts stats array into a map (list --> iterable --> map)
+                  Map<DateTime, int>.fromEntries(
+                      Provider.of<SummaryStatisticsRepository>(context)
+                          .completionStats
+                          .map((dataPoint) => MapEntry(
+                              DateTime(dataPoint.date.year,
+                                  dataPoint.date.month, dataPoint.date.day),
+                              dataPoint.value)))),
           const SizedBox(height: 40),
           ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 20),

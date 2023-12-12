@@ -40,7 +40,7 @@ class Habit {
       Provider.of<LevelingSystem>(context, listen: false).addHabiturRating();
       streak++;
       confidenceLevel = confidenceLevel * pow(1.10, confidenceLevel);
-      statsManager.recordConfidenceLevel(context);
+      statsManager.logHabitCompletion(context);
     }
     daysCompleted.add(DateTime.now());
   }
@@ -55,7 +55,7 @@ class Habit {
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted--;
       confidenceLevel = confidenceLevel * pow(0.90, confidenceLevel);
-      statsManager.recordConfidenceLevel(context);
+      statsManager.recordAverageConfidenceLevel(context);
       Provider.of<LevelingSystem>(context, listen: false).removeHabiturRating();
       streak--;
     }
