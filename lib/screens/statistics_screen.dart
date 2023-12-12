@@ -33,7 +33,7 @@ class StatisticsScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
           Center(
             child: Container(
               margin: const EdgeInsets.only(top: 10),
@@ -56,8 +56,8 @@ class StatisticsScreen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 10),
-          Center(
+          const SizedBox(height: 10),
+          const Center(
             child: Text(
               'Habitur Rating',
               style: kHeadingTextStyle,
@@ -71,18 +71,18 @@ class StatisticsScreen extends StatelessWidget {
                         .completionStats
                         .map((element) => {element.date: element.value})),
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: Provider.of<HabitManager>(context).habits.length,
             itemBuilder: (BuildContext context, int index) => Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               elevation: 20,
-              margin: EdgeInsets.all(10),
+              margin: const EdgeInsets.all(10),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
@@ -95,7 +95,7 @@ class StatisticsScreen extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     GridView.count(
                       physics: new NeverScrollableScrollPhysics(),
                       crossAxisCount: 2,
@@ -155,7 +155,7 @@ Widget _buildStat(String label, String value) {
         value,
         style: kHeadingTextStyle,
       ),
-      SizedBox(height: 5),
+      const SizedBox(height: 5),
       Text(
         label,
         style: kMainDescription,

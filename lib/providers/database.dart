@@ -5,7 +5,9 @@ import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/leveling_system.dart';
+import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/statistics_manager.dart';
+import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
 
@@ -111,14 +113,16 @@ class Database extends ChangeNotifier {
       tempConfidenceList.add(DataPoint(
           date: dataPoint['date'].toDate(), value: dataPoint['value']));
     }
-    Provider.of<StatisticsManager>(context, listen: false).confidenceStats =
-        tempConfidenceList;
-    Provider.of<StatisticsManager>(context, listen: false).initStatsDisplay();
+    Provider.of<SummaryStatisticsRepository>(context, listen: false)
+        .confidenceStats = tempConfidenceList;
+    Provider.of<StatisticsDisplayManager>(context, listen: false)
+        .initStatsDisplay(context);
 
-    Provider.of<StatisticsManager>(context, listen: false)
+    Provider.of<SummaryStatisticsRepository>(context, listen: false)
             .totalHabitsCompleted =
         userSnapshot.get('stats')['totalHabitsCompleted'];
-    Provider.of<StatisticsManager>(context, listen: false).notifyListeners();
+    Provider.of<SummaryStatisticsRepository>(context, listen: false)
+        .notifyListeners();
   }
 
   void uploadStatistics(context) async {
@@ -134,11 +138,11 @@ class Database extends ChangeNotifier {
     userReference.set({
       'stats': {
         'totalHabitsCompleted':
-            Provider.of<StatisticsManager>(context, listen: false)
+            Provider.of<SummaryStatisticsRepository>(context, listen: false)
                 .totalHabitsCompleted,
         // Converting confidenceStats into an array of normal objects
         'confidenceStats':
-            Provider.of<StatisticsManager>(context, listen: false)
+            Provider.of<SummaryStatisticsRepository>(context, listen: false)
                 .confidenceStats
                 .map((dataPoint) => {
                       'value': dataPoint.value,

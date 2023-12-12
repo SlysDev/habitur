@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 class SummaryStatisticsRepository extends ChangeNotifier {
   List<DataPoint> confidenceStats = [];
   List<DataPoint> completionStats = [];
+  int totalHabitsCompleted = 0;
 
   // Other properties...
 
