@@ -2,7 +2,8 @@
 
 ## Statistics Management
 
-1.
+1. Write statistics manager so it can CRUD the habit-specific statistics, and the more
+   general statistics.
 
 ## Challenge Habits
 
