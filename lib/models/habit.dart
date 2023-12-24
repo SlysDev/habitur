@@ -1,13 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/models/data_point.dart';
-import 'package:habitur/providers/leveling_system.dart';
-import 'package:habitur/modules/statistics_recorder.dart';
-import 'package:habitur/providers/summary_statistics_repository.dart';
-import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/providers/user_data.dart';
-import 'package:intl/intl.dart';
-import 'dart:math';
 
 class Habit {
   String title;
@@ -28,76 +21,6 @@ class Habit {
   List<String> requiredDatesOfCompletion = [];
   List<DataPoint> completionStats = [];
   List<DataPoint> confidenceStats = [];
-  void incrementCompletion(context) {
-    StatisticsRecorder statsRecorder = StatisticsRecorder();
-    completionsToday++;
-    totalCompletions++;
-    if (completionsToday == requiredCompletions) {
-      isCompleted = true;
-      Provider.of<SummaryStatisticsRepository>(context, listen: false)
-          .totalHabitsCompleted++;
-      Provider.of<LevelingSystem>(context, listen: false).addHabiturRating();
-      streak++;
-      confidenceLevel = confidenceLevel * pow(1.10, confidenceLevel);
-      confidenceStats
-          .add(DataPoint(value: confidenceLevel, date: DateTime.now()));
-      int currentDayIndex = completionStats.indexWhere(
-        (dataPoint) =>
-            dataPoint.date.year == DateTime.now().year &&
-            dataPoint.date.month == DateTime.now().month &&
-            dataPoint.date.day == DateTime.now().day,
-      );
-      if (currentDayIndex != -1) {
-        // If there's an entry for the current day, update the completion count
-        completionStats[currentDayIndex] = DataPoint(
-          date: DateTime.now(),
-          value: completionStats[currentDayIndex].value + 1,
-        );
-      } else {
-        // If there's no entry for the current day, add a new entry
-        completionStats.add(DataPoint(
-          date: DateTime.now(),
-          value: 1,
-        ));
-      }
-      statsRecorder.logHabitCompletion(context);
-    }
-    daysCompleted.add(DateTime.now());
-  }
-
-  void decrementCompletion(context) {
-    StatisticsRecorder statsRecorder = StatisticsRecorder();
-    if (completionsToday == 0) {
-      return;
-    }
-    if (completionsToday == requiredCompletions) {
-      isCompleted = false;
-      Provider.of<SummaryStatisticsRepository>(context, listen: false)
-          .totalHabitsCompleted--;
-      confidenceLevel = confidenceLevel * pow(0.90, confidenceLevel);
-      statsRecorder.recordAverageConfidenceLevel(context);
-      if (daysCompleted.isNotEmpty) {
-        daysCompleted.remove(daysCompleted.last);
-      }
-      Provider.of<LevelingSystem>(context, listen: false).removeHabiturRating();
-      if (streak > 0) {
-        streak--;
-      }
-      if (confidenceStats.length != 0) {
-        confidenceStats.removeLast();
-      }
-    }
-    completionsToday--;
-    totalCompletions--;
-  }
-
-  void resetHabitCompletions() {
-    completionsToday = 0;
-    if (streak > highestStreak) {
-      highestStreak = streak;
-    }
-    streak = 0;
-  }
 
   double get completionRate {
     if (daysCompleted.isEmpty) {

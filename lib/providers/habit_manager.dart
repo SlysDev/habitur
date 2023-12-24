@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/habit.dart';
@@ -60,51 +61,57 @@ class HabitManager extends ChangeNotifier {
   }
 
   void resetDailyHabits() {
-    _habits.forEach((element) {
+    for (int i = 0; i < _habits.length; i++) {
+      Habit element = _habits[i];
+      HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
       if (element.resetPeriod == 'Daily') {
         // If the task was not created today, make it incomplete
         if (DateFormat('d').format(element.lastSeen) !=
             DateFormat('d').format(DateTime.now())) {
-          element.resetHabitCompletions();
+          habitStatsHandler.resetHabitCompletions();
           element.lastSeen = DateTime.now();
         }
       } else {
         return;
       }
-    });
+    }
     notifyListeners();
   }
 
   void resetWeeklyHabits() {
-    _habits.forEach((element) {
+    for (int i = 0; i < _habits.length; i++) {
+      Habit element = _habits[i];
+      HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
       if (element.resetPeriod == 'Weekly') {
         // If its monday but its not the same day as when the habit was last seen, reset
         if (DateFormat('d').format(element.lastSeen) == 'Monday' &&
             DateFormat('d').format(DateTime.now()) !=
                 DateFormat('d').format(element.lastSeen)) {
-          element.resetHabitCompletions();
+          habitStatsHandler.resetHabitCompletions();
           element.lastSeen = DateTime.now();
         }
       } else {
         return;
       }
-    });
+    }
     notifyListeners();
   }
 
   void resetMonthlyHabits() {
-    _habits.forEach((element) {
+    for (int i = 0; i < _habits.length; i++) {
+      Habit element = _habits[i];
+      HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
       if (element.resetPeriod == 'Monthly') {
         // If the task was not created this month, make it incomplete
         if (DateFormat('m').format(element.lastSeen) !=
             DateFormat('m').format(DateTime.now())) {
-          element.resetHabitCompletions();
+          habitStatsHandler.resetHabitCompletions();
           element.lastSeen = DateTime.now();
         }
       } else {
         return;
       }
-    });
+    }
     notifyListeners();
   }
 
