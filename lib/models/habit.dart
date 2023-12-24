@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/providers/leveling_system.dart';
-import 'package:habitur/modules/statistics_manager.dart';
+import 'package:habitur/modules/statistics_recorder.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
@@ -29,7 +29,7 @@ class Habit {
   List<DataPoint> completionStats = [];
   List<DataPoint> confidenceStats = [];
   void incrementCompletion(context) {
-    StatisticsManager statsManager = StatisticsManager();
+    StatisticsRecorder statsRecorder = StatisticsRecorder();
     completionsToday++;
     totalCompletions++;
     if (completionsToday == requiredCompletions) {
@@ -60,13 +60,13 @@ class Habit {
           value: 1,
         ));
       }
-      statsManager.logHabitCompletion(context);
+      statsRecorder.logHabitCompletion(context);
     }
     daysCompleted.add(DateTime.now());
   }
 
   void decrementCompletion(context) {
-    StatisticsManager statsManager = StatisticsManager();
+    StatisticsRecorder statsRecorder = StatisticsRecorder();
     if (completionsToday == 0) {
       return;
     }
@@ -75,7 +75,7 @@ class Habit {
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted--;
       confidenceLevel = confidenceLevel * pow(0.90, confidenceLevel);
-      statsManager.recordAverageConfidenceLevel(context);
+      statsRecorder.recordAverageConfidenceLevel(context);
       if (daysCompleted.isNotEmpty) {
         daysCompleted.remove(daysCompleted.last);
       }

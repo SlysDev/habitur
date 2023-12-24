@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/modules/statistics_manager.dart';
+import 'package:habitur/modules/statistics_recorder.dart';
 import 'package:provider/provider.dart';
 
 class LineGraph extends StatelessWidget {

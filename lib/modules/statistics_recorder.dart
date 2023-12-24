@@ -6,7 +6,7 @@ import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:provider/provider.dart';
 
-class StatisticsManager {
+class StatisticsRecorder {
   void logHabitCompletion(BuildContext context) {
     List<DataPoint> completionStats =
         Provider.of<SummaryStatisticsRepository>(context, listen: false)
