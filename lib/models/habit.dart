@@ -25,10 +25,9 @@ class Habit {
   Color color = kMainBlue;
 
   List<DateTime> daysCompleted = [];
-  List requiredDatesOfCompletion = [];
-  List<DataPoint> confidenceStats = [];
+  List<String> requiredDatesOfCompletion = [];
   List<DataPoint> completionStats = [];
-
+  List<DataPoint> confidenceStats = [];
   void incrementCompletion(context) {
     StatisticsManager statsManager = StatisticsManager();
     completionsToday++;
@@ -40,6 +39,9 @@ class Habit {
       Provider.of<LevelingSystem>(context, listen: false).addHabiturRating();
       streak++;
       confidenceLevel = confidenceLevel * pow(1.10, confidenceLevel);
+      confidenceStats
+          .add(DataPoint(value: confidenceLevel, date: DateTime.now()));
+      // completionStats.add(DataPoint(date: DateTime.now(), value: completionsToday))
       statsManager.logHabitCompletion(context);
     }
     daysCompleted.add(DateTime.now());
@@ -56,9 +58,16 @@ class Habit {
           .totalHabitsCompleted--;
       confidenceLevel = confidenceLevel * pow(0.90, confidenceLevel);
       statsManager.recordAverageConfidenceLevel(context);
-      daysCompleted.remove(daysCompleted.last);
+      if (daysCompleted.isNotEmpty) {
+        daysCompleted.remove(daysCompleted.last);
+      }
       Provider.of<LevelingSystem>(context, listen: false).removeHabiturRating();
-      streak--;
+      if (streak > 0) {
+        streak--;
+      }
+      if (confidenceStats.length != 0) {
+        confidenceStats.removeLast();
+      }
     }
     completionsToday--;
     totalCompletions--;
@@ -95,6 +104,7 @@ class Habit {
       this.totalCompletions = 0,
       this.confidenceLevel = 1,
       this.requiredDatesOfCompletion = const [],
+      this.daysCompleted = const [],
       this.confidenceStats = const [],
       this.completionStats = const [],
       this.requiredCompletions = 1});

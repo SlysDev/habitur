@@ -6,7 +6,6 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/leveling_system.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
-import 'package:habitur/modules/statistics_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
@@ -53,20 +52,49 @@ class Database extends ChangeNotifier {
     final habitDocs = habitsSnapshot.docs;
     List<Habit> habitList = [];
     for (var habit in habitDocs) {
-      // Converting the date from a Timestamp to a DateTime data type.
+      // Converting all arrays back into their datatypes
+      List<dynamic> requiredDatesOfCompletionRaw =
+          habit.get('requiredDatesOfCompletion');
+
+      List<String> requiredDatesOfCompletionFormatted =
+          requiredDatesOfCompletionRaw
+              .map<String>((dynamic date) => date.toString())
+              .toList();
+
+      List<dynamic> daysCompletedRaw = habit.get('daysCompleted');
+      List<DateTime> daysCompletedFormatted = daysCompletedRaw
+          .map<DateTime>((dynamic date) => date.toDate())
+          .toList();
+      List<dynamic> confidenceStatsRaw = habit.get('confidenceStats');
+      List<DataPoint> confidenceStatsFormatted = confidenceStatsRaw
+          .map<DataPoint>(
+              (dynamic stat) => DataPoint(date: stat.date, value: stat.value))
+          .toList();
+
+      List<dynamic> completionStatsRaw = habit.get('completionStats');
+      List<DataPoint> completionStatsFormatted = completionStatsRaw
+          .map<DataPoint>(
+              (dynamic stat) => DataPoint(date: stat.date, value: stat.value))
+          .toList();
+
       Habit loadedHabit = Habit(
-          title: habit.get('title'),
-          resetPeriod: habit.get('resetPeriod'),
-          // Converts timestamp to DateTime
-          dateCreated: habit.get('dateCreated').toDate(),
-          completionsToday: habit.get('completionsToday'),
-          requiredDatesOfCompletion: habit.get('requiredDatesOfCompletion'),
-          totalCompletions: habit.get('totalCompletions'),
-          streak: habit.get('streak'),
-          highestStreak: habit.get('highestStreak'),
-          confidenceLevel: habit.get('confidenceLevel'),
-          lastSeen: habit.get('lastSeen').toDate(),
-          requiredCompletions: habit.get('requiredCompletions'));
+        title: habit.get('title'),
+        resetPeriod: habit.get('resetPeriod'),
+        // Converts timestamp to DateTime
+        dateCreated: habit.get('dateCreated').toDate(),
+        completionsToday: habit.get('completionsToday'),
+        totalCompletions: habit.get('totalCompletions'),
+        streak: habit.get('streak'),
+        highestStreak: habit.get('highestStreak'),
+        confidenceLevel: habit.get('confidenceLevel'),
+        // Converts timestamp to DateTime
+        lastSeen: habit.get('lastSeen').toDate(),
+        requiredCompletions: habit.get('requiredCompletions'),
+        requiredDatesOfCompletion: requiredDatesOfCompletionFormatted,
+        daysCompleted: daysCompletedFormatted,
+        confidenceStats: confidenceStatsFormatted,
+        completionStats: completionStatsFormatted,
+      );
       habitList.add(loadedHabit);
     }
     Provider.of<HabitManager>(context, listen: false).loadHabits(habitList);
@@ -86,6 +114,8 @@ class Database extends ChangeNotifier {
     // Then add all of the habits from the local array to the database
     for (var habit
         in Provider.of<HabitManager>(context, listen: false).habits) {
+      print(habit.title + ': ' + habit.confidenceStats.toString());
+      print(habit.title + ': ' + habit.completionStats.toString());
       userReference.collection('habits').add({
         'title': habit.title,
         'completionsToday': habit.completionsToday,
@@ -98,6 +128,23 @@ class Database extends ChangeNotifier {
         'requiredCompletions': habit.requiredCompletions,
         'totalCompletions': habit.totalCompletions,
         'lastSeen': habit.lastSeen,
+        'daysCompleted': habit.daysCompleted
+            .map((completedDate) => {
+                  'date': completedDate,
+                })
+            .toList(growable: true),
+        'confidenceStats': habit.confidenceStats
+            .map((stat) => {
+                  'date': stat.date,
+                  'value': stat.value,
+                })
+            .toList(growable: true),
+        'completionStats': habit.completionStats
+            .map((stat) => {
+                  'date': stat.date,
+                  'value': stat.value,
+                })
+            .toList(growable: true),
       });
     }
     print('uploaded to database.');
@@ -144,6 +191,14 @@ class Database extends ChangeNotifier {
         'confidenceStats':
             Provider.of<SummaryStatisticsRepository>(context, listen: false)
                 .confidenceStats
+                .map((dataPoint) => {
+                      'value': dataPoint.value,
+                      'date': dataPoint.date,
+                    })
+                .toList(),
+        'completionStats':
+            Provider.of<SummaryStatisticsRepository>(context, listen: false)
+                .completionStats
                 .map((dataPoint) => {
                       'value': dataPoint.value,
                       'date': dataPoint.date,

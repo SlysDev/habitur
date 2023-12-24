@@ -12,7 +12,7 @@ int? selectedHabit = 0;
 String habitTitle = '';
 int habitCompletions = 1;
 String selectedPeriod = 'Daily';
-List daysActive = [
+List<String> daysActive = [
   'Monday',
   'Tuesday',
   'Wednesday',
