@@ -41,7 +41,25 @@ class Habit {
       confidenceLevel = confidenceLevel * pow(1.10, confidenceLevel);
       confidenceStats
           .add(DataPoint(value: confidenceLevel, date: DateTime.now()));
-      // completionStats.add(DataPoint(date: DateTime.now(), value: completionsToday))
+      int currentDayIndex = completionStats.indexWhere(
+        (dataPoint) =>
+            dataPoint.date.year == DateTime.now().year &&
+            dataPoint.date.month == DateTime.now().month &&
+            dataPoint.date.day == DateTime.now().day,
+      );
+      if (currentDayIndex != -1) {
+        // If there's an entry for the current day, update the completion count
+        completionStats[currentDayIndex] = DataPoint(
+          date: DateTime.now(),
+          value: completionStats[currentDayIndex].value + 1,
+        );
+      } else {
+        // If there's no entry for the current day, add a new entry
+        completionStats.add(DataPoint(
+          date: DateTime.now(),
+          value: 1,
+        ));
+      }
       statsManager.logHabitCompletion(context);
     }
     daysCompleted.add(DateTime.now());
