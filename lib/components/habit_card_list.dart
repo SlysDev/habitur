@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_card.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/user_data.dart';
@@ -27,6 +28,8 @@ class HabitCardList extends StatelessWidget {
             },
             child: ListView.builder(
                 itemBuilder: (context, index) {
+                  HabitStatsHandler habitStatsHandler =
+                      HabitStatsHandler(habitManager.habits[index]);
                   habitManager.sortHabits();
                   return habitManager
                           .sortedHabits[index].requiredDatesOfCompletion
@@ -61,7 +64,7 @@ class HabitCardList extends StatelessWidget {
                                 },
                                 title: habitManager.habits[index].title,
                                 onLongPress: () {
-                                  habitManager.habits[index]
+                                  habitStatsHandler
                                       .decrementCompletion(context);
                                   habitManager.updateHabits(context);
                                 },
@@ -70,7 +73,7 @@ class HabitCardList extends StatelessWidget {
                                           .habits[index].completionsToday !=
                                       habitManager
                                           .habits[index].requiredCompletions) {
-                                    habitManager.habits[index]
+                                    habitStatsHandler
                                         .incrementCompletion(context);
                                     habitManager.updateHabits(context);
                                   }

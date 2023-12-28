@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/providers/statistics_manager.dart';
+import 'package:habitur/modules/statistics_recorder.dart';
 import 'package:provider/provider.dart';
 
 class LineGraph extends StatelessWidget {
@@ -12,11 +12,23 @@ class LineGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(40),
       height: height,
       width: width,
       child: LineChart(
         LineChartData(
+          maxY: 2,
+          minY: 0,
+          borderData: FlBorderData(show: false),
+          // borderData: FlBorderData(
+          //   show: true,
+          //   border: Border(
+          //     top: BorderSide(color: kMainBlue),
+          //     bottom: BorderSide(color: kMainBlue),
+          //   ),
+          // ),
           titlesData: FlTitlesData(
+            show: false,
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: false,
@@ -28,25 +40,24 @@ class LineGraph extends StatelessWidget {
               ),
             ),
           ),
-          borderData: FlBorderData(show: false),
           lineBarsData: [
             LineChartBarData(
                 isStrokeCapRound: true,
-                barWidth: 8,
+                barWidth: 5,
                 belowBarData: BarAreaData(
                     gradient:
                         const LinearGradient(colors: [kMainBlue, kSlateGray])),
                 color: kMainBlue,
                 dotData: FlDotData(show: false),
                 isCurved: true,
-                preventCurveOverShooting: true,
-                curveSmoothness: 0.1,
+                preventCurveOverShooting: false,
+                curveSmoothness: 0.2,
                 spots: data
                     .map((dataPoint) => FlSpot(
-                        (dataPoint.date.millisecondsSinceEpoch / 60000)
+                        (dataPoint.date.millisecondsSinceEpoch)
                             .ceil()
                             .toDouble(),
-                        dataPoint.value.toDouble()))
+                        double.parse(dataPoint.value.toStringAsFixed(2))))
                     .toList())
             // spots: [
             //   FlSpot(0, 3),

@@ -6,17 +6,19 @@ class RoundedProgressBar extends StatelessWidget {
     Key? key,
     required this.progress,
     this.color = Colors.white,
+    this.lineHeight = 12.0,
   }) : super(key: key);
 
   final double progress;
   final Color color;
+  final double lineHeight;
 
   @override
   Widget build(BuildContext context) {
     return LinearPercentIndicator(
       percent: progress,
       barRadius: const Radius.circular(30),
-      lineHeight: 12.0,
+      lineHeight: lineHeight,
       animation: true,
       animationDuration: 600,
       curve: Curves.ease,

@@ -31,6 +31,7 @@ class HomeGreetingHeader extends StatelessWidget {
       ),
       Text(
         'Today is ${DateFormat('EEEE,').format(DateTime.now())} ${DateFormat('M').format(DateTime.now())}/${DateFormat('d').format(DateTime.now())}',
+        style: TextStyle(fontSize: 16),
       ),
       const SizedBox(
         height: 40,
