@@ -61,21 +61,12 @@ class Database extends ChangeNotifier {
               .map<String>((dynamic date) => date.toString())
               .toList();
 
-      List<dynamic> daysCompletedRaw = habit.get('daysCompleted');
-      List<DateTime> daysCompletedFormatted = daysCompletedRaw
-          .map<DateTime>((dynamic date) => date.toDate())
-          .toList();
-      List<dynamic> confidenceStatsRaw = habit.get('confidenceStats');
-      List<DataPoint> confidenceStatsFormatted = confidenceStatsRaw
-          .map<DataPoint>(
-              (dynamic stat) => DataPoint(date: stat.date, value: stat.value))
-          .toList();
-
-      List<dynamic> completionStatsRaw = habit.get('completionStats');
-      List<DataPoint> completionStatsFormatted = completionStatsRaw
-          .map<DataPoint>(
-              (dynamic stat) => DataPoint(date: stat.date, value: stat.value))
-          .toList();
+      List<DateTime> daysCompletedFormatted =
+          rawListToDates(habit.get('daysCompleted'));
+      List<DataPoint> confidenceStatsFormatted =
+          rawListToDataPoints(habit.get('confidenceStats'));
+      List<DataPoint> completionStatsFormatted =
+          rawListToDataPoints(habit.get('completionStats'));
 
       Habit loadedHabit = Habit(
         title: habit.get('title'),
@@ -132,19 +123,19 @@ class Database extends ChangeNotifier {
             .map((completedDate) => {
                   'date': completedDate,
                 })
-            .toList(growable: true),
+            .toList(),
         'confidenceStats': habit.confidenceStats
             .map((stat) => {
                   'date': stat.date,
                   'value': stat.value,
                 })
-            .toList(growable: true),
+            .toList(),
         'completionStats': habit.completionStats
             .map((stat) => {
                   'date': stat.date,
                   'value': stat.value,
                 })
-            .toList(growable: true),
+            .toList(),
       });
     }
     print('uploaded to database.');
@@ -154,22 +145,24 @@ class Database extends ChangeNotifier {
   void loadStatistics(context) async {
     DocumentSnapshot userSnapshot =
         await users.doc(_auth.currentUser!.uid.toString()).get();
-    List<DataPoint> tempConfidenceList = [];
-    List confidenceStats = userSnapshot.get('stats')['confidenceStats'];
-    for (var dataPoint in confidenceStats) {
-      tempConfidenceList.add(DataPoint(
-          date: dataPoint['date'].toDate(), value: dataPoint['value']));
+    if (userSnapshot.exists) {
+      Provider.of<SummaryStatisticsRepository>(context, listen: false)
+              .confidenceStats =
+          rawListToDataPoints(userSnapshot.get('stats')['confidenceStats']);
+      Provider.of<SummaryStatisticsRepository>(context, listen: false)
+              .completionStats =
+          rawListToDataPoints(userSnapshot.get('stats')['completionStats']);
+      Provider.of<SummaryStatisticsRepository>(context, listen: false)
+              .totalHabitsCompleted =
+          userSnapshot.get('stats')['totalHabitsCompleted'];
+    } else {
+      print('User doc does not exist.');
     }
-    Provider.of<SummaryStatisticsRepository>(context, listen: false)
-        .confidenceStats = tempConfidenceList;
-    Provider.of<StatisticsDisplayManager>(context, listen: false)
-        .initStatsDisplay(context);
 
     Provider.of<SummaryStatisticsRepository>(context, listen: false)
-            .totalHabitsCompleted =
-        userSnapshot.get('stats')['totalHabitsCompleted'];
-    Provider.of<SummaryStatisticsRepository>(context, listen: false)
         .notifyListeners();
+    Provider.of<StatisticsDisplayManager>(context, listen: false)
+        .initStatsDisplay(context);
   }
 
   void uploadStatistics(context) async {
@@ -218,5 +211,43 @@ class Database extends ChangeNotifier {
   void uploadData(context) async {
     uploadHabits(context);
     uploadStatistics(context);
+  }
+}
+
+List<DataPoint> rawListToDataPoints(input) {
+  if (input.isNotEmpty) {
+    return input.map<DataPoint>((element) {
+      if (element is Map<String, dynamic>) {
+        dynamic date = element['date'];
+        DateTime dateTime;
+        if (date is Timestamp) {
+          dateTime = date.toDate();
+        } else {
+          dateTime = DateTime.now(); // Handle unexpected format
+          print('weird formatting, used DateTime.now() for this one.');
+        }
+        return DataPoint(date: dateTime, value: element['value']);
+      } else {
+        print('input was empty');
+        return DataPoint(
+            date: DateTime.now(), value: 0); // Handle unexpected format
+      }
+    }).toList();
+  } else {
+    return [];
+  }
+}
+
+List<DateTime> rawListToDates(input) {
+  if (input.isNotEmpty) {
+    return input.map<DateTime>((date) {
+      if (date is Timestamp) {
+        return date.toDate();
+      } else {
+        return DateTime.now(); // Handle unexpected format
+      }
+    }).toList();
+  } else {
+    return [];
   }
 }

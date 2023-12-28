@@ -9,8 +9,6 @@ class SummaryStatisticsRepository extends ChangeNotifier {
   List<DataPoint> completionStats = [];
   int totalHabitsCompleted = 0;
 
-  // Other properties...
-
   double getAverageStreak(context) {
     int streakCount = 0;
     int streakTotal = 0;
@@ -45,6 +43,4 @@ class SummaryStatisticsRepository extends ChangeNotifier {
     }
     return totalHabitConfidence / habitNumber;
   }
-
-  // Methods for storing and accessing summary statistics...
 }
