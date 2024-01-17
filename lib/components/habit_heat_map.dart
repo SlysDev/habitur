@@ -19,7 +19,7 @@ class HabitHeatMap extends StatelessWidget {
         colorMode: ColorMode.opacity,
         defaultColor: Colors.white,
         colorsets: {
-          1: kMainBlue,
+          1: kPrimaryColor,
         },
       ),
     );

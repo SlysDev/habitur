@@ -15,7 +15,7 @@ class Habit {
   DateTime dateCreated;
   double confidenceLevel;
   DateTime lastSeen = DateTime.now();
-  Color color = kMainBlue;
+  Color color = kPrimaryColor;
 
   List<DateTime> daysCompleted = [];
   List<String> requiredDatesOfCompletion = [];

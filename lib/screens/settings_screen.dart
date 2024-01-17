@@ -19,9 +19,9 @@ class SettingsScreen extends StatelessWidget {
                 itemCount: settingsData.settingsList.length,
                 itemBuilder: (BuildContext context, index) {
                   return SwitchListTile(
-                    activeColor: kSlateGray,
-                    activeTrackColor: kMainBlue,
-                    inactiveTrackColor: kSlateGray,
+                    activeColor: kGray,
+                    activeTrackColor: kPrimaryColor,
+                    inactiveTrackColor: kGray,
                     inactiveThumbColor: Colors.white,
                     visualDensity: VisualDensity.comfortable,
                     value: settingsData.settingsList[index].settingValue,

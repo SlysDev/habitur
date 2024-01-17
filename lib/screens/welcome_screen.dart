@@ -39,7 +39,7 @@ class WelcomeScreen extends StatelessWidget {
                     text: 'together',
                     style: kMainDescription.copyWith(
                       fontSize: 19,
-                      color: kLightBlue,
+                      color: kLightPrimaryColor,
                     )),
               ]),
               textAlign: TextAlign.center,

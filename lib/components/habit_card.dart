@@ -56,7 +56,7 @@ class HabitCard extends StatelessWidget {
               curve: Curves.ease,
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
               decoration: BoxDecoration(
-                color: !completed ? color : kSlateGray.withOpacity(0.5),
+                color: !completed ? color : kGray.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(

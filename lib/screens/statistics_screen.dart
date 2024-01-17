@@ -40,7 +40,7 @@ class StatisticsScreen extends StatelessWidget {
               margin: const EdgeInsets.only(top: 10, left: 20, right: 20),
               child: RoundedProgressBar(
                 lineHeight: 25,
-                color: kMainBlue,
+                color: kPrimaryColor,
                 progress: Provider.of<LevelingSystem>(context).habiturRating /
                     Provider.of<LevelingSystem>(context).levelUpRequirement,
               ),

@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.pushNamed(context, 'profile-screen'),
                     icon: Icon(
                       Icons.menu_rounded,
-                      color: kMainBlue,
+                      color: kPrimaryColor,
                       size: 30,
                     )),
               )

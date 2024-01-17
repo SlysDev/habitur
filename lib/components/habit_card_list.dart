@@ -19,7 +19,7 @@ class HabitCardList extends StatelessWidget {
         child: SizedBox(
           width: double.infinity,
           child: RefreshIndicator(
-            backgroundColor: kMainBlue,
+            backgroundColor: kPrimaryColor,
             color: Colors.white,
             onRefresh: () async {
               habitManager.resetDailyHabits();

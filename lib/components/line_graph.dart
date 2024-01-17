@@ -46,8 +46,8 @@ class LineGraph extends StatelessWidget {
                 barWidth: 5,
                 belowBarData: BarAreaData(
                     gradient:
-                        const LinearGradient(colors: [kMainBlue, kSlateGray])),
-                color: kMainBlue,
+                        const LinearGradient(colors: [kPrimaryColor, kGray])),
+                color: kPrimaryColor,
                 dotData: FlDotData(show: false),
                 isCurved: true,
                 preventCurveOverShooting: false,

@@ -4,19 +4,19 @@ import 'package:google_fonts/google_fonts.dart';
 const kSubHeadingTextStyle = TextStyle(
   fontSize: 18,
   fontWeight: FontWeight.bold,
-  color: kMainBlue,
+  color: kPrimaryColor,
 );
 
 const kHeadingTextStyle = TextStyle(
   fontSize: 26,
   fontWeight: FontWeight.bold,
-  color: kMainBlue,
+  color: kPrimaryColor,
 );
 
 const kTitleTextStyle = TextStyle(
   fontSize: 42,
   fontWeight: FontWeight.bold,
-  color: kMainBlue,
+  color: kPrimaryColor,
 );
 
 const kErrorTextStyle = TextStyle(
@@ -29,11 +29,13 @@ TextStyle kMainDescription = GoogleFonts.lato().copyWith(
   fontSize: 18,
 );
 
-const kLightBlue = Color.fromRGBO(61, 151, 250, 1);
-const kMainBlue = Color.fromRGBO(9, 45, 85, 1);
-const kSlateGray = Color.fromRGBO(108, 121, 135, 1);
-const kAoEnglish = Color.fromRGBO(25, 131, 11, 1);
-const kBarnRed = Color.fromRGBO(111, 26, 7, 1);
+const kBackgroundColor = Color.fromRGBO(13, 22, 33, 1);
+const kFadedBlue = Color.fromRGBO(26, 44, 66, 1);
+const kDarkGray = Color.fromRGBO(62, 83, 103, 1);
+const kGray = Color.fromRGBO(128, 153, 178, 1);
+const kPrimaryColor = Color.fromRGBO(136, 191, 252, 1);
+const kDarkPrimaryColor = Color.fromRGBO(9, 45, 85, 1);
+const kLightPrimaryColor = Color.fromRGBO(176, 212, 253, 1);
 
 Map<int, Color> colorCodes = {
   50: const Color.fromRGBO(1, 23, 47, .1),
@@ -57,7 +59,7 @@ const kHabiturLogo = Image(
 
 InputDecoration kFilledTextFieldInputDecoration = InputDecoration(
   filled: true,
-  fillColor: kSlateGray,
+  fillColor: kGray,
   contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
   border: OutlineInputBorder(
     borderSide: const BorderSide(color: Colors.transparent),

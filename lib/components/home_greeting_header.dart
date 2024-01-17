@@ -47,7 +47,7 @@ class HomeGreetingHeader extends StatelessWidget {
         width: 300,
         margin: const EdgeInsets.only(top: 20),
         child: RoundedProgressBar(
-          color: kMainBlue,
+          color: kPrimaryColor,
           progress: Provider.of<LevelingSystem>(context).habiturRating /
               Provider.of<LevelingSystem>(context).levelUpRequirement,
         ),

@@ -10,7 +10,7 @@ class AsideButton extends StatelessWidget {
     return GestureDetector(
       child: Text(
         text,
-        style: TextStyle(color: kSlateGray),
+        style: TextStyle(color: kGray),
       ),
       onTap: onPressed,
     );

@@ -86,7 +86,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
                                 color: selectedPeriod == 'Daily'
-                                    ? kMainBlue
+                                    ? kPrimaryColor
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(20)),
                             child: Text(
@@ -108,7 +108,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
                                 color: selectedPeriod == 'Weekly'
-                                    ? kMainBlue
+                                    ? kPrimaryColor
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(20)),
                             child: Text(
@@ -130,7 +130,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             padding: EdgeInsets.all(20),
                             decoration: BoxDecoration(
                                 color: selectedPeriod == 'Monthly'
-                                    ? kMainBlue
+                                    ? kPrimaryColor
                                     : Colors.transparent,
                                 borderRadius: BorderRadius.circular(20)),
                             child: Text(
@@ -197,7 +197,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                     // If monday isn't yet selected, add. Else, remove.
                                   },
                                   color: daysActive.contains('Monday')
-                                      ? kMainBlue
+                                      ? kPrimaryColor
                                       : Colors.transparent,
                                   child: Center(
                                     child: Text(
@@ -225,7 +225,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                     }
                                   },
                                   color: daysActive.contains('Tuesday')
-                                      ? kMainBlue
+                                      ? kPrimaryColor
                                       : Colors.transparent,
                                   child: Center(
                                     child: Text(
@@ -253,7 +253,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                     }
                                   },
                                   color: daysActive.contains('Wednesday')
-                                      ? kMainBlue
+                                      ? kPrimaryColor
                                       : Colors.transparent,
                                   child: Center(
                                     child: Text(
@@ -282,7 +282,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                     }
                                   },
                                   color: daysActive.contains('Thursday')
-                                      ? kMainBlue
+                                      ? kPrimaryColor
                                       : Colors.transparent,
                                   child: Center(
                                     child: Text(
@@ -309,7 +309,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                     }
                                   },
                                   color: daysActive.contains('Friday')
-                                      ? kMainBlue
+                                      ? kPrimaryColor
                                       : Colors.transparent,
                                   child: Center(
                                     child: Text(
@@ -337,7 +337,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                     }
                                   },
                                   color: daysActive.contains('Saturday')
-                                      ? kMainBlue
+                                      ? kPrimaryColor
                                       : Colors.transparent,
                                   child: Center(
                                     child: Text(
@@ -364,7 +364,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                     }
                                   },
                                   color: daysActive.contains('Sunday')
-                                      ? kMainBlue
+                                      ? kPrimaryColor
                                       : Colors.transparent,
                                   child: Center(
                                     child: Text(
