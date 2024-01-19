@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/login_registration_state.dart';
@@ -70,7 +71,7 @@ class RegisterScreen extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.all(20),
-            child: ElevatedButton(
+            child: PrimaryButton(
               onPressed: () async {
                 try {
                   final newUser = await _auth.createUserWithEmailAndPassword(
@@ -87,7 +88,7 @@ class RegisterScreen extends StatelessWidget {
                       .registrationFail();
                 }
               },
-              child: const Text('Register'),
+              text: 'Register',
             ),
           ),
           Container(
