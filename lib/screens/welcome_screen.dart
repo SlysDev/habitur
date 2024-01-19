@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
+import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/screens/login_screen.dart';
 import '../constants.dart';
 import '../components/accent_elevated_button.dart';
@@ -29,31 +30,14 @@ class WelcomeScreen extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            RichText(
-              text: TextSpan(children: [
-                TextSpan(
-                  style: kMainDescription.copyWith(color: Colors.black),
-                  text: 'Making habits better, ',
-                ),
-                TextSpan(
-                    text: 'together',
-                    style: kMainDescription.copyWith(
-                      fontSize: 19,
-                      color: kLightPrimaryColor,
-                    )),
-              ]),
-              textAlign: TextAlign.center,
-            ),
             SizedBox(
               height: 40,
             ),
-            ElevatedButton(
+            PrimaryButton(
               onPressed: () {
                 Navigator.pushNamed(context, 'register_screen');
               },
-              child: Text(
-                'Let\'s begin',
-              ),
+              text: 'Let\'s begin',
             ),
             SizedBox(
               height: 40,

@@ -64,19 +64,19 @@ class Habitur extends StatelessWidget {
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-            textTheme: GoogleFonts.ralewayTextTheme(),
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: kBackgroundColor,
+            textTheme: GoogleFonts.dmSansTextTheme().copyWith(
+              bodyMedium: TextStyle(color: Colors.white),
+            ),
             primaryColor: kPrimaryColor,
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ButtonStyle(
-                  textStyle: MaterialStateProperty.all(
-                    GoogleFonts.raleway().copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
+                textStyle: MaterialStateProperty.all(kCtaBtnStyle),
+                foregroundColor: MaterialStateProperty.all(kBackgroundColor),
                   elevation: MaterialStateProperty.all(10),
-                  shadowColor: MaterialStateProperty.all(kGray),
+                  shadowColor:
+                      MaterialStateProperty.all(kPrimaryColor.withOpacity(0.3)),
                   padding: MaterialStateProperty.all(
                       const EdgeInsets.symmetric(vertical: 20, horizontal: 40)),
                   backgroundColor:

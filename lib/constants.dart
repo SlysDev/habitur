@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// Colors
+const kBackgroundColor = Color.fromRGBO(13, 22, 33, 1);
+const kFadedBlue = Color.fromRGBO(26, 44, 66, 1);
+const kDarkGray = Color.fromRGBO(62, 83, 103, 1);
+const kGray = Color.fromRGBO(128, 153, 178, 1);
+const kPrimaryColor = Color.fromRGBO(136, 191, 252, 1);
+const kDarkPrimaryColor = Color.fromRGBO(9, 45, 85, 1);
+const kLightPrimaryColor = Color.fromRGBO(176, 212, 253, 1);
+
+// Text Style
 const kSubHeadingTextStyle = TextStyle(
   fontSize: 18,
   fontWeight: FontWeight.bold,
@@ -25,17 +35,14 @@ const kErrorTextStyle = TextStyle(
   color: Colors.red,
 );
 
-TextStyle kMainDescription = GoogleFonts.lato().copyWith(
-  fontSize: 18,
+const kCtaBtnStyle = TextStyle(
+  fontSize: 20,
+  fontWeight: FontWeight.bold,
 );
 
-const kBackgroundColor = Color.fromRGBO(13, 22, 33, 1);
-const kFadedBlue = Color.fromRGBO(26, 44, 66, 1);
-const kDarkGray = Color.fromRGBO(62, 83, 103, 1);
-const kGray = Color.fromRGBO(128, 153, 178, 1);
-const kPrimaryColor = Color.fromRGBO(136, 191, 252, 1);
-const kDarkPrimaryColor = Color.fromRGBO(9, 45, 85, 1);
-const kLightPrimaryColor = Color.fromRGBO(176, 212, 253, 1);
+TextStyle kMainDescription = TextStyle(
+  fontSize: 18,
+);
 
 Map<int, Color> colorCodes = {
   50: const Color.fromRGBO(1, 23, 47, .1),

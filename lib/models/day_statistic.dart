@@ -1,4 +1,5 @@
 import 'package:habitur/models/data_point.dart';
+
 class DayStatistic {
   final DateTime date;
   final double averageConfidence;
@@ -11,11 +12,12 @@ class DayStatistic {
   });
 
   DataPoint toDataPoint(String type) {
-	  if (type == 'confidence') {
-    return DataPoint(date: date, value: averageConfidence);
-	  } else if (type == 'completion') {
-    return DataPoint(date: date, value: completions);
-	  } else {
-		  throw 'Please specify type of stat to convert to a datapoint object';
-	  }
+    if (type == 'confidence') {
+      return DataPoint(date: date, value: averageConfidence);
+    } else if (type == 'completion') {
+      return DataPoint(date: date, value: completions);
+    } else {
+      throw 'Please specify type of stat to convert to a datapoint object';
+    }
   }
+}

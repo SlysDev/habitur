@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
+import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/login_registration_state.dart';
@@ -56,7 +57,7 @@ class LoginScreen extends StatelessWidget {
             ),
             Container(
               margin: const EdgeInsets.all(20),
-              child: ElevatedButton(
+              child: PrimaryButton(
                 onPressed: () async {
                   try {
                     final newUser = await _auth.signInWithEmailAndPassword(
@@ -70,7 +71,7 @@ class LoginScreen extends StatelessWidget {
                         .loginFail();
                   }
                 },
-                child: const Text('Login'),
+                text: 'Login',
               ),
             ),
             Container(
