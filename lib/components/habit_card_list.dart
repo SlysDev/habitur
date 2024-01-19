@@ -40,45 +40,46 @@ class HabitCardList extends StatelessWidget {
                               height: 20,
                             ),
                             HabitCard(
-                                progress: habitManager
-                                        .habits[index].completionsToday /
-                                    habitManager
-                                        .habits[index].requiredCompletions,
-                                completed: habitManager
-                                            .habits[index].completionsToday ==
-                                        habitManager
-                                            .habits[index].requiredCompletions
-                                    ? true
-                                    : false,
-                                onDismissed: (context) {
-                                  habitManager.removeHabit(index);
-                                  habitManager.updateHabits(context);
-                                },
-                                onEdit: (context) {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => EditHabitScreen(
-                                                habitIndex: index,
-                                              )));
-                                },
-                                title: habitManager.habits[index].title,
-                                onLongPress: () {
-                                  habitStatsHandler
-                                      .decrementCompletion(context);
-                                  habitManager.updateHabits(context);
-                                },
-                                onTap: () {
-                                  if (habitManager
-                                          .habits[index].completionsToday !=
+                              progress:
+                                  habitManager.habits[index].completionsToday /
                                       habitManager
-                                          .habits[index].requiredCompletions) {
-                                    habitStatsHandler
-                                        .incrementCompletion(context);
-                                    habitManager.updateHabits(context);
-                                  }
-                                },
-                                color: habitManager.habits[index].color),
+                                          .habits[index].requiredCompletions,
+                              completed:
+                                  habitManager.habits[index].completionsToday ==
+                                          habitManager
+                                              .habits[index].requiredCompletions
+                                      ? true
+                                      : false,
+                              onDismissed: (context) {
+                                habitManager.removeHabit(index);
+                                habitManager.updateHabits(context);
+                              },
+                              onEdit: (context) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => EditHabitScreen(
+                                              habitIndex: index,
+                                            )));
+                              },
+                              title: habitManager.habits[index].title,
+                              onLongPress: () {
+                                habitStatsHandler.decrementCompletion(context);
+                                habitManager.updateHabits(context);
+                              },
+                              onTap: () {
+                                if (habitManager
+                                        .habits[index].completionsToday !=
+                                    habitManager
+                                        .habits[index].requiredCompletions) {
+                                  habitStatsHandler
+                                      .incrementCompletion(context);
+                                  habitManager.updateHabits(context);
+                                }
+                              },
+                              color: kFadedBlue,
+                            ),
+                            // color: habitManager.habits[index].color),
                             SizedBox(
                               height: 20,
                             )
