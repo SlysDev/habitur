@@ -10,17 +10,22 @@ class HabitHeatMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: HeatMapCalendar(
-        size: size,
-        flexible: true,
-        fontSize: size / 2.5,
-        margin: EdgeInsets.all(5),
-        datasets: data,
-        colorMode: ColorMode.opacity,
-        defaultColor: Colors.white,
-        colorsets: {
-          1: kPrimaryColor,
-        },
+      child: DefaultTextStyle(
+        style: TextStyle(fontWeight: FontWeight.bold),
+        child: HeatMapCalendar(
+          size: size,
+          flexible: true,
+          textColor: kBackgroundColor,
+          fontSize: size / 2.5,
+          margin: const EdgeInsets.all(5),
+          datasets: data,
+          colorMode: ColorMode.opacity,
+          defaultColor: kFadedBlue,
+          showColorTip: true,
+          colorsets: {
+            1: kLightGreenAccent,
+          },
+        ),
       ),
     );
   }

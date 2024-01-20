@@ -7,8 +7,11 @@ const kFadedBlue = Color.fromRGBO(26, 44, 66, 1);
 const kDarkGray = Color.fromRGBO(62, 83, 103, 1);
 const kGray = Color.fromRGBO(128, 153, 178, 1);
 const kPrimaryColor = Color.fromRGBO(136, 191, 252, 1);
-const kDarkPrimaryColor = Color.fromRGBO(9, 45, 85, 1);
+const kDarkPrimaryColor = Color.fromRGBO(4, 73, 149, 1);
 const kLightPrimaryColor = Color.fromRGBO(176, 212, 253, 1);
+const kAccent = Color.fromRGBO(51, 153, 137, 1);
+const kOrangeAccent = Color.fromRGBO(252, 161, 125, 1);
+const kLightGreenAccent = Color.fromRGBO(129, 193, 151, 1);
 
 // Text Style
 const kSubHeadingTextStyle = TextStyle(
