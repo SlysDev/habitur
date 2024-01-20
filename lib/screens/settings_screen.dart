@@ -19,15 +19,16 @@ class SettingsScreen extends StatelessWidget {
                 itemCount: settingsData.settingsList.length,
                 itemBuilder: (BuildContext context, index) {
                   return SwitchListTile(
-                    activeColor: kGray,
-                    activeTrackColor: kPrimaryColor,
-                    inactiveTrackColor: kGray,
+                    activeColor: Colors.white,
+                    activeTrackColor: kLightPrimaryColor,
+                    inactiveTrackColor: kFadedBlue,
                     inactiveThumbColor: Colors.white,
-                    visualDensity: VisualDensity.comfortable,
+                    visualDensity: VisualDensity.adaptivePlatformDensity,
                     value: settingsData.settingsList[index].settingValue,
                     selected: settingsData.settingsList[index].settingValue,
                     title: Text(
                       settingsData.settingsList[index].settingName,
+                      style: kMainDescription.copyWith(color: Colors.white),
                     ),
                     onChanged: (newValue) {
                       settingsData.settingsList[index].settingValue = newValue;
