@@ -42,6 +42,8 @@ class NavBar extends StatelessWidget {
               onPressed: () {
                 showModalBottomSheet(
                     context: context,
+                    backgroundColor: Colors.transparent,
+                    elevation: 20,
                     isScrollControlled: true,
                     builder: (context) => AddHabitScreen());
               },

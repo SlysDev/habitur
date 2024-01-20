@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/constants.dart';
 
 class RoundedTile extends StatelessWidget {
   final Widget child;
@@ -23,7 +24,11 @@ class RoundedTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             color: color,
           ),
-          child: child,
+          child: DefaultTextStyle(
+            style: const TextStyle(
+                color: kBackgroundColor, fontWeight: FontWeight.bold),
+            child: child,
+          ),
         ),
       ),
     );

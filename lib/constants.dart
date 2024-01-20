@@ -69,7 +69,7 @@ const kHabiturLogo = Image(
 
 InputDecoration kFilledTextFieldInputDecoration = InputDecoration(
   filled: true,
-  fillColor: kGray,
+  fillColor: kFadedBlue,
   contentPadding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
   border: OutlineInputBorder(
     borderSide: const BorderSide(color: Colors.transparent),

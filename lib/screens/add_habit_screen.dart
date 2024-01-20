@@ -31,11 +31,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
-      color: const Color(0xff757575),
+      decoration: const BoxDecoration(
+        color: kBackgroundColor,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      height: MediaQuery.of(context).size.height * 0.8,
       child: Container(
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: kBackgroundColor,
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20), topRight: Radius.circular(20)),
         ),
@@ -83,7 +89,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             });
                           },
                           child: Container(
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                                 color: selectedPeriod == 'Daily'
                                     ? kPrimaryColor
@@ -94,7 +100,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                               style: TextStyle(
                                   color: selectedPeriod == 'Daily'
                                       ? Colors.white
-                                      : Colors.black),
+                                      : kGray),
                             ),
                           ),
                         ),
@@ -105,7 +111,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             });
                           },
                           child: Container(
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                                 color: selectedPeriod == 'Weekly'
                                     ? kPrimaryColor
@@ -116,7 +122,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                               style: TextStyle(
                                   color: selectedPeriod == 'Weekly'
                                       ? Colors.white
-                                      : Colors.black),
+                                      : kGray),
                             ),
                           ),
                         ),
@@ -127,7 +133,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             });
                           },
                           child: Container(
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                                 color: selectedPeriod == 'Monthly'
                                     ? kPrimaryColor
@@ -138,7 +144,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                               style: TextStyle(
                                   color: selectedPeriod == 'Monthly'
                                       ? Colors.white
-                                      : Colors.black),
+                                      : kGray),
                             ),
                           ),
                         ),
@@ -167,17 +173,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   selectedPeriod == 'Daily'
                       ? Column(
                           children: [
-                            Text(
+                            const Text(
                               'Days of the week',
                               style: kHeadingTextStyle,
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 30,
                             ),
                             Row(
@@ -199,17 +205,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                   color: daysActive.contains('Monday')
                                       ? kPrimaryColor
                                       : Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 20),
                                   child: Center(
                                     child: Text(
                                       'Mo',
                                       style: TextStyle(
                                           color: daysActive.contains('Monday')
-                                              ? Colors.white
-                                              : Colors.black),
+                                              ? kBackgroundColor
+                                              : Colors.white),
                                     ),
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 20),
                                 ),
                                 RoundedTile(
                                   onTap: () {
@@ -227,17 +233,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                   color: daysActive.contains('Tuesday')
                                       ? kPrimaryColor
                                       : Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 20),
                                   child: Center(
                                     child: Text(
                                       'Tu',
                                       style: TextStyle(
                                           color: daysActive.contains('Tuesday')
-                                              ? Colors.white
-                                              : Colors.black),
+                                              ? kBackgroundColor
+                                              : Colors.white),
                                     ),
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 20),
                                 ),
                                 RoundedTile(
                                   onTap: () {
@@ -255,18 +261,18 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                   color: daysActive.contains('Wednesday')
                                       ? kPrimaryColor
                                       : Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 20),
                                   child: Center(
                                     child: Text(
                                       'We',
                                       style: TextStyle(
                                           color:
                                               daysActive.contains('Wednesday')
-                                                  ? Colors.white
-                                                  : Colors.black),
+                                                  ? kBackgroundColor
+                                                  : Colors.white),
                                     ),
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 20),
                                 ),
                                 RoundedTile(
                                   onTap: () {
@@ -284,17 +290,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                   color: daysActive.contains('Thursday')
                                       ? kPrimaryColor
                                       : Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 20),
                                   child: Center(
                                     child: Text(
                                       'Th',
                                       style: TextStyle(
                                           color: daysActive.contains('Thursday')
-                                              ? Colors.white
-                                              : Colors.black),
+                                              ? kBackgroundColor
+                                              : Colors.white),
                                     ),
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 20),
                                 ),
                                 RoundedTile(
                                   onTap: () {
@@ -311,17 +317,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                   color: daysActive.contains('Friday')
                                       ? kPrimaryColor
                                       : Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 20),
                                   child: Center(
                                     child: Text(
                                       'Fr',
                                       style: TextStyle(
                                           color: daysActive.contains('Friday')
-                                              ? Colors.white
-                                              : Colors.black),
+                                              ? kBackgroundColor
+                                              : Colors.white),
                                     ),
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 20),
                                 ),
                                 RoundedTile(
                                   onTap: () {
@@ -339,17 +345,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                   color: daysActive.contains('Saturday')
                                       ? kPrimaryColor
                                       : Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 20),
                                   child: Center(
                                     child: Text(
                                       'Sa',
                                       style: TextStyle(
                                           color: daysActive.contains('Saturday')
-                                              ? Colors.white
-                                              : Colors.black),
+                                              ? kBackgroundColor
+                                              : Colors.white),
                                     ),
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 20),
                                 ),
                                 RoundedTile(
                                   onTap: () {
@@ -366,21 +372,21 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                   color: daysActive.contains('Sunday')
                                       ? kPrimaryColor
                                       : Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 20),
                                   child: Center(
                                     child: Text(
                                       'Su',
                                       style: TextStyle(
                                           color: daysActive.contains('Sunday')
-                                              ? Colors.white
-                                              : Colors.black),
+                                              ? kBackgroundColor
+                                              : Colors.white),
                                     ),
                                   ),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 20),
                                 ),
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 30,
                             ),
                           ],
@@ -396,7 +402,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         habitDueDate = today.add(Duration(
                             days: (DateTime.daysPerWeek) - (today.weekday)));
                       } else {
-                        habitDueDate = today.add(Duration(days: 30));
+                        habitDueDate = today.add(const Duration(days: 30));
                         // Defaulting motnh to 30 days, may change later.
                       }
                       Provider.of<HabitManager>(context, listen: false)
