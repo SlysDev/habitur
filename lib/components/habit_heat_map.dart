@@ -9,24 +9,67 @@ class HabitHeatMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: DefaultTextStyle(
-        style: TextStyle(fontWeight: FontWeight.bold),
-        child: HeatMapCalendar(
-          size: size,
-          flexible: true,
-          textColor: kBackgroundColor,
-          fontSize: size / 2.5,
-          margin: const EdgeInsets.all(5),
-          datasets: data,
-          colorMode: ColorMode.opacity,
-          defaultColor: kFadedBlue,
-          showColorTip: true,
-          colorsets: {
-            1: kLightGreenAccent,
-          },
+    return Column(
+      children: [
+        DefaultTextStyle(
+          style: TextStyle(fontWeight: FontWeight.bold),
+          child: HeatMapCalendar(
+            size: size,
+            flexible: true,
+            textColor: kBackgroundColor,
+            fontSize: size / 2.5,
+            margin: const EdgeInsets.all(5),
+            datasets: data,
+            colorMode: ColorMode.opacity,
+            defaultColor: kFadedBlue,
+            showColorTip: false,
+            colorsets: {
+              1: kLightGreenAccent,
+            },
+          ),
         ),
-      ),
+        SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('less'),
+            SizedBox(
+              width: 5,
+            ),
+            Container(
+              color: kLightGreenAccent.withOpacity(0.1),
+              width: 15,
+              height: 15,
+            ),
+            Container(
+              color: kLightGreenAccent.withOpacity(0.3),
+              width: 15,
+              height: 15,
+            ),
+            Container(
+              color: kLightGreenAccent.withOpacity(0.5),
+              width: 15,
+              height: 15,
+            ),
+            Container(
+              color: kLightGreenAccent.withOpacity(0.7),
+              width: 15,
+              height: 15,
+            ),
+            Container(
+              color: kLightGreenAccent.withOpacity(1),
+              width: 15,
+              height: 15,
+            ),
+            SizedBox(
+              width: 5,
+            ),
+            Text('more'),
+          ],
+        ),
+      ],
     );
   }
 }
