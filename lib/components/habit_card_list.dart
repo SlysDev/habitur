@@ -77,7 +77,6 @@ class HabitCardList extends StatelessWidget {
                                   habitManager.updateHabits(context);
                                 }
                               },
-                              color: kFadedBlue,
                             ),
                             // color: habitManager.habits[index].color),
                             SizedBox(

@@ -5,7 +5,7 @@ class Challenge {
   String description;
   List participants;
   List creators;
-  List<Habit> habit;
+  Habit habit;
   int id;
   DateTime startDate;
   DateTime endDate;

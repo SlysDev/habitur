@@ -14,15 +14,15 @@ import '../components/home_greeting_header.dart';
 import 'package:habitur/constants.dart';
 import '../components/habit_card_list.dart';
 
-class HomeScreen extends StatefulWidget {
+class HabitsScreen extends StatefulWidget {
   bool isOnline;
-  HomeScreen({this.isOnline = true});
+  HabitsScreen({this.isOnline = true});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HabitsScreen> createState() => _HabitsScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HabitsScreenState extends State<HabitsScreen> {
   final _firestore = FirebaseFirestore.instance;
 
   @override
@@ -35,8 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget build(BuildContext context) {
-    /// generate a list all the habits available, sorting community habits first
-
     return Consumer<HabitManager>(
       builder: (context, habitManager, child) {
         return Scaffold(

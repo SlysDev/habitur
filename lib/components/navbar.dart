@@ -25,14 +25,15 @@ class NavBar extends StatelessWidget {
           ),
           NavItem(
             icon: Icon(
-              Icons.bar_chart,
-              color: currentPage == 'statistics' ? kPrimaryColor : kGray,
+              Icons.done_all_rounded,
+              color: currentPage == 'habits' ? kPrimaryColor : kGray,
+              size: 25,
             ),
             onPressed: () {
               if (currentPage == 'home') {
-                Navigator.pushNamed(context, 'statistics_screen');
+                Navigator.pushNamed(context, 'habits_screen');
               } else {
-                Navigator.popAndPushNamed(context, 'statistics_screen');
+                Navigator.popAndPushNamed(context, 'habits_screen');
               }
             },
           ),
@@ -52,15 +53,14 @@ class NavBar extends StatelessWidget {
           ),
           NavItem(
             icon: Icon(
-              Icons.store,
-              color: currentPage == 'marketplace' ? kPrimaryColor : kGray,
-              size: 25,
+              Icons.bar_chart,
+              color: currentPage == 'statistics' ? kPrimaryColor : kGray,
             ),
             onPressed: () {
               if (currentPage == 'home') {
-                Navigator.pushNamed(context, 'habit_selection_screen');
+                Navigator.pushNamed(context, 'statistics_screen');
               } else {
-                Navigator.popAndPushNamed(context, 'habit_selection_screen');
+                Navigator.popAndPushNamed(context, 'statistics_screen');
               }
             },
           ),
