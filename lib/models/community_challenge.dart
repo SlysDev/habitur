@@ -1,5 +1,6 @@
 import 'package:habitur/models/challenge.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/participant_data.dart';
 
 class CommunityChallenge extends Challenge {
   String name;
@@ -8,6 +9,7 @@ class CommunityChallenge extends Challenge {
   int id;
   DateTime startDate;
   DateTime endDate;
+  List<ParticipantData> participantData = [];
 
   CommunityChallenge({
     required this.name,
