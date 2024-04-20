@@ -35,48 +35,43 @@ class _HabitsScreenState extends State<HabitsScreen> {
   }
 
   Widget build(BuildContext context) {
-    return Consumer<HabitManager>(
-      builder: (context, habitManager, child) {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            actions: [
-              Container(
-                margin: EdgeInsets.all(5),
-                child: IconButton(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, 'profile-screen'),
-                    icon: Icon(
-                      Icons.menu_rounded,
-                      color: kPrimaryColor,
-                      size: 30,
-                    )),
-              )
-            ],
-            automaticallyImplyLeading: false,
-          ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                HomeGreetingHeader(),
-                HabitCardList(
-                  // Passes network status to card list
-                  isOnline: widget.isOnline,
-                ),
-                SizedBox(
-                  height: 20,
-                )
-              ],
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        actions: [
+          Container(
+            margin: EdgeInsets.all(5),
+            child: IconButton(
+                onPressed: () => Navigator.pushNamed(context, 'profile-screen'),
+                icon: Icon(
+                  Icons.menu_rounded,
+                  color: kPrimaryColor,
+                  size: 30,
+                )),
+          )
+        ],
+        automaticallyImplyLeading: false,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            HomeGreetingHeader(),
+            HabitCardList(
+              // Passes network status to card list
+              isOnline: widget.isOnline,
             ),
-          ),
-          bottomNavigationBar: NavBar(
-            currentPage: 'home',
-          ),
-        );
-      },
+            SizedBox(
+              height: 20,
+            )
+          ],
+        ),
+      ),
+      bottomNavigationBar: NavBar(
+        currentPage: 'home',
+      ),
     );
   }
 }

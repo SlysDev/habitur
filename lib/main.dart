@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/leveling_system.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
@@ -61,6 +62,8 @@ class Habitur extends StatelessWidget {
               create: (context) => SummaryStatisticsRepository()),
           ChangeNotifierProvider<StatisticsDisplayManager>(
               create: (context) => StatisticsDisplayManager()),
+          ChangeNotifierProvider<CommunityChallengeManager>(
+              create: (context) => CommunityChallengeManager()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

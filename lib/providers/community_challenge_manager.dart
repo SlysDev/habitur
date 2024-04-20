@@ -4,13 +4,56 @@ import 'package:flutter/material.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
+import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:provider/provider.dart';
 
-class CommunityChallengeManager extends HabitManager {
-  List<Habit> _communityChallenges = [];
+class CommunityChallengeManager extends ChangeNotifier {
+  List<CommunityChallenge> challenges = [
+    CommunityChallenge(
+        description: "This is a test challenge",
+        id: 0,
+        requiredFullCompletions: 3,
+        startDate: DateTime.now(),
+        endDate: DateTime.now(),
+        title: "Test",
+        habit: Habit(
+          title: "Test",
+          completionsToday: 0,
+          requiredCompletions: 4,
+          resetPeriod: "Daily",
+          dateCreated: DateTime.now(),
+        ))
+  ];
 
-  @override
-  UnmodifiableListView<Habit> get habits {
-    return UnmodifiableListView(_communityChallenges);
-  } // ensures inherited methods work on communityChallenges list
+  // UnmodifiableListView<CommunityChallenge> get challenges {
+  //   return UnmodifiableListView(_challenges);
+  // }
+
+  Habit getHabit(int index) {
+    return challenges[index].habit;
+  }
+
+  // admin methods
+
+  void addChallenge(CommunityChallenge communityChallenge) {
+    challenges.add(communityChallenge);
+    notifyListeners();
+  }
+
+  void editChallenge(int index, CommunityChallenge newData) {
+    challenges[index] = newData;
+    notifyListeners();
+  }
+
+  void removeChallenge(int index) {
+    challenges.removeAt(index);
+    notifyListeners();
+  }
+
+  void updateChallenges(context) {
+    Provider.of<Database>(context, listen: false).uploadData(context);
+    print('Challenges updated');
+    notifyListeners();
+  }
 }

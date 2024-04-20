@@ -79,13 +79,12 @@ class Database extends ChangeNotifier {
         highestStreak: habit.get('highestStreak'),
         confidenceLevel: habit.get('confidenceLevel'),
         // Converts timestamp to DateTime
-        lastSeen: habit.get('lastSeen').toDate(),
         requiredCompletions: habit.get('requiredCompletions'),
         requiredDatesOfCompletion: requiredDatesOfCompletionFormatted,
-        daysCompleted: daysCompletedFormatted,
-        confidenceStats: confidenceStatsFormatted,
-        completionStats: completionStatsFormatted,
       );
+      loadedHabit.confidenceStats = confidenceStatsFormatted;
+      loadedHabit.completionStats = completionStatsFormatted;
+      loadedHabit.daysCompleted = daysCompletedFormatted;
       habitList.add(loadedHabit);
     }
     Provider.of<HabitManager>(context, listen: false).loadHabits(habitList);

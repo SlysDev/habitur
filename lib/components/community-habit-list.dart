@@ -1,4 +1,7 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/components/community_challenge_card.dart';
+import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:provider/provider.dart';
@@ -20,50 +23,61 @@ class CommunityHabitList extends StatelessWidget {
           width: double.infinity,
           child: RefreshIndicator(
             backgroundColor: kPrimaryColor,
-            color: Colors.white,
+            color: kBackgroundColor,
             onRefresh: () async {
-              communityChallengeManager.resetDailyHabits();
               Provider.of<Database>(context, listen: false).loadData(context);
               Future.delayed(Duration(seconds: 1));
             },
             child: ListView.builder(
                 itemBuilder: (context, index) {
-                  HabitStatsHandler habitStatsHandler = HabitStatsHandler(
-                      communityChallengeManager.habits[index]);
-                  communityChallengeManager.sortHabits();
-                  Habit currentHabit = communityChallengeManager.habits[index];
+                  Habit currentHabit =
+                      communityChallengeManager.getHabit(index);
+                  CommunityChallenge currentChallenge =
+                      communityChallengeManager.challenges[index];
+                  HabitStatsHandler habitStatsHandler =
+                      HabitStatsHandler(currentHabit);
                   return Column(
                     children: [
                       SizedBox(height: 30),
-                      HabitCard(
+                      CommunityChallengeCard(
                           title: currentHabit.title,
-                          progress: currentHabit.completionsToday /
+                          userProgress: currentHabit.completionsToday /
                               currentHabit.requiredCompletions,
+                          totalProgress:
+                              currentChallenge.currentFullCompletions /
+                                  currentChallenge.requiredFullCompletions,
+                          completionCount: currentHabit.completionsToday,
+                          totalFullCompletions:
+                              currentChallenge.currentFullCompletions,
+                          description: currentChallenge.description,
                           onTap: () {
-                            if (communityChallengeManager
-                                    .habits[index].completionsToday !=
-                                communityChallengeManager
-                                    .habits[index].requiredCompletions) {
+                            if (currentHabit.completionsToday !=
+                                currentHabit.requiredCompletions) {
                               habitStatsHandler.incrementCompletion(context);
-                              communityChallengeManager.updateHabits(context);
+                              currentChallenge.checkFullCompletion();
+                              communityChallengeManager
+                                  .updateChallenges(context);
                             }
                           },
                           onLongPress: () {
+                            if (currentHabit.isCompleted) {
+                              currentChallenge.decrementFullCompletion();
+                            }
                             habitStatsHandler.decrementCompletion(context);
-                            communityChallengeManager.updateHabits(context);
+                            communityChallengeManager.updateChallenges(context);
                           },
                           color: kFadedBlue,
                           completed: currentHabit.completionsToday ==
                               currentHabit.requiredCompletions,
                           onDismissed: (context) {
-                            communityChallengeManager.removeHabit(index);
-                            communityChallengeManager.updateHabits(context);
+                            communityChallengeManager.removeChallenge(index);
+                            communityChallengeManager.updateChallenges(context);
                           },
                           onEdit: (context) {})
                     ],
                   );
                 },
-                itemCount: communityChallengeManager.habits.length),
+                itemCount: communityChallengeManager.challenges.length),
           ),
         ),
       );

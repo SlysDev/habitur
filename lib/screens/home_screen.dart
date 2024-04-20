@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitur/components/aside_button.dart';
+import 'package:habitur/components/community-habit-list.dart';
 import 'package:habitur/components/navbar.dart';
+import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:provider/provider.dart';
@@ -35,50 +37,50 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget build(BuildContext context) {
-    /// generate a list all the habits available, sorting community habits first
-
-    return Consumer<HabitManager>(
-      builder: (context, habitManager, child) {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            actions: [
-              Container(
-                margin: EdgeInsets.all(5),
-                child: IconButton(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, 'profile-screen'),
-                    icon: Icon(
-                      Icons.menu_rounded,
-                      color: kPrimaryColor,
-                      size: 30,
-                    )),
-              )
-            ],
-            automaticallyImplyLeading: false,
-          ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                HomeGreetingHeader(),
-                HabitCardList(
-                  // Passes network status to card list
-                  isOnline: widget.isOnline,
-                ),
-                SizedBox(
-                  height: 20,
-                )
-              ],
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        actions: [
+          Container(
+            margin: EdgeInsets.all(5),
+            child: IconButton(
+                onPressed: () => Navigator.pushNamed(context, 'profile-screen'),
+                icon: Icon(
+                  Icons.menu_rounded,
+                  color: kPrimaryColor,
+                  size: 30,
+                )),
+          )
+        ],
+        automaticallyImplyLeading: false,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            HomeGreetingHeader(),
+            CommunityHabitList(),
+            ElevatedButton(
+                onPressed: () {
+                  Provider.of<CommunityChallengeManager>(context, listen: false)
+                      .updateChallenges(context);
+                },
+                child: Text('Reset Habits')),
+            // HabitCardList(
+            //   // Passes network status to card list
+            //   isOnline: widget.isOnline,
+            // ),
+            SizedBox(
+              height: 20,
             ),
-          ),
-          bottomNavigationBar: NavBar(
-            currentPage: 'home',
-          ),
-        );
-      },
+          ],
+        ),
+      ),
+      bottomNavigationBar: NavBar(
+        currentPage: 'home',
+      ),
     );
   }
 }

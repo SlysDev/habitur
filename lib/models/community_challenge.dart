@@ -1,31 +1,43 @@
-import 'package:habitur/models/challenge.dart';
+import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/models/shared_habit.dart';
 
-class CommunityChallenge extends Challenge {
-  String name;
+class CommunityChallenge extends SharedHabit {
   String description;
-  Habit habit;
   int id;
   DateTime startDate;
   DateTime endDate;
+  int requiredFullCompletions;
+  int currentFullCompletions = 0;
   List<ParticipantData> participantData = [];
 
+  void checkFullCompletion() {
+    if (habit.isCompleted == true) {
+      currentFullCompletions++;
+    }
+  }
+
+  void decrementFullCompletion() {
+    currentFullCompletions--;
+  }
+
   CommunityChallenge({
-    required this.name,
     required this.description,
     required this.id,
     required this.startDate,
     required this.endDate,
-    required this.habit,
+    required this.requiredFullCompletions,
+    this.currentFullCompletions = 0,
+    required String title,
+    required Habit habit,
   }) : super(
-          name: name,
           description: description,
           id: id,
           startDate: startDate,
           endDate: endDate,
-          habit: habit,
-          participants: [], // Empty list for participants
+          participantData: [], // Empty list for participants
           creators: [], // Empty list for creators
+          habit: habit,
         );
 }
