@@ -127,6 +127,9 @@ class CommunityChallengeCard extends StatelessWidget {
                       style: kHeadingTextStyle.copyWith(color: Colors.white),
                       textAlign: TextAlign.center,
                     ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Text(
                       description,
                       style: kMainDescription.copyWith(color: Colors.white),

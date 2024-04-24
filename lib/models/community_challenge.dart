@@ -29,7 +29,6 @@ class CommunityChallenge extends SharedHabit {
     required this.endDate,
     required this.requiredFullCompletions,
     this.currentFullCompletions = 0,
-    required String title,
     required Habit habit,
   }) : super(
           description: description,

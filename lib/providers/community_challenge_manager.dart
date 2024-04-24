@@ -9,14 +9,13 @@ import 'package:habitur/providers/habit_manager.dart';
 import 'package:provider/provider.dart';
 
 class CommunityChallengeManager extends ChangeNotifier {
-  List<CommunityChallenge> challenges = [
+  List<CommunityChallenge> _challenges = [
     CommunityChallenge(
         description: "This is a test challenge",
         id: 0,
         requiredFullCompletions: 3,
         startDate: DateTime.now(),
         endDate: DateTime.now(),
-        title: "Test",
         habit: Habit(
           title: "Test",
           completionsToday: 0,
@@ -26,28 +25,33 @@ class CommunityChallengeManager extends ChangeNotifier {
         ))
   ];
 
-  // UnmodifiableListView<CommunityChallenge> get challenges {
-  //   return UnmodifiableListView(_challenges);
-  // }
+  UnmodifiableListView<CommunityChallenge> get challenges {
+    return UnmodifiableListView(_challenges);
+  }
+
+  void setChallenges(List<CommunityChallenge> challenges) {
+    _challenges = challenges;
+    notifyListeners();
+  }
 
   Habit getHabit(int index) {
-    return challenges[index].habit;
+    return _challenges[index].habit;
   }
 
   // admin methods
 
   void addChallenge(CommunityChallenge communityChallenge) {
-    challenges.add(communityChallenge);
+    _challenges.add(communityChallenge);
     notifyListeners();
   }
 
   void editChallenge(int index, CommunityChallenge newData) {
-    challenges[index] = newData;
+    _challenges[index] = newData;
     notifyListeners();
   }
 
   void removeChallenge(int index) {
-    challenges.removeAt(index);
+    _challenges.removeAt(index);
     notifyListeners();
   }
 

@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/leveling_system.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
@@ -173,7 +175,6 @@ class Database extends ChangeNotifier {
           Provider.of<LevelingSystem>(context, listen: false).habiturRating,
     }, SetOptions(merge: true));
 
-    DocumentSnapshot userSnapshot = await userReference.get();
     userReference.set({
       'stats': {
         'totalHabitsCompleted':
@@ -202,8 +203,44 @@ class Database extends ChangeNotifier {
     print('stats uploaded');
   }
 
+  void loadCommunityChallenges(context) async {
+    QuerySnapshot communityChallengesSnapshot =
+        await _firestore.collection('community-challenges').get();
+    List<CommunityChallenge> newChallenges = [];
+    var communityChallengesDocs = communityChallengesSnapshot.docs;
+    print(communityChallengesDocs);
+    print("chnlg docs");
+    for (var doc in communityChallengesDocs) {
+      print(doc);
+      newChallenges.add(
+        CommunityChallenge(
+          description: doc.get("description"),
+          id: doc.get("id"),
+          startDate: doc.get("startDate").toDate(),
+          endDate: doc.get("endDate").toDate(),
+          requiredFullCompletions: doc.get("requiredFullCompletions"),
+          currentFullCompletions: doc.get("currentFullCompletions"),
+          habit: Habit(
+            title: doc.get("habit")["title"],
+            requiredCompletions: doc.get("habit")["requiredCompletions"],
+            completionsToday: doc.get("habit")["completionsToday"],
+            resetPeriod: doc.get("habit")["resetPeriod"],
+            dateCreated: doc.get("habit")["dateCreated"].toDate(),
+          ),
+        ),
+      );
+      print(newChallenges);
+    }
+    Provider.of<CommunityChallengeManager>(context, listen: false)
+        .setChallenges(newChallenges);
+    print('Community challenges loaded');
+    print(Provider.of<CommunityChallengeManager>(context, listen: false)
+        .challenges);
+  }
+
   void loadData(context) async {
     loadHabits(context);
+    loadCommunityChallenges(context);
     loadStatistics(context);
   }
 
