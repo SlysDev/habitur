@@ -30,50 +30,15 @@ class CommunityHabitList extends StatelessWidget {
             },
             child: ListView.builder(
                 itemBuilder: (context, index) {
-                  Habit currentHabit =
-                      communityChallengeManager.getHabit(index);
                   CommunityChallenge currentChallenge =
                       communityChallengeManager.challenges[index];
-                  HabitStatsHandler habitStatsHandler =
-                      HabitStatsHandler(currentHabit);
                   return Column(
                     children: [
                       SizedBox(height: 30),
                       CommunityChallengeCard(
-                          title: currentHabit.title,
-                          userProgress: currentHabit.completionsToday /
-                              currentHabit.requiredCompletions,
-                          totalProgress:
-                              currentChallenge.currentFullCompletions /
-                                  currentChallenge.requiredFullCompletions,
-                          completionCount: currentHabit.completionsToday,
-                          totalFullCompletions:
-                              currentChallenge.currentFullCompletions,
-                          description: currentChallenge.description,
-                          onTap: () {
-                            if (currentHabit.completionsToday !=
-                                currentHabit.requiredCompletions) {
-                              habitStatsHandler.incrementCompletion(context);
-                              currentChallenge.checkFullCompletion();
-                              communityChallengeManager
-                                  .updateChallenges(context);
-                            }
-                          },
-                          onLongPress: () {
-                            if (currentHabit.isCompleted) {
-                              currentChallenge.decrementFullCompletion();
-                            }
-                            habitStatsHandler.decrementCompletion(context);
-                            communityChallengeManager.updateChallenges(context);
-                          },
-                          color: kFadedBlue,
-                          completed: currentHabit.completionsToday ==
-                              currentHabit.requiredCompletions,
-                          onDismissed: (context) {
-                            communityChallengeManager.removeChallenge(index);
-                            communityChallengeManager.updateChallenges(context);
-                          },
-                          onEdit: (context) {})
+                        challenge: currentChallenge,
+                        color: kFadedBlue,
+                      ),
                     ],
                   );
                 },

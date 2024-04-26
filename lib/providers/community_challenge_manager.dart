@@ -34,10 +34,6 @@ class CommunityChallengeManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  Habit getHabit(int index) {
-    return _challenges[index].habit;
-  }
-
   // admin methods
 
   void addChallenge(CommunityChallenge communityChallenge) {
