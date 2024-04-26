@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/models/community_challenge.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class CommunityChallengeCard extends StatelessWidget {

@@ -2,7 +2,7 @@ import 'package:habitur/models/user.dart';
 
 class ParticipantData {
   final User user;
-  final int completionCount;
+  int completionCount;
 
   ParticipantData({
     required this.user,
