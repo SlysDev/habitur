@@ -31,7 +31,7 @@ class CommunityChallengeCard extends StatelessWidget {
         if (currentHabit.completionsToday != currentHabit.requiredCompletions) {
           habitStatsHandler.incrementCompletion(context);
           challenge.checkFullCompletion();
-          Provider.of<CommunityChallengeManager>(context)
+          Provider.of<CommunityChallengeManager>(context, listen: false)
               .updateChallenges(context);
         }
       },
@@ -40,13 +40,14 @@ class CommunityChallengeCard extends StatelessWidget {
           challenge.decrementFullCompletion();
         }
         habitStatsHandler.decrementCompletion(context);
-        Provider.of<CommunityChallengeManager>(context)
+        Provider.of<CommunityChallengeManager>(context, listen: false)
             .updateChallenges(context);
       },
       child: AnimatedContainer(
         alignment: AlignmentDirectional.center,
         duration: const Duration(milliseconds: 500),
         height: 275,
+        width: 475,
         curve: Curves.ease,
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         decoration: BoxDecoration(
@@ -119,10 +120,10 @@ class CommunityChallengeCard extends StatelessWidget {
                 ],
               ),
               SizedBox(
-                width: 30,
+                width: 75,
               ),
               Container(
-                width: 150,
+                width: 175,
                 alignment: AlignmentDirectional.center,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

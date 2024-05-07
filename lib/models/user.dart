@@ -16,8 +16,7 @@ class User {
     this.description = '',
     required this.email,
     required this.uid,
-    this.profilePicture =
-        const AssetImage('add default profile picture asset here'),
+    this.profilePicture = const AssetImage('assets/images/default-profile.png'),
     required this.userLevel,
     required this.userXP,
     this.habits = const [],
