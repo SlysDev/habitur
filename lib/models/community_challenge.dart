@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/participant_data.dart';
@@ -11,7 +13,16 @@ class CommunityChallenge extends SharedHabit {
   DateTime endDate;
   int requiredFullCompletions;
   int currentFullCompletions = 0;
-  List<ParticipantData> participantDataList = [];
+  List<ParticipantData> _participantDataList = [];
+
+  UnmodifiableListView<ParticipantData> get participants =>
+      UnmodifiableListView(
+        _participantDataList,
+      );
+
+  void loadParticipants(List<ParticipantData> participantDataList) {
+    _participantDataList = participantDataList;
+  }
 
   void checkFullCompletion() {
     if (habit.isCompleted == true) {
@@ -24,7 +35,7 @@ class CommunityChallenge extends SharedHabit {
   }
 
   List<ParticipantData> getSortedParticipantData() {
-    List<ParticipantData> sortedParticipantData = participantDataList;
+    List<ParticipantData> sortedParticipantData = _participantDataList;
     sortedParticipantData
         .sort((a, b) => b.completionCount.compareTo(a.completionCount));
     return sortedParticipantData;
@@ -36,31 +47,31 @@ class CommunityChallenge extends SharedHabit {
   }
 
   void addParticipantData(ParticipantData newParticipantData) {
-    if (participantDataList
+    if (_participantDataList
         .where((element) => element.user.uid == newParticipantData.user.uid)
         .isEmpty) {
-      participantDataList.add(newParticipantData);
+      _participantDataList.add(newParticipantData);
     } else {
-      participantDataList
+      _participantDataList
           .firstWhere(
               (element) => element.user.uid == newParticipantData.user.uid)
           .completionCount += newParticipantData.completionCount;
     }
-    participantDataList.add(newParticipantData);
+    _participantDataList.add(newParticipantData);
   }
 
   void decrementParticipantData(User user) {
-    if (participantDataList
+    if (_participantDataList
         .where((element) => element.user.uid == user.uid)
         .isNotEmpty) {
-      if (participantDataList
+      if (_participantDataList
               .firstWhere((element) => element.user.uid == user.uid)
               .completionCount ==
           0) {
-        participantDataList
+        _participantDataList
             .removeWhere((element) => element.user.uid == user.uid);
       } else {
-        participantDataList
+        _participantDataList
             .firstWhere((element) => element.user.uid == user.uid)
             .completionCount--;
       }

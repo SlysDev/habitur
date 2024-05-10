@@ -62,12 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             HomeGreetingHeader(),
             CommunityHabitList(),
-            ElevatedButton(
-                onPressed: () {
-                  Provider.of<CommunityChallengeManager>(context, listen: false)
-                      .updateChallenges(context);
-                },
-                child: Text('Reset Habits')),
             // HabitCardList(
             //   // Passes network status to card list
             //   isOnline: widget.isOnline,

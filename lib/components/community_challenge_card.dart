@@ -5,6 +5,7 @@ import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
+import 'package:habitur/screens/community_leaderboard_screen.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 
@@ -25,28 +26,38 @@ class CommunityChallengeCard extends StatelessWidget {
         challenge.currentFullCompletions / challenge.requiredFullCompletions;
     double userProgress =
         currentHabit.completionsToday / currentHabit.requiredCompletions;
+    Function() completeChallenge = () {
+      if (currentHabit.completionsToday != currentHabit.requiredCompletions) {
+        habitStatsHandler.incrementCompletion(context);
+        challenge.checkFullCompletion();
+        Provider.of<CommunityChallengeManager>(context, listen: false)
+            .updateChallenges(context);
+      }
+    };
+    Function() decrementChallenge = () {
+      if (currentHabit.isCompleted) {
+        challenge.decrementFullCompletion();
+      }
+      habitStatsHandler.decrementCompletion(context);
+      Provider.of<CommunityChallengeManager>(context, listen: false)
+          .updateChallenges(context);
+    };
 
     return GestureDetector(
       onTap: () {
-        if (currentHabit.completionsToday != currentHabit.requiredCompletions) {
-          habitStatsHandler.incrementCompletion(context);
-          challenge.checkFullCompletion();
-          Provider.of<CommunityChallengeManager>(context, listen: false)
-              .updateChallenges(context);
-        }
+        print('habit tapped');
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CommunityLeaderboardScreen(challenge: challenge)));
       },
-      onLongPress: () {
-        if (currentHabit.isCompleted) {
-          challenge.decrementFullCompletion();
-        }
-        habitStatsHandler.decrementCompletion(context);
-        Provider.of<CommunityChallengeManager>(context, listen: false)
-            .updateChallenges(context);
-      },
+      // TODO: Implement popup screen
+      onLongPress: decrementChallenge,
       child: AnimatedContainer(
         alignment: AlignmentDirectional.center,
         duration: const Duration(milliseconds: 500),
-        height: 275,
+        height: 300,
         width: 475,
         curve: Curves.ease,
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
@@ -120,7 +131,7 @@ class CommunityChallengeCard extends StatelessWidget {
                 ],
               ),
               SizedBox(
-                width: 75,
+                width: 25,
               ),
               Container(
                 width: 175,
@@ -146,6 +157,16 @@ class CommunityChallengeCard extends StatelessWidget {
                       height: 30,
                     ),
                     RoundedProgressBar(progress: userProgress),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    ElevatedButton(
+                        onPressed: completeChallenge,
+                        child: Text(
+                          "Complete",
+                          style: kMainDescription.copyWith(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ))
                   ],
                 ),
               ),

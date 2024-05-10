@@ -3,6 +3,7 @@ import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/leveling_system.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
+import 'package:habitur/screens/community_leaderboard_screen.dart';
 import 'package:habitur/screens/habits_screen.dart';
 import 'constants.dart';
 // Screens
