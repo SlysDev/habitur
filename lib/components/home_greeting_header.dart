@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
 import 'package:habitur/providers/database.dart';
-import 'package:habitur/providers/leveling_system.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
@@ -22,7 +21,7 @@ class HomeGreetingHeader extends StatelessWidget {
     }
     return Column(children: [
       Text(
-        'Good $timeOfDay, ${Provider.of<UserData>(context, listen: false).username}',
+        'Good $timeOfDay, ${Provider.of<UserData>(context, listen: false).currentUser.username}',
         style: kTitleTextStyle,
         textAlign: TextAlign.center,
       ),
@@ -38,7 +37,7 @@ class HomeGreetingHeader extends StatelessWidget {
       ),
       Center(
         child: Text(
-          Provider.of<LevelingSystem>(context).userLevel.toString(),
+          Provider.of<UserData>(context).currentUser.userLevel.toString(),
           style: kTitleTextStyle,
           textAlign: TextAlign.center,
         ),
@@ -48,8 +47,8 @@ class HomeGreetingHeader extends StatelessWidget {
         margin: const EdgeInsets.only(top: 20),
         child: RoundedProgressBar(
           color: kPrimaryColor,
-          progress: Provider.of<LevelingSystem>(context).habiturRating /
-              Provider.of<LevelingSystem>(context).levelUpRequirement,
+          progress: Provider.of<UserData>(context).currentUser.userXP /
+              Provider.of<UserData>(context).levelUpRequirement,
         ),
       ),
       // Row(
@@ -59,7 +58,7 @@ class HomeGreetingHeader extends StatelessWidget {
       //     // Container(width: 60, child: kHabiturLogo),
       //     // Container(
       //     //   child: Text(
-      //     //     Provider.of<LevelingSystem>(context).userLevel.toString(),
+      //     //     Provider.of<LevelingSystem>(context).currentUser.userLevel.toString(),
       //     //     style: kTitleTextStyle,
       //     //   ),
       //     // ),
@@ -69,13 +68,13 @@ class HomeGreetingHeader extends StatelessWidget {
       //     //   progressColor: kDarkBlue,
       //     //   curve: Curves.ease,
       //     //   circularStrokeCap: CircularStrokeCap.round,
-      //     //   percent: Provider.of<LevelingSystem>(context).habiturRating /
+      //     //   percent: Provider.of<LevelingSystem>(context).currentUser.userXP /
       //     //       Provider.of<LevelingSystem>(context).levelUpRequirement,
       //     //   animation: true,
       //     //   animateFromLastPercent: true,
       //     //   center: Container(
       //     //     child: Text(
-      //     //       Provider.of<LevelingSystem>(context).userLevel.toString(),
+      //     //       Provider.of<LevelingSystem>(context).currentUser.userLevel.toString(),
       //     //       style: kTitleTextStyle,
       //     //     ),
       //     //   ),

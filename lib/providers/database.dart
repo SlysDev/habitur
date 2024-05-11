@@ -6,7 +6,6 @@ import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/leveling_system.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/providers/user_data.dart';
@@ -45,9 +44,9 @@ class Database extends ChangeNotifier {
     CollectionReference habitsReference = userReference.collection('habits');
     QuerySnapshot habitsSnapshot = await habitsReference.get();
     DocumentSnapshot userSnapshot = await userReference.get();
-    Provider.of<LevelingSystem>(context, listen: false).habiturRating =
+    Provider.of<UserData>(context, listen: false).currentUser.userLevel =
         userSnapshot.get('habiturRating');
-    Provider.of<UserData>(context, listen: false).username =
+    Provider.of<UserData>(context, listen: false).currentUser.username =
         userSnapshot.get('username');
 
     // Get data from docs and convert map to List
@@ -172,7 +171,7 @@ class Database extends ChangeNotifier {
 
     userReference.set({
       'habiturRating':
-          Provider.of<LevelingSystem>(context, listen: false).habiturRating,
+          Provider.of<UserData>(context, listen: false).currentUser.userXP,
     }, SetOptions(merge: true));
 
     userReference.set({

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/providers/user_data.dart';
+import 'package:provider/provider.dart';
 
 class LeaderboardCard extends StatelessWidget {
   final ParticipantData participant;
@@ -18,7 +20,9 @@ class LeaderboardCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: kFadedBlue.withOpacity(0.5),
+        color: participant.user == Provider.of<UserData>(context).currentUser
+            ? kLightPrimaryColor.withOpacity(0.5)
+            : kFadedBlue.withOpacity(0.5),
       ),
       child: Row(
         children: [

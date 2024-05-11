@@ -1,25 +1,45 @@
-import 'dart:collection';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:habitur/providers/database.dart';
-import 'package:provider/provider.dart';
-import '../models/habit.dart';
 import 'package:flutter/foundation.dart';
-
-final _auth = FirebaseAuth.instance;
-final _firestore = FirebaseFirestore.instance;
+import 'package:habitur/models/user.dart';
 
 class UserData extends ChangeNotifier {
-  CollectionReference users = _firestore.collection('users');
-  final user = _auth.currentUser;
-  String username = 'User';
-  final List<Habit> _userHabits = [];
-  void updateUserData() {
-    notifyListeners();
+  int levelUpRequirement = 100;
+  User currentUser = User(
+      username: 'User', userXP: 0, userLevel: 1, uid: 'N/A', email: 'user');
+  void addHabiturRating({int amount = 10}) {
+    currentUser.userXP += amount;
+    checkLevelUp();
   }
 
-  UnmodifiableListView<Habit> get userHabits {
-    return UnmodifiableListView(_userHabits);
+  void removeHabiturRating({int amount = 10}) {
+    if (currentUser.userXP < amount) {
+      levelDown();
+    }
+    if (currentUser.userLevel == 1 && currentUser.userXP < amount) {
+      currentUser.userXP = 0;
+      return;
+    }
+    currentUser.userXP -= amount;
+    checkLevelUp();
+  }
+
+  void checkLevelUp() {
+    if (currentUser.userXP >= levelUpRequirement) {
+      levelUp();
+    }
+  }
+
+  void levelUp() {
+    currentUser.userLevel++;
+    currentUser.userXP = 0;
+    levelUpRequirement += (levelUpRequirement * 0.5).ceil();
+  }
+
+  void levelDown() {
+    if (currentUser.userLevel == 1) {
+      return;
+    }
+    currentUser.userLevel--;
+    levelUpRequirement -= (levelUpRequirement * 0.5).ceil();
+    currentUser.userXP = levelUpRequirement;
   }
 }
