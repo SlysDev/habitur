@@ -3,9 +3,12 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/models/user.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
-import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/user_data.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class CommunityChallengeManager extends ChangeNotifier {
@@ -27,6 +30,10 @@ class CommunityChallengeManager extends ChangeNotifier {
 
   UnmodifiableListView<CommunityChallenge> get challenges {
     return UnmodifiableListView(_challenges);
+  }
+
+  CommunityChallenge getChallenge(int index) {
+    return _challenges[index];
   }
 
   void setChallenges(List<CommunityChallenge> challenges) {
@@ -54,6 +61,113 @@ class CommunityChallengeManager extends ChangeNotifier {
   void updateChallenges(context) {
     Provider.of<Database>(context, listen: false).uploadData(context);
     print('Challenges updated');
+    notifyListeners();
+  }
+
+  void checkFullCompletion(BuildContext context, CommunityChallenge challenge) {
+    if (challenge.habit.isCompleted == true) {
+      challenge.currentFullCompletions++;
+      addParticipantData(
+          context,
+          challenge,
+          ParticipantData(
+              user: Provider.of<UserData>(context, listen: false).currentUser,
+              completionCount: 1));
+    }
+    updateChallenges(context);
+    print('updated');
+  }
+
+  void decrementFullCompletion(CommunityChallenge challenge) {
+    challenge.currentFullCompletions--;
+  }
+
+  void addParticipantData(BuildContext context, CommunityChallenge challenge,
+      ParticipantData newParticipantData) {
+    if (challenge.participants
+        .where((element) => element.user.uid == newParticipantData.user.uid)
+        .isEmpty) {
+      challenge.addParticipant(newParticipantData);
+    } else {
+      challenge.participants
+          .firstWhere(
+              (element) => element.user.uid == newParticipantData.user.uid)
+          .completionCount += newParticipantData.completionCount;
+    }
+  }
+
+  void decrementParticipantData(CommunityChallenge challenge, User user) {
+    if (challenge.participants
+        .where((element) => element.user.uid == user.uid)
+        .isNotEmpty) {
+      if (challenge.participants
+              .firstWhere((element) => element.user.uid == user.uid)
+              .completionCount ==
+          0) {
+        challenge.participants
+            .removeWhere((element) => element.user.uid == user.uid);
+      } else {
+        challenge.participants
+            .firstWhere((element) => element.user.uid == user.uid)
+            .completionCount--;
+      }
+    } else {
+      print('User not found in participantDataList');
+    }
+  }
+
+  void resetDailyChallenges() {
+    for (int i = 0; i < _challenges.length; i++) {
+      CommunityChallenge element = _challenges[i];
+      HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
+      if (element.habit.resetPeriod == 'Daily') {
+        // If the task was not created today, make it incomplete
+        if (DateFormat('d').format(element.habit.lastSeen) !=
+            DateFormat('d').format(DateTime.now())) {
+          habitStatsHandler.resetHabitCompletions();
+          element.habit.lastSeen = DateTime.now();
+        }
+      } else {
+        return;
+      }
+    }
+    notifyListeners();
+  }
+
+  void resetWeeklyChallenges() {
+    for (int i = 0; i < _challenges.length; i++) {
+      CommunityChallenge element = _challenges[i];
+      HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
+      if (element.habit.resetPeriod == 'Weekly') {
+        // If its monday but its not the same day as when the habit was last seen, reset
+        if (DateFormat('d').format(element.habit.lastSeen) == 'Monday' &&
+            DateFormat('d').format(DateTime.now()) !=
+                DateFormat('d').format(element.habit.lastSeen)) {
+          habitStatsHandler.resetHabitCompletions();
+          element.habit.lastSeen = DateTime.now();
+        }
+      } else {
+        return;
+      }
+    }
+    notifyListeners();
+  }
+
+  void resetMonthlyChallenges() {
+    for (int i = 0; i < _challenges.length; i++) {
+      CommunityChallenge element = _challenges[i];
+      HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
+      if (element.habit.resetPeriod == 'Monthly') {
+        // If the task was not created this month, make it incomplete
+        if (DateFormat('m').format(element.habit.lastSeen) !=
+            DateFormat('m').format(DateTime.now())) {
+          habitStatsHandler.resetHabitCompletions();
+          element.habit.lastSeen = DateTime.now();
+        }
+      } else {
+        return;
+      }
+    }
     notifyListeners();
   }
 }

@@ -4,7 +4,9 @@ import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/components/leaderboard_card.dart';
 import 'package:habitur/models/user.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart'; // Import your LeaderboardCard
+import 'package:habitur/providers/community_challenge_manager.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart'; // Import your LeaderboardCard
 
 class CommunityLeaderboardScreen extends StatelessWidget {
   CommunityChallenge challenge;
@@ -16,29 +18,13 @@ class CommunityLeaderboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     double totalProgress =
         challenge.currentFullCompletions / challenge.requiredFullCompletions;
-    challenge.loadParticipants([
-      ParticipantData(
-          user: User(
-            username: 'test',
-            profilePicture: AssetImage('assets/images/logo.png'),
-            uid: 'test',
-            email: 'test',
-            userXP: 0,
-            userLevel: 0,
-          ),
-          completionCount: 0),
-      ParticipantData(
-          user: User(
-            username: 'test4',
-            profilePicture: AssetImage('assets/images/logo.png'),
-            uid: 'test',
-            email: 'test',
-            userXP: 0,
-            userLevel: 0,
-          ),
-          completionCount: 2)
-    ]);
-    List<ParticipantData> participants = challenge.getSortedParticipantData();
+    challenge.sortParticipantData();
+    print(challenge.participants);
+    print('participants');
+    List<ParticipantData> participants =
+        Provider.of<CommunityChallengeManager>(context)
+            .challenges[0]
+            .participants;
     return Scaffold(
       body: Container(
         margin: EdgeInsets.symmetric(horizontal: 10),
@@ -93,7 +79,8 @@ class CommunityLeaderboardScreen extends StatelessWidget {
                 child: ListView.builder(
                   itemCount: participants.length,
                   itemBuilder: (context, index) {
-                    final participant = participants[index];
+                    ParticipantData participant = participants[index];
+                    print(participants);
                     return Column(
                       children: [
                         LeaderboardCard(participant: participant),
@@ -102,6 +89,35 @@ class CommunityLeaderboardScreen extends StatelessWidget {
                     );
                   },
                 ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Provider.of<CommunityChallengeManager>(context, listen: false)
+                      .addParticipantData(
+                    context,
+                    challenge,
+                    ParticipantData(
+                      user: User(
+                        username: 'test',
+                        profilePicture:
+                            AssetImage('assets/images/default_profile.png'),
+                        uid: 'test1043',
+                        email: 'test',
+                        userXP: 0,
+                        userLevel: 0,
+                      ),
+                      completionCount: 1,
+                    ),
+                  );
+                  Provider.of<CommunityChallengeManager>(context, listen: false)
+                      .updateChallenges(context);
+                  print('participant added');
+                  print(Provider.of<CommunityChallengeManager>(context,
+                          listen: false)
+                      .getChallenge(0)
+                      .participants);
+                },
+                child: Text('Add Participant'),
               ),
             ],
           ),

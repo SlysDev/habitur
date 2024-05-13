@@ -20,6 +20,8 @@ class CommunityChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    CommunityChallenge challenge =
+        Provider.of<CommunityChallengeManager>(context).getChallenge(0);
     Habit currentHabit = challenge.habit;
     HabitStatsHandler habitStatsHandler = HabitStatsHandler(currentHabit);
     double totalProgress =
@@ -29,14 +31,16 @@ class CommunityChallengeCard extends StatelessWidget {
     Function() completeChallenge = () {
       if (currentHabit.completionsToday != currentHabit.requiredCompletions) {
         habitStatsHandler.incrementCompletion(context);
-        challenge.checkFullCompletion();
+        Provider.of<CommunityChallengeManager>(context, listen: false)
+            .checkFullCompletion(context, challenge);
         Provider.of<CommunityChallengeManager>(context, listen: false)
             .updateChallenges(context);
       }
     };
     Function() decrementChallenge = () {
       if (currentHabit.isCompleted) {
-        challenge.decrementFullCompletion();
+        Provider.of<CommunityChallengeManager>(context, listen: false)
+            .decrementFullCompletion(challenge);
       }
       habitStatsHandler.decrementCompletion(context);
       Provider.of<CommunityChallengeManager>(context, listen: false)

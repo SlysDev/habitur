@@ -90,6 +90,8 @@ class Database extends ChangeNotifier {
     }
     Provider.of<HabitManager>(context, listen: false).loadHabits(habitList);
     Provider.of<HabitManager>(context, listen: false).resetDailyHabits();
+    Provider.of<HabitManager>(context, listen: false).resetWeeklyHabits();
+    Provider.of<HabitManager>(context, listen: false).resetMonthlyHabits();
     print('data loaded.');
   }
 
@@ -228,6 +230,12 @@ class Database extends ChangeNotifier {
           ),
         ),
       );
+      Provider.of<CommunityChallengeManager>(context, listen: false)
+          .resetDailyChallenges();
+      Provider.of<CommunityChallengeManager>(context, listen: false)
+          .resetWeeklyChallenges();
+      Provider.of<CommunityChallengeManager>(context, listen: false)
+          .resetMonthlyChallenges();
       print(newChallenges);
     }
     Provider.of<CommunityChallengeManager>(context, listen: false)

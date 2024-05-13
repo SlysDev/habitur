@@ -5,6 +5,9 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/user.dart';
+import 'package:habitur/providers/community_challenge_manager.dart';
+import 'package:habitur/providers/user_data.dart';
+import 'package:provider/provider.dart';
 
 class CommunityChallenge extends SharedHabit {
   String description;
@@ -20,64 +23,22 @@ class CommunityChallenge extends SharedHabit {
         _participantDataList,
       );
 
+  void addParticipant(ParticipantData participantData) {
+    _participantDataList.add(participantData);
+  }
+
   void loadParticipants(List<ParticipantData> participantDataList) {
     _participantDataList = participantDataList;
   }
 
-  void checkFullCompletion() {
-    if (habit.isCompleted == true) {
-      currentFullCompletions++;
-    }
-  }
-
-  void decrementFullCompletion() {
-    currentFullCompletions--;
-  }
-
-  List<ParticipantData> getSortedParticipantData() {
-    List<ParticipantData> sortedParticipantData = _participantDataList;
-    sortedParticipantData
+  void sortParticipantData() {
+    _participantDataList
         .sort((a, b) => b.completionCount.compareTo(a.completionCount));
-    return sortedParticipantData;
   }
 
   List<ParticipantData> getTopThreeParticipants() {
-    List<ParticipantData> sortedParticipantData = getSortedParticipantData();
-    return sortedParticipantData.sublist(0, 3);
-  }
-
-  void addParticipantData(ParticipantData newParticipantData) {
-    if (_participantDataList
-        .where((element) => element.user.uid == newParticipantData.user.uid)
-        .isEmpty) {
-      _participantDataList.add(newParticipantData);
-    } else {
-      _participantDataList
-          .firstWhere(
-              (element) => element.user.uid == newParticipantData.user.uid)
-          .completionCount += newParticipantData.completionCount;
-    }
-    _participantDataList.add(newParticipantData);
-  }
-
-  void decrementParticipantData(User user) {
-    if (_participantDataList
-        .where((element) => element.user.uid == user.uid)
-        .isNotEmpty) {
-      if (_participantDataList
-              .firstWhere((element) => element.user.uid == user.uid)
-              .completionCount ==
-          0) {
-        _participantDataList
-            .removeWhere((element) => element.user.uid == user.uid);
-      } else {
-        _participantDataList
-            .firstWhere((element) => element.user.uid == user.uid)
-            .completionCount--;
-      }
-    } else {
-      print('User not found in participantDataList');
-    }
+    sortParticipantData();
+    return _participantDataList.sublist(0, 3);
   }
 
   CommunityChallenge({
