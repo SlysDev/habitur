@@ -40,7 +40,7 @@ class CommunityChallengeCard extends StatelessWidget {
     Function() decrementChallenge = () {
       if (currentHabit.isCompleted) {
         Provider.of<CommunityChallengeManager>(context, listen: false)
-            .decrementFullCompletion(challenge);
+            .decrementFullCompletion(challenge, context);
       }
       habitStatsHandler.decrementCompletion(context);
       Provider.of<CommunityChallengeManager>(context, listen: false)

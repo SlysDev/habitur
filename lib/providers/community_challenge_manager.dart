@@ -78,8 +78,11 @@ class CommunityChallengeManager extends ChangeNotifier {
     print('updated');
   }
 
-  void decrementFullCompletion(CommunityChallenge challenge) {
+  void decrementFullCompletion(
+      CommunityChallenge challenge, BuildContext context) {
     challenge.currentFullCompletions--;
+    decrementParticipantData(
+        challenge, Provider.of<UserData>(context, listen: false).currentUser);
   }
 
   void addParticipantData(BuildContext context, CommunityChallenge challenge,
