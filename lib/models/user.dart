@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
 
-class User {
+class UserModel {
   String username;
   String description;
   String email;
@@ -11,7 +11,7 @@ class User {
   int userXP;
   // int userFollowers; (may use, need to reassess SM func.)
   List<Habit> habits = []; // only contain those that are marked private
-  User({
+  UserModel({
     required this.username,
     this.description = '',
     required this.email,

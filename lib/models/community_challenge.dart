@@ -33,7 +33,7 @@ class CommunityChallenge extends SharedHabit {
 
   void sortParticipantData() {
     _participantDataList
-        .sort((a, b) => b.completionCount.compareTo(a.completionCount));
+        .sort((a, b) => b.fullCompletionCount.compareTo(a.fullCompletionCount));
   }
 
   List<ParticipantData> getTopThreeParticipants() {

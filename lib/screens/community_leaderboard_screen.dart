@@ -97,7 +97,7 @@ class CommunityLeaderboardScreen extends StatelessWidget {
                     context,
                     challenge,
                     ParticipantData(
-                      user: User(
+                      user: UserModel(
                         username: 'test',
                         profilePicture:
                             AssetImage('assets/images/default_profile.png'),
@@ -106,7 +106,7 @@ class CommunityLeaderboardScreen extends StatelessWidget {
                         userXP: 0,
                         userLevel: 0,
                       ),
-                      completionCount: 1,
+                      fullCompletionCount: 1,
                     ),
                   );
                   Provider.of<CommunityChallengeManager>(context, listen: false)

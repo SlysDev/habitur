@@ -59,7 +59,8 @@ class CommunityChallengeManager extends ChangeNotifier {
   }
 
   void updateChallenges(context) {
-    Provider.of<Database>(context, listen: false).uploadData(context);
+    Provider.of<Database>(context, listen: false)
+        .uploadCommunityChallenges(context);
     print('Challenges updated');
     notifyListeners();
   }
@@ -72,9 +73,8 @@ class CommunityChallengeManager extends ChangeNotifier {
           challenge,
           ParticipantData(
               user: Provider.of<UserData>(context, listen: false).currentUser,
-              completionCount: 1));
+              fullCompletionCount: 1));
     }
-    updateChallenges(context);
     print('updated');
   }
 
@@ -95,24 +95,24 @@ class CommunityChallengeManager extends ChangeNotifier {
       challenge.participants
           .firstWhere(
               (element) => element.user.uid == newParticipantData.user.uid)
-          .completionCount += newParticipantData.completionCount;
+          .fullCompletionCount += newParticipantData.fullCompletionCount;
     }
   }
 
-  void decrementParticipantData(CommunityChallenge challenge, User user) {
+  void decrementParticipantData(CommunityChallenge challenge, UserModel user) {
     if (challenge.participants
         .where((element) => element.user.uid == user.uid)
         .isNotEmpty) {
       if (challenge.participants
               .firstWhere((element) => element.user.uid == user.uid)
-              .completionCount ==
+              .fullCompletionCount ==
           0) {
         challenge.participants
             .removeWhere((element) => element.user.uid == user.uid);
       } else {
         challenge.participants
             .firstWhere((element) => element.user.uid == user.uid)
-            .completionCount--;
+            .fullCompletionCount--;
       }
     } else {
       print('User not found in participantDataList');

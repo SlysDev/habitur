@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
-import 'package:habitur/providers/database.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/providers/user_data.dart';

@@ -28,7 +28,7 @@ class LeaderboardCard extends StatelessWidget {
         children: [
           SizedBox(width: 20),
           Text(
-            participant.completionCount.toString(),
+            participant.fullCompletionCount.toString(),
             style: kHeadingTextStyle.copyWith(
                 color: kLightPrimaryColor, fontSize: 25),
           ),

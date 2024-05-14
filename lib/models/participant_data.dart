@@ -1,11 +1,12 @@
 import 'package:habitur/models/user.dart';
 
 class ParticipantData {
-  final User user;
-  int completionCount;
-
+  final UserModel user;
+  int fullCompletionCount;
+  int currentCompletions;
   ParticipantData({
     required this.user,
-    required this.completionCount,
+    required this.fullCompletionCount,
+    this.currentCompletions = 0,
   });
 }

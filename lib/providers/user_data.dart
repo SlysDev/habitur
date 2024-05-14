@@ -3,7 +3,7 @@ import 'package:habitur/models/user.dart';
 
 class UserData extends ChangeNotifier {
   int levelUpRequirement = 100;
-  User currentUser = User(
+  UserModel currentUser = UserModel(
       username: 'User', userXP: 0, userLevel: 1, uid: 'N/A', email: 'user');
   void addHabiturRating({int amount = 10}) {
     currentUser.userXP += amount;
