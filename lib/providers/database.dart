@@ -274,45 +274,87 @@ class Database extends ChangeNotifier {
   void uploadCommunityChallenges(context) async {
     CollectionReference communityChallenges =
         _firestore.collection('community-challenges');
-    // first clear the collection
+
     QuerySnapshot communityChallengesSnapshot =
         await _firestore.collection('community-challenges').get();
-    for (var doc in communityChallengesSnapshot.docs) {
-      doc.reference.delete();
-    }
-    print('here are the challenges to be uploaded:');
-    print(Provider.of<CommunityChallengeManager>(context, listen: false)
-        .challenges);
-    for (var challenge
+    for (CommunityChallenge challenge
         in Provider.of<CommunityChallengeManager>(context, listen: false)
             .challenges) {
-      communityChallenges.add({
-        'description': challenge.description,
-        'id': challenge.id,
-        'startDate': challenge.startDate,
-        'endDate': challenge.endDate,
-        'requiredFullCompletions': challenge.requiredFullCompletions,
-        'currentFullCompletions': challenge.currentFullCompletions,
-        'participantDataList': challenge.participants.map((element) => {
-              'user': {
-                'username': element.user.username,
-                'description': element.user.description,
-                'email': element.user.email,
-                'uid': element.user.uid,
-                'userLevel': element.user.userLevel,
-                'userXP': element.user.userXP
-              },
-              'fullCompletionCount': element.fullCompletionCount,
-              'currentCompletions': element.currentCompletions
-            }),
-        'habit': {
-          'title': challenge.habit.title,
-          'requiredCompletions': challenge.habit.requiredCompletions,
-          'resetPeriod': challenge.habit.resetPeriod,
-          'dateCreated': challenge.habit.dateCreated
-        },
-      });
+      for (var doc in communityChallengesSnapshot.docs) {
+        if (doc.get('id') == challenge.id) {
+          print('challenge being uploaded:');
+          print('ID:');
+          print(challenge.id);
+          print('CurrentFullCompletions:');
+          print(challenge.currentFullCompletions);
+          print('Current User Completions:');
+          print(challenge.participants[0].fullCompletionCount);
+          await doc.reference.update({
+            'description': challenge.description,
+            'id': challenge.id,
+            'startDate': challenge.startDate,
+            'endDate': challenge.endDate,
+            'requiredFullCompletions': challenge.requiredFullCompletions,
+            'currentFullCompletions': challenge.currentFullCompletions,
+            'participantDataList': challenge.participants.map((element) => {
+                  'user': {
+                    'username': element.user.username,
+                    'description': element.user.description,
+                    'email': element.user.email,
+                    'uid': element.user.uid,
+                    'userLevel': element.user.userLevel,
+                    'userXP': element.user.userXP,
+                  },
+                  'fullCompletionCount': element.fullCompletionCount,
+                  'currentCompletions': element.currentCompletions,
+                }),
+            'habit': {
+              'title': challenge.habit.title,
+              'requiredCompletions': challenge.habit.requiredCompletions,
+              'resetPeriod': challenge.habit.resetPeriod,
+              'dateCreated': challenge.habit.dateCreated
+            },
+          });
+        }
+      }
     }
+    // first clear the collection
+    // for (var doc in communityChallengesSnapshot.docs) {
+    //   doc.reference.delete();
+    // }
+    // print('here are the challenges to be uploaded:');
+    // print(Provider.of<CommunityChallengeManager>(context, listen: false)
+    //     .challenges);
+    // for (var challenge
+    //     in Provider.of<CommunityChallengeManager>(context, listen: false)
+    //         .challenges) {
+    //   communityChallenges.add({
+    //     'description': challenge.description,
+    //     'id': challenge.id,
+    //     'startDate': challenge.startDate,
+    //     'endDate': challenge.endDate,
+    //     'requiredFullCompletions': challenge.requiredFullCompletions,
+    //     'currentFullCompletions': challenge.currentFullCompletions,
+    //     'participantDataList': challenge.participants.map((element) => {
+    //           'user': {
+    //             'username': element.user.username,
+    //             'description': element.user.description,
+    //             'email': element.user.email,
+    //             'uid': element.user.uid,
+    //             'userLevel': element.user.userLevel,
+    //             'userXP': element.user.userXP
+    //           },
+    //           'fullCompletionCount': element.fullCompletionCount,
+    //           'currentCompletions': element.currentCompletions
+    //         }),
+    //     'habit': {
+    //       'title': challenge.habit.title,
+    //       'requiredCompletions': challenge.habit.requiredCompletions,
+    //       'resetPeriod': challenge.habit.resetPeriod,
+    //       'dateCreated': challenge.habit.dateCreated
+    //     },
+    //   });
+    // }
   }
 
   void loadData(context) async {

@@ -44,6 +44,11 @@ class CommunityChallengeManager extends ChangeNotifier {
   // admin methods
 
   void addChallenge(CommunityChallenge communityChallenge) {
+    for (CommunityChallenge challenge in _challenges) {
+      if (challenge.id == communityChallenge.id) {
+        return;
+      }
+    }
     _challenges.add(communityChallenge);
     notifyListeners();
   }
@@ -63,6 +68,17 @@ class CommunityChallengeManager extends ChangeNotifier {
         .uploadCommunityChallenges(context);
     print('Challenges updated');
     notifyListeners();
+  }
+
+  void clearDuplicateChallenges() {
+    for (int i = 0; i < _challenges.length; i++) {
+      for (int j = i + 1; j < _challenges.length; j++) {
+        if (_challenges[i].id == _challenges[j].id) {
+          _challenges.removeAt(j);
+          j--;
+        }
+      }
+    }
   }
 
   void checkFullCompletion(BuildContext context, CommunityChallenge challenge) {
