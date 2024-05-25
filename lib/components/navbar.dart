@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:habitur/components/accent_elevated_button.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/screens/add_habit_screen.dart';
+import 'package:habitur/screens/admin-screen.dart';
 
 class NavBar extends StatelessWidget {
   String currentPage;
-  NavBar({required this.currentPage});
+  late dynamic onButtonPress;
+  NavBar({required this.currentPage, this.onButtonPress});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -23,15 +25,30 @@ class NavBar extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
+          // NavItem(
+          //   icon: Icon(
+          //     Icons.done_all_rounded,
+          //     color: currentPage == 'habits' ? kPrimaryColor : kGray,
+          //     size: 25,
+          //   ),
+          //   onPressed: () {
+          //     if (currentPage == 'home') {
+          //       Navigator.pushNamed(context, 'habits_screen');
+          //     } else {
+          //       Navigator.popAndPushNamed(context, 'habits_screen');
+          //     }
+          //   },
+          // ),
           NavItem(
             icon: Icon(
-              Icons.done_all_rounded,
-              color: currentPage == 'habits' ? kPrimaryColor : kGray,
+              Icons.admin_panel_settings,
+              color: currentPage == 'home' ? kPrimaryColor : kGray,
               size: 25,
             ),
             onPressed: () {
               if (currentPage == 'home') {
-                Navigator.pushNamed(context, 'habits_screen');
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AdminScreen()));
               } else {
                 Navigator.popAndPushNamed(context, 'habits_screen');
               }
@@ -40,14 +57,16 @@ class NavBar extends StatelessWidget {
           Container(
             padding: EdgeInsets.only(bottom: 10),
             child: ElevatedButton(
-              onPressed: () {
-                showModalBottomSheet(
-                    context: context,
-                    backgroundColor: Colors.transparent,
-                    elevation: 20,
-                    isScrollControlled: true,
-                    builder: (context) => AddHabitScreen());
-              },
+              onPressed: onButtonPress == null
+                  ? () {
+                      showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          elevation: 20,
+                          isScrollControlled: true,
+                          builder: (context) => AddHabitScreen());
+                    }
+                  : onButtonPress,
               child: Icon(Icons.add),
             ),
           ),
