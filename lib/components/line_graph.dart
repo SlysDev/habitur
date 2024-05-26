@@ -70,7 +70,6 @@ class LineGraph extends StatelessWidget {
             // ])
           ],
         ),
-        swapAnimationCurve: Curves.ease,
       ),
     );
   }

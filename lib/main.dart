@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:habitur/providers/leveling_system.dart';
+import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
+import 'package:habitur/screens/community_leaderboard_screen.dart';
+import 'package:habitur/screens/habits_screen.dart';
 import 'constants.dart';
 // Screens
 import 'screens/welcome_screen.dart';
@@ -54,12 +56,12 @@ class Habitur extends StatelessWidget {
               create: (context) => SettingsData()),
           ChangeNotifierProvider<LocalStorage>(
               create: (context) => LocalStorage()),
-          ChangeNotifierProvider<LevelingSystem>(
-              create: (context) => LevelingSystem()),
           ChangeNotifierProvider<SummaryStatisticsRepository>(
               create: (context) => SummaryStatisticsRepository()),
           ChangeNotifierProvider<StatisticsDisplayManager>(
               create: (context) => StatisticsDisplayManager()),
+          ChangeNotifierProvider<CommunityChallengeManager>(
+              create: (context) => CommunityChallengeManager()),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
@@ -72,8 +74,8 @@ class Habitur extends StatelessWidget {
             primaryColor: kPrimaryColor,
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ButtonStyle(
-                textStyle: MaterialStateProperty.all(kCtaBtnStyle),
-                foregroundColor: MaterialStateProperty.all(kBackgroundColor),
+                  textStyle: MaterialStateProperty.all(kCtaBtnStyle),
+                  foregroundColor: MaterialStateProperty.all(kBackgroundColor),
                   elevation: MaterialStateProperty.all(10),
                   shadowColor:
                       MaterialStateProperty.all(kPrimaryColor.withOpacity(0.3)),
@@ -95,6 +97,12 @@ class Habitur extends StatelessWidget {
                   isOnline: true,
                 ),
             'home_screen_offline': (context) => HomeScreen(
+                  isOnline: false,
+                ),
+            'habits_screen': (context) => HabitsScreen(
+                  isOnline: true,
+                ),
+            'habits_screen_offline': (context) => HabitsScreen(
                   isOnline: false,
                 ),
             'settings_screen': (context) => SettingsScreen(),

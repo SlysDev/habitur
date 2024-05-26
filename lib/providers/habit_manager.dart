@@ -55,7 +55,7 @@ class HabitManager extends ChangeNotifier {
   }
 
   void updateHabits(context) {
-    Provider.of<Database>(context, listen: false).uploadData(context);
+    Provider.of<Database>(context, listen: false).uploadHabits(context);
     sortHabits();
     notifyListeners();
   }

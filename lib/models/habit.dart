@@ -1,5 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:habitur/models/data_point.dart';
+import 'package:habitur/modules/statistics_recorder.dart';
+import 'package:habitur/providers/summary_statistics_repository.dart';
+import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
 
 class Habit {
@@ -41,12 +46,8 @@ class Habit {
       this.streak = 0,
       this.highestStreak = 0,
       this.completionsToday = 0,
-      required this.lastSeen,
       this.totalCompletions = 0,
       this.confidenceLevel = 1,
       this.requiredDatesOfCompletion = const [],
-      this.daysCompleted = const [],
-      this.confidenceStats = const [],
-      this.completionStats = const [],
       this.requiredCompletions = 1});
 }

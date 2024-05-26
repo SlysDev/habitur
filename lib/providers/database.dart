@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/models/user.dart';
+import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/leveling_system.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/providers/user_data.dart';
@@ -43,9 +46,9 @@ class Database extends ChangeNotifier {
     CollectionReference habitsReference = userReference.collection('habits');
     QuerySnapshot habitsSnapshot = await habitsReference.get();
     DocumentSnapshot userSnapshot = await userReference.get();
-    Provider.of<LevelingSystem>(context, listen: false).habiturRating =
+    Provider.of<UserData>(context, listen: false).currentUser.userLevel =
         userSnapshot.get('habiturRating');
-    Provider.of<UserData>(context, listen: false).username =
+    Provider.of<UserData>(context, listen: false).currentUser.username =
         userSnapshot.get('username');
 
     // Get data from docs and convert map to List
@@ -79,18 +82,18 @@ class Database extends ChangeNotifier {
         highestStreak: habit.get('highestStreak'),
         confidenceLevel: habit.get('confidenceLevel'),
         // Converts timestamp to DateTime
-        lastSeen: habit.get('lastSeen').toDate(),
         requiredCompletions: habit.get('requiredCompletions'),
         requiredDatesOfCompletion: requiredDatesOfCompletionFormatted,
-        daysCompleted: daysCompletedFormatted,
-        confidenceStats: confidenceStatsFormatted,
-        completionStats: completionStatsFormatted,
       );
+      loadedHabit.confidenceStats = confidenceStatsFormatted;
+      loadedHabit.completionStats = completionStatsFormatted;
+      loadedHabit.daysCompleted = daysCompletedFormatted;
       habitList.add(loadedHabit);
     }
     Provider.of<HabitManager>(context, listen: false).loadHabits(habitList);
     Provider.of<HabitManager>(context, listen: false).resetDailyHabits();
-    print('data loaded.');
+    Provider.of<HabitManager>(context, listen: false).resetWeeklyHabits();
+    Provider.of<HabitManager>(context, listen: false).resetMonthlyHabits();
   }
 
   void uploadHabits(context) async {
@@ -171,10 +174,9 @@ class Database extends ChangeNotifier {
 
     userReference.set({
       'habiturRating':
-          Provider.of<LevelingSystem>(context, listen: false).habiturRating,
+          Provider.of<UserData>(context, listen: false).currentUser.userXP,
     }, SetOptions(merge: true));
 
-    DocumentSnapshot userSnapshot = await userReference.get();
     userReference.set({
       'stats': {
         'totalHabitsCompleted':
@@ -203,14 +205,201 @@ class Database extends ChangeNotifier {
     print('stats uploaded');
   }
 
+  void addCommunityChallenge(Map<String, dynamic> newChallenge, context) async {
+    CollectionReference communityChallengesRef =
+        _firestore.collection('community-challenges');
+    await communityChallengesRef.add(newChallenge);
+
+    loadCommunityChallenges(context);
+  }
+
+  void removeCommunityChallenge(int id, context) async {
+    print("Removing community challenge with id: " + id.toString());
+    CollectionReference communityChallengesRef =
+        _firestore.collection('community-challenges');
+    QuerySnapshot communityChallengesSnapshot =
+        await communityChallengesRef.get();
+    for (var doc in communityChallengesSnapshot.docs) {
+      if (doc.get("id") == id) {
+        doc.reference.delete();
+      }
+    }
+
+    loadCommunityChallenges(context);
+  }
+
+  void editCommunityChallenge(
+      int id, Map<String, dynamic> newChallenge, context) async {
+    CollectionReference communityChallengesRef =
+        _firestore.collection('community-challenges');
+    QuerySnapshot communityChallengesSnapshot =
+        await communityChallengesRef.get();
+    for (var doc in communityChallengesSnapshot.docs) {
+      if (doc.get("id") == id) {
+        doc.reference.update(newChallenge);
+      }
+    }
+
+    loadCommunityChallenges(context);
+  }
+
+  void loadCommunityChallenges(context) async {
+    QuerySnapshot communityChallengesSnapshot =
+        await _firestore.collection('community-challenges').get();
+    List<CommunityChallenge> newChallenges = [];
+    var communityChallengesDocs = communityChallengesSnapshot.docs;
+    for (var doc in communityChallengesDocs) {
+      CommunityChallenge loadedChallenge = CommunityChallenge(
+        description: doc.get("description"),
+        id: doc.get("id"),
+        startDate: doc.get("startDate").toDate(),
+        endDate: doc.get("endDate").toDate(),
+        requiredFullCompletions: doc.get("requiredFullCompletions"),
+        currentFullCompletions: doc.get("currentFullCompletions"),
+        habit: Habit(
+          title: doc.get("habit")["title"],
+          requiredCompletions: doc.get("habit")["requiredCompletions"],
+          resetPeriod: doc.get("habit")["resetPeriod"],
+          dateCreated: doc.get("habit")["dateCreated"].toDate(),
+        ),
+      );
+      List<ParticipantData> participantList = doc
+          .get("participantDataList")
+          .map<ParticipantData>(
+            (element) => ParticipantData(
+              user: UserModel(
+                username: element["user"]["username"],
+                description: element["user"]["description"],
+                email: element["user"]["email"],
+                uid: element["user"]["uid"],
+                userLevel: element["user"]["userLevel"],
+                userXP: element["user"]["userXP"],
+              ),
+              fullCompletionCount: element["fullCompletionCount"],
+            ),
+          )
+          .toList();
+      loadedChallenge.loadParticipants(participantList);
+      for (ParticipantData participant in loadedChallenge.participants) {
+        if (participant.user.uid == _auth.currentUser!.uid.toString()) {
+          loadedChallenge.habit.completionsToday =
+              participant.currentCompletions;
+          break;
+        }
+      }
+      newChallenges.add(loadedChallenge);
+      print(
+          'Latest challenge: ${newChallenges.last.habit.title}, ${newChallenges.last.id}');
+    }
+    Provider.of<CommunityChallengeManager>(context, listen: false)
+        .resetDailyChallenges();
+    Provider.of<CommunityChallengeManager>(context, listen: false)
+        .resetWeeklyChallenges();
+    Provider.of<CommunityChallengeManager>(context, listen: false)
+        .resetMonthlyChallenges();
+    Provider.of<CommunityChallengeManager>(context, listen: false)
+        .setChallenges(newChallenges);
+    Provider.of<CommunityChallengeManager>(context, listen: false)
+        .updateChallenges(context);
+    print('Community challenges loaded');
+    print(Provider.of<CommunityChallengeManager>(context, listen: false)
+        .challenges
+        .last
+        .habit
+        .title);
+  }
+
+  void uploadCommunityChallenges(context) async {
+    CollectionReference communityChallenges =
+        _firestore.collection('community-challenges');
+
+    QuerySnapshot communityChallengesSnapshot =
+        await _firestore.collection('community-challenges').get();
+    for (CommunityChallenge challenge
+        in Provider.of<CommunityChallengeManager>(context, listen: false)
+            .challenges) {
+      for (var doc in communityChallengesSnapshot.docs) {
+        if (doc.get('id') == challenge.id) {
+          await doc.reference.update({
+            'description': challenge.description,
+            'id': challenge.id,
+            'startDate': challenge.startDate,
+            'endDate': challenge.endDate,
+            'requiredFullCompletions': challenge.requiredFullCompletions,
+            'currentFullCompletions': challenge.currentFullCompletions,
+            'participantDataList': challenge.participants.isNotEmpty
+                ? challenge.participants.map((element) => {
+                      'user': {
+                        'username': element.user.username,
+                        'description': element.user.description,
+                        'email': element.user.email,
+                        'uid': element.user.uid,
+                        'userLevel': element.user.userLevel,
+                        'userXP': element.user.userXP,
+                      },
+                      'fullCompletionCount': element.fullCompletionCount,
+                      'currentCompletions': element.currentCompletions,
+                    })
+                : [],
+            'habit': {
+              'title': challenge.habit.title,
+              'requiredCompletions': challenge.habit.requiredCompletions,
+              'resetPeriod': challenge.habit.resetPeriod,
+              'dateCreated': challenge.habit.dateCreated
+            },
+          });
+        }
+      }
+    }
+    // first clear the collection
+    // for (var doc in communityChallengesSnapshot.docs) {
+    //   doc.reference.delete();
+    // }
+    // print('here are the challenges to be uploaded:');
+    // print(Provider.of<CommunityChallengeManager>(context, listen: false)
+    //     .challenges);
+    // for (var challenge
+    //     in Provider.of<CommunityChallengeManager>(context, listen: false)
+    //         .challenges) {
+    //   communityChallenges.add({
+    //     'description': challenge.description,
+    //     'id': challenge.id,
+    //     'startDate': challenge.startDate,
+    //     'endDate': challenge.endDate,
+    //     'requiredFullCompletions': challenge.requiredFullCompletions,
+    //     'currentFullCompletions': challenge.currentFullCompletions,
+    //     'participantDataList': challenge.participants.map((element) => {
+    //           'user': {
+    //             'username': element.user.username,
+    //             'description': element.user.description,
+    //             'email': element.user.email,
+    //             'uid': element.user.uid,
+    //             'userLevel': element.user.userLevel,
+    //             'userXP': element.user.userXP
+    //           },
+    //           'fullCompletionCount': element.fullCompletionCount,
+    //           'currentCompletions': element.currentCompletions
+    //         }),
+    //     'habit': {
+    //       'title': challenge.habit.title,
+    //       'requiredCompletions': challenge.habit.requiredCompletions,
+    //       'resetPeriod': challenge.habit.resetPeriod,
+    //       'dateCreated': challenge.habit.dateCreated
+    //     },
+    //   });
+    // }
+  }
+
   void loadData(context) async {
     loadHabits(context);
     loadStatistics(context);
+    loadCommunityChallenges(context);
   }
 
   void uploadData(context) async {
     uploadHabits(context);
     uploadStatistics(context);
+    uploadCommunityChallenges(context);
   }
 }
 

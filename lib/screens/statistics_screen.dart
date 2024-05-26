@@ -13,7 +13,6 @@ import 'package:intl/intl.dart';
 import '../components/navbar.dart';
 import '../components/rounded_progress_bar.dart';
 import '../constants.dart';
-import '../providers/leveling_system.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_data.dart';
@@ -30,7 +29,7 @@ class StatisticsScreen extends StatelessWidget {
           const SizedBox(height: 30),
           Center(
             child: Text(
-              Provider.of<LevelingSystem>(context).userLevel.toString(),
+              Provider.of<UserData>(context).currentUser.userLevel.toString(),
               style: kTitleTextStyle,
               textAlign: TextAlign.center,
             ),
@@ -41,15 +40,15 @@ class StatisticsScreen extends StatelessWidget {
               child: RoundedProgressBar(
                 lineHeight: 25,
                 color: kPrimaryColor,
-                progress: Provider.of<LevelingSystem>(context).habiturRating /
-                    Provider.of<LevelingSystem>(context).levelUpRequirement,
+                progress: Provider.of<UserData>(context).currentUser.userXP /
+                    Provider.of<UserData>(context).levelUpRequirement,
               ),
             ),
           ),
           const SizedBox(height: 10),
           Center(
             child: Text(
-                "${Provider.of<LevelingSystem>(context).habiturRating} / ${Provider.of<LevelingSystem>(context).levelUpRequirement}",
+                "${Provider.of<UserData>(context).currentUser.userXP} / ${Provider.of<UserData>(context).levelUpRequirement}",
                 style: kHeadingTextStyle.copyWith(fontSize: 20)),
           ),
           const SizedBox(

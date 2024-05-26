@@ -17,7 +17,7 @@ class HabitCard extends StatelessWidget {
     required this.progress,
     required this.onTap,
     required this.onLongPress,
-    required this.color,
+    this.color = kFadedBlue,
     required this.completed,
     required this.onDismissed,
     required this.onEdit,

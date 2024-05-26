@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitur/components/aside_button.dart';
-import 'package:habitur/components/community-habit-list.dart';
 import 'package:habitur/components/navbar.dart';
-import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:provider/provider.dart';
@@ -16,21 +14,22 @@ import '../components/home_greeting_header.dart';
 import 'package:habitur/constants.dart';
 import '../components/habit_card_list.dart';
 
-class HomeScreen extends StatefulWidget {
+class HabitsScreen extends StatefulWidget {
   bool isOnline;
-  HomeScreen({this.isOnline = true});
+  HabitsScreen({this.isOnline = true});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HabitsScreen> createState() => _HabitsScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HabitsScreenState extends State<HabitsScreen> {
   final _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
     if (widget.isOnline) {
       Provider.of<Database>(context, listen: false).loadData(context);
+      print('done');
     }
     super.initState();
   }
@@ -60,14 +59,13 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             HomeGreetingHeader(),
-            CommunityHabitList(),
-            // HabitCardList(
-            //   // Passes network status to card list
-            //   isOnline: widget.isOnline,
-            // ),
+            HabitCardList(
+              // Passes network status to card list
+              isOnline: widget.isOnline,
+            ),
             SizedBox(
               height: 20,
-            ),
+            )
           ],
         ),
       ),

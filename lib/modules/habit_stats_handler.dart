@@ -1,8 +1,8 @@
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/data_point.dart';
-import 'package:habitur/providers/leveling_system.dart';
 import 'package:habitur/modules/statistics_recorder.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
+import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 
@@ -18,7 +18,7 @@ class HabitStatsHandler {
       habit.isCompleted = true;
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted++;
-      Provider.of<LevelingSystem>(context, listen: false).addHabiturRating();
+      Provider.of<UserData>(context, listen: false).addHabiturRating();
       habit.streak++;
       habit.confidenceLevel =
           habit.confidenceLevel * pow(1.10, habit.confidenceLevel);
@@ -63,7 +63,7 @@ class HabitStatsHandler {
       if (habit.daysCompleted.isNotEmpty) {
         habit.daysCompleted.remove(habit.daysCompleted.last);
       }
-      Provider.of<LevelingSystem>(context, listen: false).removeHabiturRating();
+      Provider.of<UserData>(context, listen: false).removeHabiturRating();
       if (habit.streak > 0) {
         habit.streak--;
       }
