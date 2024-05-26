@@ -11,7 +11,7 @@ class AdminScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          CommunityHabitList(),
+          CommunityHabitList(isAdmin: true),
         ],
       ),
       bottomNavigationBar: NavBar(

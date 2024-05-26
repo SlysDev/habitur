@@ -94,7 +94,6 @@ class Database extends ChangeNotifier {
     Provider.of<HabitManager>(context, listen: false).resetDailyHabits();
     Provider.of<HabitManager>(context, listen: false).resetWeeklyHabits();
     Provider.of<HabitManager>(context, listen: false).resetMonthlyHabits();
-    print('data loaded.');
   }
 
   void uploadHabits(context) async {
@@ -206,15 +205,50 @@ class Database extends ChangeNotifier {
     print('stats uploaded');
   }
 
+  void addCommunityChallenge(Map<String, dynamic> newChallenge, context) async {
+    CollectionReference communityChallengesRef =
+        _firestore.collection('community-challenges');
+    await communityChallengesRef.add(newChallenge);
+
+    loadCommunityChallenges(context);
+  }
+
+  void removeCommunityChallenge(int id, context) async {
+    print("Removing community challenge with id: " + id.toString());
+    CollectionReference communityChallengesRef =
+        _firestore.collection('community-challenges');
+    QuerySnapshot communityChallengesSnapshot =
+        await communityChallengesRef.get();
+    for (var doc in communityChallengesSnapshot.docs) {
+      if (doc.get("id") == id) {
+        doc.reference.delete();
+      }
+    }
+
+    loadCommunityChallenges(context);
+  }
+
+  void editCommunityChallenge(
+      int id, Map<String, dynamic> newChallenge, context) async {
+    CollectionReference communityChallengesRef =
+        _firestore.collection('community-challenges');
+    QuerySnapshot communityChallengesSnapshot =
+        await communityChallengesRef.get();
+    for (var doc in communityChallengesSnapshot.docs) {
+      if (doc.get("id") == id) {
+        doc.reference.update(newChallenge);
+      }
+    }
+
+    loadCommunityChallenges(context);
+  }
+
   void loadCommunityChallenges(context) async {
     QuerySnapshot communityChallengesSnapshot =
         await _firestore.collection('community-challenges').get();
     List<CommunityChallenge> newChallenges = [];
     var communityChallengesDocs = communityChallengesSnapshot.docs;
-    print(communityChallengesDocs);
-    print("chnlg docs");
     for (var doc in communityChallengesDocs) {
-      print(doc);
       CommunityChallenge loadedChallenge = CommunityChallenge(
         description: doc.get("description"),
         id: doc.get("id"),
@@ -254,21 +288,25 @@ class Database extends ChangeNotifier {
         }
       }
       newChallenges.add(loadedChallenge);
-      Provider.of<CommunityChallengeManager>(context, listen: false)
-          .resetDailyChallenges();
-      Provider.of<CommunityChallengeManager>(context, listen: false)
-          .resetWeeklyChallenges();
-      Provider.of<CommunityChallengeManager>(context, listen: false)
-          .resetMonthlyChallenges();
-      print(newChallenges);
+      print(
+          'Latest challenge: ${newChallenges.last.habit.title}, ${newChallenges.last.id}');
     }
+    Provider.of<CommunityChallengeManager>(context, listen: false)
+        .resetDailyChallenges();
+    Provider.of<CommunityChallengeManager>(context, listen: false)
+        .resetWeeklyChallenges();
+    Provider.of<CommunityChallengeManager>(context, listen: false)
+        .resetMonthlyChallenges();
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .setChallenges(newChallenges);
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .updateChallenges(context);
     print('Community challenges loaded');
     print(Provider.of<CommunityChallengeManager>(context, listen: false)
-        .challenges);
+        .challenges
+        .last
+        .habit
+        .title);
   }
 
   void uploadCommunityChallenges(context) async {
@@ -282,13 +320,6 @@ class Database extends ChangeNotifier {
             .challenges) {
       for (var doc in communityChallengesSnapshot.docs) {
         if (doc.get('id') == challenge.id) {
-          print('challenge being uploaded:');
-          print('ID:');
-          print(challenge.id);
-          print('CurrentFullCompletions:');
-          print(challenge.currentFullCompletions);
-          print('Current User Completions:');
-          print(challenge.participants[0].fullCompletionCount);
           await doc.reference.update({
             'description': challenge.description,
             'id': challenge.id,
@@ -296,18 +327,20 @@ class Database extends ChangeNotifier {
             'endDate': challenge.endDate,
             'requiredFullCompletions': challenge.requiredFullCompletions,
             'currentFullCompletions': challenge.currentFullCompletions,
-            'participantDataList': challenge.participants.map((element) => {
-                  'user': {
-                    'username': element.user.username,
-                    'description': element.user.description,
-                    'email': element.user.email,
-                    'uid': element.user.uid,
-                    'userLevel': element.user.userLevel,
-                    'userXP': element.user.userXP,
-                  },
-                  'fullCompletionCount': element.fullCompletionCount,
-                  'currentCompletions': element.currentCompletions,
-                }),
+            'participantDataList': challenge.participants.isNotEmpty
+                ? challenge.participants.map((element) => {
+                      'user': {
+                        'username': element.user.username,
+                        'description': element.user.description,
+                        'email': element.user.email,
+                        'uid': element.user.uid,
+                        'userLevel': element.user.userLevel,
+                        'userXP': element.user.userXP,
+                      },
+                      'fullCompletionCount': element.fullCompletionCount,
+                      'currentCompletions': element.currentCompletions,
+                    })
+                : [],
             'habit': {
               'title': challenge.habit.title,
               'requiredCompletions': challenge.habit.requiredCompletions,

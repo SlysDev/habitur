@@ -31,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     if (widget.isOnline) {
       Provider.of<Database>(context, listen: false).loadData(context);
-      print('done');
     }
     super.initState();
   }

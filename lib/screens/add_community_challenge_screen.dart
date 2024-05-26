@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -10,14 +11,21 @@ import 'package:provider/provider.dart';
 
 class AddCommunityChallengeScreen extends StatefulWidget {
   AddCommunityChallengeScreen({super.key});
-  Map newChallenge = {
+  Map<String, dynamic> newChallenge = {
     'title': '',
     'description': '',
-    'requiredCompletions': 0,
     'currentFullCompletions': 0,
+    'startDate': DateTime.now(),
     'endDate': DateTime.now(),
+    'id': Random().nextInt(100000),
     'requiredFullCompletions': 0,
-    'participants': [],
+    'participantDataList': [],
+    'habit': {
+      'title': '',
+      'requiredCompletions': 0,
+      'resetPeriod': 'Daily',
+      'dateCreated': DateTime.now()
+    },
   };
 
   @override
@@ -79,6 +87,7 @@ class _AddCommunityChallengeScreenState
                 hintText: 'Title',
                 onChanged: (value) {
                   widget.newChallenge['title'] = value;
+                  widget.newChallenge['habit']['title'] = value;
                 },
               ),
               Text(
@@ -100,7 +109,8 @@ class _AddCommunityChallengeScreenState
               FilledTextField(
                 hintText: '##',
                 onChanged: (value) {
-                  widget.newChallenge['requiredCompletions'] = int.parse(value);
+                  widget.newChallenge['habit']['requiredCompletions'] =
+                      int.parse(value);
                 },
               ),
               Text(
@@ -122,6 +132,106 @@ class _AddCommunityChallengeScreenState
               //         int.parse(value);
               //   },
               // ),
+              Text(
+                'Completion Period',
+                style: kMainDescription,
+                textAlign: TextAlign.center,
+              ),
+
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          widget.newChallenge['habit']['resetPeriod'] = 'Daily';
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                            color: widget.newChallenge['habit']
+                                        ['resetPeriod'] ==
+                                    'Daily'
+                                ? kPrimaryColor
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Text(
+                          'Daily',
+                          style: TextStyle(
+                              color: widget.newChallenge['habit']
+                                          ['resetPeriod'] ==
+                                      'Daily'
+                                  ? Colors.white
+                                  : kGray),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          widget.newChallenge['habit']['resetPeriod'] =
+                              'Weekly';
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                            color: widget.newChallenge['habit']
+                                        ['resetPeriod'] ==
+                                    'Weekly'
+                                ? kPrimaryColor
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Text(
+                          'Weekly',
+                          style: TextStyle(
+                              color: widget.newChallenge['habit']
+                                          ['resetPeriod'] ==
+                                      'Weekly'
+                                  ? Colors.white
+                                  : kGray),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          widget.newChallenge['habit']['resetPeriod'] =
+                              'Monthly';
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                            color: widget.newChallenge['habit']
+                                        ['resetPeriod'] ==
+                                    'Monthly'
+                                ? kPrimaryColor
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Text(
+                          'Monthly',
+                          style: TextStyle(
+                              color: widget.newChallenge['habit']
+                                          ['resetPeriod'] ==
+                                      'Monthly'
+                                  ? Colors.white
+                                  : kGray),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+
               Text(
                 'End Date',
                 style: kMainDescription,
@@ -148,8 +258,8 @@ class _AddCommunityChallengeScreenState
                 child: Text('Submit'),
                 onPressed: () async {
                   print(widget.newChallenge);
-                  await Provider.of<Database>(context, listen: false)
-                      .addCommunityChallenge(widget.newChallenge);
+                  Provider.of<Database>(context, listen: false)
+                      .addCommunityChallenge(widget.newChallenge, context);
                   Navigator.pop(context);
                 },
               ),

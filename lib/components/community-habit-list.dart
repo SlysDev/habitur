@@ -12,7 +12,8 @@ import 'package:intl/intl.dart';
 import 'package:habitur/components/habit_card.dart';
 
 class CommunityHabitList extends StatelessWidget {
-  const CommunityHabitList({super.key});
+  bool isAdmin;
+  CommunityHabitList({super.key, this.isAdmin = false});
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +34,12 @@ class CommunityHabitList extends StatelessWidget {
                 itemBuilder: (context, index) {
                   CommunityChallenge currentChallenge =
                       communityChallengeManager.challenges[index];
+                  print('Challenge title: ${currentChallenge.habit.title}');
                   return Column(
                     children: [
                       SizedBox(height: 30),
                       CommunityChallengeCard(
+                        isAdmin: isAdmin,
                         challenge: currentChallenge,
                         color: kFadedBlue,
                       ),
