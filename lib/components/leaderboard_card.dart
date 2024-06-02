@@ -20,7 +20,8 @@ class LeaderboardCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: participant.user == Provider.of<UserData>(context).currentUser
+        color: participant.user.uid ==
+                Provider.of<UserData>(context).currentUser.uid
             ? kLightPrimaryColor.withOpacity(0.5)
             : kFadedBlue.withOpacity(0.5),
       ),
