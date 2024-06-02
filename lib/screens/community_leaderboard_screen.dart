@@ -5,6 +5,7 @@ import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/components/leaderboard_card.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
+import 'package:habitur/providers/user_data.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart'; // Import your LeaderboardCard
 
@@ -80,7 +81,10 @@ class CommunityLeaderboardScreen extends StatelessWidget {
                   itemCount: participants.length,
                   itemBuilder: (context, index) {
                     ParticipantData participant = participants[index];
-                    print(participants);
+                    print('participant uid:');
+                    print(participant.user.uid);
+                    print('current user id:');
+                    print(Provider.of<UserData>(context).currentUser.uid);
                     return Column(
                       children: [
                         LeaderboardCard(participant: participant),
