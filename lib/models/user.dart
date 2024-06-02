@@ -3,7 +3,7 @@ import 'package:habitur/models/habit.dart';
 
 class UserModel {
   String username;
-  String description;
+  String bio;
   String email;
   String uid;
   AssetImage profilePicture;
@@ -13,7 +13,7 @@ class UserModel {
   List<Habit> habits = []; // only contain those that are marked private
   UserModel({
     required this.username,
-    this.description = '',
+    this.bio = '',
     required this.email,
     required this.uid,
     this.profilePicture = const AssetImage('assets/images/default-profile.png'),

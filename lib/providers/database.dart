@@ -17,8 +17,8 @@ final _auth = FirebaseAuth.instance;
 final _firestore = FirebaseFirestore.instance;
 
 class Database extends ChangeNotifier {
-  CollectionReference users = _firestore.collection('users');
   Future<void> userSetup(String username, String email) async {
+    CollectionReference users = _firestore.collection('users');
     String uid = _auth.currentUser!.uid.toString();
     DocumentReference userDoc = users.doc(uid); // create a new doc w/ uid.
     userDoc.set({
@@ -30,6 +30,7 @@ class Database extends ChangeNotifier {
   }
 
   get userData async {
+    CollectionReference users = _firestore.collection('users');
     String uid = _auth.currentUser!.uid.toString();
     DocumentReference userDoc = users.doc(uid);
     DocumentSnapshot userSnapshot = await userDoc.get();
@@ -40,7 +41,49 @@ class Database extends ChangeNotifier {
     return _auth.currentUser;
   }
 
+  void loadUserData(context) async {
+    QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
+    String uid = _auth.currentUser!.uid.toString();
+    for (var user in usersSnapshot.docs) {
+      if (user.get('uid') == uid) {
+        print('loading user...');
+        Provider.of<UserData>(context, listen: false).currentUser = UserModel(
+          username: user.get('username'),
+          bio: user.get('bio'),
+          email: user.get('email'),
+          uid: user.get('uid'),
+          userLevel: int.parse(user.get('userLevel')),
+          userXP: int.parse(user.get('userXP')),
+        );
+        Provider.of<UserData>(context, listen: false).notifyListeners();
+      }
+    }
+  }
+
+  void uploadUserData(context) async {
+    QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
+    for (var user in usersSnapshot.docs) {
+      if (user.get('uid') ==
+          Provider.of<UserData>(context, listen: false).currentUser.uid) {
+        await user.reference.update({
+          'username': Provider.of<UserData>(context, listen: false)
+              .currentUser
+              .username,
+          'bio': Provider.of<UserData>(context, listen: false).currentUser.bio,
+          'email':
+              Provider.of<UserData>(context, listen: false).currentUser.email,
+          'userLevel': Provider.of<UserData>(context, listen: false)
+              .currentUser
+              .userLevel,
+          'userXP':
+              Provider.of<UserData>(context, listen: false).currentUser.userXP,
+        });
+      }
+    }
+  }
+
   void loadHabits(context) async {
+    CollectionReference users = _firestore.collection('users');
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
     CollectionReference habitsReference = userReference.collection('habits');
@@ -97,6 +140,7 @@ class Database extends ChangeNotifier {
   }
 
   void uploadHabits(context) async {
+    CollectionReference users = _firestore.collection('users');
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
 
@@ -146,6 +190,7 @@ class Database extends ChangeNotifier {
   }
 
   void loadStatistics(context) async {
+    CollectionReference users = _firestore.collection('users');
     DocumentSnapshot userSnapshot =
         await users.doc(_auth.currentUser!.uid.toString()).get();
     if (userSnapshot.exists) {
@@ -169,6 +214,7 @@ class Database extends ChangeNotifier {
   }
 
   void uploadStatistics(context) async {
+    CollectionReference users = _firestore.collection('users');
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
 
@@ -269,7 +315,9 @@ class Database extends ChangeNotifier {
             (element) => ParticipantData(
               user: UserModel(
                 username: element["user"]["username"],
-                description: element["user"]["description"],
+                bio: element["user"]["bio"] != null
+                    ? element["user"]["bio"]
+                    : "",
                 email: element["user"]["email"],
                 uid: element["user"]["uid"],
                 userLevel: element["user"]["userLevel"],
@@ -331,7 +379,7 @@ class Database extends ChangeNotifier {
                 ? challenge.participants.map((element) => {
                       'user': {
                         'username': element.user.username,
-                        'description': element.user.description,
+                        'description': element.user.bio,
                         'email': element.user.email,
                         'uid': element.user.uid,
                         'userLevel': element.user.userLevel,
@@ -391,12 +439,14 @@ class Database extends ChangeNotifier {
   }
 
   void loadData(context) async {
+    loadUserData(context);
     loadHabits(context);
     loadStatistics(context);
     loadCommunityChallenges(context);
   }
 
   void uploadData(context) async {
+    uploadUserData(context);
     uploadHabits(context);
     uploadStatistics(context);
     uploadCommunityChallenges(context);

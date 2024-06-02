@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (widget.isOnline) {
       Provider.of<Database>(context, listen: false).loadData(context);
     }
+    Provider.of<Database>(context, listen: false).loadData(context);
     super.initState();
   }
 
@@ -61,6 +62,19 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             HomeGreetingHeader(),
             CommunityHabitList(),
+            AsideButton(
+                text: 'Upload user data',
+                onPressed: () {
+                  Provider.of<Database>(context, listen: false)
+                      .uploadUserData(context);
+                }),
+            AsideButton(
+                text: 'Download user data',
+                onPressed: () {
+                  Provider.of<Database>(context, listen: false)
+                      .loadUserData(context);
+                  print('downloaded');
+                }),
             // HabitCardList(
             //   // Passes network status to card list
             //   isOnline: widget.isOnline,
