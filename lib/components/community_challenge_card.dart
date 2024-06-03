@@ -86,7 +86,10 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
       curve: Curves.ease,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       decoration: BoxDecoration(
-        color: !currentHabit.isCompleted ? color : color.withOpacity(0.5),
+        color: challenge.currentFullCompletions ==
+                challenge.requiredFullCompletions
+            ? kLightGreenAccent
+            : (challenge.habit.isCompleted ? color.withOpacity(0.5) : color),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Container(
@@ -109,7 +112,10 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
                     curve: Curves.ease,
                     radius: 60,
                     percent: totalProgress,
-                    progressColor: kPrimaryColor,
+                    progressColor: challenge.currentFullCompletions ==
+                            challenge.requiredFullCompletions
+                        ? Colors.white
+                        : kPrimaryColor,
                     backgroundColor: Colors.transparent,
                     circularStrokeCap: CircularStrokeCap.round,
                     lineWidth: 10,
@@ -141,15 +147,21 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    CircleAvatar(),
+                    CircleAvatar(
+                      backgroundColor: Colors.white,
+                    ),
                     SizedBox(
                       width: 10,
                     ),
-                    CircleAvatar(),
+                    CircleAvatar(
+                      backgroundColor: Colors.white,
+                    ),
                     SizedBox(
                       width: 10,
                     ),
-                    CircleAvatar(),
+                    CircleAvatar(
+                      backgroundColor: Colors.white,
+                    ),
                   ],
                 ),
               ],
@@ -185,7 +197,12 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
                     height: 30,
                   ),
                   ElevatedButton(
-                      onPressed: completeChallenge,
+                      onPressed: () {
+                        if (!(challenge.currentFullCompletions ==
+                            challenge.requiredFullCompletions)) {
+                          completeChallenge();
+                        }
+                      },
                       child: Text(
                         "Complete",
                         style: kMainDescription.copyWith(color: Colors.black),
