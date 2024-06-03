@@ -81,7 +81,7 @@ class CommunityChallengeManager extends ChangeNotifier {
     }
   }
 
-  void checkFullCompletion(BuildContext context, CommunityChallenge challenge) {
+  bool checkFullCompletion(BuildContext context, CommunityChallenge challenge) {
     if (challenge.habit.isCompleted == true) {
       challenge.currentFullCompletions++;
       addParticipantData(
@@ -90,8 +90,10 @@ class CommunityChallengeManager extends ChangeNotifier {
           ParticipantData(
               user: Provider.of<UserData>(context, listen: false).currentUser,
               fullCompletionCount: 1));
+      print('updated');
+      return true;
     }
-    print('updated');
+    return false;
   }
 
   void decrementFullCompletion(
