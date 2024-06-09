@@ -42,15 +42,16 @@ class NavBar extends StatelessWidget {
           NavItem(
             icon: Icon(
               Icons.admin_panel_settings,
-              color: currentPage == 'home' ? kPrimaryColor : kGray,
+              color: currentPage == 'admin' ? kPrimaryColor : kGray,
               size: 25,
             ),
             onPressed: () {
-              if (currentPage == 'home') {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AdminScreen()));
-              } else {
-                Navigator.popAndPushNamed(context, 'habits_screen');
+              if (currentPage != 'admin') {
+                if (currentPage == 'home') {
+                  Navigator.pushNamed(context, 'admin_screen');
+                } else {
+                  Navigator.popAndPushNamed(context, 'admin_screen');
+                }
               }
             },
           ),
@@ -76,10 +77,12 @@ class NavBar extends StatelessWidget {
               color: currentPage == 'statistics' ? kPrimaryColor : kGray,
             ),
             onPressed: () {
-              if (currentPage == 'home') {
-                Navigator.pushNamed(context, 'statistics_screen');
-              } else {
-                Navigator.popAndPushNamed(context, 'statistics_screen');
+              if (currentPage != 'statistics_screen') {
+                if (currentPage == 'home') {
+                  Navigator.pushNamed(context, 'statistics_screen');
+                } else {
+                  Navigator.popAndPushNamed(context, 'statistics_screen');
+                }
               }
             },
           ),
@@ -89,10 +92,12 @@ class NavBar extends StatelessWidget {
               color: currentPage == 'settings' ? kPrimaryColor : kGray,
             ),
             onPressed: () {
-              if (currentPage == 'home') {
-                Navigator.pushNamed(context, 'settings_screen');
-              } else {
-                Navigator.popAndPushNamed(context, 'settings_screen');
+              if (currentPage != 'settings') {
+                if (currentPage == 'home') {
+                  Navigator.pushNamed(context, 'settings_screen');
+                } else {
+                  Navigator.popAndPushNamed(context, 'settings_screen');
+                }
               }
             },
           ),

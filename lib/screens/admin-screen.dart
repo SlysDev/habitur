@@ -15,7 +15,7 @@ class AdminScreen extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: NavBar(
-        currentPage: 'home',
+        currentPage: 'admin',
         onButtonPress: () {
           showModalBottomSheet(
             context: context,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
+import 'package:habitur/screens/admin-screen.dart';
 import 'package:habitur/screens/community_leaderboard_screen.dart';
 import 'package:habitur/screens/habits_screen.dart';
 import 'constants.dart';
@@ -93,6 +94,7 @@ class Habitur extends StatelessWidget {
             'welcome_screen': (context) => WelcomeScreen(),
             'login_screen': (context) => LoginScreen(),
             'register_screen': (context) => RegisterScreen(),
+            'admin_screen': (context) => AdminScreen(),
             'home_screen': (context) => HomeScreen(
                   isOnline: true,
                 ),
