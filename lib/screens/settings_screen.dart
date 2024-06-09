@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/user_data.dart';
 import '../providers/settings_data.dart';
 import 'package:provider/provider.dart';
 import '../models/setting.dart';
@@ -38,12 +40,13 @@ class SettingsScreen extends StatelessWidget {
                 },
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Provider.of<Database>(context, listen: false).loadData(context);
-              },
-              child: Text('load data'),
-            ),
+            Provider.of<UserData>(context, listen: false).currentUser.isAdmin
+                ? AsideButton(
+                    text: 'Admin Panel',
+                    onPressed: () {
+                      Navigator.pushNamed(context, 'admin_screen');
+                    })
+                : Container(),
           ]),
           bottomNavigationBar: NavBar(
             currentPage: 'settings',

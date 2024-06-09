@@ -25,32 +25,18 @@ class NavBar extends StatelessWidget {
               Navigator.pop(context);
             },
           ),
-          // NavItem(
-          //   icon: Icon(
-          //     Icons.done_all_rounded,
-          //     color: currentPage == 'habits' ? kPrimaryColor : kGray,
-          //     size: 25,
-          //   ),
-          //   onPressed: () {
-          //     if (currentPage == 'home') {
-          //       Navigator.pushNamed(context, 'habits_screen');
-          //     } else {
-          //       Navigator.popAndPushNamed(context, 'habits_screen');
-          //     }
-          //   },
-          // ),
           NavItem(
             icon: Icon(
-              Icons.admin_panel_settings,
-              color: currentPage == 'admin' ? kPrimaryColor : kGray,
+              Icons.done_all_rounded,
+              color: currentPage == 'habits' ? kPrimaryColor : kGray,
               size: 25,
             ),
             onPressed: () {
-              if (currentPage != 'admin') {
+              if (currentPage != 'habits') {
                 if (currentPage == 'home') {
-                  Navigator.pushNamed(context, 'admin_screen');
+                  Navigator.pushNamed(context, 'habits_screen');
                 } else {
-                  Navigator.popAndPushNamed(context, 'admin_screen');
+                  Navigator.popAndPushNamed(context, 'habits_screen');
                 }
               }
             },

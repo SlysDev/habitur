@@ -70,7 +70,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
         ),
       ),
       bottomNavigationBar: NavBar(
-        currentPage: 'home',
+        currentPage: 'habits',
       ),
     );
   }

@@ -11,6 +11,7 @@ class UserModel {
   int userXP;
   // int userFollowers; (may use, need to reassess SM func.)
   List<Habit> habits = []; // only contain those that are marked private
+  bool isAdmin;
   UserModel({
     required this.username,
     this.bio = '',
@@ -20,6 +21,7 @@ class UserModel {
     required this.userLevel,
     required this.userXP,
     this.habits = const [],
+    this.isAdmin = false,
     // this.userFollowers = 0,
   });
 }
