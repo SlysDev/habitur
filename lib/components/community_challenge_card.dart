@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/components/aside_button.dart';
+import 'package:habitur/components/inactive_elevated_button.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/community_challenge.dart';
@@ -196,18 +197,27 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
                   SizedBox(
                     height: 30,
                   ),
-                  ElevatedButton(
-                      onPressed: () {
-                        if (!(challenge.currentFullCompletions ==
-                            challenge.requiredFullCompletions)) {
-                          completeChallenge();
-                        }
-                      },
-                      child: Text(
-                        "Complete",
-                        style: kMainDescription.copyWith(color: Colors.black),
-                        textAlign: TextAlign.center,
-                      ))
+                  challenge.currentFullCompletions ==
+                          challenge.requiredFullCompletions
+                      ? InactiveElevatedButton(
+                          child: Text(
+                          'Complete',
+                          style: kMainDescription.copyWith(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ))
+                      : ElevatedButton(
+                          onPressed: () {
+                            if (!(challenge.currentFullCompletions ==
+                                challenge.requiredFullCompletions)) {
+                              completeChallenge();
+                            }
+                          },
+                          child: Text(
+                            "Complete",
+                            style:
+                                kMainDescription.copyWith(color: Colors.black),
+                            textAlign: TextAlign.center,
+                          ))
                 ],
               ),
             ),

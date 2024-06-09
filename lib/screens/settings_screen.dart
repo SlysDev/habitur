@@ -44,7 +44,7 @@ class SettingsScreen extends StatelessWidget {
                 ? AsideButton(
                     text: 'Admin Panel',
                     onPressed: () {
-                      Navigator.pushNamed(context, 'admin_screen');
+                      Navigator.popAndPushNamed(context, 'admin_screen');
                     })
                 : Container(),
           ]),
