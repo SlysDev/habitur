@@ -52,8 +52,8 @@ class Database extends ChangeNotifier {
             bio: user.get('bio'),
             email: user.get('email'),
             uid: user.get('uid'),
-            userLevel: int.parse(user.get('userLevel')),
-            userXP: int.parse(user.get('userXP')),
+            userLevel: user.get('userLevel'),
+            userXP: user.get('userXP'),
             isAdmin: user.get('isAdmin'));
         Provider.of<UserData>(context, listen: false).notifyListeners();
       }
