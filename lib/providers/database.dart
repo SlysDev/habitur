@@ -48,13 +48,13 @@ class Database extends ChangeNotifier {
       if (user.get('uid') == uid) {
         print('loading user...');
         Provider.of<UserData>(context, listen: false).currentUser = UserModel(
-          username: user.get('username'),
-          bio: user.get('bio'),
-          email: user.get('email'),
-          uid: user.get('uid'),
-          userLevel: int.parse(user.get('userLevel')),
-          userXP: int.parse(user.get('userXP')),
-        );
+            username: user.get('username'),
+            bio: user.get('bio'),
+            email: user.get('email'),
+            uid: user.get('uid'),
+            userLevel: int.parse(user.get('userLevel')),
+            userXP: int.parse(user.get('userXP')),
+            isAdmin: user.get('isAdmin'));
         Provider.of<UserData>(context, listen: false).notifyListeners();
       }
     }
@@ -77,8 +77,15 @@ class Database extends ChangeNotifier {
               .userLevel,
           'userXP':
               Provider.of<UserData>(context, listen: false).currentUser.userXP,
+          'isAdmin':
+              Provider.of<UserData>(context, listen: false).currentUser.isAdmin
         });
       }
+      print('isAdmin: ' +
+          Provider.of<UserData>(context, listen: false)
+              .currentUser
+              .isAdmin
+              .toString());
     }
   }
 
