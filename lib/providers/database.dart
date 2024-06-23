@@ -283,6 +283,20 @@ class Database extends ChangeNotifier {
     }
   }
 
+  void addHabit(Habit habit) {}
+
+  void deleteHabit(context, int id) async {
+    CollectionReference users = _firestore.collection('users');
+    DocumentReference userReference =
+        users.doc(_auth.currentUser!.uid.toString());
+
+    var habitsCollectionRef = userReference.collection('habits');
+
+    QueryDocumentSnapshot doc = await getHabitByID(id);
+
+    habitsCollectionRef.doc(doc.id).delete();
+  }
+
   void loadStatistics(context) async {
     CollectionReference users = _firestore.collection('users');
     DocumentSnapshot userSnapshot =
@@ -494,6 +508,20 @@ class Database extends ChangeNotifier {
     }
 
     loadCommunityChallenges(context);
+  }
+
+  Future<QueryDocumentSnapshot> getHabitByID(int id) async {
+    CollectionReference users = _firestore.collection('users');
+    DocumentReference userReference =
+        users.doc(_auth.currentUser!.uid.toString());
+    var habitsCollectionRef = userReference.collection('habits');
+
+    QuerySnapshot foundHabit =
+        await habitsCollectionRef.where('id', isEqualTo: id).get();
+    if (foundHabit.docs.length > 0) {
+      return foundHabit.docs[0];
+    }
+    return Future.error('No Habit Found for id:' + id.toString());
   }
 
   void loadData(context) async {

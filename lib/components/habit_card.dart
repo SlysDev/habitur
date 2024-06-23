@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/screens/habit_overview_screen.dart';
+import 'package:provider/provider.dart';
 import '../constants.dart';
 import './rounded_progress_bar.dart';
 
@@ -17,17 +20,18 @@ class HabitCard extends StatelessWidget {
   void Function(BuildContext) onDismissed;
   void Function(BuildContext) onEdit;
   Habit habit;
-  HabitCard({
-    required this.title,
-    required this.progress,
-    required this.onTap,
-    required this.onLongPress,
-    this.color = kFadedBlue,
-    required this.completed,
-    required this.onDismissed,
-    required this.onEdit,
-    required this.habit,
-  });
+  int index;
+  HabitCard(
+      {required this.title,
+      required this.progress,
+      required this.onTap,
+      required this.onLongPress,
+      this.color = kFadedBlue,
+      required this.completed,
+      required this.onDismissed,
+      required this.onEdit,
+      required this.habit,
+      required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +49,11 @@ class HabitCard extends StatelessWidget {
           motion: DrawerMotion(),
           children: [
             SlidableAction(
-              onPressed: onDismissed,
+              onPressed: (context) {
+                print('iscalled');
+                Provider.of<HabitManager>(context, listen: false)
+                    .deleteHabit(context, index);
+              },
               backgroundColor: Colors.red,
               icon: Icons.delete,
               borderRadius: BorderRadius.circular(20),

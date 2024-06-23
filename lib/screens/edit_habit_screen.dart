@@ -412,15 +412,14 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                           habitDueDate = today.add(Duration(days: 30));
                           // Defaulting motnh to 30 days, may change later.
                         }
+                        Habit editedHabit = selectedHabit;
+                        selectedHabit.title = habitTitle;
+                        selectedHabit.resetPeriod = selectedPeriod;
+                        selectedHabit.requiredCompletions = habitCompletions;
+                        selectedHabit.requiredDatesOfCompletion = daysActive;
                         habitManager.editHabit(
                           widget.habitIndex,
-                          Habit(
-                              title: habitTitle,
-                              dateCreated: DateTime.now(),
-                              resetPeriod: selectedPeriod,
-                              id: selectedHabit.id,
-                              requiredDatesOfCompletion: daysActive,
-                              requiredCompletions: habitCompletions),
+                          editedHabit,
                         );
                         Provider.of<HabitManager>(context, listen: false)
                             .updateHabits(context);

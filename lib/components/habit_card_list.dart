@@ -40,6 +40,8 @@ class HabitCardList extends StatelessWidget {
                               height: 20,
                             ),
                             HabitCard(
+                              habit: habitManager.habits[index],
+                              index: index,
                               progress:
                                   habitManager.habits[index].completionsToday /
                                       habitManager
@@ -51,8 +53,7 @@ class HabitCardList extends StatelessWidget {
                                       ? true
                                       : false,
                               onDismissed: (context) {
-                                habitManager.removeHabit(index);
-                                habitManager.updateHabits(context);
+                                habitManager.deleteHabit(context, index);
                               },
                               onEdit: (context) {
                                 Navigator.push(
@@ -77,7 +78,6 @@ class HabitCardList extends StatelessWidget {
                                   habitManager.updateHabits(context);
                                 }
                               },
-                              habit: habitManager.habits[index],
                             ),
                             // color: habitManager.habits[index].color),
                             SizedBox(
