@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:habitur/models/community_challenge.dart';
@@ -23,6 +24,7 @@ class CommunityChallengeManager extends ChangeNotifier {
           title: "Test",
           completionsToday: 0,
           requiredCompletions: 4,
+          id: Random().nextInt(100000),
           resetPeriod: "Daily",
           dateCreated: DateTime.now(),
         ))

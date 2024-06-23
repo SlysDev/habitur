@@ -40,6 +40,47 @@ class Database extends ChangeNotifier {
   get currentUser {
     return _auth.currentUser;
   }
+  // Helper Functions
+
+  List<DataPoint> rawListToDataPoints(input) {
+    if (input.isNotEmpty) {
+      return input.map<DataPoint>((element) {
+        if (element is Map<String, dynamic>) {
+          dynamic date = element['date'];
+          DateTime dateTime;
+          if (date is Timestamp) {
+            dateTime = date.toDate();
+          } else {
+            dateTime = DateTime.now(); // Handle unexpected format
+            print('weird formatting, used DateTime.now() for this one.');
+          }
+          return DataPoint(date: dateTime, value: element['value']);
+        } else {
+          print('input was empty');
+          return DataPoint(
+              date: DateTime.now(), value: 0); // Handle unexpected format
+        }
+      }).toList();
+    } else {
+      return [];
+    }
+  }
+
+  List<DateTime> rawListToDates(input) {
+    if (input.isNotEmpty) {
+      return input.map<DateTime>((date) {
+        if (date is Timestamp) {
+          return date.toDate();
+        } else {
+          return DateTime.now(); // Handle unexpected format
+        }
+      }).toList();
+    } else {
+      return [];
+    }
+  }
+
+// Database functions
 
   void loadUserData(context) async {
     QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
@@ -127,6 +168,7 @@ class Database extends ChangeNotifier {
         // Converts timestamp to DateTime
         dateCreated: habit.get('dateCreated').toDate(),
         completionsToday: habit.get('completionsToday'),
+        id: habit.get('id'),
         totalCompletions: habit.get('totalCompletions'),
         streak: habit.get('streak'),
         highestStreak: habit.get('highestStreak'),
@@ -151,21 +193,16 @@ class Database extends ChangeNotifier {
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
 
-    // First clear the collection
-    var habitsCollection = await userReference.collection('habits').get();
-    for (var habitDoc in habitsCollection.docs) {
-      habitDoc.reference.delete();
-    }
-    // Then add all of the habits from the local array to the database
-    for (var habit
-        in Provider.of<HabitManager>(context, listen: false).habits) {
-      print(habit.title + ': ' + habit.confidenceStats.toString());
-      print(habit.title + ': ' + habit.completionStats.toString());
-      userReference.collection('habits').add({
+    var habitsCollectionRef = userReference.collection('habits');
+    var habitsCollectionSnapshot =
+        await userReference.collection('habits').get();
+    void addHabitDoc(Habit habit) async {
+      await habitsCollectionRef.add({
         'title': habit.title,
         'completionsToday': habit.completionsToday,
         'dateCreated': habit.dateCreated,
         'resetPeriod': habit.resetPeriod,
+        'id': habit.id,
         'streak': habit.streak,
         'confidenceLevel': habit.confidenceLevel,
         'highestStreak': habit.highestStreak,
@@ -184,16 +221,66 @@ class Database extends ChangeNotifier {
                   'value': stat.value,
                 })
             .toList(),
-        'completionStats': habit.completionStats
+        'completionStats': habit.completionStats.map((stat) => {
+              'date': stat.date,
+              'value': stat.value,
+            })
+      });
+    }
+
+    void updateHabitDoc(Habit habit, DocumentSnapshot doc) async {
+      await doc.reference.update({
+        'title': habit.title,
+        'completionsToday': habit.completionsToday,
+        'dateCreated': habit.dateCreated,
+        'resetPeriod': habit.resetPeriod,
+        'id': habit.id,
+        'streak': habit.streak,
+        'confidenceLevel': habit.confidenceLevel,
+        'highestStreak': habit.highestStreak,
+        'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
+        'requiredCompletions': habit.requiredCompletions,
+        'totalCompletions': habit.totalCompletions,
+        'lastSeen': habit.lastSeen,
+        'daysCompleted': habit.daysCompleted
+            .map((completedDate) => {
+                  'date': completedDate,
+                })
+            .toList(),
+        'confidenceStats': habit.confidenceStats
             .map((stat) => {
                   'date': stat.date,
                   'value': stat.value,
                 })
             .toList(),
+        'completionStats': habit.completionStats.map((stat) => {
+              'date': stat.date,
+              'value': stat.value,
+            })
       });
     }
-    print('uploaded to database.');
-    //// TODO: Upload hive's storage of the habit list to Firebase  <22-12-22, slys> //
+
+    for (var habit
+        in Provider.of<HabitManager>(context, listen: false).habits) {
+      print('step 1 of loop: looping through real habits');
+      if (habitsCollectionSnapshot.size == 0) {
+        addHabitDoc(habit);
+      } else {
+        bool found = false;
+        for (var doc in habitsCollectionSnapshot.docs) {
+          if (doc.get('id') == habit.id) {
+            found = true;
+            print('updating doc for habit: ' + habit.title);
+            updateHabitDoc(habit, doc);
+          }
+        }
+        if (!found) {
+          addHabitDoc(habit);
+        }
+      }
+      print('uploaded to database.');
+      //// TODO: Upload hive's storage of the habit list to Firebase  <22-12-22, slys> //
+    }
   }
 
   void loadStatistics(context) async {
@@ -258,44 +345,6 @@ class Database extends ChangeNotifier {
     print('stats uploaded');
   }
 
-  void addCommunityChallenge(Map<String, dynamic> newChallenge, context) async {
-    CollectionReference communityChallengesRef =
-        _firestore.collection('community-challenges');
-    await communityChallengesRef.add(newChallenge);
-
-    loadCommunityChallenges(context);
-  }
-
-  void removeCommunityChallenge(int id, context) async {
-    print("Removing community challenge with id: " + id.toString());
-    CollectionReference communityChallengesRef =
-        _firestore.collection('community-challenges');
-    QuerySnapshot communityChallengesSnapshot =
-        await communityChallengesRef.get();
-    for (var doc in communityChallengesSnapshot.docs) {
-      if (doc.get("id") == id) {
-        doc.reference.delete();
-      }
-    }
-
-    loadCommunityChallenges(context);
-  }
-
-  void editCommunityChallenge(
-      int id, Map<String, dynamic> newChallenge, context) async {
-    CollectionReference communityChallengesRef =
-        _firestore.collection('community-challenges');
-    QuerySnapshot communityChallengesSnapshot =
-        await communityChallengesRef.get();
-    for (var doc in communityChallengesSnapshot.docs) {
-      if (doc.get("id") == id) {
-        doc.reference.update(newChallenge);
-      }
-    }
-
-    loadCommunityChallenges(context);
-  }
-
   void loadCommunityChallenges(context) async {
     QuerySnapshot communityChallengesSnapshot =
         await _firestore.collection('community-challenges').get();
@@ -312,6 +361,7 @@ class Database extends ChangeNotifier {
         habit: Habit(
           title: doc.get("habit")["title"],
           requiredCompletions: doc.get("habit")["requiredCompletions"],
+          id: doc.get("habit")["id"],
           resetPeriod: doc.get("habit")["resetPeriod"],
           dateCreated: doc.get("habit")["dateCreated"].toDate(),
         ),
@@ -406,43 +456,44 @@ class Database extends ChangeNotifier {
         }
       }
     }
-    // first clear the collection
-    // for (var doc in communityChallengesSnapshot.docs) {
-    //   doc.reference.delete();
-    // }
-    // print('here are the challenges to be uploaded:');
-    // print(Provider.of<CommunityChallengeManager>(context, listen: false)
-    //     .challenges);
-    // for (var challenge
-    //     in Provider.of<CommunityChallengeManager>(context, listen: false)
-    //         .challenges) {
-    //   communityChallenges.add({
-    //     'description': challenge.description,
-    //     'id': challenge.id,
-    //     'startDate': challenge.startDate,
-    //     'endDate': challenge.endDate,
-    //     'requiredFullCompletions': challenge.requiredFullCompletions,
-    //     'currentFullCompletions': challenge.currentFullCompletions,
-    //     'participantDataList': challenge.participants.map((element) => {
-    //           'user': {
-    //             'username': element.user.username,
-    //             'description': element.user.description,
-    //             'email': element.user.email,
-    //             'uid': element.user.uid,
-    //             'userLevel': element.user.userLevel,
-    //             'userXP': element.user.userXP
-    //           },
-    //           'fullCompletionCount': element.fullCompletionCount,
-    //           'currentCompletions': element.currentCompletions
-    //         }),
-    //     'habit': {
-    //       'title': challenge.habit.title,
-    //       'requiredCompletions': challenge.habit.requiredCompletions,
-    //       'resetPeriod': challenge.habit.resetPeriod,
-    //       'dateCreated': challenge.habit.dateCreated
-    //     },
-    //   });
-    // }
+  }
+
+  void addCommunityChallenge(Map<String, dynamic> newChallenge, context) async {
+    CollectionReference communityChallengesRef =
+        _firestore.collection('community-challenges');
+    await communityChallengesRef.add(newChallenge);
+
+    loadCommunityChallenges(context);
+  }
+
+  void removeCommunityChallenge(int id, context) async {
+    print("Removing community challenge with id: " + id.toString());
+    CollectionReference communityChallengesRef =
+        _firestore.collection('community-challenges');
+    QuerySnapshot communityChallengesSnapshot =
+        await communityChallengesRef.get();
+    for (var doc in communityChallengesSnapshot.docs) {
+      if (doc.get("id") == id) {
+        doc.reference.delete();
+      }
+    }
+
+    loadCommunityChallenges(context);
+  }
+
+  void editCommunityChallenge(
+      int id, Map<String, dynamic> newChallenge, context) async {
+    CollectionReference communityChallengesRef =
+        _firestore.collection('community-challenges');
+    QuerySnapshot communityChallengesSnapshot =
+        await communityChallengesRef.get();
+    for (var doc in communityChallengesSnapshot.docs) {
+      if (doc.get("id") == id) {
+        doc.reference.update(newChallenge);
+      }
+    }
+
+    loadCommunityChallenges(context);
   }
 
   void loadData(context) async {
@@ -457,43 +508,5 @@ class Database extends ChangeNotifier {
     uploadHabits(context);
     uploadStatistics(context);
     uploadCommunityChallenges(context);
-  }
-}
-
-List<DataPoint> rawListToDataPoints(input) {
-  if (input.isNotEmpty) {
-    return input.map<DataPoint>((element) {
-      if (element is Map<String, dynamic>) {
-        dynamic date = element['date'];
-        DateTime dateTime;
-        if (date is Timestamp) {
-          dateTime = date.toDate();
-        } else {
-          dateTime = DateTime.now(); // Handle unexpected format
-          print('weird formatting, used DateTime.now() for this one.');
-        }
-        return DataPoint(date: dateTime, value: element['value']);
-      } else {
-        print('input was empty');
-        return DataPoint(
-            date: DateTime.now(), value: 0); // Handle unexpected format
-      }
-    }).toList();
-  } else {
-    return [];
-  }
-}
-
-List<DateTime> rawListToDates(input) {
-  if (input.isNotEmpty) {
-    return input.map<DateTime>((date) {
-      if (date is Timestamp) {
-        return date.toDate();
-      } else {
-        return DateTime.now(); // Handle unexpected format
-      }
-    }).toList();
-  } else {
-    return [];
   }
 }

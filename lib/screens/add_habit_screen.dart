@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -421,6 +422,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                           Habit(
                               title: habitTitle,
                               dateCreated: DateTime.now(),
+                              id: Random().nextInt(100000),
                               resetPeriod: selectedPeriod,
                               requiredDatesOfCompletion: daysActive,
                               requiredCompletions: habitCompletions),

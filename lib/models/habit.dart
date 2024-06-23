@@ -21,6 +21,7 @@ class Habit {
   double confidenceLevel;
   DateTime lastSeen = DateTime.now();
   Color color = kPrimaryColor;
+  int id;
 
   List<DateTime> daysCompleted = [];
   List<String> requiredDatesOfCompletion = [];
@@ -43,6 +44,7 @@ class Habit {
       {required this.title,
       required this.dateCreated,
       required this.resetPeriod,
+      required this.id,
       this.streak = 0,
       this.highestStreak = 0,
       this.completionsToday = 0,

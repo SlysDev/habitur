@@ -418,6 +418,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                               title: habitTitle,
                               dateCreated: DateTime.now(),
                               resetPeriod: selectedPeriod,
+                              id: selectedHabit.id,
                               requiredDatesOfCompletion: daysActive,
                               requiredCompletions: habitCompletions),
                         );
