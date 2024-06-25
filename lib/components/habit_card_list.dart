@@ -79,7 +79,12 @@ class _HabitCardListState extends State<HabitCardList> {
                             onLongPress: () {
                               habitStatsHandler.decrementCompletion(context);
                               Provider.of<HabitManager>(context, listen: false)
-                                  .updateHabits(context);
+                                  .updateHabits();
+                              Provider.of<Database>(context, listen: false)
+                                  .updateHabit(Provider.of<HabitManager>(
+                                          context,
+                                          listen: false)
+                                      .habits[index]);
                             },
                             onTap: () {
                               if (Provider.of<HabitManager>(context,
@@ -93,7 +98,12 @@ class _HabitCardListState extends State<HabitCardList> {
                                 habitStatsHandler.incrementCompletion(context);
                                 Provider.of<HabitManager>(context,
                                         listen: false)
-                                    .updateHabits(context);
+                                    .updateHabits();
+                                Provider.of<Database>(context, listen: false)
+                                    .updateHabit(Provider.of<HabitManager>(
+                                            context,
+                                            listen: false)
+                                        .habits[index]);
                               }
                             },
                           ),

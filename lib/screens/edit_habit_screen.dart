@@ -422,7 +422,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                           editedHabit,
                         );
                         Provider.of<HabitManager>(context, listen: false)
-                            .updateHabits(context);
+                            .updateHabits();
                         Navigator.pop(context);
                       },
                       child: const Text('Update'),

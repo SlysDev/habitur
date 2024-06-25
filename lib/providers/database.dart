@@ -200,18 +200,17 @@ class Database extends ChangeNotifier {
         in Provider.of<HabitManager>(context, listen: false).habits) {
       print('step 1 of loop: looping through real habits');
       if (habitsCollectionSnapshot.size == 0) {
-        addHabitDoc(habit);
+        addHabit(habit);
       } else {
         bool found = false;
         for (var doc in habitsCollectionSnapshot.docs) {
           if (doc.get('id') == habit.id) {
             found = true;
-            print('updating doc for habit: ' + habit.title);
-            updateHabitDoc(habit, doc);
+            _updateHabitDoc(habit, doc);
           }
         }
         if (!found) {
-          addHabitDoc(habit);
+          addHabit(habit);
         }
       }
       print('uploaded to database.');
@@ -219,7 +218,7 @@ class Database extends ChangeNotifier {
     }
   }
 
-  void updateHabitDoc(Habit habit, DocumentSnapshot doc) async {
+  void _updateHabitDoc(Habit habit, DocumentSnapshot doc) async {
     await doc.reference.update({
       'title': habit.title,
       'completionsToday': habit.completionsToday,
@@ -251,7 +250,7 @@ class Database extends ChangeNotifier {
     });
   }
 
-  void addHabitDoc(Habit habit) async {
+  void addHabit(Habit habit) async {
     CollectionReference users = _firestore.collection('users');
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
@@ -288,7 +287,11 @@ class Database extends ChangeNotifier {
     });
   }
 
-  void deleteHabitDoc(context, int id) async {
+  void updateHabit(Habit habit) async {
+    _updateHabitDoc(habit, await getHabitByID(habit.id));
+  }
+
+  void deleteHabit(context, int id) async {
     CollectionReference users = _firestore.collection('users');
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());

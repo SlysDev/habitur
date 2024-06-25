@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/providers/database.dart';
 import '../components/rounded_tile.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/user_data.dart';
@@ -417,20 +418,24 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                           habitDueDate = today.add(const Duration(days: 30));
                           // Defaulting motnh to 30 days, may change later.
                         }
+                        Habit finalHabit = Habit(
+                            title: habitTitle,
+                            dateCreated: DateTime.now(),
+                            id: Random().nextInt(100000),
+                            resetPeriod: selectedPeriod,
+                            lastSeen: DateTime.now(),
+                            requiredDatesOfCompletion: daysActive,
+                            requiredCompletions: habitCompletions);
                         Provider.of<HabitManager>(context, listen: false)
                             .addHabit(
-                          Habit(
-                              title: habitTitle,
-                              dateCreated: DateTime.now(),
-                              id: Random().nextInt(100000),
-                              resetPeriod: selectedPeriod,
-                              lastSeen: DateTime.now(),
-                              requiredDatesOfCompletion: daysActive,
-                              requiredCompletions: habitCompletions),
+                          finalHabit,
                         );
+                        Provider.of<Database>(context, listen: false)
+                            .addHabit(finalHabit);
                         Provider.of<HabitManager>(context, listen: false)
-                            .updateHabits(context);
-                        print(daysActive);
+                            .sortHabits();
+                        Provider.of<HabitManager>(context, listen: false)
+                            .updateHabits();
                         Navigator.pop(context);
                       },
                       child: const Text('Create'),

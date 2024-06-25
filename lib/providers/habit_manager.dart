@@ -48,8 +48,7 @@ class HabitManager extends ChangeNotifier {
   void deleteHabit(context, int index) {
     int habitID = _habits[index].id;
     _habits.removeAt(index);
-    Provider.of<Database>(context, listen: false)
-        .deleteHabitDoc(context, habitID);
+    Provider.of<Database>(context, listen: false).deleteHabit(context, habitID);
     notifyListeners();
   }
 
@@ -57,8 +56,7 @@ class HabitManager extends ChangeNotifier {
     _habits[index] = newData;
   }
 
-  void updateHabits(context) {
-    Provider.of<Database>(context, listen: false).uploadHabits(context);
+  void updateHabits() {
     sortHabits();
     notifyListeners();
   }
