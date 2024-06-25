@@ -62,7 +62,7 @@ class HabitManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetDailyHabits() {
+  void resetDailyHabits(context) {
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
@@ -77,10 +77,12 @@ class HabitManager extends ChangeNotifier {
         return;
       }
     }
+
     notifyListeners();
+    Provider.of<Database>(context, listen: false).uploadHabits(context);
   }
 
-  void resetWeeklyHabits() {
+  void resetWeeklyHabits(context) {
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
@@ -97,9 +99,10 @@ class HabitManager extends ChangeNotifier {
       }
     }
     notifyListeners();
+    Provider.of<Database>(context, listen: false).uploadHabits(context);
   }
 
-  void resetMonthlyHabits() {
+  void resetMonthlyHabits(context) {
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
@@ -115,6 +118,7 @@ class HabitManager extends ChangeNotifier {
       }
     }
     notifyListeners();
+    Provider.of<Database>(context, listen: false).uploadHabits(context);
   }
 
   bool checkDailyHabits() {

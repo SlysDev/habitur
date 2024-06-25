@@ -19,7 +19,7 @@ class Habit {
   String resetPeriod;
   DateTime dateCreated;
   double confidenceLevel;
-  DateTime lastSeen = DateTime.now();
+  DateTime lastSeen;
   Color color = kPrimaryColor;
   int id;
 
@@ -45,6 +45,7 @@ class Habit {
       required this.dateCreated,
       required this.resetPeriod,
       required this.id,
+      required this.lastSeen,
       this.streak = 0,
       this.highestStreak = 0,
       this.completionsToday = 0,

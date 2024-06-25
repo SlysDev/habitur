@@ -42,7 +42,7 @@ class Database extends ChangeNotifier {
   }
   // Helper Functions
 
-  List<DataPoint> rawListToDataPoints(input) {
+  List<DataPoint> dbListToDataPoints(input) {
     if (input.isNotEmpty) {
       return input.map<DataPoint>((element) {
         if (element is Map<String, dynamic>) {
@@ -66,12 +66,13 @@ class Database extends ChangeNotifier {
     }
   }
 
-  List<DateTime> rawListToDates(input) {
+  List<DateTime> dbListToDates(input) {
     if (input.isNotEmpty) {
       return input.map<DateTime>((date) {
-        if (date is Timestamp) {
-          return date.toDate();
+        if (date is Map<String, dynamic>) {
+          return date['date'].toDate() as DateTime;
         } else {
+          print('weird formatting, used DateTime.now() for this one.');
           return DateTime.now(); // Handle unexpected format
         }
       }).toList();
@@ -136,11 +137,6 @@ class Database extends ChangeNotifier {
         users.doc(_auth.currentUser!.uid.toString());
     CollectionReference habitsReference = userReference.collection('habits');
     QuerySnapshot habitsSnapshot = await habitsReference.get();
-    DocumentSnapshot userSnapshot = await userReference.get();
-    Provider.of<UserData>(context, listen: false).currentUser.userLevel =
-        userSnapshot.get('habiturRating');
-    Provider.of<UserData>(context, listen: false).currentUser.username =
-        userSnapshot.get('username');
 
     // Get data from docs and convert map to List
     final habitDocs = habitsSnapshot.docs;
@@ -156,11 +152,11 @@ class Database extends ChangeNotifier {
               .toList();
 
       List<DateTime> daysCompletedFormatted =
-          rawListToDates(habit.get('daysCompleted'));
+          dbListToDates(habit.get('daysCompleted'));
       List<DataPoint> confidenceStatsFormatted =
-          rawListToDataPoints(habit.get('confidenceStats'));
+          dbListToDataPoints(habit.get('confidenceStats'));
       List<DataPoint> completionStatsFormatted =
-          rawListToDataPoints(habit.get('completionStats'));
+          dbListToDataPoints(habit.get('completionStats'));
 
       Habit loadedHabit = Habit(
         title: habit.get('title'),
@@ -169,6 +165,7 @@ class Database extends ChangeNotifier {
         dateCreated: habit.get('dateCreated').toDate(),
         completionsToday: habit.get('completionsToday'),
         id: habit.get('id'),
+        lastSeen: habit.get('lastSeen').toDate(),
         totalCompletions: habit.get('totalCompletions'),
         streak: habit.get('streak'),
         highestStreak: habit.get('highestStreak'),
@@ -183,9 +180,11 @@ class Database extends ChangeNotifier {
       habitList.add(loadedHabit);
     }
     Provider.of<HabitManager>(context, listen: false).loadHabits(habitList);
-    Provider.of<HabitManager>(context, listen: false).resetDailyHabits();
-    Provider.of<HabitManager>(context, listen: false).resetWeeklyHabits();
-    Provider.of<HabitManager>(context, listen: false).resetMonthlyHabits();
+    Provider.of<HabitManager>(context, listen: false).resetDailyHabits(context);
+    Provider.of<HabitManager>(context, listen: false)
+        .resetWeeklyHabits(context);
+    Provider.of<HabitManager>(context, listen: false)
+        .resetMonthlyHabits(context);
   }
 
   void uploadHabits(context) async {
@@ -304,10 +303,10 @@ class Database extends ChangeNotifier {
     if (userSnapshot.exists) {
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
               .confidenceStats =
-          rawListToDataPoints(userSnapshot.get('stats')['confidenceStats']);
+          dbListToDataPoints(userSnapshot.get('stats')['confidenceStats']);
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
               .completionStats =
-          rawListToDataPoints(userSnapshot.get('stats')['completionStats']);
+          dbListToDataPoints(userSnapshot.get('stats')['completionStats']);
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
               .totalHabitsCompleted =
           userSnapshot.get('stats')['totalHabitsCompleted'];
@@ -375,6 +374,7 @@ class Database extends ChangeNotifier {
         habit: Habit(
           title: doc.get("habit")["title"],
           requiredCompletions: doc.get("habit")["requiredCompletions"],
+          lastSeen: doc.get("habit")["lastSeen"].toDate(),
           id: doc.get("habit")["id"],
           resetPeriod: doc.get("habit")["resetPeriod"],
           dateCreated: doc.get("habit")["dateCreated"].toDate(),

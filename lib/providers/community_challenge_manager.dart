@@ -25,6 +25,7 @@ class CommunityChallengeManager extends ChangeNotifier {
           completionsToday: 0,
           requiredCompletions: 4,
           id: Random().nextInt(100000),
+          lastSeen: DateTime.now(),
           resetPeriod: "Daily",
           dateCreated: DateTime.now(),
         ))

@@ -424,6 +424,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                               dateCreated: DateTime.now(),
                               id: Random().nextInt(100000),
                               resetPeriod: selectedPeriod,
+                              lastSeen: DateTime.now(),
                               requiredDatesOfCompletion: daysActive,
                               requiredCompletions: habitCompletions),
                         );
