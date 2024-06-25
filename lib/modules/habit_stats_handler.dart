@@ -61,7 +61,7 @@ class HabitStatsHandler {
           habit.confidenceLevel * pow(0.90, habit.confidenceLevel);
       statsRecorder.recordAverageConfidenceLevel(context);
       if (habit.daysCompleted.isNotEmpty) {
-        habit.daysCompleted.remove(habit.daysCompleted.last);
+        habit.daysCompleted.removeLast();
       }
       Provider.of<UserData>(context, listen: false).removeHabiturRating();
       if (habit.streak > 0) {
@@ -69,6 +69,13 @@ class HabitStatsHandler {
       }
       if (habit.confidenceStats.isNotEmpty) {
         habit.confidenceStats.removeLast();
+      }
+      if (habit.completionStats.isNotEmpty) {
+        if (habit.completionStats.last.value == 1) {
+          habit.completionStats.removeLast();
+        } else {
+          habit.completionStats.last.value--;
+        }
       }
     }
     habit.completionsToday--;
