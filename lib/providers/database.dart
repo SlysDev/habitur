@@ -195,69 +195,6 @@ class Database extends ChangeNotifier {
     var habitsCollectionRef = userReference.collection('habits');
     var habitsCollectionSnapshot =
         await userReference.collection('habits').get();
-    void addHabitDoc(Habit habit) async {
-      await habitsCollectionRef.add({
-        'title': habit.title,
-        'completionsToday': habit.completionsToday,
-        'dateCreated': habit.dateCreated,
-        'resetPeriod': habit.resetPeriod,
-        'id': habit.id,
-        'streak': habit.streak,
-        'confidenceLevel': habit.confidenceLevel,
-        'highestStreak': habit.highestStreak,
-        'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
-        'requiredCompletions': habit.requiredCompletions,
-        'totalCompletions': habit.totalCompletions,
-        'lastSeen': habit.lastSeen,
-        'daysCompleted': habit.daysCompleted
-            .map((completedDate) => {
-                  'date': completedDate,
-                })
-            .toList(),
-        'confidenceStats': habit.confidenceStats
-            .map((stat) => {
-                  'date': stat.date,
-                  'value': stat.value,
-                })
-            .toList(),
-        'completionStats': habit.completionStats.map((stat) => {
-              'date': stat.date,
-              'value': stat.value,
-            })
-      });
-    }
-
-    void updateHabitDoc(Habit habit, DocumentSnapshot doc) async {
-      await doc.reference.update({
-        'title': habit.title,
-        'completionsToday': habit.completionsToday,
-        'dateCreated': habit.dateCreated,
-        'resetPeriod': habit.resetPeriod,
-        'id': habit.id,
-        'streak': habit.streak,
-        'confidenceLevel': habit.confidenceLevel,
-        'highestStreak': habit.highestStreak,
-        'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
-        'requiredCompletions': habit.requiredCompletions,
-        'totalCompletions': habit.totalCompletions,
-        'lastSeen': habit.lastSeen,
-        'daysCompleted': habit.daysCompleted
-            .map((completedDate) => {
-                  'date': completedDate,
-                })
-            .toList(),
-        'confidenceStats': habit.confidenceStats
-            .map((stat) => {
-                  'date': stat.date,
-                  'value': stat.value,
-                })
-            .toList(),
-        'completionStats': habit.completionStats.map((stat) => {
-              'date': stat.date,
-              'value': stat.value,
-            })
-      });
-    }
 
     for (var habit
         in Provider.of<HabitManager>(context, listen: false).habits) {
@@ -282,9 +219,76 @@ class Database extends ChangeNotifier {
     }
   }
 
-  void addHabit(Habit habit) {}
+  void updateHabitDoc(Habit habit, DocumentSnapshot doc) async {
+    await doc.reference.update({
+      'title': habit.title,
+      'completionsToday': habit.completionsToday,
+      'dateCreated': habit.dateCreated,
+      'resetPeriod': habit.resetPeriod,
+      'id': habit.id,
+      'streak': habit.streak,
+      'confidenceLevel': habit.confidenceLevel,
+      'highestStreak': habit.highestStreak,
+      'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
+      'requiredCompletions': habit.requiredCompletions,
+      'totalCompletions': habit.totalCompletions,
+      'lastSeen': habit.lastSeen,
+      'daysCompleted': habit.daysCompleted
+          .map((completedDate) => {
+                'date': completedDate,
+              })
+          .toList(),
+      'confidenceStats': habit.confidenceStats
+          .map((stat) => {
+                'date': stat.date,
+                'value': stat.value,
+              })
+          .toList(),
+      'completionStats': habit.completionStats.map((stat) => {
+            'date': stat.date,
+            'value': stat.value,
+          })
+    });
+  }
 
-  void deleteHabit(context, int id) async {
+  void addHabitDoc(Habit habit) async {
+    CollectionReference users = _firestore.collection('users');
+    DocumentReference userReference =
+        users.doc(_auth.currentUser!.uid.toString());
+
+    var habitsCollectionRef = userReference.collection('habits');
+    await habitsCollectionRef.add({
+      'title': habit.title,
+      'completionsToday': habit.completionsToday,
+      'dateCreated': habit.dateCreated,
+      'resetPeriod': habit.resetPeriod,
+      'id': habit.id,
+      'streak': habit.streak,
+      'confidenceLevel': habit.confidenceLevel,
+      'highestStreak': habit.highestStreak,
+      'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
+      'requiredCompletions': habit.requiredCompletions,
+      'totalCompletions': habit.totalCompletions,
+      'lastSeen': habit.lastSeen,
+      'daysCompleted': habit.daysCompleted
+          .map((completedDate) => {
+                'date': completedDate,
+              })
+          .toList(),
+      'confidenceStats': habit.confidenceStats
+          .map((stat) => {
+                'date': stat.date,
+                'value': stat.value,
+              })
+          .toList(),
+      'completionStats': habit.completionStats.map((stat) => {
+            'date': stat.date,
+            'value': stat.value,
+          })
+    });
+  }
+
+  void deleteHabitDoc(context, int id) async {
     CollectionReference users = _firestore.collection('users');
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
