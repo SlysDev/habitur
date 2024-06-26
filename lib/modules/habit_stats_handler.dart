@@ -24,28 +24,28 @@ class HabitStatsHandler {
           habit.confidenceLevel * pow(1.10, habit.confidenceLevel);
       habit.confidenceStats
           .add(DataPoint(value: habit.confidenceLevel, date: DateTime.now()));
-      int currentDayIndex = habit.completionStats.indexWhere(
-        (dataPoint) =>
-            dataPoint.date.year == DateTime.now().year &&
-            dataPoint.date.month == DateTime.now().month &&
-            dataPoint.date.day == DateTime.now().day,
-      );
-      if (currentDayIndex != -1) {
-        // If there's an entry for the current day, update the completion count
-        habit.completionStats[currentDayIndex] = DataPoint(
-          date: DateTime.now(),
-          value: habit.completionStats[currentDayIndex].value + 1,
-        );
-      } else {
-        // If there's no entry for the current day, add a new entry
-        habit.completionStats.add(DataPoint(
-          date: DateTime.now(),
-          value: 1,
-        ));
-      }
+      habit.daysCompleted.add(DateTime.now());
       statsRecorder.logHabitCompletion(context);
     }
-    habit.daysCompleted.add(DateTime.now());
+    int currentDayIndex = habit.completionStats.indexWhere(
+      (dataPoint) =>
+          dataPoint.date.year == DateTime.now().year &&
+          dataPoint.date.month == DateTime.now().month &&
+          dataPoint.date.day == DateTime.now().day,
+    );
+    if (currentDayIndex != -1) {
+      // If there's an entry for the current day, update the completion count
+      habit.completionStats[currentDayIndex] = DataPoint(
+        date: DateTime.now(),
+        value: habit.completionStats[currentDayIndex].value + 1,
+      );
+    } else {
+      // If there's no entry for the current day, add a new entry
+      habit.completionStats.add(DataPoint(
+        date: DateTime.now(),
+        value: 1,
+      ));
+    }
   }
 
   void decrementCompletion(context) {
@@ -70,12 +70,12 @@ class HabitStatsHandler {
       if (habit.confidenceStats.isNotEmpty) {
         habit.confidenceStats.removeLast();
       }
-      if (habit.completionStats.isNotEmpty) {
-        if (habit.completionStats.last.value == 1) {
-          habit.completionStats.removeLast();
-        } else {
-          habit.completionStats.last.value--;
-        }
+    }
+    if (habit.completionStats.isNotEmpty) {
+      if (habit.completionStats.last.value == 1) {
+        habit.completionStats.removeLast();
+      } else {
+        habit.completionStats.last.value--;
       }
     }
     habit.completionsToday--;
