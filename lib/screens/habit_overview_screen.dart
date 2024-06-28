@@ -14,6 +14,7 @@ class HabitOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(habit.completionStats[0].date);
     return Scaffold(
       body: SafeArea(
         child: Container(
