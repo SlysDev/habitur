@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/models/data_point.dart';
 
 class HabitHeatMap extends StatelessWidget {
   double size;
-  Map<DateTime, int> data;
+  List<DataPoint> data;
   HabitHeatMap({this.size = 40.0, required this.data});
 
   @override
   Widget build(BuildContext context) {
+    Map<DateTime, int> formattedData = {};
+    for (DataPoint dataPoint in data) {
+      formattedData[dataPoint.date] = dataPoint.value;
+    }
     return Column(
       children: [
         DefaultTextStyle(
@@ -19,7 +24,7 @@ class HabitHeatMap extends StatelessWidget {
             textColor: kBackgroundColor,
             fontSize: size / 2.5,
             margin: const EdgeInsets.all(5),
-            datasets: data,
+            datasets: formattedData,
             colorMode: ColorMode.opacity,
             defaultColor: kFadedBlue,
             showColorTip: false,

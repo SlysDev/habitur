@@ -23,7 +23,7 @@ class LineGraph extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(40),
+      padding: EdgeInsets.all(20),
       height: height,
       width: width,
       child: LineChart(
@@ -31,8 +31,8 @@ class LineGraph extends StatelessWidget {
           borderData: FlBorderData(
             show: true,
             border: Border(
-              top: BorderSide(color: kLightPrimaryColor, width: 2),
-              bottom: BorderSide(color: kLightPrimaryColor, width: 2),
+              top: BorderSide(color: kDarkGray, width: 2),
+              bottom: BorderSide(color: kDarkGray, width: 2),
             ),
           ),
           titlesData: FlTitlesData(

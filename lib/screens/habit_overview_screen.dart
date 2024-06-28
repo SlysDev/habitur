@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/components/habit_heat_map.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
@@ -16,23 +17,39 @@ class HabitOverviewScreen extends StatelessWidget {
       body: SafeArea(
         child: Container(
           child: Center(
-            child: Column(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               children: [
-                Text(
-                  habit.title,
-                  style: kTitleTextStyle.copyWith(color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
                 StaticCard(
-                  child: LineGraph(
-                    data: Provider.of<SummaryStatisticsRepository>(context)
-                        .confidenceStats,
-                    height: 300,
-                    yAxisTitle: 'Confidence Level',
-                    showDots: true,
+                  child: Text(
+                    habit.title,
+                    style: kTitleTextStyle,
+                    textAlign: TextAlign.center,
                   ),
                 ),
+                const SizedBox(height: 40),
+                Center(
+                  child: Text(
+                    'Confidence Level',
+                    style: kHeadingTextStyle.copyWith(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                LineGraph(
+                  data: habit.confidenceStats,
+                  height: 300,
+                  yAxisTitle: 'Confidence Level',
+                  showDots: true,
+                ),
+                const SizedBox(height: 40),
+                Center(
+                  child: Text(
+                    'Calendar',
+                    style: kHeadingTextStyle.copyWith(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                HabitHeatMap(data: habit.completionStats),
               ],
             ),
           ),

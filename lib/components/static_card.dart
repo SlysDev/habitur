@@ -8,6 +8,7 @@ class StaticCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
           color: kFadedBlue.withOpacity(0.5),
           borderRadius: BorderRadius.circular(20),
