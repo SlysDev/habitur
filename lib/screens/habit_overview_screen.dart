@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_heat_map.dart';
+import 'package:habitur/components/habit_stats_card.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
@@ -50,6 +51,8 @@ class HabitOverviewScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 HabitHeatMap(data: habit.completionStats),
+                const SizedBox(height: 40),
+                HabitStatsCard(habit: habit),
               ],
             ),
           ),
