@@ -30,6 +30,21 @@ class HabitOverviewScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
+                StaticCard(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 30.0),
+                      child: Text(
+                        '${habit.streak} 🔥',
+                        style: kTitleTextStyle.copyWith(
+                            color: Colors.white, fontSize: 60),
+                      ),
+                    ),
+                  ),
+                  color: Colors.orange.shade300,
+                  opacity: 0.1,
+                ),
+                const SizedBox(height: 40),
                 Center(
                   child: Text(
                     'Confidence Level',
@@ -39,7 +54,7 @@ class HabitOverviewScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 LineGraph(
                   data: habit.confidenceStats,
-                  height: 300,
+                  height: 200,
                   yAxisTitle: 'Confidence Level',
                   showDots: true,
                 ),
