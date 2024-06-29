@@ -30,7 +30,8 @@ class SingleStatCard extends StatelessWidget {
             ),
             Text(
               statDescription,
-              style: kMainDescription.copyWith(color: Colors.grey),
+              style: kMainDescription.copyWith(
+                  color: Colors.grey, fontSize: fontSize / 2.75),
               textAlign: TextAlign.center,
             ),
           ],

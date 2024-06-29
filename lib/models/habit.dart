@@ -40,6 +40,12 @@ class Habit {
     return rate > 1.0 ? 1.0 : rate;
   }
 
+  double get confidenceChange {
+    if (confidenceStats.length < 2) return 0.0;
+    return confidenceStats.last.value -
+        confidenceStats[confidenceStats.length - 2].value;
+  }
+
   Habit(
       {required this.title,
       required this.dateCreated,
