@@ -20,6 +20,9 @@ class HabitStatsHandler {
           .totalHabitsCompleted++;
       Provider.of<UserData>(context, listen: false).addHabiturRating();
       habit.streak++;
+      if (habit.streak > habit.highestStreak) {
+        habit.highestStreak = habit.streak;
+      }
       habit.confidenceLevel =
           habit.confidenceLevel * pow(1.10, habit.confidenceLevel);
       habit.confidenceStats

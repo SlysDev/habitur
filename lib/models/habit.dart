@@ -11,7 +11,7 @@ class Habit {
   String title;
   bool isCompleted = false;
   int proficiencyRating = 0;
-  int streak = 0;
+  int streak;
   int requiredCompletions;
   int completionsToday;
   int totalCompletions;

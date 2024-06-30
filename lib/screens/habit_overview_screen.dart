@@ -61,7 +61,7 @@ class HabitOverviewScreen extends StatelessWidget {
                                 : Colors.red.shade300,
                             opacity: 0.2,
                             child: Text(
-                              '${confidenceChange.toStringAsFixed(1)} $changeSymbol',
+                              '${confidenceChange.toStringAsFixed(2)} $changeSymbol',
                               style: TextStyle(
                                 color: confidenceChange > 0
                                     ? Colors.green
