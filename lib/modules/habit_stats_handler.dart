@@ -1,6 +1,7 @@
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/modules/statistics_recorder.dart';
+import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ class HabitStatsHandler {
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted++;
       Provider.of<UserData>(context, listen: false).addHabiturRating();
+      Provider.of<Database>(context, listen: false).uploadUserData(context);
       habit.streak++;
       if (habit.streak > habit.highestStreak) {
         habit.highestStreak = habit.streak;
@@ -67,6 +69,7 @@ class HabitStatsHandler {
         habit.daysCompleted.removeLast();
       }
       Provider.of<UserData>(context, listen: false).removeHabiturRating();
+      Provider.of<Database>(context, listen: false).uploadUserData(context);
       if (habit.streak > 0) {
         habit.streak--;
       }

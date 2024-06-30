@@ -66,7 +66,7 @@ class HabitOverviewScreen extends StatelessWidget {
                                 color: confidenceChange > 0
                                     ? Colors.green
                                     : Colors.red,
-                                fontSize: 16,
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

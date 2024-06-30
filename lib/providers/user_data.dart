@@ -8,6 +8,7 @@ class UserData extends ChangeNotifier {
   void addHabiturRating({int amount = 10}) {
     currentUser.userXP += amount;
     checkLevelUp();
+    notifyListeners();
   }
 
   void removeHabiturRating({int amount = 10}) {
@@ -20,6 +21,7 @@ class UserData extends ChangeNotifier {
     }
     currentUser.userXP -= amount;
     checkLevelUp();
+    notifyListeners();
   }
 
   void checkLevelUp() {
@@ -32,6 +34,7 @@ class UserData extends ChangeNotifier {
     currentUser.userLevel++;
     currentUser.userXP = 0;
     levelUpRequirement += (levelUpRequirement * 0.5).ceil();
+    notifyListeners();
   }
 
   void levelDown() {
