@@ -45,7 +45,7 @@ class HabitOverviewScreen extends StatelessWidget {
                         height: 200,
                         showDots: true,
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -76,7 +76,23 @@ class HabitOverviewScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 60),
+                Row(
+                  children: [
+                    StaticCard(
+                      child: Icon(Icons.lightbulb),
+                      color: Colors.green,
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Text(
+                        'Your completion consistency needs some work. It\'s down 20% from last week.',
+                        style: kMainDescription,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 60),
                 GridView.count(
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: 2,
