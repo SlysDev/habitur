@@ -30,7 +30,6 @@ class HabitStatsHandler {
       habit.confidenceStats
           .add(DataPoint(value: habit.confidenceLevel, date: DateTime.now()));
       habit.daysCompleted.add(DateTime.now());
-      statsRecorder.logHabitCompletion(context);
     }
     int currentDayIndex = habit.completionStats.indexWhere(
       (dataPoint) =>
@@ -44,12 +43,14 @@ class HabitStatsHandler {
         date: DateTime.now(),
         value: habit.completionStats[currentDayIndex].value + 1,
       );
+      statsRecorder.logHabitCompletion(context);
     } else {
       // If there's no entry for the current day, add a new entry
       habit.completionStats.add(DataPoint(
         date: DateTime.now(),
         value: 1,
       ));
+      statsRecorder.logHabitCompletion(context);
     }
   }
 
@@ -89,10 +90,12 @@ class HabitStatsHandler {
   }
 
   void resetHabitCompletions() {
+    if (!habit.isCompleted) {
+      habit.streak = 0;
+    }
     habit.completionsToday = 0;
     if (habit.streak > habit.highestStreak) {
       habit.highestStreak = habit.streak;
     }
-    habit.streak = 0;
   }
 }

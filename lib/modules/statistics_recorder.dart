@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
@@ -42,6 +43,7 @@ class StatisticsRecorder {
         completionStats.last.date.toString() +
         " Value: " +
         completionStats.last.value.toString());
+    Provider.of<Database>(context, listen: false).uploadStatistics(context);
   }
 
   void recordAverageConfidenceLevel(context) {
