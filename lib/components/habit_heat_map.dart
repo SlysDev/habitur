@@ -2,20 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/data_point.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:intl/intl.dart';
 
 class HabitHeatMap extends StatelessWidget {
   double size;
-  List<DataPoint> data;
+  List<StatPoint> data;
   HabitHeatMap({this.size = 40.0, required this.data});
 
   @override
   Widget build(BuildContext context) {
     Map<DateTime, int> formattedData = {};
-    for (DataPoint dataPoint in data) {
+    for (StatPoint dataPoint in data) {
       DateTime date = dataPoint.date;
       formattedData[DateTime(date.year, date.month, date.day)] =
-          dataPoint.value;
+          dataPoint.completions;
     }
     return Column(
       children: [
