@@ -121,14 +121,13 @@ class HabitOverviewScreen extends StatelessWidget {
                       color: Colors.green.shade300,
                     ),
                     SingleStatCard(
-                      statText: habit.completionStats.length < 7
-                          ? (statsCalculator.calculateCompletionConsistency() *
+                      statText: habit.stats.length < 7
+                          ? (statsCalculator.calculateConsistencyFactor(
+                                          period: habit.stats.length) *
                                       100)
                                   .toStringAsFixed(0) +
                               '%'
-                          : (statsCalculator.calculateCompletionConsistency(
-                                          periodInDays: 7) *
-                                      100)
+                          : (statsCalculator.calculateConsistencyFactor() * 100)
                                   .toStringAsFixed(0) +
                               '%',
                       statDescription: '7-day Consistency',

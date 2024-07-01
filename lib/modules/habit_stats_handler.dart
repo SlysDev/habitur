@@ -1,6 +1,7 @@
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/data_point.dart';
-import 'package:habitur/modules/statistics_recorder.dart';
+import 'package:habitur/modules/habit_stats_calculator.dart';
+import 'package:habitur/modules/summary_statistics_recorder.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/providers/user_data.dart';
@@ -12,7 +13,7 @@ class HabitStatsHandler {
   HabitStatsHandler(this.habit);
 
   void incrementCompletion(context) {
-    StatisticsRecorder statsRecorder = StatisticsRecorder();
+    SummaryStatisticsRecorder statsRecorder = SummaryStatisticsRecorder();
     habit.completionsToday++;
     habit.totalCompletions++;
     if (habit.completionsToday == habit.requiredCompletions) {
@@ -27,11 +28,9 @@ class HabitStatsHandler {
       }
       habit.confidenceLevel =
           habit.confidenceLevel * pow(1.10, habit.confidenceLevel);
-      habit.confidenceStats
-          .add(DataPoint(value: habit.confidenceLevel, date: DateTime.now()));
       habit.daysCompleted.add(DateTime.now());
     }
-    int currentDayIndex = habit.completionStats.indexWhere(
+    int currentDayIndex = habit.stats.indexWhere(
       (dataPoint) =>
           dataPoint.date.year == DateTime.now().year &&
           dataPoint.date.month == DateTime.now().month &&
@@ -39,14 +38,14 @@ class HabitStatsHandler {
     );
     if (currentDayIndex != -1) {
       // If there's an entry for the current day, update the completion count
-      habit.completionStats[currentDayIndex] = DataPoint(
+      habit.stats[currentDayIndex] = DataPoint(
         date: DateTime.now(),
-        value: habit.completionStats[currentDayIndex].value + 1,
+        value: habit.stats[currentDayIndex].value + 1,
       );
       statsRecorder.logHabitCompletion(context);
     } else {
       // If there's no entry for the current day, add a new entry
-      habit.completionStats.add(DataPoint(
+      habit.stats.add(DataPoint(
         date: DateTime.now(),
         value: 1,
       ));
@@ -55,7 +54,9 @@ class HabitStatsHandler {
   }
 
   void decrementCompletion(context) {
-    StatisticsRecorder statsRecorder = StatisticsRecorder();
+    SummaryStatisticsRecorder statsRecorder = SummaryStatisticsRecorder();
+    HabitStatisticsCalculator statsCalculator =
+        HabitStatisticsCalculator(habit);
     if (habit.completionsToday == 0) {
       return;
     }
@@ -63,8 +64,6 @@ class HabitStatsHandler {
       habit.isCompleted = false;
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted--;
-      habit.confidenceLevel =
-          habit.confidenceLevel * pow(0.90, habit.confidenceLevel);
       statsRecorder.recordAverageConfidenceLevel(context);
       if (habit.daysCompleted.isNotEmpty) {
         habit.daysCompleted.removeLast();
@@ -73,17 +72,12 @@ class HabitStatsHandler {
       Provider.of<Database>(context, listen: false).uploadUserData(context);
       if (habit.streak > 0) {
         habit.streak--;
+        habit.stats.last.streak--;
       }
-      if (habit.confidenceStats.isNotEmpty) {
-        habit.confidenceStats.removeLast();
-      }
+      habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
     }
-    if (habit.completionStats.isNotEmpty) {
-      if (habit.completionStats.last.value == 1) {
-        habit.completionStats.removeLast();
-      } else {
-        habit.completionStats.last.value--;
-      }
+    if (habit.stats.isNotEmpty) {
+      habit.stats.last.completions--;
     }
     habit.completionsToday--;
     habit.totalCompletions--;
