@@ -11,7 +11,7 @@ class Habit {
   String title;
   bool isCompleted = false;
   int proficiencyRating = 0;
-  int streak = 0;
+  int streak;
   int requiredCompletions;
   int completionsToday;
   int totalCompletions;
@@ -38,6 +38,12 @@ class Habit {
 
     // Handle the case where the completion rate is greater than 1 (100%)
     return rate > 1.0 ? 1.0 : rate;
+  }
+
+  double get confidenceChange {
+    if (confidenceStats.length < 2) return 0.0;
+    return confidenceStats.last.value -
+        confidenceStats[confidenceStats.length - 2].value;
   }
 
   Habit(

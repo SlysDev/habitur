@@ -57,15 +57,11 @@ class StatisticsScreen extends StatelessWidget {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             child: HabitHeatMap(
-                data:
-                    // Converts stats array into a map (list --> iterable --> map)
-                    Map<DateTime, int>.fromEntries(
-                        Provider.of<SummaryStatisticsRepository>(context)
-                            .completionStats
-                            .map((dataPoint) => MapEntry(
-                                DateTime(dataPoint.date.year,
-                                    dataPoint.date.month, dataPoint.date.day),
-                                dataPoint.value)))),
+              data:
+                  // Converts stats array into a map (list --> iterable --> map)
+                  Provider.of<SummaryStatisticsRepository>(context)
+                      .completionStats,
+            ),
           ),
           const SizedBox(height: 40),
           const HabitStatsCardList(),
