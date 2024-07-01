@@ -471,6 +471,7 @@ class Database extends ChangeNotifier {
               'title': challenge.habit.title,
               'requiredCompletions': challenge.habit.requiredCompletions,
               'resetPeriod': challenge.habit.resetPeriod,
+              'id': challenge.habit.id,
               'dateCreated': challenge.habit.dateCreated
             },
           });

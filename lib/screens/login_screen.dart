@@ -16,6 +16,7 @@ class LoginScreen extends StatelessWidget {
   late String password;
   @override
   Widget build(BuildContext context) {
+    Provider.of<LoginRegistrationState>(context).setLoginSuccess(true);
     return Consumer<LoadingData>(
       builder: (context, loadingData, child) {
         return Scaffold(
@@ -50,8 +51,9 @@ class LoginScreen extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(15),
                 child: Text(
-                  'Please try again.',
+                  Provider.of<LoginRegistrationState>(context).errorMessage,
                   style: kErrorTextStyle,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -67,8 +69,41 @@ class LoginScreen extends StatelessWidget {
                     }
                   } catch (e) {
                     print(e);
-                    Provider.of<LoginRegistrationState>(context, listen: false)
-                        .loginFail();
+                    if (e is FirebaseAuthException) {
+                      String errorMessage;
+                      switch (e.code) {
+                        case 'weak-password':
+                          errorMessage =
+                              'Password must be at least 6 characters.';
+                          break;
+                        case 'invalid-email':
+                          errorMessage = 'Please enter a valid email address.';
+                          break;
+                        case 'user-not-found':
+                          errorMessage =
+                              'This email is not associated with an account.';
+                          break;
+                        case 'wrong-password':
+                          errorMessage = 'Incorrect email or password.';
+                          break;
+                        case 'user-disabled':
+                          errorMessage = 'This account has been disabled.';
+                          break;
+                        case 'too-many-requests':
+                          errorMessage =
+                              'Too many login attempts. Please try again later.';
+                          break;
+                        case 'operation-not-allowed':
+                          errorMessage =
+                              'An unexpected error occurred. Please try again.';
+                          break;
+                        default:
+                          errorMessage = 'An unknown error occurred.';
+                      }
+                      Provider.of<LoginRegistrationState>(context,
+                              listen: false)
+                          .loginFail(errorMessage);
+                    }
                   }
                 },
                 text: 'Login',
