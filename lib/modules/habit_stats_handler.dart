@@ -1,5 +1,6 @@
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/data_point.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
 import 'package:habitur/modules/summary_statistics_recorder.dart';
 import 'package:habitur/providers/database.dart';
@@ -38,17 +39,14 @@ class HabitStatsHandler {
     );
     if (currentDayIndex != -1) {
       // If there's an entry for the current day, update the completion count
-      habit.stats[currentDayIndex] = DataPoint(
-        date: DateTime.now(),
-        value: habit.stats[currentDayIndex].value + 1,
-      );
+      habit.stats[currentDayIndex].completions++;
       statsRecorder.logHabitCompletion(context);
     } else {
       // If there's no entry for the current day, add a new entry
-      habit.stats.add(DataPoint(
-        date: DateTime.now(),
-        value: 1,
-      ));
+      StatPoint newStatPoint = habit.stats.last;
+      newStatPoint.date = DateTime.now();
+      newStatPoint.completions = 1;
+      habit.stats.add(newStatPoint);
       statsRecorder.logHabitCompletion(context);
     }
   }

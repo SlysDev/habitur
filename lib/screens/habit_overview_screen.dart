@@ -19,11 +19,8 @@ class HabitOverviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
-    double confidenceChange =
-        statsCalculator.calculateConfidenceChange(habit.confidenceStats);
+    double confidenceChange = statsCalculator.calculateConfidenceChange();
     String changeSymbol = confidenceChange > 0 ? '↑' : '↓';
-
-    print(habit.completionStats[0].date);
     return Scaffold(
       appBar: AppBar(
         title: Text(habit.title),
@@ -41,7 +38,7 @@ class HabitOverviewScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       LineGraph(
-                        data: habit.confidenceStats,
+                        data: habit.stats,
                         height: 200,
                         showDots: true,
                       ),
@@ -138,7 +135,7 @@ class HabitOverviewScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 StaticCard(
-                  child: HabitHeatMap(data: habit.completionStats),
+                  child: HabitHeatMap(data: habit.stats),
                   opacity: 0.3,
                 ),
                 const SizedBox(height: 40),
