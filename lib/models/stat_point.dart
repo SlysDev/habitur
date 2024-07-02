@@ -2,10 +2,9 @@ class StatPoint {
   DateTime date;
 
   int completions;
-  double completionRate;
+  double consistencyFactor;
   double confidenceLevel;
   int streak;
-  double consistencyRate;
 
   double
       difficultyRating; // User-reported difficulty rating (1.0 - easy, 5.0 - difficult)
@@ -23,8 +22,7 @@ class StatPoint {
     required this.completions,
     this.confidenceLevel = 1,
     required this.streak,
-    this.completionRate = 0.0,
-    this.consistencyRate = 0.0,
+    this.consistencyFactor = 0.0,
     this.difficultyRating = 0.0,
     this.slopeCompletions = 0.0,
     this.slopeConfidenceLevel = 0.0,
