@@ -20,7 +20,7 @@ class StatPoint {
   StatPoint({
     required this.date,
     required this.completions,
-    this.confidenceLevel = 1,
+    this.confidenceLevel = 0,
     required this.streak,
     this.consistencyFactor = 0.0,
     this.difficultyRating = 0.0,

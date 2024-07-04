@@ -60,6 +60,34 @@ class SummaryStatisticsRecorder {
     Provider.of<Database>(context, listen: false).uploadStatistics(context);
   }
 
+  void unlogHabitCompletion(BuildContext context) {
+    List<StatPoint> statPoints =
+        Provider.of<SummaryStatisticsRepository>(context, listen: false)
+            .statPoints;
+
+    // Check if there's an entry for the current day
+    int currentDayIndex = statPoints.indexWhere((stat) =>
+        stat.date.year == DateTime.now().year &&
+        stat.date.month == DateTime.now().month &&
+        stat.date.day == DateTime.now().day);
+
+    if (currentDayIndex != -1) {
+      // If there's an entry for the current day, decrement the completion count
+      if (statPoints[currentDayIndex].completions > 0) {
+        statPoints[currentDayIndex].completions--;
+      }
+    } else {
+      // If there's no entry for the current day, no need to undo anything
+      print('No entry found for unlogging habit completion.');
+    }
+
+    // Notify the display manager to update (optional)
+    recordAverageConfidenceLevel(context);
+
+    // Update statistics in database (optional)
+    Provider.of<Database>(context, listen: false).uploadStatistics(context);
+  }
+
   void recordAverageConfidenceLevel(context) {
     List<StatPoint> statPoints =
         Provider.of<SummaryStatisticsRepository>(context, listen: false)

@@ -29,8 +29,6 @@ class HabitStatsHandler {
       if (habit.streak > habit.highestStreak) {
         habit.highestStreak = habit.streak;
       }
-      habit.confidenceLevel =
-          habit.confidenceLevel * pow(1.10, habit.confidenceLevel);
       habit.daysCompleted.add(DateTime.now());
     }
     int currentDayIndex = habit.stats.indexWhere(
@@ -65,36 +63,68 @@ class HabitStatsHandler {
       }
       statsRecorder.logHabitCompletion(context);
     }
+    habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
   }
 
   void decrementCompletion(context) {
     SummaryStatisticsRecorder statsRecorder = SummaryStatisticsRecorder();
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
+
     if (habit.completionsToday == 0) {
       return;
     }
+
+    // Check if decrementing completion would change habit completion status
     if (habit.completionsToday == habit.requiredCompletions) {
       habit.isCompleted = false;
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted--;
       statsRecorder.recordAverageConfidenceLevel(context);
+
       if (habit.daysCompleted.isNotEmpty) {
         habit.daysCompleted.removeLast();
       }
+
       Provider.of<UserData>(context, listen: false).removeHabiturRating();
       Provider.of<Database>(context, listen: false).uploadUserData(context);
-      if (habit.streak > 0) {
-        habit.streak--;
-        habit.stats.last.streak--;
-      }
-      habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
     }
-    if (habit.stats.isNotEmpty) {
-      habit.stats.last.completions--;
+
+    // Decrement completions and potentially update streak
+    if (habit.streak > 0) {
+      habit.streak--;
     }
     habit.completionsToday--;
     habit.totalCompletions--;
+
+    // Update confidence level based on updated stats
+    habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
+
+    // Find the StatPoint entry for the current day
+    int currentDayIndex = habit.stats.indexWhere((dataPoint) =>
+        dataPoint.date.year == DateTime.now().year &&
+        dataPoint.date.month == DateTime.now().month &&
+        dataPoint.date.day == DateTime.now().day);
+
+    if (currentDayIndex != -1) {
+      // Decrement completions in the StatPoint for the current day
+      if (habit.stats[currentDayIndex].completions > 0) {
+        habit.stats[currentDayIndex].completions--;
+      }
+
+      // Update streak in the StatPoint if necessary
+      if (habit.streak > 0) {
+        habit.stats[currentDayIndex].streak--;
+      }
+
+      habit.stats[currentDayIndex].confidenceLevel =
+          statsCalculator.calculateConfidenceLevel();
+    } else {
+      // Shouldn't reach here ideally (log a message?)
+      print('No entry found for decrementing habit completion in stats.');
+    }
+
+    statsRecorder.unlogHabitCompletion(context);
   }
 
   void resetHabitCompletions() {
