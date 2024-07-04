@@ -46,21 +46,14 @@ class HabitStatsHandler {
       statsRecorder.logHabitCompletion(context);
     } else {
       // If there's no entry for the current day, add a new entry
-      if (habit.stats.isEmpty) {
-        StatPoint newStatPoint = StatPoint(
-            date: DateTime.now(),
-            completions: 1,
-            confidenceLevel: statsCalculator.calculateConfidenceLevel(),
-            streak: habit.streak);
-        habit.stats.add(newStatPoint);
-      } else {
-        StatPoint newStatPoint = habit.stats.last;
-        newStatPoint.date = DateTime.now();
-        newStatPoint.completions = 1;
-        newStatPoint.confidenceLevel =
-            statsCalculator.calculateConfidenceLevel();
-        habit.stats.add(newStatPoint);
-      }
+      StatPoint newStatPoint = StatPoint(
+        date: DateTime.now(),
+        completions: 1,
+        confidenceLevel: statsCalculator.calculateConfidenceLevel(),
+        streak: habit.streak,
+        // TODO: Add calculations for slopes
+      );
+      habit.stats.add(newStatPoint);
       statsRecorder.logHabitCompletion(context);
     }
     habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();

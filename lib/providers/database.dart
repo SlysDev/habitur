@@ -82,14 +82,15 @@ class Database extends ChangeNotifier {
           return StatPoint(
               date: dateTime,
               completions: element['completions'],
-              confidenceLevel: element['confidenceLevel'],
+              confidenceLevel: element['confidenceLevel'].toDouble(),
               streak: element['streak'],
-              difficultyRating: element['difficultyRating'],
-              slopeCompletions: element['slopeCompletions'],
-              slopeConfidenceLevel: element['slopeConfidenceLevel'],
-              slopeConsistency: element['slopeConsistency'],
-              slopeDifficultyRating: element['slopeDifficultyRating'],
-              slopeCompletionRate: element['slopeCompletionRate']);
+              difficultyRating: element['difficultyRating'].toDouble(),
+              slopeCompletions: element['slopeCompletions'].toDouble(),
+              slopeConfidenceLevel: element['slopeConfidenceLevel'].toDouble(),
+              slopeConsistency: element['slopeConsistency'].toDouble(),
+              slopeDifficultyRating:
+                  element['slopeDifficultyRating'].toDouble(),
+              slopeCompletionRate: element['slopeCompletionRate'].toDouble());
         } else {
           print('input was empty');
           return StatPoint(
@@ -226,6 +227,7 @@ class Database extends ChangeNotifier {
         requiredDatesOfCompletion: requiredDatesOfCompletionFormatted,
       );
       loadedHabit.stats = dbListToStatPoints(habit.get('stats'));
+      print("loaded habit date:" + loadedHabit.stats[0].date.toString());
       loadedHabit.daysCompleted = daysCompletedFormatted;
       habitList.add(loadedHabit);
     }
@@ -340,6 +342,7 @@ class Database extends ChangeNotifier {
     DocumentSnapshot userSnapshot =
         await users.doc(_auth.currentUser!.uid.toString()).get();
     if (userSnapshot.exists) {
+      print('called from loadStats');
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
               .statPoints =
           dbListToStatPoints(userSnapshot.get('stats')['statPoints']);
