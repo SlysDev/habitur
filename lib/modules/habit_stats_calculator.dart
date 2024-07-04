@@ -112,4 +112,53 @@ class HabitStatisticsCalculator {
         'Confidence level: base: $baseConfidence * consistency: $consistencyFactor * streak bonus: $successStreakBonus}');
     return baseConfidence * consistencyFactor * successStreakBonus;
   }
+
+  // Slope Calculations
+
+  double calculateStatSlope(String statisticName) {
+    if (habit.stats.isEmpty) {
+      return 0.0; // No data for slope calculation
+    }
+
+    double sumX = 0.0;
+    double sumY = 0.0;
+    double sumXY = 0.0;
+    double sumX2 = 0.0;
+
+    for (int i = 0; i < habit.stats.length; i++) {
+      int dayIndex = i + 1; // Day index starting from 1 for calculation
+      double statisticValue =
+          getStatisticValue(habit.stats[i], statisticName).toDouble();
+      sumX += dayIndex;
+      sumY += statisticValue;
+      sumXY += dayIndex * statisticValue;
+      sumX2 += dayIndex * dayIndex;
+    }
+
+    int n = habit.stats.length; // Number of data points
+    double denominator = n * sumX2 - sumX * sumX;
+
+    // Check for colinearity or potential numerical errors
+    if (denominator.abs() < 1e-6) {
+      return 0.0; // Handle colinearity or very small denominator
+    }
+
+    double slope = (n * sumXY - sumX * sumY) / denominator;
+    return slope;
+  }
+
+  dynamic getStatisticValue(StatPoint statPoint, String statisticName) {
+    switch (statisticName) {
+      case 'completions':
+        return statPoint.completions;
+      case 'confidenceLevel':
+        return statPoint.confidenceLevel;
+      case 'consistencyFactor':
+        return statPoint.consistencyFactor;
+      case 'difficultyRating':
+        return statPoint.difficultyRating;
+      default:
+        throw Exception('Invalid statistic name: $statisticName');
+    }
+  }
 }

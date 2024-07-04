@@ -45,6 +45,14 @@ class HabitStatsHandler {
       habit.stats[currentDayIndex].streak = habit.streak;
       habit.stats[currentDayIndex].consistencyFactor =
           statsCalculator.calculateConsistencyFactor();
+      habit.stats[currentDayIndex].slopeCompletions =
+          statsCalculator.calculateStatSlope('completions');
+      habit.stats[currentDayIndex].slopeConsistency =
+          statsCalculator.calculateStatSlope('consistencyFactor');
+      habit.stats[currentDayIndex].slopeConfidenceLevel =
+          statsCalculator.calculateStatSlope('confidenceLevel');
+      habit.stats[currentDayIndex].slopeDifficultyRating =
+          statsCalculator.calculateStatSlope('difficultyRating');
       statsRecorder.logHabitCompletion(context);
     } else {
       // If there's no entry for the current day, add a new entry
@@ -54,11 +62,20 @@ class HabitStatsHandler {
         confidenceLevel: statsCalculator.calculateConfidenceLevel(),
         streak: habit.streak,
         consistencyFactor: statsCalculator.calculateConsistencyFactor(),
+        slopeCompletions: statsCalculator.calculateStatSlope('completions'),
+        slopeConsistency:
+            statsCalculator.calculateStatSlope('consistencyFactor'),
+        slopeConfidenceLevel:
+            statsCalculator.calculateStatSlope('confidenceLevel'),
+        slopeDifficultyRating:
+            statsCalculator.calculateStatSlope('difficultyRating'),
         // TODO: Add calculations for slopes
       );
       habit.stats.add(newStatPoint);
       statsRecorder.logHabitCompletion(context);
     }
+    print('slope: ' +
+        statsCalculator.calculateStatSlope('completions').toString());
     habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
   }
 
