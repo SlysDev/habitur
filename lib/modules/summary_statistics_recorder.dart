@@ -39,9 +39,16 @@ class SummaryStatisticsRecorder {
                     .getAverageStreak(context) as int);
         statPoints.add(newStatPoint);
       } else {
-        StatPoint newStatPoint = statPoints.last;
-        newStatPoint.date = DateTime.now();
-        newStatPoint.completions = 1;
+        StatPoint newStatPoint = StatPoint(
+            date: DateTime.now(),
+            completions: 1,
+            confidenceLevel:
+                Provider.of<SummaryStatisticsRepository>(context, listen: false)
+                    .getAverageConfidenceLevel(context),
+            streak:
+                Provider.of<SummaryStatisticsRepository>(context, listen: false)
+                    .getAverageStreak(context) as int);
+        // TODO: Add calculations for slopes + consistency factor avg
         statPoints.add(newStatPoint);
       }
       // If there's no entry for the current day, add a new entry
