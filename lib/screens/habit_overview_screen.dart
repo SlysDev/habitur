@@ -19,11 +19,8 @@ class HabitOverviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
-    double confidenceChange =
-        statsCalculator.calculateConfidenceChange(habit.confidenceStats);
+    double confidenceChange = statsCalculator.calculateConfidenceChange();
     String changeSymbol = confidenceChange > 0 ? '↑' : '↓';
-
-    print(habit.completionStats[0].date);
     return Scaffold(
       appBar: AppBar(
         title: Text(habit.title),
@@ -41,7 +38,7 @@ class HabitOverviewScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       LineGraph(
-                        data: habit.confidenceStats,
+                        data: habit.stats,
                         height: 200,
                         showDots: true,
                       ),
@@ -121,14 +118,13 @@ class HabitOverviewScreen extends StatelessWidget {
                       color: Colors.green.shade300,
                     ),
                     SingleStatCard(
-                      statText: habit.completionStats.length < 7
-                          ? (statsCalculator.calculateCompletionConsistency() *
+                      statText: habit.stats.length < 7
+                          ? (statsCalculator.calculateConsistencyFactor(
+                                          period: habit.stats.length) *
                                       100)
                                   .toStringAsFixed(0) +
                               '%'
-                          : (statsCalculator.calculateCompletionConsistency(
-                                          periodInDays: 7) *
-                                      100)
+                          : (statsCalculator.calculateConsistencyFactor() * 100)
                                   .toStringAsFixed(0) +
                               '%',
                       statDescription: '7-day Consistency',
@@ -139,7 +135,7 @@ class HabitOverviewScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 40),
                 StaticCard(
-                  child: HabitHeatMap(data: habit.completionStats),
+                  child: HabitHeatMap(data: habit.stats),
                   opacity: 0.3,
                 ),
                 const SizedBox(height: 40),

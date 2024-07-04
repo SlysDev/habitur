@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:provider/provider.dart';
 
 class SummaryStatisticsRepository extends ChangeNotifier {
+  List<StatPoint> statPoints = [];
   List<DataPoint> confidenceStats = [];
-  List<DataPoint> completionStats = [];
   int totalHabitsCompleted = 0;
 
   double getAverageStreak(context) {

@@ -2,11 +2,12 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/data_point.dart';
-import 'package:habitur/modules/statistics_recorder.dart';
+import 'package:habitur/models/stat_point.dart';
+import 'package:habitur/modules/summary_statistics_recorder.dart';
 import 'package:provider/provider.dart';
 
 class LineGraph extends StatelessWidget {
-  List<DataPoint> data;
+  List<StatPoint> data;
   double height;
   double width;
   double yAxisInterval;
@@ -80,11 +81,12 @@ class LineGraph extends StatelessWidget {
                 color: kPrimaryColor,
                 dotData: FlDotData(show: showDots),
                 spots: data
-                    .map((dataPoint) => FlSpot(
-                        (dataPoint.date.millisecondsSinceEpoch)
+                    .map((statPoint) => FlSpot(
+                        (statPoint.date.millisecondsSinceEpoch)
                             .ceil()
                             .toDouble(),
-                        double.parse(dataPoint.value.toStringAsFixed(2))))
+                        double.parse(
+                            statPoint.confidenceLevel.toStringAsFixed(2))))
                     .toList())
             // spots: [
             //   FlSpot(0, 3),

@@ -5,6 +5,7 @@ import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/habit_manager.dart';
@@ -64,6 +65,61 @@ class Database extends ChangeNotifier {
     } else {
       return [];
     }
+  }
+
+  List<StatPoint> dbListToStatPoints(input) {
+    if (input.isNotEmpty) {
+      return input.map<StatPoint>((element) {
+        if (element is Map<String, dynamic>) {
+          dynamic date = element['date'];
+          DateTime dateTime;
+          if (date is Timestamp) {
+            dateTime = date.toDate();
+          } else {
+            dateTime = DateTime.now(); // Handle unexpected format
+            print('weird formatting, used DateTime.now() for this one.');
+          }
+          return StatPoint(
+              date: dateTime,
+              completions: element['completions'],
+              confidenceLevel: element['confidenceLevel'].toDouble(),
+              streak: element['streak'],
+              difficultyRating: element['difficultyRating'].toDouble(),
+              slopeCompletions: element['slopeCompletions'].toDouble(),
+              slopeConfidenceLevel: element['slopeConfidenceLevel'].toDouble(),
+              slopeConsistency: element['slopeConsistency'].toDouble(),
+              slopeDifficultyRating:
+                  element['slopeDifficultyRating'].toDouble(),
+              slopeCompletionRate: element['slopeCompletionRate'].toDouble());
+        } else {
+          print('input was empty');
+          return StatPoint(
+              date: DateTime.now(),
+              completions: 0,
+              confidenceLevel: 1,
+              streak: 0); // Handle unexpected format
+        }
+      }).toList();
+    } else {
+      return [];
+    }
+  }
+
+  List<Map<String, dynamic>> dbStatPointsToMap(List<StatPoint> statPoints) {
+    return statPoints
+        .map<Map<String, dynamic>>((statPoint) => {
+              'date': Timestamp.fromDate(statPoint.date),
+              'completions': statPoint.completions,
+              'confidenceLevel': statPoint.confidenceLevel,
+              'streak': statPoint.streak,
+              'difficultyRating': statPoint.difficultyRating,
+              'slopeCompletions': statPoint.slopeCompletions,
+              'slopeConfidenceLevel': statPoint.slopeConfidenceLevel,
+              'slopeConsistency': statPoint.slopeConsistency,
+              'slopeDifficultyRating': statPoint.slopeDifficultyRating,
+              'slopeCompletionRate': statPoint.slopeCompletionRate
+            })
+        .toList();
   }
 
   List<DateTime> dbListToDates(input) {
@@ -153,10 +209,6 @@ class Database extends ChangeNotifier {
 
       List<DateTime> daysCompletedFormatted =
           dbListToDates(habit.get('daysCompleted'));
-      List<DataPoint> confidenceStatsFormatted =
-          dbListToDataPoints(habit.get('confidenceStats'));
-      List<DataPoint> completionStatsFormatted =
-          dbListToDataPoints(habit.get('completionStats'));
 
       Habit loadedHabit = Habit(
         title: habit.get('title'),
@@ -174,8 +226,8 @@ class Database extends ChangeNotifier {
         requiredCompletions: habit.get('requiredCompletions'),
         requiredDatesOfCompletion: requiredDatesOfCompletionFormatted,
       );
-      loadedHabit.confidenceStats = confidenceStatsFormatted;
-      loadedHabit.completionStats = completionStatsFormatted;
+      loadedHabit.stats = dbListToStatPoints(habit.get('stats'));
+      print("loaded habit date:" + loadedHabit.stats[0].date.toString());
       loadedHabit.daysCompleted = daysCompletedFormatted;
       habitList.add(loadedHabit);
     }
@@ -237,16 +289,7 @@ class Database extends ChangeNotifier {
                 'date': completedDate,
               })
           .toList(),
-      'confidenceStats': habit.confidenceStats
-          .map((stat) => {
-                'date': stat.date,
-                'value': stat.value,
-              })
-          .toList(),
-      'completionStats': habit.completionStats.map((stat) => {
-            'date': stat.date,
-            'value': stat.value,
-          })
+      'stats': dbStatPointsToMap(habit.stats),
     });
   }
 
@@ -274,16 +317,7 @@ class Database extends ChangeNotifier {
                 'date': completedDate,
               })
           .toList(),
-      'confidenceStats': habit.confidenceStats
-          .map((stat) => {
-                'date': stat.date,
-                'value': stat.value,
-              })
-          .toList(),
-      'completionStats': habit.completionStats.map((stat) => {
-            'date': stat.date,
-            'value': stat.value,
-          })
+      'stats': dbStatPointsToMap(habit.stats),
     });
   }
 
@@ -308,12 +342,10 @@ class Database extends ChangeNotifier {
     DocumentSnapshot userSnapshot =
         await users.doc(_auth.currentUser!.uid.toString()).get();
     if (userSnapshot.exists) {
+      print('called from loadStats');
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
-              .confidenceStats =
-          dbListToDataPoints(userSnapshot.get('stats')['confidenceStats']);
-      Provider.of<SummaryStatisticsRepository>(context, listen: false)
-              .completionStats =
-          dbListToDataPoints(userSnapshot.get('stats')['completionStats']);
+              .statPoints =
+          dbListToStatPoints(userSnapshot.get('stats')['statPoints']);
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
               .totalHabitsCompleted =
           userSnapshot.get('stats')['totalHabitsCompleted'];
@@ -323,8 +355,6 @@ class Database extends ChangeNotifier {
 
     Provider.of<SummaryStatisticsRepository>(context, listen: false)
         .notifyListeners();
-    Provider.of<StatisticsDisplayManager>(context, listen: false)
-        .initStatsDisplay(context);
   }
 
   void uploadStatistics(context) async {
@@ -343,22 +373,9 @@ class Database extends ChangeNotifier {
             Provider.of<SummaryStatisticsRepository>(context, listen: false)
                 .totalHabitsCompleted,
         // Converting confidenceStats into an array of normal objects
-        'confidenceStats':
+        'statPoints': dbStatPointsToMap(
             Provider.of<SummaryStatisticsRepository>(context, listen: false)
-                .confidenceStats
-                .map((dataPoint) => {
-                      'value': dataPoint.value,
-                      'date': dataPoint.date,
-                    })
-                .toList(),
-        'completionStats':
-            Provider.of<SummaryStatisticsRepository>(context, listen: false)
-                .completionStats
-                .map((dataPoint) => {
-                      'value': dataPoint.value,
-                      'date': dataPoint.date,
-                    })
-                .toList(),
+                .statPoints),
       }
     }, SetOptions(merge: true));
 
@@ -471,6 +488,7 @@ class Database extends ChangeNotifier {
               'title': challenge.habit.title,
               'requiredCompletions': challenge.habit.requiredCompletions,
               'resetPeriod': challenge.habit.resetPeriod,
+              'id': challenge.habit.id,
               'dateCreated': challenge.habit.dateCreated
             },
           });

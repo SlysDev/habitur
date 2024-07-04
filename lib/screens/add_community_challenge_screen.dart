@@ -24,6 +24,7 @@ class AddCommunityChallengeScreen extends StatefulWidget {
       'title': '',
       'requiredCompletions': 0,
       'resetPeriod': 'Daily',
+      'id': Random().nextInt(100000),
       'dateCreated': DateTime.now()
     },
   };

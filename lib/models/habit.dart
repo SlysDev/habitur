@@ -1,10 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:habitur/models/data_point.dart';
-import 'package:habitur/modules/statistics_recorder.dart';
-import 'package:habitur/providers/summary_statistics_repository.dart';
-import 'package:provider/provider.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/constants.dart';
 
 class Habit {
@@ -25,8 +20,7 @@ class Habit {
 
   List<DateTime> daysCompleted = [];
   List<String> requiredDatesOfCompletion = [];
-  List<DataPoint> completionStats = [];
-  List<DataPoint> confidenceStats = [];
+  List<StatPoint> stats = [];
 
   double get completionRate {
     if (daysCompleted.isEmpty) {
@@ -38,12 +32,6 @@ class Habit {
 
     // Handle the case where the completion rate is greater than 1 (100%)
     return rate > 1.0 ? 1.0 : rate;
-  }
-
-  double get confidenceChange {
-    if (confidenceStats.length < 2) return 0.0;
-    return confidenceStats.last.value -
-        confidenceStats[confidenceStats.length - 2].value;
   }
 
   Habit(

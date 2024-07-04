@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 class LoginRegistrationState extends ChangeNotifier {
   bool _registerSuccess = true;
   bool _loginSuccess = true;
-  loginFail() {
+  String errorMessage = 'Please try again';
+  loginFail(e) {
     _loginSuccess = false;
+    errorMessage = e;
     notifyListeners();
   }
 
-  registrationFail() {
+  registrationFail(e) {
     _registerSuccess = false;
+    errorMessage = e;
     notifyListeners();
   }
 
@@ -19,5 +22,13 @@ class LoginRegistrationState extends ChangeNotifier {
 
   get loginSuccess {
     return _loginSuccess;
+  }
+
+  void setRegisterSuccess(bool success) {
+    _registerSuccess = success;
+  }
+
+  void setLoginSuccess(bool success) {
+    _loginSuccess = success;
   }
 }
