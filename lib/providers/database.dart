@@ -352,8 +352,6 @@ class Database extends ChangeNotifier {
 
     Provider.of<SummaryStatisticsRepository>(context, listen: false)
         .notifyListeners();
-    Provider.of<StatisticsDisplayManager>(context, listen: false)
-        .initStatsDisplay(context);
   }
 
   void uploadStatistics(context) async {

@@ -47,7 +47,9 @@ class HabitStatisticsCalculator {
 
     for (int i = 0; i < period; i++) {
       if (i < stats.length) {
-        weightedCompletionsSum += stats[i].completions * weights[i];
+        weightedCompletionsSum +=
+            (stats[i].completions / habit.requiredCompletions).floor() *
+                weights[i];
         totalWeight += weights[i];
       }
     }
@@ -106,6 +108,8 @@ class HabitStatisticsCalculator {
           math.pow(1.1, habit.streak) as double; // Increase bonus with streak
     }
 
+    print(
+        'Confidence level: base: $baseConfidence * consistency: $consistencyFactor * streak bonus: $successStreakBonus}');
     return baseConfidence * consistencyFactor * successStreakBonus;
   }
 }

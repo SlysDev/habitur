@@ -1,11 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/stat_point.dart';
-import 'package:habitur/modules/statistics_recorder.dart';
-import 'package:habitur/providers/summary_statistics_repository.dart';
-import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
 
 class Habit {

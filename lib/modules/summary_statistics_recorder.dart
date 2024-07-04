@@ -27,6 +27,23 @@ class SummaryStatisticsRecorder {
       statPoints[currentDayIndex].date = DateTime.now();
       statPoints[currentDayIndex].completions += 1;
     } else {
+      if (statPoints.isEmpty) {
+        StatPoint newStatPoint = StatPoint(
+            date: DateTime.now(),
+            completions: 1,
+            confidenceLevel:
+                Provider.of<SummaryStatisticsRepository>(context, listen: false)
+                    .getAverageConfidenceLevel(context),
+            streak:
+                Provider.of<SummaryStatisticsRepository>(context, listen: false)
+                    .getAverageStreak(context) as int);
+        statPoints.add(newStatPoint);
+      } else {
+        StatPoint newStatPoint = statPoints.last;
+        newStatPoint.date = DateTime.now();
+        newStatPoint.completions = 1;
+        statPoints.add(newStatPoint);
+      }
       // If there's no entry for the current day, add a new entry
       StatPoint newEntry = statPoints.last;
       newEntry.date = DateTime.now();
@@ -36,8 +53,6 @@ class SummaryStatisticsRecorder {
 
     // Notify the display manager to update
     recordAverageConfidenceLevel(context);
-    Provider.of<StatisticsDisplayManager>(context, listen: false)
-        .initStatsDisplay(context);
     print('Date: ' +
         statPoints.last.date.toString() +
         " Completions: " +
@@ -71,7 +86,5 @@ class SummaryStatisticsRecorder {
       statPoints[currentDayIndex].confidenceLevel =
           getAverageConfidenceLevel(context);
     }
-    Provider.of<StatisticsDisplayManager>(context, listen: false)
-        .initStatsDisplay(context);
   }
 }

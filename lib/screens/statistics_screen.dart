@@ -53,8 +53,7 @@ class StatisticsScreen extends StatelessWidget {
             child: HabitHeatMap(
               data:
                   // Converts stats array into a map (list --> iterable --> map)
-                  Provider.of<SummaryStatisticsRepository>(context)
-                      .completionStats,
+                  Provider.of<SummaryStatisticsRepository>(context).statPoints,
             ),
           ),
           const SizedBox(height: 40),

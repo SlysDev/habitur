@@ -15,6 +15,8 @@ class HabitStatsHandler {
 
   void incrementCompletion(context) {
     SummaryStatisticsRecorder statsRecorder = SummaryStatisticsRecorder();
+    HabitStatisticsCalculator statsCalculator =
+        HabitStatisticsCalculator(habit);
     habit.completionsToday++;
     habit.totalCompletions++;
     if (habit.completionsToday == habit.requiredCompletions) {
@@ -40,13 +42,27 @@ class HabitStatsHandler {
     if (currentDayIndex != -1) {
       // If there's an entry for the current day, update the completion count
       habit.stats[currentDayIndex].completions++;
+      habit.stats[currentDayIndex].confidenceLevel =
+          statsCalculator.calculateConfidenceLevel();
+      habit.stats[currentDayIndex].streak = habit.streak;
       statsRecorder.logHabitCompletion(context);
     } else {
       // If there's no entry for the current day, add a new entry
-      StatPoint newStatPoint = habit.stats.last;
-      newStatPoint.date = DateTime.now();
-      newStatPoint.completions = 1;
-      habit.stats.add(newStatPoint);
+      if (habit.stats.isEmpty) {
+        StatPoint newStatPoint = StatPoint(
+            date: DateTime.now(),
+            completions: 1,
+            confidenceLevel: statsCalculator.calculateConfidenceLevel(),
+            streak: habit.streak);
+        habit.stats.add(newStatPoint);
+      } else {
+        StatPoint newStatPoint = habit.stats.last;
+        newStatPoint.date = DateTime.now();
+        newStatPoint.completions = 1;
+        newStatPoint.confidenceLevel =
+            statsCalculator.calculateConfidenceLevel();
+        habit.stats.add(newStatPoint);
+      }
       statsRecorder.logHabitCompletion(context);
     }
   }
