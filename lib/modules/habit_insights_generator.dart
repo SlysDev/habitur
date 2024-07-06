@@ -21,7 +21,7 @@ class HabitInsightsGenerator {
       case 'completions':
         worstSlopeNameFormatted = 'completion count';
         postInsight =
-            'If you can\'t get to completing your habit, try chaining it with another habit you\'re more comfortable with!';
+            'Try "chaining" it with another habit you\'re more comfortable with!';
         break;
       case 'confidenceLevel':
         worstSlopeNameFormatted = 'confidence level';
@@ -30,7 +30,7 @@ class HabitInsightsGenerator {
       case 'difficultyRating':
         worstSlopeNameFormatted = 'difficulty rating';
         postInsight =
-            'Try making your habit easier––you can always ratchet things up with time.';
+            'Try making your habit easier––you can ratchet things up with time.';
         break;
       case 'consistencyFactor':
         worstSlopeNameFormatted = 'consistency';
