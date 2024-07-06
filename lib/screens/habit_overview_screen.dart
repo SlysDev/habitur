@@ -7,6 +7,7 @@ import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/modules/habit_insights_generator.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,8 @@ class HabitOverviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
+    HabitInsightsGenerator insightsGenerator =
+        HabitInsightsGenerator(habit, statsCalculator);
     double confidenceChange = statsCalculator.calculateConfidenceChange();
     String changeSymbol = confidenceChange > 0 ? '↑' : '↓';
     return Scaffold(
@@ -83,7 +86,7 @@ class HabitOverviewScreen extends StatelessWidget {
                     const SizedBox(width: 20),
                     Expanded(
                       child: Text(
-                        'Your completion consistency needs some work. It\'s down 20% from last week.',
+                        insightsGenerator.findAreaForImprovement()['message'],
                         style: kMainDescription,
                       ),
                     ),
