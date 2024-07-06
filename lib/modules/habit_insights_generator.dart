@@ -6,41 +6,63 @@ class HabitInsightsGenerator {
   HabitStatisticsCalculator statsCalculator;
 
   HabitInsightsGenerator(this.habit, this.statsCalculator);
-  Map<String, dynamic> findAreaForImprovement() {
+  Map<String, dynamic> findAreaForImprovement({int period = 7}) {
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
-    Map<String, dynamic> worstSlopeData = statsCalculator.findWorstSlope();
+    Map<String, dynamic> worstSlopeData =
+        statsCalculator.findWorstSlope(period: period);
     String worstSlopeName = worstSlopeData['name'] as String;
     double worstSlopeValue = worstSlopeData['value'] as double;
+    double percentChange =
+        statsCalculator.calculatePercentChangeForStat(worstSlopeName);
+    String worstSlopeNameFormatted;
+    String postInsight = '';
+    switch (worstSlopeName) {
+      case 'completions':
+        worstSlopeNameFormatted = 'completion count';
+        postInsight =
+            'If you can\'t get to completing your habit, try chaining it with another habit you\'re more comfortable with!';
+        break;
+      case 'confidenceLevel':
+        worstSlopeNameFormatted = 'confidence level';
+        postInsight = 'To build confidence, try building a streak!';
+        break;
+      case 'difficultyRating':
+        worstSlopeNameFormatted = 'difficulty rating';
+        postInsight =
+            'Try making your habit easier––you can always ratchet things up with time.';
+        break;
+      case 'consistencyFactor':
+        worstSlopeNameFormatted = 'consistency';
+        postInsight =
+            'Consistency is by far the most important factor in habit growth!';
+        // Improvement period might not be applicable for consistency
+        break;
+      default:
+        worstSlopeNameFormatted = ''; // Handle unexpected statistic names
+    }
 
     if (worstSlopeValue >= 0.0) {
       return {
         'area': '',
-        'message': 'All tracked statistics are improving or staying steady!'
+        'message': {
+          'preText': 'All stats have been',
+          'percentChange': 'improving',
+          'postText': 'in the past ${period} days. Bravo!',
+          'fullText':
+              'All habit stats have been improving in the past ${period} days. Bravo!'
+        }
       };
     } else {
-      String improvementPeriod = '';
-      switch (worstSlopeName) {
-        case 'completions':
-          improvementPeriod = 'days';
-          break;
-        case 'confidenceLevel':
-          improvementPeriod = 'days';
-          break;
-        case 'difficultyRating':
-          // Improvement period might not be applicable for difficulty
-          break;
-        case 'consistencyFactor':
-          // Improvement period might not be applicable for consistency
-          break;
-        default:
-          improvementPeriod = ''; // Handle unexpected statistic names
-      }
-
       return {
         'area': worstSlopeName,
-        'message':
-            'Your $worstSlopeName seems to be declining. Consider strategies to improve over the past ${improvementPeriod.isEmpty ? '' : improvementPeriod + ' '}'
+        'message': {
+          'preText': 'This habit\'s $worstSlopeNameFormatted has declined by',
+          'percentChange': percentChange.abs().toStringAsFixed(1) + "%",
+          'postText': 'in the past ${period} days. $postInsight',
+          'fullText':
+              'This habit\'s $worstSlopeNameFormatted has declined by $percentChange% in the past ${period} days.'
+        },
       };
     }
   }

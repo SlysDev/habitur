@@ -44,9 +44,10 @@ class HabitStatisticsCalculator {
 
     int startIndex = habit.stats.length - period;
     double startValue =
-        getStatisticValue(habit.stats[startIndex], statisticName);
+        getStatisticValue(habit.stats[startIndex], statisticName).toDouble();
     double endValue =
-        getStatisticValue(habit.stats[habit.stats.length - 1], statisticName);
+        getStatisticValue(habit.stats[habit.stats.length - 1], statisticName)
+            .toDouble();
 
     if (startValue == 0.0) {
       // Avoid division by zero (consider handling very small start values)
@@ -154,9 +155,13 @@ class HabitStatisticsCalculator {
 
   // Slope Calculations
 
-  double calculateStatSlope(String statisticName) {
-    if (habit.stats.isEmpty) {
-      return 0.0; // No data for slope calculation
+  double calculateStatSlope(String statisticName, {int period = 7}) {
+    if (habit.stats.isEmpty || period <= 0) {
+      return 0.0; // Handle empty data or invalid period
+    }
+
+    if (habit.stats.length < period) {
+      period = habit.stats.length; // Limit period to available data
     }
 
     double sumX = 0.0;
@@ -164,17 +169,21 @@ class HabitStatisticsCalculator {
     double sumXY = 0.0;
     double sumX2 = 0.0;
 
-    for (int i = 0; i < habit.stats.length; i++) {
-      int dayIndex = i + 1; // Day index starting from 1 for calculation
-      double statisticValue =
-          getStatisticValue(habit.stats[i], statisticName).toDouble();
-      sumX += dayIndex;
-      sumY += statisticValue;
-      sumXY += dayIndex * statisticValue;
-      sumX2 += dayIndex * dayIndex;
+    for (int i = habit.stats.length - period; i < habit.stats.length; i++) {
+      if (i >= 0) {
+        int dayIndex = i +
+            1 -
+            (habit.stats.length - period); // Adjust day index based on period
+        double statisticValue =
+            getStatisticValue(habit.stats[i], statisticName).toDouble();
+        sumX += dayIndex;
+        sumY += statisticValue;
+        sumXY += dayIndex * statisticValue;
+        sumX2 += dayIndex * dayIndex;
+      }
     }
 
-    int n = habit.stats.length; // Number of data points
+    int n = period; // Number of data points in the specified period
     double denominator = n * sumX2 - sumX * sumX;
 
     // Check for colinearity or potential numerical errors
@@ -201,7 +210,7 @@ class HabitStatisticsCalculator {
     }
   }
 
-  Map<String, dynamic> findWorstSlope() {
+  Map<String, dynamic> findWorstSlope({int period = 7}) {
     if (habit.stats.isEmpty) {
       return {'name': '', 'value': 0.0}; // No data for slope calculation
     }
@@ -216,7 +225,7 @@ class HabitStatisticsCalculator {
       'difficultyRating',
       'consistencyFactor'
     ]) {
-      double slope = calculateStatSlope(statisticName);
+      double slope = calculateStatSlope(statisticName, period: period);
       if (slope < worstSlopeValue) {
         worstSlopeName = statisticName;
         worstSlopeValue = slope;
