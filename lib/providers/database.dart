@@ -80,17 +80,16 @@ class Database extends ChangeNotifier {
             print('weird formatting, used DateTime.now() for this one.');
           }
           return StatPoint(
-              date: dateTime,
-              completions: element['completions'],
-              confidenceLevel: element['confidenceLevel'].toDouble(),
-              streak: element['streak'],
-              difficultyRating: element['difficultyRating'].toDouble(),
-              slopeCompletions: element['slopeCompletions'].toDouble(),
-              slopeConfidenceLevel: element['slopeConfidenceLevel'].toDouble(),
-              slopeConsistency: element['slopeConsistency'].toDouble(),
-              slopeDifficultyRating:
-                  element['slopeDifficultyRating'].toDouble(),
-              slopeCompletionRate: element['slopeCompletionRate'].toDouble());
+            date: dateTime,
+            completions: element['completions'],
+            confidenceLevel: element['confidenceLevel'].toDouble(),
+            streak: element['streak'],
+            difficultyRating: element['difficultyRating'].toDouble(),
+            slopeCompletions: element['slopeCompletions'].toDouble(),
+            slopeConfidenceLevel: element['slopeConfidenceLevel'].toDouble(),
+            slopeConsistency: element['slopeConsistency'].toDouble(),
+            slopeDifficultyRating: element['slopeDifficultyRating'].toDouble(),
+          );
         } else {
           print('input was empty');
           return StatPoint(
@@ -117,7 +116,6 @@ class Database extends ChangeNotifier {
               'slopeConfidenceLevel': statPoint.slopeConfidenceLevel,
               'slopeConsistency': statPoint.slopeConsistency,
               'slopeDifficultyRating': statPoint.slopeDifficultyRating,
-              'slopeCompletionRate': statPoint.slopeCompletionRate
             })
         .toList();
   }

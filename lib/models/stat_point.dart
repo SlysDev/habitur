@@ -15,7 +15,6 @@ class StatPoint {
       slopeConfidenceLevel; // You can replace 'ConfidenceLevel' with your actual statistic name
   double slopeConsistency;
   double slopeDifficultyRating;
-  double slopeCompletionRate;
 
   StatPoint({
     required this.date,
@@ -28,6 +27,5 @@ class StatPoint {
     this.slopeConfidenceLevel = 0.0,
     this.slopeConsistency = 0.0,
     this.slopeDifficultyRating = 0.0,
-    this.slopeCompletionRate = 0.0,
   });
 }

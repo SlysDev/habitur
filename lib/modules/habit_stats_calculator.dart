@@ -17,6 +17,46 @@ class HabitStatisticsCalculator {
     return stats.last.confidenceLevel - stats[stats.length - 2].confidenceLevel;
   }
 
+  double calculateAverageValueForStat(String statisticName, {int period = 7}) {
+    if (habit.stats.isEmpty || period <= 0) {
+      return 0.0; // Handle empty data or invalid period
+    }
+
+    double sum = 0.0;
+    for (int i = habit.stats.length - period; i < habit.stats.length; i++) {
+      if (i >= 0) {
+        double statisticValue =
+            getStatisticValue(habit.stats[i], statisticName);
+        sum += statisticValue;
+      }
+    }
+    return sum / period;
+  }
+
+  double calculatePercentChangeForStat(String statisticName, {int period = 7}) {
+    if (habit.stats.isEmpty || period <= 0) {
+      return 0.0; // Handle empty data or invalid period
+    }
+
+    if (habit.stats.length < period) {
+      period = habit.stats.length; // Limit period to available data
+    }
+
+    int startIndex = habit.stats.length - period;
+    double startValue =
+        getStatisticValue(habit.stats[startIndex], statisticName).toDouble();
+    double endValue =
+        getStatisticValue(habit.stats[habit.stats.length - 1], statisticName)
+            .toDouble();
+
+    if (startValue == 0.0) {
+      // Avoid division by zero (consider handling very small start values)
+      return 0.0;
+    }
+
+    return ((endValue - startValue) / startValue) * 100.0;
+  }
+
   double calculateAverageCompletionsPerWeek({List<StatPoint>? stats}) {
     if (stats == null) {
       stats = habit.stats;
@@ -111,5 +151,87 @@ class HabitStatisticsCalculator {
     print(
         'Confidence level: base: $baseConfidence * consistency: $consistencyFactor * streak bonus: $successStreakBonus}');
     return baseConfidence * consistencyFactor * successStreakBonus;
+  }
+
+  // Slope Calculations
+
+  double calculateStatSlope(String statisticName, {int period = 7}) {
+    if (habit.stats.isEmpty || period <= 0) {
+      return 0.0; // Handle empty data or invalid period
+    }
+
+    if (habit.stats.length < period) {
+      period = habit.stats.length; // Limit period to available data
+    }
+
+    double sumX = 0.0;
+    double sumY = 0.0;
+    double sumXY = 0.0;
+    double sumX2 = 0.0;
+
+    for (int i = habit.stats.length - period; i < habit.stats.length; i++) {
+      if (i >= 0) {
+        int dayIndex = i +
+            1 -
+            (habit.stats.length - period); // Adjust day index based on period
+        double statisticValue =
+            getStatisticValue(habit.stats[i], statisticName).toDouble();
+        sumX += dayIndex;
+        sumY += statisticValue;
+        sumXY += dayIndex * statisticValue;
+        sumX2 += dayIndex * dayIndex;
+      }
+    }
+
+    int n = period; // Number of data points in the specified period
+    double denominator = n * sumX2 - sumX * sumX;
+
+    // Check for colinearity or potential numerical errors
+    if (denominator.abs() < 1e-6) {
+      return 0.0; // Handle colinearity or very small denominator
+    }
+
+    double slope = (n * sumXY - sumX * sumY) / denominator;
+    return slope;
+  }
+
+  dynamic getStatisticValue(StatPoint statPoint, String statisticName) {
+    switch (statisticName) {
+      case 'completions':
+        return statPoint.completions;
+      case 'confidenceLevel':
+        return statPoint.confidenceLevel;
+      case 'consistencyFactor':
+        return statPoint.consistencyFactor;
+      case 'difficultyRating':
+        return statPoint.difficultyRating;
+      default:
+        throw Exception('Invalid statistic name: $statisticName');
+    }
+  }
+
+  Map<String, dynamic> findWorstSlope({int period = 7}) {
+    if (habit.stats.isEmpty) {
+      return {'name': '', 'value': 0.0}; // No data for slope calculation
+    }
+
+    String worstSlopeName = '';
+    double worstSlopeValue =
+        double.infinity; // Initialize with positive infinity
+
+    for (String statisticName in [
+      'completions',
+      'confidenceLevel',
+      'difficultyRating',
+      'consistencyFactor'
+    ]) {
+      double slope = calculateStatSlope(statisticName, period: period);
+      if (slope < worstSlopeValue) {
+        worstSlopeName = statisticName;
+        worstSlopeValue = slope;
+      }
+    }
+
+    return {'name': worstSlopeName, 'value': worstSlopeValue};
   }
 }

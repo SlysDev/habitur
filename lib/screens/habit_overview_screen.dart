@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:habitur/components/habit_heat_map.dart';
 import 'package:habitur/components/habit_stats_card.dart';
 import 'package:habitur/components/line_graph.dart';
@@ -7,6 +8,7 @@ import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/modules/habit_insights_generator.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +21,15 @@ class HabitOverviewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
+    HabitInsightsGenerator insightsGenerator =
+        HabitInsightsGenerator(habit, statsCalculator);
+    Map<String, dynamic> improvementData =
+        insightsGenerator.findAreaForImprovement();
+    String insightPreText = improvementData['message']['preText'];
+    String insightPercentChange =
+        improvementData['message']['percentChange'].toString();
+    String insightPostText = improvementData['message']['postText'];
+
     double confidenceChange = statsCalculator.calculateConfidenceChange();
     String changeSymbol = confidenceChange > 0 ? '↑' : '↓';
     return Scaffold(
@@ -78,13 +89,31 @@ class HabitOverviewScreen extends StatelessWidget {
                   children: [
                     StaticCard(
                       child: Icon(Icons.lightbulb),
-                      color: Colors.green,
+                      color: kOrangeAccent,
                     ),
                     const SizedBox(width: 20),
                     Expanded(
-                      child: Text(
-                        'Your completion consistency needs some work. It\'s down 20% from last week.',
-                        style: kMainDescription,
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: insightPreText,
+                              style: kMainDescription,
+                            ),
+                            TextSpan(
+                              text: ' $insightPercentChange ',
+                              style: kMainDescription.copyWith(
+                                color: kOrangeAccent,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            TextSpan(
+                              text: insightPostText,
+                              style: kMainDescription,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
