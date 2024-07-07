@@ -36,7 +36,8 @@ class SummaryStatisticsRecorder {
                     .getAverageConfidenceLevel(context),
             streak:
                 Provider.of<SummaryStatisticsRepository>(context, listen: false)
-                    .getAverageStreak(context) as int);
+                    .getAverageStreak(context)
+                    .toInt());
         statPoints.add(newStatPoint);
       } else {
         StatPoint newStatPoint = StatPoint(
@@ -47,7 +48,8 @@ class SummaryStatisticsRecorder {
                     .getAverageConfidenceLevel(context),
             streak:
                 Provider.of<SummaryStatisticsRepository>(context, listen: false)
-                    .getAverageStreak(context) as int);
+                    .getAverageStreak(context)
+                    .toInt());
         // TODO: Add calculations for slopes + consistency factor avg
         statPoints.add(newStatPoint);
       }
