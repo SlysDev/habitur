@@ -1,4 +1,3 @@
-import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'dart:math' as math;
 
