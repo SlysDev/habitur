@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/stat_point.dart';
+import 'package:habitur/modules/summary_stats_calculator.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
@@ -13,6 +14,9 @@ class SummaryStatisticsRecorder {
     List<StatPoint> statPoints =
         Provider.of<SummaryStatisticsRepository>(context, listen: false)
             .statPoints;
+    SummaryStatisticsCalculator summaryStatsCalculator =
+        SummaryStatisticsCalculator(
+            Provider.of<HabitManager>(context, listen: false).habits);
 
     // Check if there's an entry for the current day
     int currentDayIndex = statPoints.indexWhere(
@@ -26,6 +30,20 @@ class SummaryStatisticsRecorder {
       // If there's an entry for the current day, update the completion count
       statPoints[currentDayIndex].date = DateTime.now();
       statPoints[currentDayIndex].completions += 1;
+      statPoints[currentDayIndex].confidenceLevel =
+          summaryStatsCalculator.calculateTodaysStatAverage('confidenceLevel');
+      statPoints[currentDayIndex].streak =
+          summaryStatsCalculator.calculateTodaysStatAverage('streak').toInt();
+      statPoints[currentDayIndex].consistencyFactor = summaryStatsCalculator
+          .calculateTodaysStatAverage('consistencyFactor');
+      statPoints[currentDayIndex].difficultyRating =
+          summaryStatsCalculator.calculateTodaysStatAverage('difficultyRating');
+      statPoints[currentDayIndex].slopeCompletions =
+          summaryStatsCalculator.calculateOverallSlope('slopeCompletions');
+      statPoints[currentDayIndex].slopeConsistency =
+          summaryStatsCalculator.calculateOverallSlope('slopeConsistency');
+      statPoints[currentDayIndex].slopeConfidenceLevel =
+          summaryStatsCalculator.calculateOverallSlope('slopeConfidenceLevel');
     } else {
       if (statPoints.isEmpty) {
         StatPoint newStatPoint = StatPoint(
