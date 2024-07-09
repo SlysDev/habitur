@@ -1,40 +1,84 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:habitur/components/accent_elevated_button.dart';
+import 'package:habitur/components/habit_difficulty_popup.dart';
+import 'package:habitur/components/static_card.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/screens/edit_habit_screen.dart';
 import 'package:habitur/screens/habit_overview_screen.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
 import './rounded_progress_bar.dart';
 
 class HabitCard extends StatelessWidget {
-  String title;
-  void Function() onTap;
-  void Function() onLongPress;
   Color color;
   Color completeButtonColor = Colors.green;
-  double progress;
-  bool completed;
-  void Function(BuildContext) onDismissed;
-  void Function(BuildContext) onEdit;
-  Habit habit;
   int index;
-  HabitCard(
-      {required this.title,
-      required this.progress,
-      required this.onTap,
-      required this.onLongPress,
-      this.color = kFadedBlue,
-      required this.completed,
-      required this.onDismissed,
-      required this.onEdit,
-      required this.habit,
-      required this.index});
+  HabitCard({this.color = kFadedBlue, required this.index});
 
   @override
   Widget build(BuildContext context) {
+    Habit habit = Provider.of<HabitManager>(context).habits[index];
+    HabitStatsHandler habitStatsHandler =
+        HabitStatsHandler(Provider.of<HabitManager>(context).habits[index]);
+    double progress = habit.completionsToday / habit.requiredCompletions;
+    bool completed = habit.completionsToday == habit.requiredCompletions;
+    completeHabit(double recordedDifficulty) {
+      if (Provider.of<HabitManager>(context, listen: false)
+              .habits[index]
+              .completionsToday !=
+          Provider.of<HabitManager>(context, listen: false)
+              .habits[index]
+              .requiredCompletions) {
+        habitStatsHandler.incrementCompletion(context,
+            recordedDifficulty: recordedDifficulty);
+        Provider.of<HabitManager>(context, listen: false).updateHabits();
+        Provider.of<Database>(context, listen: false).updateHabit(
+            Provider.of<HabitManager>(context, listen: false).habits[index]);
+      }
+    }
+
+    ;
+    decrementHabit() {
+      habitStatsHandler.decrementCompletion(context);
+      Provider.of<HabitManager>(context, listen: false).updateHabits();
+      Provider.of<Database>(context, listen: false).updateHabit(
+          Provider.of<HabitManager>(context, listen: false).habits[index]);
+    }
+
+    ;
+    editHabit() {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EditHabitScreen(
+                    habitIndex: index,
+                  )));
+    }
+
+    ;
+    deleteHabit() {
+      Provider.of<HabitManager>(context, listen: false)
+          .deleteHabit(context, index);
+    }
+
+    ;
+    difficultyPopup(BuildContext context, index, onDifficultySelected) async {
+      await showDialog(
+        context: context,
+        builder: (context) => HabitDifficultyPopup(
+          habitIndex: index,
+          onDifficultySelected: onDifficultySelected,
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -46,13 +90,11 @@ class HabitCard extends StatelessWidget {
       },
       child: Slidable(
         startActionPane: ActionPane(
-          motion: DrawerMotion(),
+          motion: const StretchMotion(),
           children: [
             SlidableAction(
               onPressed: (context) {
-                print('iscalled');
-                Provider.of<HabitManager>(context, listen: false)
-                    .deleteHabit(context, index);
+                deleteHabit();
               },
               backgroundColor: Colors.red,
               icon: Icons.delete,
@@ -61,7 +103,9 @@ class HabitCard extends StatelessWidget {
             ),
             // TODO: Add editing functionality  <23-12-22, slys> //
             SlidableAction(
-              onPressed: onEdit,
+              onPressed: (context) {
+                editHabit();
+              },
               backgroundColor: Colors.blue,
               icon: Icons.edit,
               borderRadius: BorderRadius.circular(20),
@@ -72,7 +116,7 @@ class HabitCard extends StatelessWidget {
         child: Column(
           children: [
             AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 600),
               curve: Curves.ease,
               height: 128,
               decoration: BoxDecoration(
@@ -90,7 +134,7 @@ class HabitCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            title,
+                            habit.title,
                             style:
                                 kHeadingTextStyle.copyWith(color: Colors.white),
                             textAlign: TextAlign.center,
@@ -104,10 +148,16 @@ class HabitCard extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: onTap,
-                    onLongPress: onLongPress,
+                    onTap: () async {
+                      if (!completed) {
+                        difficultyPopup(context, index, completeHabit);
+                      }
+                    },
+                    onLongPress: () {
+                      decrementHabit();
+                    },
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 500),
+                      duration: const Duration(milliseconds: 600),
                       curve: Curves.ease,
                       width: 100,
                       height: double.infinity,

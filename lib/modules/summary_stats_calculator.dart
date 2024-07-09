@@ -9,7 +9,7 @@ class SummaryStatisticsCalculator extends StatisticsCalculator {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
     for (Habit habit in habits) {
-      sum = getStatisticValue(habit.stats.last, statisticName);
+      sum = getStatisticValue(habit.stats.last, statisticName).toDouble();
     }
     return sum / habits.length;
   }

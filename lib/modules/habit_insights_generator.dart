@@ -10,11 +10,11 @@ class HabitInsightsGenerator {
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
     Map<String, dynamic> worstSlopeData =
-        statsCalculator.findWorstSlope(period: period);
+        statsCalculator.findWorstSlope(habit.stats, period: period);
     String worstSlopeName = worstSlopeData['name'] as String;
     double worstSlopeValue = worstSlopeData['value'] as double;
-    double percentChange =
-        statsCalculator.calculatePercentChangeForStat(worstSlopeName);
+    double percentChange = statsCalculator.calculatePercentChangeForStat(
+        worstSlopeName, habit.stats);
     String worstSlopeNameFormatted;
     String postInsight = '';
     switch (worstSlopeName) {
@@ -57,7 +57,8 @@ class HabitInsightsGenerator {
       return {
         'area': worstSlopeName,
         'message': {
-          'preText': 'This habit\'s $worstSlopeNameFormatted has declined by',
+          'preText':
+              'This habit\'s $worstSlopeNameFormatted has declined ${percentChange != 0.0 ? 'by ' : ''}',
           'percentChange': percentChange.abs().toStringAsFixed(1) + "%",
           'postText': 'in the past ${period} days. $postInsight',
           'fullText':

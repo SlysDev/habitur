@@ -44,68 +44,7 @@ class _HabitCardListState extends State<HabitCardList> {
                             height: 20,
                           ),
                           HabitCard(
-                            habit: Provider.of<HabitManager>(context)
-                                .habits[index],
                             index: index,
-                            progress: Provider.of<HabitManager>(context)
-                                    .habits[index]
-                                    .completionsToday /
-                                Provider.of<HabitManager>(context)
-                                    .habits[index]
-                                    .requiredCompletions,
-                            completed: Provider.of<HabitManager>(context)
-                                        .habits[index]
-                                        .completionsToday ==
-                                    Provider.of<HabitManager>(context)
-                                        .habits[index]
-                                        .requiredCompletions
-                                ? true
-                                : false,
-                            onDismissed: (context) {
-                              Provider.of<HabitManager>(context, listen: false)
-                                  .deleteHabit(context, index);
-                            },
-                            onEdit: (context) {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => EditHabitScreen(
-                                            habitIndex: index,
-                                          )));
-                            },
-                            title: Provider.of<HabitManager>(context)
-                                .habits[index]
-                                .title,
-                            onLongPress: () {
-                              habitStatsHandler.decrementCompletion(context);
-                              Provider.of<HabitManager>(context, listen: false)
-                                  .updateHabits();
-                              Provider.of<Database>(context, listen: false)
-                                  .updateHabit(Provider.of<HabitManager>(
-                                          context,
-                                          listen: false)
-                                      .habits[index]);
-                            },
-                            onTap: () {
-                              if (Provider.of<HabitManager>(context,
-                                          listen: false)
-                                      .habits[index]
-                                      .completionsToday !=
-                                  Provider.of<HabitManager>(context,
-                                          listen: false)
-                                      .habits[index]
-                                      .requiredCompletions) {
-                                habitStatsHandler.incrementCompletion(context);
-                                Provider.of<HabitManager>(context,
-                                        listen: false)
-                                    .updateHabits();
-                                Provider.of<Database>(context, listen: false)
-                                    .updateHabit(Provider.of<HabitManager>(
-                                            context,
-                                            listen: false)
-                                        .habits[index]);
-                              }
-                            },
                           ),
                           // color: Provider.of<HabitManager>(context, listen: false).habits[index].color),
                           SizedBox(

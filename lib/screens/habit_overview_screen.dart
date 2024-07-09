@@ -30,7 +30,8 @@ class HabitOverviewScreen extends StatelessWidget {
         improvementData['message']['percentChange'].toString();
     String insightPostText = improvementData['message']['postText'];
 
-    double confidenceChange = statsCalculator.calculateConfidenceChange();
+    double confidenceChange =
+        statsCalculator.calculateStatChange(habit.stats, 'confidenceLevel');
     String changeSymbol = confidenceChange > 0 ? '↑' : '↓';
     return Scaffold(
       appBar: AppBar(
@@ -100,14 +101,16 @@ class HabitOverviewScreen extends StatelessWidget {
                               text: insightPreText,
                               style: kMainDescription,
                             ),
-                            TextSpan(
-                              text: ' $insightPercentChange ',
-                              style: kMainDescription.copyWith(
-                                color: kOrangeAccent,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
+                            insightPercentChange == '0.0%'
+                                ? TextSpan()
+                                : TextSpan(
+                                    text: ' $insightPercentChange ',
+                                    style: kMainDescription.copyWith(
+                                      color: kOrangeAccent,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  ),
                             TextSpan(
                               text: insightPostText,
                               style: kMainDescription,
@@ -140,7 +143,7 @@ class HabitOverviewScreen extends StatelessWidget {
                     ),
                     SingleStatCard(
                       statText: statsCalculator
-                          .calculateAverageCompletionsPerWeek()
+                          .calculateAverageCompletionsPerWeek(habit.stats)
                           .toStringAsFixed(1),
                       statDescription: 'Average Weekly Completions',
                       fontSize: 40,
@@ -149,11 +152,16 @@ class HabitOverviewScreen extends StatelessWidget {
                     SingleStatCard(
                       statText: habit.stats.length < 7
                           ? (statsCalculator.calculateConsistencyFactor(
+                                          habit.stats,
+                                          habit.requiredCompletions,
                                           period: habit.stats.length) *
                                       100)
                                   .toStringAsFixed(0) +
                               '%'
-                          : (statsCalculator.calculateConsistencyFactor() * 100)
+                          : (statsCalculator.calculateConsistencyFactor(
+                                          habit.stats,
+                                          habit.requiredCompletions) *
+                                      100)
                                   .toStringAsFixed(0) +
                               '%',
                       statDescription: '7-day Consistency',

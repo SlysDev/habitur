@@ -51,6 +51,7 @@ class StatisticsCalculator {
       // Avoid division by zero (consider handling very small start values)
       return 0.0;
     }
+    print("startValue: $startValue, endValue: $endValue");
 
     return ((endValue - startValue) / startValue) * 100.0;
   }
@@ -180,6 +181,8 @@ class StatisticsCalculator {
         return statPoint.consistencyFactor;
       case 'difficultyRating':
         return statPoint.difficultyRating;
+      case 'streak':
+        return statPoint.streak;
       default:
         throw Exception('Invalid statistic name: $statisticName');
     }
@@ -201,6 +204,9 @@ class StatisticsCalculator {
       'consistencyFactor'
     ]) {
       double slope = calculateStatSlope(statisticName, stats, period: period);
+      if (statisticName == 'difficultyRating') {
+        slope = slope * -1;
+      }
       if (slope < worstSlopeValue) {
         worstSlopeName = statisticName;
         worstSlopeValue = slope;
