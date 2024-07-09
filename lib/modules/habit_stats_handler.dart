@@ -141,10 +141,17 @@ class HabitStatsHandler {
         habit.stats[currentDayIndex].streak--;
       }
 
-      habit.stats[currentDayIndex].confidenceLevel =
-          statsCalculator.calculateConfidenceLevel();
       habit.stats[currentDayIndex].consistencyFactor = statsCalculator
           .calculateConsistencyFactor(habit.stats, habit.requiredCompletions);
+      habit.stats[currentDayIndex].difficultyRating = 0;
+      habit.stats[currentDayIndex].slopeCompletions =
+          statsCalculator.calculateStatSlope('completions', habit.stats);
+      habit.stats[currentDayIndex].slopeConsistency =
+          statsCalculator.calculateStatSlope('consistencyFactor', habit.stats);
+      habit.stats[currentDayIndex].slopeConfidenceLevel =
+          statsCalculator.calculateStatSlope('confidenceLevel', habit.stats);
+      habit.stats[currentDayIndex].slopeDifficultyRating =
+          statsCalculator.calculateStatSlope('difficultyRating', habit.stats);
     } else {
       // Shouldn't reach here ideally (log a message?)
       print('No entry found for decrementing habit completion in stats.');

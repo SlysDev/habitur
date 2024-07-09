@@ -91,6 +91,9 @@ class SummaryStatisticsRecorder {
     List<StatPoint> statPoints =
         Provider.of<SummaryStatisticsRepository>(context, listen: false)
             .statPoints;
+    SummaryStatisticsCalculator summaryStatsCalculator =
+        SummaryStatisticsCalculator(
+            Provider.of<HabitManager>(context, listen: false).habits);
 
     // Check if there's an entry for the current day
     int currentDayIndex = statPoints.indexWhere((stat) =>
@@ -102,6 +105,21 @@ class SummaryStatisticsRecorder {
       // If there's an entry for the current day, decrement the completion count
       if (statPoints[currentDayIndex].completions > 0) {
         statPoints[currentDayIndex].completions--;
+        statPoints[currentDayIndex].confidenceLevel = summaryStatsCalculator
+            .calculateTodaysStatAverage('confidenceLevel');
+        statPoints[currentDayIndex].streak =
+            summaryStatsCalculator.calculateTodaysStatAverage('streak').toInt();
+        statPoints[currentDayIndex].consistencyFactor = summaryStatsCalculator
+            .calculateTodaysStatAverage('consistencyFactor');
+        statPoints[currentDayIndex].difficultyRating = summaryStatsCalculator
+            .calculateTodaysStatAverage('difficultyRating');
+        statPoints[currentDayIndex].slopeCompletions =
+            summaryStatsCalculator.calculateOverallSlope('slopeCompletions');
+        statPoints[currentDayIndex].slopeConsistency =
+            summaryStatsCalculator.calculateOverallSlope('slopeConsistency');
+        statPoints[currentDayIndex].slopeConfidenceLevel =
+            summaryStatsCalculator
+                .calculateOverallSlope('slopeConfidenceLevel');
       }
     } else {
       // If there's no entry for the current day, no need to undo anything
