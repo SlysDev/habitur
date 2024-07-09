@@ -180,6 +180,8 @@ class StatisticsCalculator {
         return statPoint.consistencyFactor;
       case 'difficultyRating':
         return statPoint.difficultyRating;
+      case 'streak':
+        return statPoint.streak;
       default:
         throw Exception('Invalid statistic name: $statisticName');
     }

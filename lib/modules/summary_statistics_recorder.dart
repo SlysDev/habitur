@@ -39,11 +39,11 @@ class SummaryStatisticsRecorder {
       statPoints[currentDayIndex].difficultyRating =
           summaryStatsCalculator.calculateTodaysStatAverage('difficultyRating');
       statPoints[currentDayIndex].slopeCompletions =
-          summaryStatsCalculator.calculateOverallSlope('slopeCompletions');
+          summaryStatsCalculator.calculateOverallSlope('completions');
       statPoints[currentDayIndex].slopeConsistency =
-          summaryStatsCalculator.calculateOverallSlope('slopeConsistency');
+          summaryStatsCalculator.calculateOverallSlope('consistencyFactor');
       statPoints[currentDayIndex].slopeConfidenceLevel =
-          summaryStatsCalculator.calculateOverallSlope('slopeConfidenceLevel');
+          summaryStatsCalculator.calculateOverallSlope('confidenceLevel');
     } else {
       if (statPoints.isEmpty) {
         StatPoint newStatPoint = StatPoint(
@@ -114,12 +114,11 @@ class SummaryStatisticsRecorder {
         statPoints[currentDayIndex].difficultyRating = summaryStatsCalculator
             .calculateTodaysStatAverage('difficultyRating');
         statPoints[currentDayIndex].slopeCompletions =
-            summaryStatsCalculator.calculateOverallSlope('slopeCompletions');
+            summaryStatsCalculator.calculateOverallSlope('completions');
         statPoints[currentDayIndex].slopeConsistency =
-            summaryStatsCalculator.calculateOverallSlope('slopeConsistency');
+            summaryStatsCalculator.calculateOverallSlope('consistencyFactor');
         statPoints[currentDayIndex].slopeConfidenceLevel =
-            summaryStatsCalculator
-                .calculateOverallSlope('slopeConfidenceLevel');
+            summaryStatsCalculator.calculateOverallSlope('confidenceLevel');
       }
     } else {
       // If there's no entry for the current day, no need to undo anything
