@@ -21,6 +21,7 @@ class HabitDifficultyPopup extends StatefulWidget {
 
 class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
   double chosenDifficulty = 5.0; // Initial difficulty
+  Color highlightColor = kLightGreenAccent.withOpacity(0.3);
 
   void updateDifficulty(double newDifficulty) {
     setState(() {
@@ -33,12 +34,20 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
       child: AlertDialog(
+        surfaceTintColor: Colors.black,
         backgroundColor: kBackgroundColor,
         content: Container(
-          height: 200,
+          alignment: Alignment.center,
+          height: 275,
           width: 300,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text('How difficult was this habit to complete?',
+                  style: kHeadingTextStyle, textAlign: TextAlign.center),
+              SizedBox(
+                height: 20,
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -51,7 +60,7 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
                       child: Text('🤯', style: kHeadingTextStyle),
                       decoration: BoxDecoration(
                         color: chosenDifficulty == 10.0
-                            ? kAccent
+                            ? highlightColor
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -69,7 +78,7 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
                       child: Text('😕', style: kHeadingTextStyle),
                       decoration: BoxDecoration(
                         color: chosenDifficulty == 6.6
-                            ? kAccent
+                            ? highlightColor
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -87,7 +96,7 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
                       child: Text('🙂', style: kHeadingTextStyle),
                       decoration: BoxDecoration(
                         color: chosenDifficulty == 3.3
-                            ? kAccent
+                            ? highlightColor
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -105,7 +114,7 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
                       child: Text('😎', style: kHeadingTextStyle),
                       decoration: BoxDecoration(
                         color: chosenDifficulty == 0
-                            ? kAccent
+                            ? highlightColor
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -114,7 +123,7 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
                 ],
               ),
               SizedBox(
-                height: 60,
+                height: 40,
               ),
               AccentElevatedButton(
                 onPressed: () {
