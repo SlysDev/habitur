@@ -1,6 +1,11 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:habitur/components/accent_elevated_button.dart';
+import 'package:habitur/components/habit_difficulty_popup.dart';
+import 'package:habitur/components/static_card.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
@@ -24,37 +29,56 @@ class HabitCard extends StatelessWidget {
         HabitStatsHandler(Provider.of<HabitManager>(context).habits[index]);
     double progress = habit.completionsToday / habit.requiredCompletions;
     bool completed = habit.completionsToday == habit.requiredCompletions;
-    Function() completeHabit = () {
+    completeHabit(double recordedDifficulty) {
       if (Provider.of<HabitManager>(context, listen: false)
               .habits[index]
               .completionsToday !=
           Provider.of<HabitManager>(context, listen: false)
               .habits[index]
               .requiredCompletions) {
-        habitStatsHandler.incrementCompletion(context);
+        habitStatsHandler.incrementCompletion(context,
+            recordedDifficulty: recordedDifficulty);
         Provider.of<HabitManager>(context, listen: false).updateHabits();
         Provider.of<Database>(context, listen: false).updateHabit(
             Provider.of<HabitManager>(context, listen: false).habits[index]);
       }
-    };
-    Function() decrementHabit = () {
+    }
+
+    ;
+    decrementHabit() {
       habitStatsHandler.decrementCompletion(context);
       Provider.of<HabitManager>(context, listen: false).updateHabits();
       Provider.of<Database>(context, listen: false).updateHabit(
           Provider.of<HabitManager>(context, listen: false).habits[index]);
-    };
-    Function() editHabit = () {
+    }
+
+    ;
+    editHabit() {
       Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => EditHabitScreen(
                     habitIndex: index,
                   )));
-    };
-    Function() deleteHabit = () {
+    }
+
+    ;
+    deleteHabit() {
       Provider.of<HabitManager>(context, listen: false)
           .deleteHabit(context, index);
-    };
+    }
+
+    ;
+    difficultyPopup(BuildContext context, index, onDifficultySelected) async {
+      await showDialog(
+        context: context,
+        builder: (context) => HabitDifficultyPopup(
+          habitIndex: index,
+          onDifficultySelected: onDifficultySelected,
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -66,7 +90,7 @@ class HabitCard extends StatelessWidget {
       },
       child: Slidable(
         startActionPane: ActionPane(
-          motion: DrawerMotion(),
+          motion: const StretchMotion(),
           children: [
             SlidableAction(
               onPressed: (context) {
@@ -92,7 +116,7 @@ class HabitCard extends StatelessWidget {
         child: Column(
           children: [
             AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 600),
               curve: Curves.ease,
               height: 128,
               decoration: BoxDecoration(
@@ -124,14 +148,14 @@ class HabitCard extends StatelessWidget {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {
-                      completeHabit();
+                    onTap: () async {
+                      difficultyPopup(context, index, completeHabit);
                     },
                     onLongPress: () {
                       decrementHabit();
                     },
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 500),
+                      duration: const Duration(milliseconds: 600),
                       curve: Curves.ease,
                       width: 100,
                       height: double.infinity,

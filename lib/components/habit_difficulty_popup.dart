@@ -8,8 +8,12 @@ import 'package:habitur/providers/habit_manager.dart';
 import 'package:provider/provider.dart';
 
 class HabitDifficultyPopup extends StatefulWidget {
-  HabitDifficultyPopup({super.key, required this.habitIndex});
+  HabitDifficultyPopup(
+      {super.key,
+      required this.habitIndex,
+      required this.onDifficultySelected});
   int habitIndex;
+  Function(double) onDifficultySelected;
 
   @override
   State<HabitDifficultyPopup> createState() => _HabitDifficultyPopupState();
@@ -114,12 +118,8 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
               ),
               AccentElevatedButton(
                 onPressed: () {
-                  HabitStatsHandler statsHandler = HabitStatsHandler(
-                      Provider.of<HabitManager>(context, listen: false)
-                          .habits[widget.habitIndex]);
-                  statsHandler.setDifficulty(chosenDifficulty);
-                  Navigator.pop(
-                      context); // Close dialog and return chosen difficulty
+                  widget.onDifficultySelected(chosenDifficulty);
+                  Navigator.pop(context);
                 },
                 child: Text('Submit'),
               ),

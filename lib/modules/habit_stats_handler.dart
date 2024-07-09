@@ -1,9 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:habitur/components/habit_difficulty_popup.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
 import 'package:habitur/modules/summary_statistics_recorder.dart';
 import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
@@ -13,10 +16,12 @@ class HabitStatsHandler {
   Habit habit;
   HabitStatsHandler(this.habit);
 
-  void incrementCompletion(context) {
+  void incrementCompletion(context, {double recordedDifficulty = 5}) async {
     SummaryStatisticsRecorder statsRecorder = SummaryStatisticsRecorder();
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
+    int habitIndex =
+        Provider.of<HabitManager>(context, listen: false).habits.indexOf(habit);
     habit.completionsToday++;
     habit.totalCompletions++;
     if (habit.completionsToday == habit.requiredCompletions) {
@@ -45,6 +50,7 @@ class HabitStatsHandler {
       habit.stats[currentDayIndex].streak = habit.streak;
       habit.stats[currentDayIndex].consistencyFactor = statsCalculator
           .calculateConsistencyFactor(habit.stats, habit.requiredCompletions);
+      habit.stats[currentDayIndex].difficultyRating = recordedDifficulty;
       habit.stats[currentDayIndex].slopeCompletions =
           statsCalculator.calculateStatSlope('completions', habit.stats);
       habit.stats[currentDayIndex].slopeConsistency =
@@ -63,6 +69,7 @@ class HabitStatsHandler {
         streak: habit.streak,
         consistencyFactor: statsCalculator.calculateConsistencyFactor(
             habit.stats, habit.requiredCompletions),
+        difficultyRating: recordedDifficulty,
         slopeCompletions:
             statsCalculator.calculateStatSlope('completions', habit.stats),
         slopeConsistency: statsCalculator.calculateStatSlope(
@@ -155,5 +162,44 @@ class HabitStatsHandler {
     if (habit.streak > habit.highestStreak) {
       habit.highestStreak = habit.streak;
     }
+  }
+
+  void setDifficulty(double newDifficulty, context) {
+    HabitStatisticsCalculator statsCalculator =
+        HabitStatisticsCalculator(habit);
+    int currentDayIndex = habit.stats.indexWhere(
+      (dataPoint) =>
+          dataPoint.date.year == DateTime.now().year &&
+          dataPoint.date.month == DateTime.now().month &&
+          dataPoint.date.day == DateTime.now().day,
+    );
+    if (currentDayIndex != -1) {
+      // If there's an entry for the current day, update the completion count
+      habit.stats[currentDayIndex].completions++;
+      habit.stats[currentDayIndex].slopeDifficultyRating =
+          statsCalculator.calculateStatSlope('difficultyRating', habit.stats);
+    } else {
+      // If there's no entry for the current day, add a new entry
+      StatPoint newStatPoint = StatPoint(
+        date: DateTime.now(),
+        completions: 1,
+        confidenceLevel: statsCalculator.calculateConfidenceLevel(),
+        streak: habit.streak,
+        consistencyFactor: statsCalculator.calculateConsistencyFactor(
+            habit.stats, habit.requiredCompletions),
+        difficultyRating: newDifficulty,
+        slopeCompletions:
+            statsCalculator.calculateStatSlope('completions', habit.stats),
+        slopeConsistency: statsCalculator.calculateStatSlope(
+            'consistencyFactor', habit.stats),
+        slopeConfidenceLevel:
+            statsCalculator.calculateStatSlope('confidenceLevel', habit.stats),
+        slopeDifficultyRating:
+            statsCalculator.calculateStatSlope('difficultyRating', habit.stats),
+        // TODO: Add calculations for slopes
+      );
+      habit.stats.add(newStatPoint);
+    }
+    Provider.of<Database>(context, listen: false).uploadStatistics(context);
   }
 }
