@@ -149,7 +149,9 @@ class HabitCard extends StatelessWidget {
                   ),
                   GestureDetector(
                     onTap: () async {
-                      difficultyPopup(context, index, completeHabit);
+                      if (!completed) {
+                        difficultyPopup(context, index, completeHabit);
+                      }
                     },
                     onLongPress: () {
                       decrementHabit();
