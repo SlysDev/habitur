@@ -57,7 +57,8 @@ class HabitInsightsGenerator {
       return {
         'area': worstSlopeName,
         'message': {
-          'preText': 'This habit\'s $worstSlopeNameFormatted has declined by',
+          'preText':
+              'This habit\'s $worstSlopeNameFormatted has declined ${percentChange != 0.0 ? 'by ' : ''}',
           'percentChange': percentChange.abs().toStringAsFixed(1) + "%",
           'postText': 'in the past ${period} days. $postInsight',
           'fullText':

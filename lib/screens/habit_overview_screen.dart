@@ -101,14 +101,16 @@ class HabitOverviewScreen extends StatelessWidget {
                               text: insightPreText,
                               style: kMainDescription,
                             ),
-                            TextSpan(
-                              text: ' $insightPercentChange ',
-                              style: kMainDescription.copyWith(
-                                color: kOrangeAccent,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                              ),
-                            ),
+                            insightPercentChange == '0.0%'
+                                ? TextSpan()
+                                : TextSpan(
+                                    text: ' $insightPercentChange ',
+                                    style: kMainDescription.copyWith(
+                                      color: kOrangeAccent,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ),
+                                  ),
                             TextSpan(
                               text: insightPostText,
                               style: kMainDescription,
