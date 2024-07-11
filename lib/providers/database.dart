@@ -225,7 +225,6 @@ class Database extends ChangeNotifier {
         requiredDatesOfCompletion: requiredDatesOfCompletionFormatted,
       );
       loadedHabit.stats = dbListToStatPoints(habit.get('stats'));
-      print("loaded habit date:" + loadedHabit.stats[0].date.toString());
       loadedHabit.daysCompleted = daysCompletedFormatted;
       habitList.add(loadedHabit);
     }
