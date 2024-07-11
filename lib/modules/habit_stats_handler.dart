@@ -36,6 +36,10 @@ class HabitStatsHandler {
       }
       habit.daysCompleted.add(DateTime.now());
     }
+    if (habit.isCommunityHabit) {
+      Provider.of<Database>(context, listen: false).uploadStatistics(context);
+      return;
+    }
     int currentDayIndex = habit.stats.indexWhere(
       (dataPoint) =>
           dataPoint.date.year == DateTime.now().year &&
@@ -121,8 +125,10 @@ class HabitStatsHandler {
     habit.completionsToday--;
     habit.totalCompletions--;
 
-    // Update confidence level based on updated stats
-    habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
+    if (habit.isCommunityHabit) {
+      Provider.of<Database>(context, listen: false).uploadStatistics(context);
+      return;
+    }
 
     // Find the StatPoint entry for the current day
     int currentDayIndex = habit.stats.indexWhere((dataPoint) =>
@@ -156,6 +162,8 @@ class HabitStatsHandler {
       // Shouldn't reach here ideally (log a message?)
       print('No entry found for decrementing habit completion in stats.');
     }
+    // Update confidence level based on updated stats
+    habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
 
     statsRecorder.unlogHabitCompletion(context);
     // TODO: Refactor into inc/dec habit + stats functions (separate)

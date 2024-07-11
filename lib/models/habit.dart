@@ -17,6 +17,7 @@ class Habit {
   DateTime lastSeen;
   Color color = kPrimaryColor;
   int id;
+  bool isCommunityHabit;
 
   List<DateTime> daysCompleted = [];
   List<String> requiredDatesOfCompletion = [];
@@ -46,5 +47,6 @@ class Habit {
       this.totalCompletions = 0,
       this.confidenceLevel = 1,
       this.requiredDatesOfCompletion = const [],
+      this.isCommunityHabit = false,
       this.requiredCompletions = 1});
 }

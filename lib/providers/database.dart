@@ -396,7 +396,8 @@ class Database extends ChangeNotifier {
         habit: Habit(
           title: doc.get("habit")["title"],
           requiredCompletions: doc.get("habit")["requiredCompletions"],
-          lastSeen: doc.get("habit")["lastSeen"].toDate(),
+          lastSeen: DateTime.now(),
+          isCommunityHabit: true,
           id: doc.get("habit")["id"],
           resetPeriod: doc.get("habit")["resetPeriod"],
           dateCreated: doc.get("habit")["dateCreated"].toDate(),
@@ -417,6 +418,7 @@ class Database extends ChangeNotifier {
                 userXP: element["user"]["userXP"],
               ),
               fullCompletionCount: element["fullCompletionCount"],
+              currentCompletions: element["currentCompletions"],
             ),
           )
           .toList();

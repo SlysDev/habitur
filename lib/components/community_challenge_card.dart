@@ -33,24 +33,41 @@ class CommunityChallengeCard extends StatelessWidget {
         challenge.currentFullCompletions / challenge.requiredFullCompletions;
     double userProgress =
         currentHabit.completionsToday / currentHabit.requiredCompletions;
-    Function() completeChallenge = () {
+    void completeChallenge() {
       if (currentHabit.completionsToday != currentHabit.requiredCompletions) {
         habitStatsHandler.incrementCompletion(context);
         Provider.of<CommunityChallengeManager>(context, listen: false)
+            .updateParticipantCurrentCompletions(
+                context, challenge, 1); // Increment current completions
+        Provider.of<CommunityChallengeManager>(context, listen: false)
             .checkFullCompletion(context, challenge);
+        if (challenge.currentFullCompletions ==
+            challenge.requiredFullCompletions) {
+          Provider.of<CommunityChallengeManager>(context, listen: false)
+              .updateParticipantFullCompletions(
+                  context, challenge, 1); // Increment full completions
+        }
         Provider.of<CommunityChallengeManager>(context, listen: false)
             .updateChallenges(context);
       }
-    };
-    Function() decrementChallenge = () {
+    }
+
+    void decrementChallenge() {
       if (currentHabit.isCompleted) {
         Provider.of<CommunityChallengeManager>(context, listen: false)
             .decrementFullCompletion(challenge, context);
+        Provider.of<CommunityChallengeManager>(context, listen: false)
+            .updateParticipantFullCompletions(
+                context, challenge, -1); // Decrement full completions
+      } else {
+        habitStatsHandler.decrementCompletion(context);
+        Provider.of<CommunityChallengeManager>(context, listen: false)
+            .updateParticipantCurrentCompletions(
+                context, challenge, -1); // Decrement current completions
       }
-      habitStatsHandler.decrementCompletion(context);
       Provider.of<CommunityChallengeManager>(context, listen: false)
           .updateChallenges(context);
-    };
+    }
 
     return isAdmin
         ? buildAdminCard(context, challenge, currentHabit, totalProgress)

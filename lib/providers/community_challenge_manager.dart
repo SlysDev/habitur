@@ -84,6 +84,62 @@ class CommunityChallengeManager extends ChangeNotifier {
     }
   }
 
+  void updateParticipantCurrentCompletions(
+      BuildContext context, CommunityChallenge challenge, int delta) {
+    UserModel user = Provider.of<UserData>(context, listen: false).currentUser;
+    ParticipantData participantData = challenge.participants
+        .firstWhere((element) => element.user.uid == user.uid);
+
+    if (participantData != null) {
+      participantData.currentCompletions += delta;
+    } else {
+      challenge.addParticipant(ParticipantData(
+          user: user,
+          currentCompletions: delta > 0 ? delta : 0,
+          fullCompletionCount: 0));
+      // Handle case where user is not yet a participant (add them?)
+      print('User not found in participantDataList');
+    }
+  }
+
+  void updateParticipantFullCompletions(
+      BuildContext context, CommunityChallenge challenge, int delta) {
+    UserModel user = Provider.of<UserData>(context, listen: false).currentUser;
+    ParticipantData participantData = challenge.participants.firstWhere(
+        (element) => element.user.uid == user.uid,
+        orElse: () => ParticipantData(
+            user: user,
+            currentCompletions: delta > 0 ? delta : 0,
+            fullCompletionCount: delta > 0 ? delta : 0));
+
+    participantData.fullCompletionCount += delta;
+    if (delta > 0 &&
+        participantData.currentCompletions ==
+            challenge.habit.requiredCompletions) {
+      // User just completed the habit, increment current completions as well
+      participantData.currentCompletions++;
+    }
+  }
+
+// ///
+
+  void incrementParticipantCompletions(
+      BuildContext context, CommunityChallenge challenge) {
+    addParticipantData(
+        context,
+        challenge,
+        ParticipantData(
+            user: Provider.of<UserData>(context, listen: false).currentUser,
+            fullCompletionCount: 1,
+            currentCompletions: challenge.habit.completionsToday));
+  }
+
+  void decrementParticipantCompletions(
+      BuildContext context, CommunityChallenge challenge) {
+    decrementParticipantData(
+        challenge, Provider.of<UserData>(context).currentUser);
+  }
+
   bool checkFullCompletion(BuildContext context, CommunityChallenge challenge) {
     if (challenge.habit.isCompleted == true) {
       challenge.currentFullCompletions++;
@@ -113,29 +169,35 @@ class CommunityChallengeManager extends ChangeNotifier {
         .isEmpty) {
       challenge.addParticipant(newParticipantData);
     } else {
-      challenge.participants
+      ParticipantData currentParticipantData = challenge.participants
           .firstWhere(
-              (element) => element.user.uid == newParticipantData.user.uid)
-          .fullCompletionCount += newParticipantData.fullCompletionCount;
+              (element) => element.user.uid == newParticipantData.user.uid);
+      currentParticipantData.fullCompletionCount +=
+          newParticipantData.fullCompletionCount;
+      currentParticipantData.currentCompletions +=
+          newParticipantData.currentCompletions;
     }
   }
 
   void decrementParticipantData(CommunityChallenge challenge, UserModel user) {
+    ParticipantData participantData = challenge.participants
+        .firstWhere((element) => element.user.uid == user.uid);
+
     if (challenge.participants
         .where((element) => element.user.uid == user.uid)
         .isNotEmpty) {
-      if (challenge.participants
-              .firstWhere((element) => element.user.uid == user.uid)
-              .fullCompletionCount ==
-          0) {
+      if (participantData.fullCompletionCount == 0 &&
+          challenge.habit.completionsToday == 0) {
         challenge.participants
             .removeWhere((element) => element.user.uid == user.uid);
       } else {
-        challenge.participants
-            .firstWhere((element) => element.user.uid == user.uid)
-            .fullCompletionCount--;
+        participantData.currentCompletions--;
+        participantData.fullCompletionCount--;
       }
     } else {
+      if (participantData.currentCompletions > 0) {
+        participantData.currentCompletions--;
+      }
       print('User not found in participantDataList');
     }
   }
