@@ -36,10 +36,10 @@ class HabitStatsHandler {
       }
       habit.daysCompleted.add(DateTime.now());
     }
-    if (habit.isCommunityHabit) {
-      Provider.of<Database>(context, listen: false).uploadStatistics(context);
-      return;
-    }
+    // if (habit.isCommunityHabit) {
+    //   Provider.of<Database>(context, listen: false).uploadStatistics(context);
+    //   return;
+    // }
     int currentDayIndex = habit.stats.indexWhere(
       (dataPoint) =>
           dataPoint.date.year == DateTime.now().year &&

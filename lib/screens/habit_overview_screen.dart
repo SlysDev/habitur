@@ -19,6 +19,7 @@ class HabitOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Overview Screen - habit.stats: ${habit.stats}');
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
     HabitInsightsGenerator insightsGenerator =
