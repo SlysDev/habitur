@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 
-class HabitInsightDisplay extends StatelessWidget {
-  const HabitInsightDisplay({
+class InsightDisplay extends StatelessWidget {
+  const InsightDisplay({
     super.key,
     required this.insightPreText,
     required this.insightPercentChange,

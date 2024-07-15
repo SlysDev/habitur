@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:habitur/components/habit_heat_map.dart';
-import 'package:habitur/components/habit_insight_display.dart';
+import 'package:habitur/components/insight_display.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/components/single-stat-card.dart';
 import 'package:habitur/components/static_card.dart';
@@ -85,7 +85,7 @@ class HabitOverviewScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 60),
-                      HabitInsightDisplay(
+                      InsightDisplay(
                           insightPreText: insightPreText,
                           insightPercentChange: insightPercentChange,
                           insightPostText: insightPostText),

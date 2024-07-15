@@ -5,8 +5,9 @@ import 'package:habitur/modules/stats_calculator.dart';
 
 class InsightsGenerator {
   List<StatPoint> stats;
+  bool isSummary;
 
-  InsightsGenerator(this.stats);
+  InsightsGenerator(this.stats, {this.isSummary = false});
   Map<String, dynamic> findAreaForImprovement({int period = 7}) {
     StatisticsCalculator statsCalculator = StatisticsCalculator();
     Map<String, dynamic> worstSlopeData =
@@ -21,7 +22,7 @@ class InsightsGenerator {
       case 'completions':
         worstSlopeNameFormatted = 'completion count';
         postInsight =
-            'Try "chaining" it with another habit you\'re more comfortable with!';
+            'Try "chaining" ${isSummary ? 'habits with ones' : 'it with another habit'} you\'re more comfortable with!';
         break;
       case 'confidenceLevel':
         worstSlopeNameFormatted = 'confidence level';
@@ -30,7 +31,7 @@ class InsightsGenerator {
       case 'difficultyRating':
         worstSlopeNameFormatted = 'difficulty rating';
         postInsight =
-            'Try making your habit easier––you can ratchet things up with time.';
+            'Try making your ${isSummary ? 'habits' : 'habit'} easier––you can ratchet things up with time.';
         break;
       case 'consistencyFactor':
         worstSlopeNameFormatted = 'consistency';
@@ -58,11 +59,11 @@ class InsightsGenerator {
         'area': worstSlopeName,
         'message': {
           'preText':
-              'This habit\'s $worstSlopeNameFormatted has declined ${percentChange != 0.0 ? 'by ' : ''}',
+              '${isSummary ? 'Your overall' : 'This habit\'s'} $worstSlopeNameFormatted has declined ${percentChange != 0.0 ? 'by' : ''}',
           'percentChange': percentChange.abs().toStringAsFixed(1) + "%",
           'postText': 'in the past ${period} days. $postInsight',
           'fullText':
-              'This habit\'s $worstSlopeNameFormatted has declined by $percentChange% in the past ${period} days.'
+              '${isSummary ? 'Your overall' : 'This habit\'s'} $worstSlopeNameFormatted has declined by $percentChange% in the past ${period} days.'
         },
       };
     }

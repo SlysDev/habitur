@@ -35,8 +35,8 @@ class HabitStatsCard extends StatelessWidget {
               children: [
                 _buildStat("Completions", habit.totalCompletions.toString()),
                 _buildStat("Streak 🔥", habit.streak.toString()),
-                _buildStat("% Completion Rate",
-                    (habit.completionRate * 100).toStringAsFixed(1)),
+                _buildStat("Completion Rate",
+                    (habit.completionRate * 100).toStringAsFixed(1) + "%"),
                 _buildStat("Confidence Level",
                     habit.confidenceLevel.toStringAsFixed(2)),
               ],
