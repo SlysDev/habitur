@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/modules/habit_stats_calculator.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -11,6 +12,8 @@ class HabitStatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    HabitStatisticsCalculator statsCalculator =
+        HabitStatisticsCalculator(habit);
     return Container(
       margin: const EdgeInsets.only(bottom: 40),
       child: StaticCard(
@@ -35,8 +38,13 @@ class HabitStatsCard extends StatelessWidget {
               children: [
                 _buildStat("Completions", habit.totalCompletions.toString()),
                 _buildStat("Streak 🔥", habit.streak.toString()),
-                _buildStat("Completion Rate",
-                    (habit.completionRate * 100).toStringAsFixed(1) + "%"),
+                _buildStat(
+                    "Consistency",
+                    (statsCalculator.calculateConsistencyFactor(
+                                    habit.stats, habit.requiredCompletions) *
+                                100)
+                            .toStringAsFixed(0) +
+                        "%"),
                 _buildStat("Confidence Level",
                     habit.confidenceLevel.toStringAsFixed(2)),
               ],
