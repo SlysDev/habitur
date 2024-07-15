@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:habitur/components/habit_heat_map.dart';
+import 'package:habitur/components/habit_insight_display.dart';
 import 'package:habitur/components/habit_stats_card.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/components/single-stat-card.dart';
@@ -89,41 +90,10 @@ class HabitOverviewScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 60),
-                      Row(
-                        children: [
-                          StaticCard(
-                            child: Icon(Icons.lightbulb),
-                            color: kOrangeAccent,
-                          ),
-                          const SizedBox(width: 20),
-                          Expanded(
-                            child: RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: insightPreText,
-                                    style: kMainDescription,
-                                  ),
-                                  insightPercentChange == '0.0%'
-                                      ? TextSpan()
-                                      : TextSpan(
-                                          text: ' $insightPercentChange ',
-                                          style: kMainDescription.copyWith(
-                                            color: kOrangeAccent,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                  TextSpan(
-                                    text: insightPostText,
-                                    style: kMainDescription,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      HabitInsightDisplay(
+                          insightPreText: insightPreText,
+                          insightPercentChange: insightPercentChange,
+                          insightPostText: insightPostText),
                       const SizedBox(height: 60),
                       GridView.count(
                         physics: const NeverScrollableScrollPhysics(),

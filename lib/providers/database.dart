@@ -24,8 +24,13 @@ class Database extends ChangeNotifier {
     DocumentReference userDoc = users.doc(uid); // create a new doc w/ uid.
     userDoc.set({
       'username': username,
+      'bio': '',
       'email': email,
       'uid': uid,
+      'stats': {'totalHabitsCompleted': 0, 'statPoints': []},
+      'userLevel': 1,
+      'userXP': 0,
+      'isAdmin': false,
     });
     return;
   }
