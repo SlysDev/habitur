@@ -2,17 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:habitur/components/habit_heat_map.dart';
 import 'package:habitur/components/habit_insight_display.dart';
-import 'package:habitur/components/habit_stats_card.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/components/single-stat-card.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
-import 'package:habitur/modules/habit_insights_generator.dart';
+import 'package:habitur/modules/insights_generator.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
-import 'package:habitur/providers/summary_statistics_repository.dart';
-import 'package:provider/provider.dart';
 
 class HabitOverviewScreen extends StatelessWidget {
   Habit habit;
@@ -23,8 +19,7 @@ class HabitOverviewScreen extends StatelessWidget {
     print('Overview Screen - habit.stats: ${habit.stats}');
     HabitStatisticsCalculator statsCalculator =
         HabitStatisticsCalculator(habit);
-    HabitInsightsGenerator insightsGenerator =
-        HabitInsightsGenerator(habit, statsCalculator);
+    InsightsGenerator insightsGenerator = InsightsGenerator(habit.stats);
     Map<String, dynamic> improvementData =
         insightsGenerator.findAreaForImprovement();
     String insightPreText = improvementData['message']['preText'];

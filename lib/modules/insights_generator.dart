@@ -1,20 +1,20 @@
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
+import 'package:habitur/modules/stats_calculator.dart';
 
-class HabitInsightsGenerator {
-  Habit habit;
-  HabitStatisticsCalculator statsCalculator;
+class InsightsGenerator {
+  List<StatPoint> stats;
 
-  HabitInsightsGenerator(this.habit, this.statsCalculator);
+  InsightsGenerator(this.stats);
   Map<String, dynamic> findAreaForImprovement({int period = 7}) {
-    HabitStatisticsCalculator statsCalculator =
-        HabitStatisticsCalculator(habit);
+    StatisticsCalculator statsCalculator = StatisticsCalculator();
     Map<String, dynamic> worstSlopeData =
-        statsCalculator.findWorstSlope(habit.stats, period: period);
+        statsCalculator.findWorstSlope(stats, period: period);
     String worstSlopeName = worstSlopeData['name'] as String;
     double worstSlopeValue = worstSlopeData['value'] as double;
-    double percentChange = statsCalculator.calculatePercentChangeForStat(
-        worstSlopeName, habit.stats);
+    double percentChange =
+        statsCalculator.calculatePercentChangeForStat(worstSlopeName, stats);
     String worstSlopeNameFormatted;
     String postInsight = '';
     switch (worstSlopeName) {
