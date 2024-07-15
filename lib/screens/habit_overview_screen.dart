@@ -30,6 +30,9 @@ class HabitOverviewScreen extends StatelessWidget {
     double confidenceChange =
         statsCalculator.calculateStatChange(habit.stats, 'confidenceLevel');
     String changeSymbol = confidenceChange > 0 ? '↑' : '↓';
+    changeSymbol = confidenceChange == 0 ? '–' : changeSymbol;
+    Color changeColor = confidenceChange > 0 ? Colors.green : Colors.red;
+    changeColor = confidenceChange == 0 ? Colors.white60 : changeColor;
     return Scaffold(
       appBar: AppBar(
         title: Text(habit.title),
@@ -64,16 +67,12 @@ class HabitOverviewScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 20),
                                 StaticCard(
-                                  color: confidenceChange > 0
-                                      ? Colors.green.shade300
-                                      : Colors.red.shade300,
+                                  color: changeColor,
                                   opacity: 0.2,
                                   child: Text(
                                     '${confidenceChange.toStringAsFixed(2)} $changeSymbol',
                                     style: TextStyle(
-                                      color: confidenceChange > 0
-                                          ? Colors.green
-                                          : Colors.red,
+                                      color: changeColor,
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
                                     ),
