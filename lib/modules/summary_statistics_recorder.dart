@@ -17,6 +17,8 @@ class SummaryStatisticsRecorder {
     SummaryStatisticsCalculator summaryStatsCalculator =
         SummaryStatisticsCalculator(
             Provider.of<HabitManager>(context, listen: false).habits);
+    fillInMissingDays(context);
+    sortStats(context);
 
     // Check if there's an entry for the current day
     int currentDayIndex = statPoints.indexWhere(
@@ -94,6 +96,7 @@ class SummaryStatisticsRecorder {
     SummaryStatisticsCalculator summaryStatsCalculator =
         SummaryStatisticsCalculator(
             Provider.of<HabitManager>(context, listen: false).habits);
+    fillInMissingDays(context);
 
     // Check if there's an entry for the current day
     int currentDayIndex = statPoints.indexWhere((stat) =>
@@ -158,5 +161,60 @@ class SummaryStatisticsRecorder {
       statPoints[currentDayIndex].confidenceLevel =
           getAverageConfidenceLevel(context);
     }
+  }
+
+  void fillInMissingDays(context) {
+    SummaryStatisticsCalculator statsCalculator = SummaryStatisticsCalculator(
+        Provider.of<HabitManager>(context, listen: false).habits);
+    List<StatPoint> statPoints =
+        Provider.of<SummaryStatisticsRepository>(context, listen: false)
+            .statPoints;
+    // Create a DateTime object for the start date of the habit
+    if (statPoints.isEmpty) {
+      return;
+    }
+    DateTime startDate = statPoints.first.date;
+
+    // Iterate through each day from the start date to the current date
+    for (DateTime day =
+            DateTime(startDate.year, startDate.month, startDate.day);
+        day.isBefore(DateTime.now());
+        day = day.add(Duration(days: 1))) {
+      // Check if a StatPoint already exists for the current day
+      if (statPoints.indexWhere((dataPoint) =>
+              DateTime(dataPoint.date.year, dataPoint.date.month,
+                  dataPoint.date.day) ==
+              day) ==
+          -1) {
+        // If no StatPoint exists, create a new one with 0 completions
+        StatPoint newStatPoint = StatPoint(
+          date: day,
+          completions: 0,
+          confidenceLevel:
+              statsCalculator.calculateTodaysStatAverage('confidenceLevel'),
+          streak: 0,
+          consistencyFactor:
+              statsCalculator.calculateTodaysStatAverage('consistencyFactor'),
+          difficultyRating:
+              statsCalculator.calculateTodaysStatAverage('difficultyRating'),
+          slopeCompletions:
+              statsCalculator.calculateOverallSlope('completions'),
+          slopeConsistency:
+              statsCalculator.calculateOverallSlope('consistencyFactor'),
+          slopeConfidenceLevel:
+              statsCalculator.calculateOverallSlope('confidenceLevel'),
+          slopeDifficultyRating:
+              statsCalculator.calculateOverallSlope('difficultyRating'),
+        );
+        statPoints.add(newStatPoint);
+      }
+    }
+  }
+
+  void sortStats(context) {
+    List<StatPoint> statPoints =
+        Provider.of<SummaryStatisticsRepository>(context, listen: false)
+            .statPoints;
+    statPoints.sort((a, b) => a.date.compareTo(b.date));
   }
 }
