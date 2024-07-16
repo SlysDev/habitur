@@ -86,14 +86,18 @@ class Database extends ChangeNotifier {
           }
           return StatPoint(
             date: dateTime,
-            completions: element['completions'],
-            confidenceLevel: element['confidenceLevel'].toDouble(),
-            streak: element['streak'],
-            difficultyRating: element['difficultyRating'].toDouble(),
-            slopeCompletions: element['slopeCompletions'].toDouble(),
-            slopeConfidenceLevel: element['slopeConfidenceLevel'].toDouble(),
-            slopeConsistency: element['slopeConsistency'].toDouble(),
-            slopeDifficultyRating: element['slopeDifficultyRating'].toDouble(),
+            completions: element['completions'] ?? 0,
+            confidenceLevel: element['confidenceLevel'] != null
+                ? element['confidenceLevel'].toDouble()
+                : 0,
+            streak: element['streak'] ?? 0,
+            difficultyRating: (element['difficultyRating'] ?? 0).toDouble(),
+            slopeCompletions: (element['slopeCompletions'] ?? 0).toDouble(),
+            slopeConfidenceLevel:
+                (element['slopeConfidenceLevel'] ?? 0).toDouble(),
+            slopeConsistency: (element['slopeConsistency'] ?? 0).toDouble(),
+            slopeDifficultyRating:
+                (element['slopeDifficultyRating'] ?? 0).toDouble(),
           );
         } else {
           print('input was empty');

@@ -4,7 +4,6 @@ import 'package:habitur/constants.dart';
 
 class Habit {
   String title;
-  bool isCompleted = false;
   int proficiencyRating = 0;
   int streak;
   int requiredCompletions;
@@ -22,6 +21,10 @@ class Habit {
   List<DateTime> daysCompleted = [];
   List<String> requiredDatesOfCompletion = [];
   List<StatPoint> stats = [];
+
+  bool get isCompleted {
+    return completionsToday == requiredCompletions;
+  }
 
   double get completionRate {
     if (daysCompleted.isEmpty) {
@@ -45,7 +48,7 @@ class Habit {
       this.highestStreak = 0,
       this.completionsToday = 0,
       this.totalCompletions = 0,
-      this.confidenceLevel = 1,
+      this.confidenceLevel = 0,
       this.requiredDatesOfCompletion = const [],
       this.isCommunityHabit = false,
       this.requiredCompletions = 1});

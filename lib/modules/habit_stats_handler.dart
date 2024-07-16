@@ -25,7 +25,6 @@ class HabitStatsHandler {
     habit.completionsToday++;
     habit.totalCompletions++;
     if (habit.completionsToday == habit.requiredCompletions) {
-      habit.isCompleted = true;
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted++;
       Provider.of<UserData>(context, listen: false).addHabiturRating();
@@ -107,7 +106,6 @@ class HabitStatsHandler {
 
     // Check if decrementing completion would change habit completion status
     if (habit.completionsToday == habit.requiredCompletions) {
-      habit.isCompleted = false;
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted--;
       statsRecorder.recordAverageConfidenceLevel(context);
