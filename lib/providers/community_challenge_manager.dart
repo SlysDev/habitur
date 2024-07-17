@@ -87,8 +87,13 @@ class CommunityChallengeManager extends ChangeNotifier {
   void updateParticipantCurrentCompletions(
       BuildContext context, CommunityChallenge challenge, int delta) {
     UserModel user = Provider.of<UserData>(context, listen: false).currentUser;
-    ParticipantData participantData = challenge.participants
-        .firstWhere((element) => element.user.uid == user.uid);
+    dynamic participantData;
+    try {
+      participantData = challenge.participants
+          .firstWhere((element) => element.user.uid == user.uid);
+    } catch (e) {
+      participantData = null;
+    }
 
     if (participantData != null) {
       participantData.currentCompletions += delta;
