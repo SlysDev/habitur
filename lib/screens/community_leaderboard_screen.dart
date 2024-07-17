@@ -38,7 +38,11 @@ class CommunityLeaderboardScreen extends StatelessWidget {
               ),
               SizedBox(height: 40),
               Text(challenge.habit.title,
-                  style: kTitleTextStyle.copyWith(color: kLightPrimaryColor)),
+                  style: kTitleTextStyle.copyWith(color: kLightPrimaryColor),
+                  textAlign: TextAlign.center),
+              SizedBox(height: 20),
+              Text(challenge.description,
+                  style: kMainDescription, textAlign: TextAlign.center),
               SizedBox(height: 40),
               CircularPercentIndicator(
                 animation: true,

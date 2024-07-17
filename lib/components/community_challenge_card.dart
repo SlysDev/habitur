@@ -60,11 +60,11 @@ class CommunityChallengeCard extends StatelessWidget {
             .updateParticipantFullCompletions(
                 context, challenge, -1); // Decrement full completions
       } else {
-        habitStatsHandler.decrementCompletion(context);
         Provider.of<CommunityChallengeManager>(context, listen: false)
             .updateParticipantCurrentCompletions(
                 context, challenge, -1); // Decrement current completions
       }
+      habitStatsHandler.decrementCompletion(context);
       Provider.of<CommunityChallengeManager>(context, listen: false)
           .updateChallenges(context);
     }
@@ -99,7 +99,6 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
     child: AnimatedContainer(
       alignment: AlignmentDirectional.center,
       duration: const Duration(milliseconds: 500),
-      height: 300,
       width: 475,
       curve: Curves.ease,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
@@ -250,7 +249,6 @@ Widget buildAdminCard(context, challenge, currentHabit, totalProgress) {
   return Slidable(
     child: Container(
       alignment: AlignmentDirectional.center,
-      height: 300,
       width: 475,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
       decoration: BoxDecoration(
