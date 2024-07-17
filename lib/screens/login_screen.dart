@@ -16,7 +16,6 @@ class LoginScreen extends StatelessWidget {
   late String password;
   @override
   Widget build(BuildContext context) {
-    Provider.of<LoginRegistrationState>(context).setLoginSuccess(true);
     return Consumer<LoadingData>(
       builder: (context, loadingData, child) {
         return Scaffold(
@@ -69,8 +68,8 @@ class LoginScreen extends StatelessWidget {
                     }
                   } catch (e) {
                     print(e);
+                    String errorMessage = '';
                     if (e is FirebaseAuthException) {
-                      String errorMessage;
                       switch (e.code) {
                         case 'weak-password':
                           errorMessage =
@@ -100,10 +99,19 @@ class LoginScreen extends StatelessWidget {
                         default:
                           errorMessage = 'An unknown error occurred.';
                       }
-                      Provider.of<LoginRegistrationState>(context,
-                              listen: false)
-                          .loginFail(errorMessage);
+                    } else if (e
+                        .toString()
+                        .contains('LateInitializationError')) {
+                      if (e.toString().contains('email')) {
+                        errorMessage = 'Please enter an email address';
+                      } else if (e.toString().contains('password')) {
+                        errorMessage = 'Please enter a password';
+                      } else {
+                        errorMessage = 'An unknown error has occurred';
+                      }
                     }
+                    Provider.of<LoginRegistrationState>(context, listen: false)
+                        .loginFail(errorMessage);
                   }
                 },
                 text: 'Login',

@@ -86,8 +86,8 @@ class RegisterScreen extends StatelessWidget {
                   }
                 } catch (e) {
                   print(e);
+                  String errorMessage = '';
                   if (e is FirebaseAuthException) {
-                    String errorMessage;
                     switch (e.code) {
                       case 'weak-password':
                         errorMessage =
@@ -96,19 +96,9 @@ class RegisterScreen extends StatelessWidget {
                       case 'invalid-email':
                         errorMessage = 'Please enter a valid email address.';
                         break;
-                      case 'user-not-found':
-                        errorMessage =
-                            'This email is not associated with an account.';
-                        break;
-                      case 'wrong-password':
-                        errorMessage = 'Incorrect email or password.';
-                        break;
-                      case 'user-disabled':
-                        errorMessage = 'This account has been disabled.';
-                        break;
                       case 'too-many-requests':
                         errorMessage =
-                            'Too many login attempts. Please try again later.';
+                            'Too many registration attempts. Please try again later.';
                         break;
                       case 'operation-not-allowed':
                         errorMessage =
@@ -117,9 +107,17 @@ class RegisterScreen extends StatelessWidget {
                       default:
                         errorMessage = 'An unknown error occurred.';
                     }
-                    Provider.of<LoginRegistrationState>(context, listen: false)
-                        .registrationFail(errorMessage);
+                  } else if (e.toString().contains('LateInitializationError')) {
+                    if (e.toString().contains('email')) {
+                      errorMessage = 'Please enter an email address';
+                    } else if (e.toString().contains('password')) {
+                      errorMessage = 'Please enter a password';
+                    } else {
+                      errorMessage = 'An unknown error has occurred';
+                    }
                   }
+                  Provider.of<LoginRegistrationState>(context, listen: false)
+                      .registrationFail(errorMessage);
                 }
               },
               text: 'Register',

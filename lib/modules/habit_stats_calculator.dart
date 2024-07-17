@@ -21,7 +21,8 @@ class HabitStatisticsCalculator extends StatisticsCalculator {
     double consistencyFactor =
         calculateConsistencyFactor(habit.stats, habit.requiredCompletions);
     double successStreakBonus = 1.0;
-    double difficultyWeight = 1 - (habit.stats.last.difficultyRating / 10);
+    double difficultyWeight =
+        habit.stats.isEmpty ? 0 : 1 - (habit.stats.last.difficultyRating / 10);
 
     if (habit.streak > 0) {
       successStreakBonus =

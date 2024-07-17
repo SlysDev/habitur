@@ -1,12 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/screens/welcome_screen.dart';
 import '../providers/settings_data.dart';
 import 'package:provider/provider.dart';
-import '../models/setting.dart';
 
 class SettingsScreen extends StatelessWidget {
   @override
@@ -40,6 +40,17 @@ class SettingsScreen extends StatelessWidget {
                 },
               ),
             ),
+            AsideButton(
+                text: 'Log out',
+                onPressed: () {
+                  late final _auth = FirebaseAuth.instance;
+                  _auth.signOut();
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => WelcomeScreen()),
+                      (route) => false);
+                  Navigator.popAndPushNamed(context, 'welcome_screen');
+                }),
             Provider.of<UserData>(context, listen: false).currentUser.isAdmin
                 ? AsideButton(
                     text: 'Admin Panel',

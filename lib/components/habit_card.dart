@@ -15,32 +15,53 @@ import 'package:habitur/screens/habit_overview_screen.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
 import './rounded_progress_bar.dart';
+import 'package:confetti/confetti.dart';
 
-class HabitCard extends StatelessWidget {
+class HabitCard extends StatefulWidget {
   Color color;
-  Color completeButtonColor = Colors.green;
   int index;
+
   HabitCard({this.color = kFadedBlue, required this.index});
 
   @override
+  State<HabitCard> createState() => _HabitCardState();
+}
+
+class _HabitCardState extends State<HabitCard> {
+  Color completeButtonColor = Colors.green;
+  late ConfettiController _controller;
+  @override
+  void initState() {
+    super.initState();
+    _controller = ConfettiController(duration: const Duration(seconds: 1));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Habit habit = Provider.of<HabitManager>(context).habits[index];
-    HabitStatsHandler habitStatsHandler =
-        HabitStatsHandler(Provider.of<HabitManager>(context).habits[index]);
+    Habit habit = Provider.of<HabitManager>(context).habits[widget.index];
+    HabitStatsHandler habitStatsHandler = HabitStatsHandler(
+        Provider.of<HabitManager>(context).habits[widget.index]);
     double progress = habit.completionsToday / habit.requiredCompletions;
     bool completed = habit.completionsToday == habit.requiredCompletions;
     completeHabit(double recordedDifficulty) {
       if (Provider.of<HabitManager>(context, listen: false)
-              .habits[index]
+              .habits[widget.index]
               .completionsToday !=
           Provider.of<HabitManager>(context, listen: false)
-              .habits[index]
+              .habits[widget.index]
               .requiredCompletions) {
         habitStatsHandler.incrementCompletion(context,
             recordedDifficulty: recordedDifficulty);
         Provider.of<HabitManager>(context, listen: false).updateHabits();
         Provider.of<Database>(context, listen: false).updateHabit(
-            Provider.of<HabitManager>(context, listen: false).habits[index]);
+            Provider.of<HabitManager>(context, listen: false)
+                .habits[widget.index]);
       }
     }
 
@@ -49,7 +70,8 @@ class HabitCard extends StatelessWidget {
       habitStatsHandler.decrementCompletion(context);
       Provider.of<HabitManager>(context, listen: false).updateHabits();
       Provider.of<Database>(context, listen: false).updateHabit(
-          Provider.of<HabitManager>(context, listen: false).habits[index]);
+          Provider.of<HabitManager>(context, listen: false)
+              .habits[widget.index]);
     }
 
     ;
@@ -58,14 +80,14 @@ class HabitCard extends StatelessWidget {
           context,
           MaterialPageRoute(
               builder: (context) => EditHabitScreen(
-                    habitIndex: index,
+                    habitIndex: widget.index,
                   )));
     }
 
     ;
     deleteHabit() {
       Provider.of<HabitManager>(context, listen: false)
-          .deleteHabit(context, index);
+          .deleteHabit(context, widget.index);
     }
 
     ;
@@ -79,105 +101,128 @@ class HabitCard extends StatelessWidget {
       );
     }
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => HabitOverviewScreen(
-                      habit: habit,
-                    )));
-      },
-      child: Slidable(
-        startActionPane: ActionPane(
-          motion: const StretchMotion(),
-          children: [
-            SlidableAction(
-              onPressed: (context) {
-                deleteHabit();
-              },
-              backgroundColor: Colors.red,
-              icon: Icons.delete,
-              borderRadius: BorderRadius.circular(20),
-              label: 'Delete',
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HabitOverviewScreen(
+                          habit: habit,
+                        )));
+          },
+          child: Slidable(
+            startActionPane: ActionPane(
+              motion: const StretchMotion(),
+              children: [
+                SlidableAction(
+                  onPressed: (context) {
+                    deleteHabit();
+                  },
+                  backgroundColor: Colors.red,
+                  icon: Icons.delete,
+                  borderRadius: BorderRadius.circular(20),
+                  label: 'Delete',
+                ),
+                // TODO: Add editing functionality  <23-12-22, slys> //
+                SlidableAction(
+                  onPressed: (context) {
+                    editHabit();
+                  },
+                  backgroundColor: Colors.blue,
+                  icon: Icons.edit,
+                  borderRadius: BorderRadius.circular(20),
+                  label: 'Edit',
+                ),
+              ],
             ),
-            // TODO: Add editing functionality  <23-12-22, slys> //
-            SlidableAction(
-              onPressed: (context) {
-                editHabit();
-              },
-              backgroundColor: Colors.blue,
-              icon: Icons.edit,
-              borderRadius: BorderRadius.circular(20),
-              label: 'Edit',
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 600),
-              curve: Curves.ease,
-              height: 128,
-              decoration: BoxDecoration(
-                color: !completed ? color : color.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            habit.title,
-                            style:
-                                kHeadingTextStyle.copyWith(color: Colors.white),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          RoundedProgressBar(progress: progress),
-                        ],
-                      ),
-                    ),
+            child: Column(
+              children: [
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 600),
+                  curve: Curves.ease,
+                  height: 128,
+                  decoration: BoxDecoration(
+                    color: !completed
+                        ? widget.color
+                        : widget.color.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  GestureDetector(
-                    onTap: () async {
-                      if (!completed) {
-                        difficultyPopup(context, index, completeHabit);
-                      }
-                    },
-                    onLongPress: () {
-                      decrementHabit();
-                    },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 600),
-                      curve: Curves.ease,
-                      width: 100,
-                      height: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                habit.title,
+                                style: kHeadingTextStyle.copyWith(
+                                    color: Colors.white),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              RoundedProgressBar(progress: progress),
+                            ],
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        Icons.check,
-                        size: 30,
-                        color: kLightGreenAccent,
+                      GestureDetector(
+                        onTap: () async {
+                          if (!completed) {
+                            await difficultyPopup(
+                                context, widget.index, completeHabit);
+                            setState(() {
+                              _controller.play();
+                            });
+                          }
+                        },
+                        onLongPress: () {
+                          decrementHabit();
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 600),
+                          curve: Curves.ease,
+                          width: 100,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            Icons.check,
+                            size: 30,
+                            color: kLightGreenAccent,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+        Container(
+          height: 128,
+          child: Align(
+            alignment: Alignment.center,
+            child: ConfettiWidget(
+              emissionFrequency: 0,
+              minBlastForce: 10,
+              numberOfParticles: 10,
+              blastDirectionality: BlastDirectionality.explosive,
+              confettiController: _controller,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

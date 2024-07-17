@@ -24,8 +24,13 @@ class Database extends ChangeNotifier {
     DocumentReference userDoc = users.doc(uid); // create a new doc w/ uid.
     userDoc.set({
       'username': username,
+      'bio': '',
       'email': email,
       'uid': uid,
+      'stats': {'totalHabitsCompleted': 0, 'statPoints': []},
+      'userLevel': 1,
+      'userXP': 0,
+      'isAdmin': false,
     });
     return;
   }
@@ -81,14 +86,18 @@ class Database extends ChangeNotifier {
           }
           return StatPoint(
             date: dateTime,
-            completions: element['completions'],
-            confidenceLevel: element['confidenceLevel'].toDouble(),
-            streak: element['streak'],
-            difficultyRating: element['difficultyRating'].toDouble(),
-            slopeCompletions: element['slopeCompletions'].toDouble(),
-            slopeConfidenceLevel: element['slopeConfidenceLevel'].toDouble(),
-            slopeConsistency: element['slopeConsistency'].toDouble(),
-            slopeDifficultyRating: element['slopeDifficultyRating'].toDouble(),
+            completions: element['completions'] ?? 0,
+            confidenceLevel: element['confidenceLevel'] != null
+                ? element['confidenceLevel'].toDouble()
+                : 0,
+            streak: element['streak'] ?? 0,
+            difficultyRating: (element['difficultyRating'] ?? 0).toDouble(),
+            slopeCompletions: (element['slopeCompletions'] ?? 0).toDouble(),
+            slopeConfidenceLevel:
+                (element['slopeConfidenceLevel'] ?? 0).toDouble(),
+            slopeConsistency: (element['slopeConsistency'] ?? 0).toDouble(),
+            slopeDifficultyRating:
+                (element['slopeDifficultyRating'] ?? 0).toDouble(),
           );
         } else {
           print('input was empty');
@@ -225,7 +234,6 @@ class Database extends ChangeNotifier {
         requiredDatesOfCompletion: requiredDatesOfCompletionFormatted,
       );
       loadedHabit.stats = dbListToStatPoints(habit.get('stats'));
-      print("loaded habit date:" + loadedHabit.stats[0].date.toString());
       loadedHabit.daysCompleted = daysCompletedFormatted;
       habitList.add(loadedHabit);
     }
@@ -396,7 +404,8 @@ class Database extends ChangeNotifier {
         habit: Habit(
           title: doc.get("habit")["title"],
           requiredCompletions: doc.get("habit")["requiredCompletions"],
-          lastSeen: doc.get("habit")["lastSeen"].toDate(),
+          lastSeen: DateTime.now(),
+          isCommunityHabit: true,
           id: doc.get("habit")["id"],
           resetPeriod: doc.get("habit")["resetPeriod"],
           dateCreated: doc.get("habit")["dateCreated"].toDate(),
@@ -417,6 +426,7 @@ class Database extends ChangeNotifier {
                 userXP: element["user"]["userXP"],
               ),
               fullCompletionCount: element["fullCompletionCount"],
+              currentCompletions: element["currentCompletions"],
             ),
           )
           .toList();

@@ -25,7 +25,6 @@ class HabitStatsHandler {
     habit.completionsToday++;
     habit.totalCompletions++;
     if (habit.completionsToday == habit.requiredCompletions) {
-      habit.isCompleted = true;
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted++;
       Provider.of<UserData>(context, listen: false).addHabiturRating();
@@ -36,6 +35,12 @@ class HabitStatsHandler {
       }
       habit.daysCompleted.add(DateTime.now());
     }
+    fillInMissingDays(context);
+    sortHabitStats();
+    // if (habit.isCommunityHabit) {
+    //   Provider.of<Database>(context, listen: false).uploadStatistics(context);
+    //   return;
+    // }
     int currentDayIndex = habit.stats.indexWhere(
       (dataPoint) =>
           dataPoint.date.year == DateTime.now().year &&
@@ -101,7 +106,6 @@ class HabitStatsHandler {
 
     // Check if decrementing completion would change habit completion status
     if (habit.completionsToday == habit.requiredCompletions) {
-      habit.isCompleted = false;
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted--;
       statsRecorder.recordAverageConfidenceLevel(context);
@@ -121,8 +125,13 @@ class HabitStatsHandler {
     habit.completionsToday--;
     habit.totalCompletions--;
 
-    // Update confidence level based on updated stats
-    habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
+    if (habit.isCommunityHabit) {
+      Provider.of<Database>(context, listen: false).uploadStatistics(context);
+      return;
+    }
+
+    fillInMissingDays(context);
+    sortHabitStats();
 
     // Find the StatPoint entry for the current day
     int currentDayIndex = habit.stats.indexWhere((dataPoint) =>
@@ -156,6 +165,8 @@ class HabitStatsHandler {
       // Shouldn't reach here ideally (log a message?)
       print('No entry found for decrementing habit completion in stats.');
     }
+    // Update confidence level based on updated stats
+    habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
 
     statsRecorder.unlogHabitCompletion(context);
     // TODO: Refactor into inc/dec habit + stats functions (separate)
@@ -208,5 +219,46 @@ class HabitStatsHandler {
       habit.stats.add(newStatPoint);
     }
     Provider.of<Database>(context, listen: false).uploadStatistics(context);
+  }
+
+  void fillInMissingDays(context) {
+    HabitStatisticsCalculator statsCalculator =
+        HabitStatisticsCalculator(habit);
+    // Create a DateTime object for the start date of the habit
+    DateTime startDate = habit.dateCreated;
+
+    // Iterate through each day from the start date to the current date
+    for (DateTime day =
+            DateTime(startDate.year, startDate.month, startDate.day);
+        day.isBefore(DateTime.now());
+        day = day.add(Duration(days: 1))) {
+      // Check if a StatPoint already exists for the current day
+      if (habit.stats.indexWhere((dataPoint) =>
+              DateTime(dataPoint.date.year, dataPoint.date.month,
+                  dataPoint.date.day) ==
+              day) ==
+          -1) {
+        // If no StatPoint exists, create a new one with 0 completions
+        StatPoint newStatPoint = StatPoint(
+          date: day,
+          completions: 0,
+          confidenceLevel: statsCalculator.calculateConfidenceLevel(),
+          streak: 0,
+          consistencyFactor: statsCalculator.calculateConsistencyFactor(
+              habit.stats, habit.requiredCompletions),
+          difficultyRating: statsCalculator.calculateAverageValueForStat(
+              'difficultyRating', habit.stats),
+          slopeCompletions: 0,
+          slopeConsistency: 0,
+          slopeConfidenceLevel: 0,
+          slopeDifficultyRating: 0,
+        );
+        habit.stats.add(newStatPoint);
+      }
+    }
+  }
+
+  void sortHabitStats() {
+    habit.stats.sort((a, b) => a.date.compareTo(b.date));
   }
 }

@@ -41,7 +41,6 @@ class CommunityHabitList extends StatelessWidget {
                       CommunityChallengeCard(
                         isAdmin: isAdmin,
                         challenge: currentChallenge,
-                        color: kFadedBlue,
                       ),
                     ],
                   );

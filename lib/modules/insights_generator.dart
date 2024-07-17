@@ -1,27 +1,28 @@
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
+import 'package:habitur/modules/stats_calculator.dart';
 
-class HabitInsightsGenerator {
-  Habit habit;
-  HabitStatisticsCalculator statsCalculator;
+class InsightsGenerator {
+  List<StatPoint> stats;
+  bool isSummary;
 
-  HabitInsightsGenerator(this.habit, this.statsCalculator);
+  InsightsGenerator(this.stats, {this.isSummary = false});
   Map<String, dynamic> findAreaForImprovement({int period = 7}) {
-    HabitStatisticsCalculator statsCalculator =
-        HabitStatisticsCalculator(habit);
+    StatisticsCalculator statsCalculator = StatisticsCalculator();
     Map<String, dynamic> worstSlopeData =
-        statsCalculator.findWorstSlope(habit.stats, period: period);
+        statsCalculator.findWorstSlope(stats, period: period);
     String worstSlopeName = worstSlopeData['name'] as String;
     double worstSlopeValue = worstSlopeData['value'] as double;
-    double percentChange = statsCalculator.calculatePercentChangeForStat(
-        worstSlopeName, habit.stats);
+    double percentChange =
+        statsCalculator.calculatePercentChangeForStat(worstSlopeName, stats);
     String worstSlopeNameFormatted;
     String postInsight = '';
     switch (worstSlopeName) {
       case 'completions':
         worstSlopeNameFormatted = 'completion count';
         postInsight =
-            'Try "chaining" it with another habit you\'re more comfortable with!';
+            'Try "chaining" ${isSummary ? 'habits with ones' : 'it with another habit'} you\'re more comfortable with!';
         break;
       case 'confidenceLevel':
         worstSlopeNameFormatted = 'confidence level';
@@ -30,7 +31,7 @@ class HabitInsightsGenerator {
       case 'difficultyRating':
         worstSlopeNameFormatted = 'difficulty rating';
         postInsight =
-            'Try making your habit easier––you can ratchet things up with time.';
+            'Try making your ${isSummary ? 'habits' : 'habit'} easier––you can ratchet things up with time.';
         break;
       case 'consistencyFactor':
         worstSlopeNameFormatted = 'consistency';
@@ -58,11 +59,11 @@ class HabitInsightsGenerator {
         'area': worstSlopeName,
         'message': {
           'preText':
-              'This habit\'s $worstSlopeNameFormatted has declined ${percentChange != 0.0 ? 'by ' : ''}',
+              '${isSummary ? 'Your overall' : 'This habit\'s'} $worstSlopeNameFormatted has declined ${percentChange != 0.0 ? 'by' : ''}',
           'percentChange': percentChange.abs().toStringAsFixed(1) + "%",
           'postText': 'in the past ${period} days. $postInsight',
           'fullText':
-              'This habit\'s $worstSlopeNameFormatted has declined by $percentChange% in the past ${period} days.'
+              '${isSummary ? 'Your overall' : 'This habit\'s'} $worstSlopeNameFormatted has declined by $percentChange% in the past ${period} days.'
         },
       };
     }
