@@ -1,0 +1,36 @@
+
+- [FILE] {$~} habitur ~/Development/Apps/habitur
+MM   - lib                                                                                                    416 B
+       + components                                                                                           896 B
+ M     - models                                                                                               352 B
+           community_challenge.dart                                                                         1.82 kB
+           data_point.dart                                                                                    151 B
+ M   - lib                                                                                                    416 B
+ M     + components                                                                                           896 B
+       - models                                                                                               352 B
+           community_challenge.dart                                                                         1.82 kB
+           data_point.dart                                                                                    151 B
+         main.dart                                                                                          4.85 kB
+           habit.dart                                                                                       1.39 kB
+ M     + modules                                                                                              256 B
+       + networking                                                                                            96 B
+       + 1 providers+                                                                                         384 B
+M      + screens                                                                                              544 B
+         constants.dart                                                                                     2.64 kB
+       + modules                                                                                              256 B
+       + networking                                                                                            96 B
+       + providers                                                                                            384 B
+ M     + screens+                                                                                             544 B
+         constants.dart                                                                                     2.64 kB
+         main.dart                                                                                          4.85 kB
+     + 2 test                                                                                                  96 B
+         main.dart                                                                                          4.85 kB
+     + 2 test                                                                                                  96 B
+     + 2 test                                                                                                  96 B
+     + 2 test                                                                                                  96 B
+ M     pubspec.lock                                                                                         24.4 kB
+ M     pubspec.yaml                                                                                         4.16 kB
+M      pubspec.lock                                                                                         24.4 kB
+M      pubspec.yaml                                                                                         4.16 kB
+       pubspec.lock                                                                                         24.4 kB
+       pubspec.yaml                                                                                         4.16 kB
