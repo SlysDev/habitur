@@ -15,16 +15,19 @@ class RoundedProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LinearPercentIndicator(
-      percent: progress,
-      barRadius: const Radius.circular(30),
-      lineHeight: lineHeight,
-      animation: true,
-      animationDuration: 600,
-      curve: Curves.ease,
-      animateFromLastPercent: true,
-      progressColor: color,
-      backgroundColor: color.withOpacity(0.2),
+    return Padding(
+      padding: EdgeInsets.all(0),
+      child: LinearPercentIndicator(
+        percent: progress,
+        barRadius: const Radius.circular(30),
+        lineHeight: lineHeight,
+        animation: true,
+        animationDuration: 600,
+        curve: Curves.ease,
+        animateFromLastPercent: true,
+        progressColor: color,
+        backgroundColor: color.withOpacity(0.2),
+      ),
     );
   }
 }
