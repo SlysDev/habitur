@@ -93,7 +93,7 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
           context,
           MaterialPageRoute(
               builder: (context) =>
-                  CommunityLeaderboardScreen(challenge: challenge)));
+                  CommunityChallengeOverviewScreen(challenge: challenge)));
     },
     // TODO: Implement popup screen
     onLongPress: decrementChallenge,
@@ -120,17 +120,18 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
                   animateFromLastPercent: true,
                   curve: Curves.ease,
                   radius: 50,
-                  percent: 1,
+                  percent: totalProgress,
                   progressColor: challenge.currentFullCompletions ==
                           challenge.requiredFullCompletions
                       ? Colors.white
                       : kPrimaryColor,
-                  backgroundColor: Colors.transparent,
+                  backgroundColor: kBackgroundColor.withOpacity(0.3),
                   circularStrokeCap: CircularStrokeCap.round,
                   lineWidth: 10,
                   center: Text(
                     "${(totalProgress * 100).toStringAsFixed(0)}%",
-                    style: kHeadingTextStyle.copyWith(color: Colors.white),
+                    style: kHeadingTextStyle.copyWith(
+                        color: Colors.white, fontSize: 20),
                   ),
                 ),
                 SizedBox(
