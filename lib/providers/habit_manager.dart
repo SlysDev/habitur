@@ -69,6 +69,9 @@ class HabitManager extends ChangeNotifier {
         // If the task was not created today, make it incomplete
         if (DateFormat('d').format(element.lastSeen) !=
             DateFormat('d').format(DateTime.now())) {
+          if (element.completionsToday == 0) {
+            element.streak = 0;
+          }
           habitStatsHandler.resetHabitCompletions();
           element.lastSeen = DateTime.now();
         }
