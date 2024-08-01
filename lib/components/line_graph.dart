@@ -17,7 +17,7 @@ class LineGraph extends StatelessWidget {
     required this.data,
     this.width = 400,
     this.height = 200,
-    this.yAxisInterval = 0.2,
+    this.yAxisInterval = 0,
     this.yAxisTitle = '',
     this.showDots = true,
   });
@@ -46,7 +46,8 @@ class LineGraph extends StatelessWidget {
               sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: width * 0.15,
-                  interval: yAxisInterval,
+                  interval:
+                      yAxisInterval != 0 ? yAxisInterval : double.infinity,
                   getTitlesWidget: (value, meta) {
                     return Center(
                       child: Text(value.toStringAsFixed(1),
