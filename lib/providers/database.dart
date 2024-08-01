@@ -404,7 +404,9 @@ class Database extends ChangeNotifier {
         habit: Habit(
           title: doc.get("habit")["title"],
           requiredCompletions: doc.get("habit")["requiredCompletions"],
-          lastSeen: DateTime.now(),
+          lastSeen: (doc.get("habit")["lastSeen"] != null
+              ? doc.get("habit")["lastSeen"].toDate()
+              : DateTime.now()),
           isCommunityHabit: true,
           id: doc.get("habit")["id"],
           resetPeriod: doc.get("habit")["resetPeriod"],
@@ -443,13 +445,13 @@ class Database extends ChangeNotifier {
           'Latest challenge: ${newChallenges.last.habit.title}, ${newChallenges.last.id}');
     }
     Provider.of<CommunityChallengeManager>(context, listen: false)
+        .setChallenges(newChallenges);
+    Provider.of<CommunityChallengeManager>(context, listen: false)
         .resetDailyChallenges();
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .resetWeeklyChallenges();
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .resetMonthlyChallenges();
-    Provider.of<CommunityChallengeManager>(context, listen: false)
-        .setChallenges(newChallenges);
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .updateChallenges(context);
     print('Community challenges loaded');
@@ -496,6 +498,7 @@ class Database extends ChangeNotifier {
               'title': challenge.habit.title,
               'requiredCompletions': challenge.habit.requiredCompletions,
               'resetPeriod': challenge.habit.resetPeriod,
+              'lastSeen': challenge.habit.lastSeen,
               'id': challenge.habit.id,
               'dateCreated': challenge.habit.dateCreated
             },

@@ -28,7 +28,6 @@ class CommunityHabitList extends StatelessWidget {
             onRefresh: () async {
               Provider.of<Database>(context, listen: false).loadData(context);
               communityChallengeManager.clearDuplicateChallenges();
-              Future.delayed(Duration(seconds: 1));
             },
             child: ListView.builder(
                 itemBuilder: (context, index) {

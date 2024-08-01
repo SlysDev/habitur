@@ -63,16 +63,16 @@ class _HomeScreenState extends State<HomeScreen> {
             HomeGreetingHeader(),
             CommunityHabitList(),
             AsideButton(
-                text: 'Upload user data',
+                text: 'Upload data',
                 onPressed: () {
                   Provider.of<Database>(context, listen: false)
-                      .uploadUserData(context);
+                      .uploadData(context);
                 }),
             AsideButton(
-                text: 'Download user data',
+                text: 'Download data',
                 onPressed: () {
                   Provider.of<Database>(context, listen: false)
-                      .loadUserData(context);
+                      .loadData(context);
                   print('downloaded');
                 }),
             // HabitCardList(
