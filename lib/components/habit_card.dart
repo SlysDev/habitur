@@ -120,7 +120,7 @@ class _HabitCardState extends State<HabitCard> {
                   onPressed: (context) {
                     deleteHabit();
                   },
-                  backgroundColor: Colors.red,
+                  backgroundColor: kRed,
                   icon: Icons.delete,
                   borderRadius: BorderRadius.circular(20),
                   label: 'Delete',
@@ -130,7 +130,7 @@ class _HabitCardState extends State<HabitCard> {
                   onPressed: (context) {
                     editHabit();
                   },
-                  backgroundColor: Colors.blue,
+                  backgroundColor: kDarkPrimaryColor,
                   icon: Icons.edit,
                   borderRadius: BorderRadius.circular(20),
                   label: 'Edit',
