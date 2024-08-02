@@ -84,6 +84,22 @@ class CommunityChallengeManager extends ChangeNotifier {
     }
   }
 
+  // participant methods
+
+  ParticipantData getUserParticipantData(
+      BuildContext context, CommunityChallenge challenge, UserModel user) {
+    ParticipantData participantData;
+    try {
+      participantData = challenge.participants
+          .firstWhere((element) => element.user.uid == user.uid);
+    } catch (e) {
+      participantData = ParticipantData(
+          user: user, lastSeen: DateTime.now(), fullCompletionCount: 0);
+      addParticipantData(context, challenge, participantData);
+    }
+    return participantData;
+  }
+
   void updateParticipantCurrentCompletions(
       BuildContext context, CommunityChallenge challenge, int delta) {
     UserModel user = Provider.of<UserData>(context, listen: false).currentUser;
@@ -222,17 +238,19 @@ class CommunityChallengeManager extends ChangeNotifier {
     }
   }
 
-  void resetDailyChallenges(UserModel user) {
+  void resetDailyChallenges(BuildContext context, UserModel user) {
     for (int i = 0; i < _challenges.length; i++) {
       CommunityChallenge element = _challenges[i];
+      ParticipantData participantData =
+          getUserParticipantData(context, element, user);
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
       if (element.habit.resetPeriod == 'Daily') {
         // If the task was not created today, make it incomplete
-        if (DateFormat('d').format(element.habit.lastSeen) !=
+        if (DateFormat('d').format(participantData.lastSeen) !=
             DateFormat('d').format(DateTime.now())) {
           habitStatsHandler.resetHabitCompletions();
           resetParticipantCurrentCompletions(element, user);
-          element.habit.lastSeen = DateTime.now();
+          participantData.lastSeen = DateTime.now();
         }
       } else {
         return;
@@ -241,18 +259,20 @@ class CommunityChallengeManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetWeeklyChallenges(UserModel user) {
+  void resetWeeklyChallenges(BuildContext context, UserModel user) {
     for (int i = 0; i < _challenges.length; i++) {
       CommunityChallenge element = _challenges[i];
+      ParticipantData participantData =
+          getUserParticipantData(context, element, user);
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
       if (element.habit.resetPeriod == 'Weekly') {
         // If its monday but its not the same day as when the habit was last seen, reset
-        if (DateFormat('d').format(element.habit.lastSeen) == 'Monday' &&
+        if (DateFormat('d').format(participantData.lastSeen) == 'Monday' &&
             DateFormat('d').format(DateTime.now()) !=
-                DateFormat('d').format(element.habit.lastSeen)) {
+                DateFormat('d').format(participantData.lastSeen)) {
           habitStatsHandler.resetHabitCompletions();
           resetParticipantCurrentCompletions(element, user);
-          element.habit.lastSeen = DateTime.now();
+          participantData.lastSeen = DateTime.now();
         }
       } else {
         return;
@@ -261,17 +281,19 @@ class CommunityChallengeManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetMonthlyChallenges(UserModel user) {
+  void resetMonthlyChallenges(BuildContext context, UserModel user) {
     for (int i = 0; i < _challenges.length; i++) {
       CommunityChallenge element = _challenges[i];
+      ParticipantData participantData =
+          getUserParticipantData(context, element, user);
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
       if (element.habit.resetPeriod == 'Monthly') {
         // If the task was not created this month, make it incomplete
-        if (DateFormat('m').format(element.habit.lastSeen) !=
+        if (DateFormat('m').format(participantData.lastSeen) !=
             DateFormat('m').format(DateTime.now())) {
           habitStatsHandler.resetHabitCompletions();
           resetParticipantCurrentCompletions(element, user);
-          element.habit.lastSeen = DateTime.now();
+          participantData.lastSeen = DateTime.now();
         }
       } else {
         return;
