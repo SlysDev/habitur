@@ -5,7 +5,7 @@ class EmphasisCard extends StatelessWidget {
   EmphasisCard({
     super.key,
     required this.child,
-    this.color = kAccent,
+    this.color = kFadedGreen,
     this.borderColor = kPrimaryColor,
     this.borderWidth = 2.0,
   });
