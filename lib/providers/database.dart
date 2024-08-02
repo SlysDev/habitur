@@ -446,12 +446,14 @@ class Database extends ChangeNotifier {
     }
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .setChallenges(newChallenges);
+    UserModel currentUser =
+        Provider.of<UserData>(context, listen: false).currentUser;
     Provider.of<CommunityChallengeManager>(context, listen: false)
-        .resetDailyChallenges();
+        .resetDailyChallenges(currentUser);
     Provider.of<CommunityChallengeManager>(context, listen: false)
-        .resetWeeklyChallenges();
+        .resetWeeklyChallenges(currentUser);
     Provider.of<CommunityChallengeManager>(context, listen: false)
-        .resetMonthlyChallenges();
+        .resetMonthlyChallenges(currentUser);
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .updateChallenges(context);
     print('Community challenges loaded');

@@ -207,7 +207,18 @@ class CommunityChallengeManager extends ChangeNotifier {
     }
   }
 
-  void resetDailyChallenges() {
+  void resetParticipantCurrentCompletions(
+      CommunityChallenge challenge, UserModel user) {
+    ParticipantData participantData = challenge.participants
+        .firstWhere((element) => element.user.uid == user.uid);
+    if (challenge.participants
+        .where((element) => element.user.uid == user.uid)
+        .isNotEmpty) {
+      participantData.currentCompletions = 0;
+    }
+  }
+
+  void resetDailyChallenges(UserModel user) {
     for (int i = 0; i < _challenges.length; i++) {
       CommunityChallenge element = _challenges[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
@@ -216,6 +227,7 @@ class CommunityChallengeManager extends ChangeNotifier {
         if (DateFormat('d').format(element.habit.lastSeen) !=
             DateFormat('d').format(DateTime.now())) {
           habitStatsHandler.resetHabitCompletions();
+          resetParticipantCurrentCompletions(element, user);
           element.habit.lastSeen = DateTime.now();
         }
       } else {
@@ -225,7 +237,7 @@ class CommunityChallengeManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetWeeklyChallenges() {
+  void resetWeeklyChallenges(UserModel user) {
     for (int i = 0; i < _challenges.length; i++) {
       CommunityChallenge element = _challenges[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
@@ -235,6 +247,7 @@ class CommunityChallengeManager extends ChangeNotifier {
             DateFormat('d').format(DateTime.now()) !=
                 DateFormat('d').format(element.habit.lastSeen)) {
           habitStatsHandler.resetHabitCompletions();
+          resetParticipantCurrentCompletions(element, user);
           element.habit.lastSeen = DateTime.now();
         }
       } else {
@@ -244,7 +257,7 @@ class CommunityChallengeManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetMonthlyChallenges() {
+  void resetMonthlyChallenges(UserModel user) {
     for (int i = 0; i < _challenges.length; i++) {
       CommunityChallenge element = _challenges[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
@@ -253,6 +266,7 @@ class CommunityChallengeManager extends ChangeNotifier {
         if (DateFormat('m').format(element.habit.lastSeen) !=
             DateFormat('m').format(DateTime.now())) {
           habitStatsHandler.resetHabitCompletions();
+          resetParticipantCurrentCompletions(element, user);
           element.habit.lastSeen = DateTime.now();
         }
       } else {

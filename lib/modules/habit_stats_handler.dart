@@ -231,7 +231,11 @@ class HabitStatsHandler {
     for (DateTime day =
             DateTime(startDate.year, startDate.month, startDate.day);
         day.isBefore(DateTime.now());
-        day = day.add(Duration(days: 1))) {
+        day = day.add(habit.resetPeriod == 'Monthly'
+            ? Duration(days: 31)
+            : (habit.resetPeriod == 'Weekly'
+                ? Duration(days: 7)
+                : Duration(days: 1)))) {
       // Check if a StatPoint already exists for the current day
       if (habit.stats.indexWhere((dataPoint) =>
               DateTime(dataPoint.date.year, dataPoint.date.month,

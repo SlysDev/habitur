@@ -75,8 +75,6 @@ class HabitManager extends ChangeNotifier {
           habitStatsHandler.resetHabitCompletions();
           element.lastSeen = DateTime.now();
         }
-      } else {
-        return;
       }
     }
 
@@ -96,8 +94,6 @@ class HabitManager extends ChangeNotifier {
           habitStatsHandler.resetHabitCompletions();
           element.lastSeen = DateTime.now();
         }
-      } else {
-        return;
       }
     }
     notifyListeners();
@@ -115,8 +111,6 @@ class HabitManager extends ChangeNotifier {
           habitStatsHandler.resetHabitCompletions();
           element.lastSeen = DateTime.now();
         }
-      } else {
-        return;
       }
     }
     notifyListeners();
