@@ -83,14 +83,25 @@ class HabitManager extends ChangeNotifier {
   }
 
   void resetWeeklyHabits(context) {
+    int getWeekOfYear(DateTime date) {
+      // Adjust for potential differences in week number calculations across platforms
+      // You might need to experiment with different calculations based on your requirements
+      final startOfYear = DateTime(date.year, 1, 1);
+      final weekNumber =
+          ((date.difference(startOfYear).inDays + startOfYear.weekday) / 7)
+                  .floor() +
+              1;
+      return weekNumber;
+    }
+
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
       if (element.resetPeriod == 'Weekly') {
-        // If its monday but its not the same day as when the habit was last seen, reset
-        if (DateFormat('d').format(element.lastSeen) == 'Monday' &&
-            DateFormat('d').format(DateTime.now()) !=
-                DateFormat('d').format(element.lastSeen)) {
+        final now = DateTime.now();
+        final currentWeek = getWeekOfYear(now);
+        final lastResetWeek = getWeekOfYear(element.lastSeen);
+        if (currentWeek > lastResetWeek) {
           habitStatsHandler.resetHabitCompletions();
           element.lastSeen = DateTime.now();
         }
