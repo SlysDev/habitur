@@ -100,6 +100,7 @@ class CommunityChallengeManager extends ChangeNotifier {
     } else {
       challenge.addParticipant(ParticipantData(
           user: user,
+          lastSeen: DateTime.now(),
           currentCompletions: delta > 0 ? delta : 0,
           fullCompletionCount: 0));
       // Handle case where user is not yet a participant (add them?)
@@ -114,6 +115,7 @@ class CommunityChallengeManager extends ChangeNotifier {
         (element) => element.user.uid == user.uid,
         orElse: () => ParticipantData(
             user: user,
+            lastSeen: DateTime.now(),
             currentCompletions: delta > 0 ? delta : 0,
             fullCompletionCount: delta > 0 ? delta : 0));
 
@@ -136,6 +138,7 @@ class CommunityChallengeManager extends ChangeNotifier {
         ParticipantData(
             user: Provider.of<UserData>(context, listen: false).currentUser,
             fullCompletionCount: 1,
+            lastSeen: DateTime.now(),
             currentCompletions: challenge.habit.completionsToday));
   }
 
@@ -153,6 +156,7 @@ class CommunityChallengeManager extends ChangeNotifier {
           challenge,
           ParticipantData(
               user: Provider.of<UserData>(context, listen: false).currentUser,
+              lastSeen: DateTime.now(),
               fullCompletionCount: 1));
       print('updated');
       return true;

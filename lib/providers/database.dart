@@ -427,6 +427,7 @@ class Database extends ChangeNotifier {
                 userLevel: element["user"]["userLevel"],
                 userXP: element["user"]["userXP"],
               ),
+              lastSeen: element["lastSeen"].toDate(),
               fullCompletionCount: element["fullCompletionCount"],
               currentCompletions: element["currentCompletions"],
             ),
@@ -492,6 +493,7 @@ class Database extends ChangeNotifier {
                         'userLevel': element.user.userLevel,
                         'userXP': element.user.userXP,
                       },
+                      'lastSeen': element.lastSeen,
                       'fullCompletionCount': element.fullCompletionCount,
                       'currentCompletions': element.currentCompletions,
                     })
