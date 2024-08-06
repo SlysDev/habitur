@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/data/local/habit_repository.dart';
 import '../components/rounded_tile.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
@@ -423,6 +424,10 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                         );
                         Provider.of<HabitManager>(context, listen: false)
                             .updateHabits();
+                        Provider.of<HabitRepository>(context, listen: false)
+                            .updateHabit(Provider.of<HabitManager>(context,
+                                    listen: false)
+                                .habits[widget.habitIndex]);
                         Navigator.pop(context);
                       },
                       child: const Text('Update'),

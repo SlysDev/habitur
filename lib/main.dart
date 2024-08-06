@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:habitur/data/local/habit_repository.dart';
+import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
@@ -29,14 +34,17 @@ import 'providers/database.dart';
 import 'providers/habit_manager.dart';
 import 'providers/local_storage.dart';
 import 'providers/login_registration_state.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  await Hive.initFlutter();
-  await Hive.openBox("habits_storage");
+  Directory directory = await path_provider.getApplicationDocumentsDirectory();
+  Hive.initFlutter(directory.path);
+  Hive.registerAdapter(HabitAdapter());
+  Hive.registerAdapter(StatPointAdapter());
   runApp(Habitur());
 }
 
@@ -51,6 +59,8 @@ class Habitur extends StatelessWidget {
           ChangeNotifierProvider<HabitManager>(
               create: (context) => HabitManager()),
           ChangeNotifierProvider<Database>(create: (context) => Database()),
+          ChangeNotifierProvider<HabitRepository>(
+              create: (context) => HabitRepository()),
           ChangeNotifierProvider<LoadingData>(
               create: (context) => LoadingData()),
           ChangeNotifierProvider<SettingsData>(
@@ -101,12 +111,8 @@ class Habitur extends StatelessWidget {
             'home_screen_offline': (context) => HomeScreen(
                   isOnline: false,
                 ),
-            'habits_screen': (context) => HabitsScreen(
-                  isOnline: true,
-                ),
-            'habits_screen_offline': (context) => HabitsScreen(
-                  isOnline: false,
-                ),
+            'habits_screen': (context) => HabitsScreen(),
+            'habits_screen_offline': (context) => HabitsScreen(),
             'settings_screen': (context) => SettingsScreen(),
             'statistics_screen': (context) => StatisticsScreen(),
           },

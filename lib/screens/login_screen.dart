@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/data/local/habit_repository.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/login_registration_state.dart';
 import 'package:provider/provider.dart';

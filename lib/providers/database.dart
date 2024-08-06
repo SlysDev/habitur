@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/data/local/habit_repository.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
@@ -194,6 +195,20 @@ class Database extends ChangeNotifier {
     }
   }
 
+  // void loadHabits2(context) async {
+  //   if (HabitRepository.getHabitData().isNotEmpty) {
+  //     HabitRepository.loadData(context);
+  //     Provider.of<HabitManager>(context, listen: false).sortHabits();
+  //     for (Habit habit
+  //         in Provider.of<HabitManager>(context, listen: false).habits) {
+  //       print(habit.title);
+  //       print(habit.streak);
+  //     }
+  //   } else {
+  //     loadHabits(context);
+  //   }
+  // }
+
   void loadHabits(context) async {
     CollectionReference users = _firestore.collection('users');
     DocumentReference userReference =
@@ -256,7 +271,6 @@ class Database extends ChangeNotifier {
 
     for (var habit
         in Provider.of<HabitManager>(context, listen: false).habits) {
-      print('step 1 of loop: looping through real habits');
       if (habitsCollectionSnapshot.size == 0) {
         addHabit(habit);
       } else {
@@ -271,7 +285,6 @@ class Database extends ChangeNotifier {
           addHabit(habit);
         }
       }
-      print('uploaded to database.');
       //// TODO: Upload hive's storage of the habit list to Firebase  <22-12-22, slys> //
     }
   }
@@ -348,7 +361,6 @@ class Database extends ChangeNotifier {
     DocumentSnapshot userSnapshot =
         await users.doc(_auth.currentUser!.uid.toString()).get();
     if (userSnapshot.exists) {
-      print('called from loadStats');
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
               .statPoints =
           dbListToStatPoints(userSnapshot.get('stats')['statPoints']);
@@ -440,8 +452,6 @@ class Database extends ChangeNotifier {
         }
       }
       newChallenges.add(loadedChallenge);
-      print(
-          'Latest challenge: ${newChallenges.last.habit.title}, ${newChallenges.last.id}');
     }
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .setChallenges(newChallenges);

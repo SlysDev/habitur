@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/data/local/habit_repository.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -40,15 +41,15 @@ class HabitManager extends ChangeNotifier {
             : 0));
   }
 
-  void loadHabits(habitList) {
+  void loadHabits(List<Habit> habitList) {
     _habits = habitList;
     notifyListeners();
   }
 
-  void deleteHabit(context, int index) {
-    int habitID = _habits[index].id;
-    _habits.removeAt(index);
-    Provider.of<Database>(context, listen: false).deleteHabit(context, habitID);
+  Future<void> deleteHabit(context, int index) async {
+    int habitID = _sortedHabits[index].id;
+    _sortedHabits.removeAt(index);
+    _habits.removeWhere((element) => element.id == habitID);
     notifyListeners();
   }
 
@@ -126,6 +127,12 @@ class HabitManager extends ChangeNotifier {
     }
     notifyListeners();
     Provider.of<Database>(context, listen: false).uploadHabits(context);
+  }
+
+  void resetHabits(context) {
+    resetDailyHabits(context);
+    resetWeeklyHabits(context);
+    resetMonthlyHabits(context);
   }
 
   bool checkDailyHabits() {

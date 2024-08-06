@@ -33,7 +33,6 @@ class CommunityHabitList extends StatelessWidget {
                 itemBuilder: (context, index) {
                   CommunityChallenge currentChallenge =
                       communityChallengeManager.challenges[index];
-                  print('Challenge title: ${currentChallenge.habit.title}');
                   return Column(
                     children: [
                       SizedBox(height: 30),

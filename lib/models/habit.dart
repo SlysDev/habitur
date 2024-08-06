@@ -1,25 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/constants.dart';
+import 'package:hive/hive.dart';
 
+part 'habit.g.dart';
+
+@HiveType(typeId: 0)
 class Habit {
+  @HiveField(0)
   String title;
+  @HiveField(1)
   int proficiencyRating = 0;
+  @HiveField(2)
   int streak;
+  @HiveField(3)
   int requiredCompletions;
+  @HiveField(4)
   int completionsToday;
+  @HiveField(5)
   int totalCompletions;
+  @HiveField(6)
   int highestStreak;
+  @HiveField(7)
   String resetPeriod;
+  @HiveField(8)
   DateTime dateCreated;
+  @HiveField(9)
   double confidenceLevel;
+  @HiveField(10)
   DateTime lastSeen;
   Color color = kPrimaryColor;
+  @HiveField(11)
   int id;
   bool isCommunityHabit;
 
+  @HiveField(12)
   List<DateTime> daysCompleted = [];
+  @HiveField(13)
   List<String> requiredDatesOfCompletion = [];
+  @HiveField(14)
   List<StatPoint> stats = [];
 
   bool get isCompleted {

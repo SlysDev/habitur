@@ -18,17 +18,17 @@ import '../constants.dart';
 import './rounded_progress_bar.dart';
 import 'package:confetti/confetti.dart';
 
-class HabitCard extends StatefulWidget {
-  Color color;
+class InactiveHabitCard extends StatefulWidget {
+  Color color = Colors.white.withOpacity(0.04);
   int index;
 
-  HabitCard({this.color = kFadedBlue, required this.index});
+  InactiveHabitCard({required this.index});
 
   @override
-  State<HabitCard> createState() => _HabitCardState();
+  State<InactiveHabitCard> createState() => _InactiveHabitCardState();
 }
 
-class _HabitCardState extends State<HabitCard> {
+class _InactiveHabitCardState extends State<InactiveHabitCard> {
   Color completeButtonColor = Colors.green;
   late ConfettiController _controller;
   @override
@@ -46,30 +46,8 @@ class _HabitCardState extends State<HabitCard> {
   @override
   Widget build(BuildContext context) {
     Habit habit = Provider.of<HabitManager>(context).sortedHabits[widget.index];
-    HabitStatsHandler habitStatsHandler = HabitStatsHandler(habit);
     double progress = habit.completionsToday / habit.requiredCompletions;
     bool completed = habit.completionsToday == habit.requiredCompletions;
-    completeHabit(double recordedDifficulty) async {
-      if (habit.completionsToday != habit.requiredCompletions) {
-        habitStatsHandler.incrementCompletion(context,
-            recordedDifficulty: recordedDifficulty);
-        Provider.of<HabitManager>(context, listen: false).updateHabits();
-        Provider.of<Database>(context, listen: false).updateHabit(
-            Provider.of<HabitManager>(context, listen: false)
-                .habits[widget.index]);
-        await Provider.of<HabitRepository>(context, listen: false)
-            .updateHabit(habit);
-      }
-    }
-
-    decrementHabit() async {
-      habitStatsHandler.decrementCompletion(context);
-      Provider.of<HabitManager>(context, listen: false).updateHabits();
-      Provider.of<Database>(context, listen: false).updateHabit(habit);
-      await Provider.of<HabitRepository>(context, listen: false)
-          .updateHabit(habit);
-    }
-
     editHabit() {
       Navigator.push(
           context,
@@ -86,17 +64,6 @@ class _HabitCardState extends State<HabitCard> {
           .deleteHabit(context, habit.id);
       await Provider.of<HabitRepository>(context, listen: false)
           .deleteHabit(habit);
-    }
-
-    ;
-    difficultyPopup(BuildContext context, index, onDifficultySelected) async {
-      await showDialog(
-        context: context,
-        builder: (context) => HabitDifficultyPopup(
-          habitIndex: index,
-          onDifficultySelected: onDifficultySelected,
-        ),
-      );
     }
 
     return Stack(
@@ -160,7 +127,7 @@ class _HabitCardState extends State<HabitCard> {
                               Text(
                                 habit.title,
                                 style: kHeadingTextStyle.copyWith(
-                                    color: Colors.white),
+                                    color: Colors.white.withOpacity(0.75)),
                                 textAlign: TextAlign.center,
                               ),
                               const SizedBox(
@@ -172,31 +139,19 @@ class _HabitCardState extends State<HabitCard> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () async {
-                          if (!completed) {
-                            await difficultyPopup(
-                                context, widget.index, completeHabit);
-                            setState(() {
-                              _controller.play();
-                            });
-                          }
-                        },
-                        onLongPress: () {
-                          decrementHabit();
-                        },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 600),
                           curve: Curves.ease,
                           width: 100,
                           height: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.15),
+                            color: Colors.grey.withOpacity(0.08),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Icon(
                             Icons.check,
                             size: 30,
-                            color: kLightGreenAccent,
+                            color: Colors.grey.withOpacity(0.6),
                           ),
                         ),
                       ),

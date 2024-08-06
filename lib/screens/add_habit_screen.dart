@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/data/local/habit_repository.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/database.dart';
 import '../components/rounded_tile.dart';
@@ -431,6 +432,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                           finalHabit,
                         );
                         Provider.of<Database>(context, listen: false)
+                            .addHabit(finalHabit);
+                        Provider.of<HabitRepository>(context, listen: false)
                             .addHabit(finalHabit);
                         Provider.of<HabitManager>(context, listen: false)
                             .sortHabits();
