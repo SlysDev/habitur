@@ -44,6 +44,7 @@ dependencies:
     intl: ^0.19.0
     flutter_heatmap_calendar: ^1.0.5
     confetti: ^0.7.0
+    awesome_notifications: ^0.9.3+1
 
 dev_dependencies:
     flutter_test:
