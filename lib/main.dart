@@ -4,7 +4,9 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/data/local/habit_repository.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/stat_point.dart';
+import 'package:habitur/models/time_model.dart';
 import 'package:habitur/notifications/notification_controller.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
@@ -47,6 +49,8 @@ void main() async {
   Hive.initFlutter(directory.path);
   Hive.registerAdapter(HabitAdapter());
   Hive.registerAdapter(StatPointAdapter());
+  Hive.registerAdapter(SettingAdapter());
+  Hive.registerAdapter(TimeModelAdapter());
   AwesomeNotifications().initialize(
       // set the icon to null if you want to use the default app icon
       null,
@@ -146,6 +150,45 @@ class _HabiturState extends State<Habitur> {
                       const EdgeInsets.symmetric(vertical: 20, horizontal: 40)),
                   backgroundColor:
                       MaterialStateProperty.all<Color>(kPrimaryColor),
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ))),
+            ),
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: kBackgroundColor,
+              padding: EdgeInsets.all(30),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(40)),
+              dialBackgroundColor: kBackgroundColor,
+              dialHandColor: kPrimaryColor,
+              dialTextStyle: kMainDescription,
+              dayPeriodColor: kBackgroundColor,
+              dayPeriodShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              dayPeriodTextColor: Colors.white,
+              dayPeriodTextStyle: kMainDescription.copyWith(fontSize: 15),
+              hourMinuteShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30)),
+              hourMinuteColor: kBackgroundColor,
+              hourMinuteTextColor: MaterialStateColor.resolveWith((states) =>
+                  states.contains(MaterialState.selected)
+                      ? Colors.white
+                      : kDarkGray),
+              hourMinuteTextStyle: kTitleTextStyle,
+              cancelButtonStyle: ButtonStyle(
+                  padding: MaterialStateProperty.all(EdgeInsets.only(top: 20)),
+                  textStyle: MaterialStateProperty.all(kMainDescription),
+                  foregroundColor: MaterialStateProperty.all(kGray),
+                  elevation: MaterialStateProperty.all(10),
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ))),
+              confirmButtonStyle: ButtonStyle(
+                  padding: MaterialStateProperty.all(EdgeInsets.only(top: 20)),
+                  textStyle: MaterialStateProperty.all(
+                      kMainDescription.copyWith(fontWeight: FontWeight.bold)),
+                  foregroundColor: MaterialStateProperty.all(kPrimaryColor),
+                  elevation: MaterialStateProperty.all(10),
                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ))),

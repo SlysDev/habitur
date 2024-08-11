@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/data/local/habit_repository.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
+import 'package:habitur/notifications/notification_manager.dart';
+import 'package:habitur/notifications/notification_scheduler.dart';
+import 'package:habitur/providers/settings_data.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/habit.dart';
@@ -25,8 +28,21 @@ class HabitManager extends ChangeNotifier {
     return UnmodifiableListView(_sortedHabits);
   }
 
-  void addHabit(Habit habit) {
+  Future<void> addHabit(Habit habit, context) async {
+    NotificationManager notificationManager = NotificationManager();
+    await notificationManager.cancelAllScheduledNotifications();
+    NotificationScheduler notificationScheduler = NotificationScheduler();
     _habits.add(habit);
+    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
+        .dailyReminders
+        .settingValue;
+    if (notificationSetting) {
+      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
+          .numberOfReminders
+          .settingValue;
+      await notificationScheduler.scheduleDefaultTrack(
+          context, numberOfReminders);
+    }
     notifyListeners();
   }
 
@@ -47,14 +63,28 @@ class HabitManager extends ChangeNotifier {
   }
 
   Future<void> deleteHabit(context, int index) async {
+    NotificationManager notificationManager = NotificationManager();
+    await notificationManager.cancelAllScheduledNotifications();
+    NotificationScheduler notificationScheduler = NotificationScheduler();
     int habitID = _sortedHabits[index].id;
     _sortedHabits.removeAt(index);
     _habits.removeWhere((element) => element.id == habitID);
+    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
+        .dailyReminders
+        .settingValue;
+    if (notificationSetting) {
+      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
+          .numberOfReminders
+          .settingValue;
+      await notificationScheduler.scheduleDefaultTrack(
+          context, numberOfReminders);
+    }
     notifyListeners();
   }
 
   void editHabit(int index, Habit newData) {
     _habits[index] = newData;
+    notifyListeners();
   }
 
   void updateHabits() {
@@ -62,7 +92,10 @@ class HabitManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetDailyHabits(context) {
+  Future<void> resetDailyHabits(context) async {
+    NotificationManager notificationManager = NotificationManager();
+    await notificationManager.cancelAllScheduledNotifications();
+    NotificationScheduler notificationScheduler = NotificationScheduler();
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
@@ -78,12 +111,28 @@ class HabitManager extends ChangeNotifier {
         }
       }
     }
+    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
+        .dailyReminders
+        .settingValue;
+    if (notificationSetting) {
+      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
+          .numberOfReminders
+          .settingValue;
+      await notificationScheduler.scheduleDefaultTrack(
+          context, numberOfReminders);
+      await notificationManager.printNotifications();
+    }
 
     notifyListeners();
     Provider.of<Database>(context, listen: false).uploadHabits(context);
+    await Provider.of<HabitRepository>(context, listen: false).uploadAllHabits(
+        Provider.of<HabitManager>(context, listen: false).habits);
   }
 
-  void resetWeeklyHabits(context) {
+  Future<void> resetWeeklyHabits(context) async {
+    NotificationManager notificationManager = NotificationManager();
+    await notificationManager.cancelAllScheduledNotifications();
+    NotificationScheduler notificationScheduler = NotificationScheduler();
     int getWeekOfYear(DateTime date) {
       // Adjust for potential differences in week number calculations across platforms
       // You might need to experiment with different calculations based on your requirements
@@ -108,11 +157,27 @@ class HabitManager extends ChangeNotifier {
         }
       }
     }
+    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
+        .dailyReminders
+        .settingValue;
+    if (notificationSetting) {
+      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
+          .numberOfReminders
+          .settingValue;
+      await notificationScheduler.scheduleDefaultTrack(
+          context, numberOfReminders);
+      await notificationManager.printNotifications();
+    }
     notifyListeners();
     Provider.of<Database>(context, listen: false).uploadHabits(context);
+    await Provider.of<HabitRepository>(context, listen: false).uploadAllHabits(
+        Provider.of<HabitManager>(context, listen: false).habits);
   }
 
-  void resetMonthlyHabits(context) {
+  Future<void> resetMonthlyHabits(context) async {
+    NotificationManager notificationManager = NotificationManager();
+    await notificationManager.cancelAllScheduledNotifications();
+    NotificationScheduler notificationScheduler = NotificationScheduler();
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
@@ -125,14 +190,46 @@ class HabitManager extends ChangeNotifier {
         }
       }
     }
+    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
+        .dailyReminders
+        .settingValue;
+    if (notificationSetting) {
+      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
+          .numberOfReminders
+          .settingValue;
+      await notificationScheduler.scheduleDefaultTrack(
+          context, numberOfReminders);
+      await notificationManager.printNotifications();
+    }
     notifyListeners();
     Provider.of<Database>(context, listen: false).uploadHabits(context);
+    await Provider.of<HabitRepository>(context, listen: false).uploadAllHabits(
+        Provider.of<HabitManager>(context, listen: false).habits);
   }
 
-  void resetHabits(context) {
-    resetDailyHabits(context);
-    resetWeeklyHabits(context);
-    resetMonthlyHabits(context);
+  Future<void> resetHabits(context) async {
+    await resetDailyHabits(context);
+    await resetWeeklyHabits(context);
+    await resetMonthlyHabits(context);
+  }
+
+  List<Habit> getTodaysDueHabits() {
+    List<Habit> todaysHabits = [];
+    for (int i = 0; i < _habits.length; i++) {
+      if (_habits[i].resetPeriod == 'Daily') {
+        if (_habits[i]
+                .requiredDatesOfCompletion
+                .contains(DateFormat('EEEE').format(DateTime.now())) &&
+            !_habits[i].isCompleted) {
+          todaysHabits.add(_habits[i]);
+        }
+      } else {
+        if (_habits[i].isCompleted == false) {
+          todaysHabits.add(_habits[i]);
+        }
+      }
+    }
+    return todaysHabits;
   }
 
   bool checkDailyHabits() {

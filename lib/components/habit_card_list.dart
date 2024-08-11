@@ -16,8 +16,6 @@ class HabitCardList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('HabitsList rebuilt');
-    print(Provider.of<HabitManager>(context).habits.length);
     return Expanded(
       child: SizedBox(
         width: double.infinity,

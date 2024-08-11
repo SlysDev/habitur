@@ -112,7 +112,7 @@ class _HabitCardState extends State<HabitCard> {
           },
           child: Slidable(
             startActionPane: ActionPane(
-              motion: const StretchMotion(),
+              motion: const DrawerMotion(),
               children: [
                 SlidableAction(
                   onPressed: (context) {

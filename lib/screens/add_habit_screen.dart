@@ -428,9 +428,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             requiredDatesOfCompletion: daysActive,
                             requiredCompletions: habitCompletions);
                         Provider.of<HabitManager>(context, listen: false)
-                            .addHabit(
-                          finalHabit,
-                        );
+                            .addHabit(finalHabit, context);
                         Provider.of<Database>(context, listen: false)
                             .addHabit(finalHabit);
                         Provider.of<HabitRepository>(context, listen: false)

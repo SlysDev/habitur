@@ -16,6 +16,7 @@ import 'package:habitur/components/habit_card.dart';
 import '../components/home_greeting_header.dart';
 import 'package:habitur/constants.dart';
 import '../components/habit_card_list.dart';
+import '../notifications/notification_manager.dart';
 
 class HomeScreen extends StatefulWidget {
   bool isOnline;

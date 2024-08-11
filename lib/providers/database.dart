@@ -573,7 +573,7 @@ class Database extends ChangeNotifier {
 
   void loadData(context) async {
     loadUserData(context);
-    loadHabits(context);
+    // loadHabits(context);
     loadStatistics(context);
     loadCommunityChallenges(context);
   }

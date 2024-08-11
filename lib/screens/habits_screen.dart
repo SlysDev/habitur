@@ -5,8 +5,11 @@ import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/data/local/habit_repository.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/notifications/notification_manager.dart';
+import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/settings_data.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:intl/intl.dart';
@@ -22,20 +25,6 @@ class HabitsScreen extends StatefulWidget {
 }
 
 class _HabitsScreenState extends State<HabitsScreen> {
-  @override
-  void initState() {
-    if (Provider.of<HabitRepository>(context, listen: false)
-        .getHabitData()
-        .isNotEmpty) {
-      Provider.of<HabitManager>(context, listen: false).sortHabits();
-      // Provider.of<Database>(context, listen: false).loadHabits2(context);
-    } else {
-      Provider.of<Database>(context, listen: false).loadHabits(context);
-    }
-    // Provider.of<HabitManager>(context, listen: false).resetHabits(context);
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -68,12 +57,33 @@ class _HabitsScreenState extends State<HabitsScreen> {
               children: [
                 HomeGreetingHeader(),
                 AsideButton(
-                    text: 'download data to local storage',
+                    text: 'schedule test notifs',
                     onPressed: () async {
-                      await Provider.of<HabitRepository>(context, listen: false)
-                          .uploadAllHabits(
-                              Provider.of<HabitManager>(context, listen: false)
-                                  .habits);
+                      NotificationManager notificationManager =
+                          NotificationManager();
+                      await notificationManager
+                          .cancelAllScheduledNotifications();
+                      NotificationScheduler notificationScheduler =
+                          NotificationScheduler();
+                      await notificationScheduler
+                          .scheduleTestDefaultTrack(context);
+                    }),
+                AsideButton(
+                    text: 'reschedule notif track',
+                    onPressed: () async {
+                      NotificationManager notificationManager =
+                          NotificationManager();
+                      await notificationManager
+                          .cancelAllScheduledNotifications();
+                      NotificationScheduler notificationScheduler =
+                          NotificationScheduler();
+                      int numberOfReminders =
+                          Provider.of<SettingsData>(context, listen: false)
+                              .numberOfReminders
+                              .settingValue;
+                      await notificationScheduler.scheduleDefaultTrack(
+                          context, numberOfReminders);
+                      notificationManager.printNotifications();
                     }),
                 AsideButton(
                     text: 'clear all LS boxes',

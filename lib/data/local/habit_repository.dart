@@ -59,10 +59,26 @@ class HabitRepository extends ChangeNotifier {
     print('are we loading data?');
     Provider.of<HabitManager>(context, listen: false)
         .loadHabits(getHabitData());
-    print('data loaded');
+    Provider.of<HabitManager>(context, listen: false).resetHabits(context);
+    print('data loaded:');
+    print(getHabitData().length);
+    print(stringifyHabitData());
   }
 
   Habit? getHabitById(int id) {
     return _habitsBox.get(id);
+  }
+
+  String stringifyHabitData() {
+    String output = "";
+    for (Habit habit in getHabitData()) {
+      print(habit.title);
+      output += "${habit.title}:\n";
+      output += "Completions: ${habit.completionsToday}\n";
+      output += "Streak: ${habit.streak}\n";
+      output += "Last seen: ${habit.lastSeen}\n";
+      output += "Days Completed: ${habit.daysCompleted}\n";
+    }
+    return output;
   }
 }
