@@ -32,7 +32,7 @@ import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 // Providers
 import 'providers/user_data.dart';
-import 'providers/settings_data.dart';
+import 'package:habitur/data/local/settings_data.dart';
 import 'providers/loading_data.dart';
 import 'providers/database.dart';
 import 'providers/habit_manager.dart';

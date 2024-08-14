@@ -8,6 +8,7 @@ import 'package:habitur/components/navbar.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/data/local/settings_data.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:intl/intl.dart';
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Provider.of<Database>(context, listen: false).loadData(context);
     }
     Provider.of<Database>(context, listen: false).loadData(context);
+    Provider.of<SettingsData>(context, listen: false).init();
     super.initState();
   }
 

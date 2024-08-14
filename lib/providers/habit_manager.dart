@@ -4,7 +4,7 @@ import 'package:habitur/data/local/habit_repository.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/notifications/notification_scheduler.dart';
-import 'package:habitur/providers/settings_data.dart';
+import 'package:habitur/data/local/settings_data.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/habit.dart';

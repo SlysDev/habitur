@@ -3,7 +3,7 @@ import 'package:habitur/models/time_model.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:collection';
-import '../models/setting.dart';
+import '../../models/setting.dart';
 
 class SettingsData extends ChangeNotifier {
   dynamic _settingsBox;

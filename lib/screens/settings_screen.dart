@@ -16,7 +16,7 @@ import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:habitur/screens/welcome_screen.dart';
-import '../providers/settings_data.dart';
+import 'package:habitur/data/local/settings_data.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatelessWidget {
