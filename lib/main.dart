@@ -7,6 +7,7 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/time_model.dart';
+import 'package:habitur/models/user.dart';
 import 'package:habitur/notifications/notification_controller.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
@@ -51,6 +52,7 @@ void main() async {
   Hive.registerAdapter(StatPointAdapter());
   Hive.registerAdapter(SettingAdapter());
   Hive.registerAdapter(TimeModelAdapter());
+  Hive.registerAdapter(UserModelAdapter());
   AwesomeNotifications().initialize(
       // set the icon to null if you want to use the default app icon
       null,

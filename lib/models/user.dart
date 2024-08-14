@@ -1,16 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:hive/hive.dart';
 
+part 'user.g.dart';
+
+@HiveType(typeId: 4)
 class UserModel {
+  @HiveField(0)
   String username;
+  @HiveField(1)
   String bio;
+  @HiveField(2)
   String email;
+  @HiveField(3)
   String uid;
+  @HiveField(4)
   AssetImage profilePicture;
+  @HiveField(5)
   int userLevel;
+  @HiveField(6)
   int userXP;
   // int userFollowers; (may use, need to reassess SM func.)
   List<Habit> habits = []; // only contain those that are marked private
+  @HiveField(7)
   bool isAdmin;
   UserModel({
     required this.username,
