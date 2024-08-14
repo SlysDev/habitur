@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/navbar.dart';
-import 'package:habitur/data/local/habit_repository.dart';
+import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/data/local/settings_data.dart';
+import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:intl/intl.dart';
@@ -28,7 +28,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<HabitRepository>(context, listen: false)
+      future: Provider.of<HabitsLocalStorage>(context, listen: false)
           .loadData(context),
       builder: (context, snapshot) {
         return Scaffold(
@@ -77,10 +77,11 @@ class _HabitsScreenState extends State<HabitsScreen> {
                           .cancelAllScheduledNotifications();
                       NotificationScheduler notificationScheduler =
                           NotificationScheduler();
-                      int numberOfReminders =
-                          Provider.of<SettingsData>(context, listen: false)
-                              .numberOfReminders
-                              .settingValue;
+                      int numberOfReminders = Provider.of<SettingsLocalStorage>(
+                              context,
+                              listen: false)
+                          .numberOfReminders
+                          .settingValue;
                       await notificationScheduler.scheduleDefaultTrack(
                           context, numberOfReminders);
                       notificationManager.printNotifications();
@@ -88,7 +89,8 @@ class _HabitsScreenState extends State<HabitsScreen> {
                 AsideButton(
                     text: 'clear all LS boxes',
                     onPressed: () async {
-                      await Provider.of<HabitRepository>(context, listen: false)
+                      await Provider.of<HabitsLocalStorage>(context,
+                              listen: false)
                           .close();
                     }),
                 AsideButton(

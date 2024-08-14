@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
-import 'package:habitur/data/local/habit_repository.dart';
+import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/stat_point.dart';
@@ -32,7 +32,7 @@ import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 // Providers
 import 'providers/user_data.dart';
-import 'package:habitur/data/local/settings_data.dart';
+import 'package:habitur/data/local/settings_local_storage.dart';
 import 'providers/loading_data.dart';
 import 'providers/database.dart';
 import 'providers/habit_manager.dart';
@@ -115,12 +115,12 @@ class _HabiturState extends State<Habitur> {
           ChangeNotifierProvider<HabitManager>(
               create: (context) => HabitManager()),
           ChangeNotifierProvider<Database>(create: (context) => Database()),
-          ChangeNotifierProvider<HabitRepository>(
-              create: (context) => HabitRepository()),
+          ChangeNotifierProvider<HabitsLocalStorage>(
+              create: (context) => HabitsLocalStorage()),
           ChangeNotifierProvider<LoadingData>(
               create: (context) => LoadingData()),
-          ChangeNotifierProvider<SettingsData>(
-              create: (context) => SettingsData()),
+          ChangeNotifierProvider<SettingsLocalStorage>(
+              create: (context) => SettingsLocalStorage()),
           ChangeNotifierProvider<LocalStorage>(
               create: (context) => LocalStorage()),
           ChangeNotifierProvider<SummaryStatisticsRepository>(

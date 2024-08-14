@@ -5,7 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:collection';
 import '../../models/setting.dart';
 
-class SettingsData extends ChangeNotifier {
+class SettingsLocalStorage extends ChangeNotifier {
   dynamic _settingsBox;
 
   Setting get dailyReminders {

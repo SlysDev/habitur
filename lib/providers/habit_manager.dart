@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:habitur/data/local/habit_repository.dart';
+import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/notifications/notification_scheduler.dart';
-import 'package:habitur/data/local/settings_data.dart';
+import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/habit.dart';
@@ -33,13 +33,15 @@ class HabitManager extends ChangeNotifier {
     await notificationManager.cancelAllScheduledNotifications();
     NotificationScheduler notificationScheduler = NotificationScheduler();
     _habits.add(habit);
-    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
-        .dailyReminders
-        .settingValue;
+    bool notificationSetting =
+        Provider.of<SettingsLocalStorage>(context, listen: false)
+            .dailyReminders
+            .settingValue;
     if (notificationSetting) {
-      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
-          .numberOfReminders
-          .settingValue;
+      int numberOfReminders =
+          Provider.of<SettingsLocalStorage>(context, listen: false)
+              .numberOfReminders
+              .settingValue;
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
     }
@@ -69,13 +71,15 @@ class HabitManager extends ChangeNotifier {
     int habitID = _sortedHabits[index].id;
     _sortedHabits.removeAt(index);
     _habits.removeWhere((element) => element.id == habitID);
-    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
-        .dailyReminders
-        .settingValue;
+    bool notificationSetting =
+        Provider.of<SettingsLocalStorage>(context, listen: false)
+            .dailyReminders
+            .settingValue;
     if (notificationSetting) {
-      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
-          .numberOfReminders
-          .settingValue;
+      int numberOfReminders =
+          Provider.of<SettingsLocalStorage>(context, listen: false)
+              .numberOfReminders
+              .settingValue;
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
     }
@@ -111,13 +115,15 @@ class HabitManager extends ChangeNotifier {
         }
       }
     }
-    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
-        .dailyReminders
-        .settingValue;
+    bool notificationSetting =
+        Provider.of<SettingsLocalStorage>(context, listen: false)
+            .dailyReminders
+            .settingValue;
     if (notificationSetting) {
-      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
-          .numberOfReminders
-          .settingValue;
+      int numberOfReminders =
+          Provider.of<SettingsLocalStorage>(context, listen: false)
+              .numberOfReminders
+              .settingValue;
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
       await notificationManager.printNotifications();
@@ -125,8 +131,9 @@ class HabitManager extends ChangeNotifier {
 
     notifyListeners();
     Provider.of<Database>(context, listen: false).uploadHabits(context);
-    await Provider.of<HabitRepository>(context, listen: false).uploadAllHabits(
-        Provider.of<HabitManager>(context, listen: false).habits);
+    await Provider.of<HabitsLocalStorage>(context, listen: false)
+        .uploadAllHabits(
+            Provider.of<HabitManager>(context, listen: false).habits);
   }
 
   Future<void> resetWeeklyHabits(context) async {
@@ -157,21 +164,24 @@ class HabitManager extends ChangeNotifier {
         }
       }
     }
-    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
-        .dailyReminders
-        .settingValue;
+    bool notificationSetting =
+        Provider.of<SettingsLocalStorage>(context, listen: false)
+            .dailyReminders
+            .settingValue;
     if (notificationSetting) {
-      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
-          .numberOfReminders
-          .settingValue;
+      int numberOfReminders =
+          Provider.of<SettingsLocalStorage>(context, listen: false)
+              .numberOfReminders
+              .settingValue;
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
       await notificationManager.printNotifications();
     }
     notifyListeners();
     Provider.of<Database>(context, listen: false).uploadHabits(context);
-    await Provider.of<HabitRepository>(context, listen: false).uploadAllHabits(
-        Provider.of<HabitManager>(context, listen: false).habits);
+    await Provider.of<HabitsLocalStorage>(context, listen: false)
+        .uploadAllHabits(
+            Provider.of<HabitManager>(context, listen: false).habits);
   }
 
   Future<void> resetMonthlyHabits(context) async {
@@ -190,21 +200,24 @@ class HabitManager extends ChangeNotifier {
         }
       }
     }
-    bool notificationSetting = Provider.of<SettingsData>(context, listen: false)
-        .dailyReminders
-        .settingValue;
+    bool notificationSetting =
+        Provider.of<SettingsLocalStorage>(context, listen: false)
+            .dailyReminders
+            .settingValue;
     if (notificationSetting) {
-      int numberOfReminders = Provider.of<SettingsData>(context, listen: false)
-          .numberOfReminders
-          .settingValue;
+      int numberOfReminders =
+          Provider.of<SettingsLocalStorage>(context, listen: false)
+              .numberOfReminders
+              .settingValue;
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
       await notificationManager.printNotifications();
     }
     notifyListeners();
     Provider.of<Database>(context, listen: false).uploadHabits(context);
-    await Provider.of<HabitRepository>(context, listen: false).uploadAllHabits(
-        Provider.of<HabitManager>(context, listen: false).habits);
+    await Provider.of<HabitsLocalStorage>(context, listen: false)
+        .uploadAllHabits(
+            Provider.of<HabitManager>(context, listen: false).habits);
   }
 
   Future<void> resetHabits(context) async {

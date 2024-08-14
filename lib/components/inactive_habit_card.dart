@@ -6,7 +6,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/components/accent_elevated_button.dart';
 import 'package:habitur/components/habit_difficulty_popup.dart';
 import 'package:habitur/components/static_card.dart';
-import 'package:habitur/data/local/habit_repository.dart';
+import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
@@ -62,7 +62,7 @@ class _InactiveHabitCardState extends State<InactiveHabitCard> {
           .deleteHabit(context, widget.index);
       Provider.of<Database>(context, listen: false)
           .deleteHabit(context, habit.id);
-      await Provider.of<HabitRepository>(context, listen: false)
+      await Provider.of<HabitsLocalStorage>(context, listen: false)
           .deleteHabit(habit);
     }
 

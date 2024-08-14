@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/habit.dart';
 
-class HabitRepository extends ChangeNotifier {
+class HabitsLocalStorage extends ChangeNotifier {
   dynamic _habitsBox;
 
   Future<void> init() async {

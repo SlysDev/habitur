@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:habitur/data/local/habit_repository.dart';
+import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';

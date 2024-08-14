@@ -5,7 +5,7 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/data/local/settings_data.dart';
+import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:provider/provider.dart';
 
@@ -58,16 +58,18 @@ class NotificationScheduler {
         .isEmpty) {
       return;
     }
-    TimeModel firstNotifTime = Provider.of<SettingsData>(context, listen: false)
-        .getSettingByName('1st Reminder Time')
-        .settingValue;
+    TimeModel firstNotifTime =
+        Provider.of<SettingsLocalStorage>(context, listen: false)
+            .getSettingByName('1st Reminder Time')
+            .settingValue;
     TimeModel secondNotifTime =
-        Provider.of<SettingsData>(context, listen: false)
+        Provider.of<SettingsLocalStorage>(context, listen: false)
             .getSettingByName('2nd Reminder Time')
             .settingValue;
-    TimeModel thirdNotifTime = Provider.of<SettingsData>(context, listen: false)
-        .getSettingByName('3rd Reminder Time')
-        .settingValue;
+    TimeModel thirdNotifTime =
+        Provider.of<SettingsLocalStorage>(context, listen: false)
+            .getSettingByName('3rd Reminder Time')
+            .settingValue;
     // getting notif times from settings
     DateTime now = DateTime.now();
     await notificationManager.scheduleNotification(

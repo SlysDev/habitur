@@ -7,7 +7,7 @@ import 'package:habitur/components/filled_text_field.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/data/local/habit_repository.dart';
+import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/notifications/notification_manager.dart';
@@ -16,7 +16,7 @@ import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/user_data.dart';
 import 'package:habitur/screens/welcome_screen.dart';
-import 'package:habitur/data/local/settings_data.dart';
+import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -24,8 +24,8 @@ class SettingsScreen extends StatelessWidget {
   double gap = 20.0;
   @override
   Widget build(BuildContext context) {
-    SettingsData settingsData =
-        Provider.of<SettingsData>(context, listen: false);
+    SettingsLocalStorage settingsData =
+        Provider.of<SettingsLocalStorage>(context, listen: false);
     return Scaffold(
       body: FutureBuilder(
         future: settingsData.init(),
@@ -34,9 +34,9 @@ class SettingsScreen extends StatelessWidget {
             return CircularProgressIndicator();
           } else {
             Setting dailyReminders =
-                Provider.of<SettingsData>(context).dailyReminders;
+                Provider.of<SettingsLocalStorage>(context).dailyReminders;
             Setting numReminders =
-                Provider.of<SettingsData>(context).numberOfReminders;
+                Provider.of<SettingsLocalStorage>(context).numberOfReminders;
             Setting firstReminderTime =
                 settingsData.getSettingByName('1st Reminder Time');
             Setting secondReminderTime =
@@ -270,7 +270,8 @@ class TimeSettingsListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SettingsData settingsData = Provider.of<SettingsData>(context);
+    SettingsLocalStorage settingsData =
+        Provider.of<SettingsLocalStorage>(context);
     return ListTile(
       title: Text(
         timeSetting.settingName,
