@@ -1,21 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/providers/summary_statistics_repository.dart';
+import 'package:habitur/providers/user_data.dart';
+import 'package:provider/provider.dart';
 
 class InsightDisplay extends StatelessWidget {
-  const InsightDisplay({
+  InsightDisplay({
     super.key,
     required this.insightPreText,
     required this.insightPercentChange,
     required this.insightPostText,
   });
 
-  final String insightPreText;
-  final String insightPercentChange;
-  final String insightPostText;
+  String insightPreText;
+  String insightPercentChange;
+  String insightPostText;
 
   @override
   Widget build(BuildContext context) {
+    if (Provider.of<SummaryStatisticsRepository>(context).statPoints.isEmpty) {
+      insightPreText =
+          'Looks like you haven\'t logged any stats yet! Complete your first habit to get started.';
+      insightPercentChange = '';
+      insightPostText = '';
+    }
     return Row(
       children: [
         StaticCard(

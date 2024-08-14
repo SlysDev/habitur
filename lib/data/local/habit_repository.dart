@@ -69,6 +69,22 @@ class HabitRepository extends ChangeNotifier {
     return _habitsBox.get(id);
   }
 
+  void clearStats() {
+    for (Habit habit in getHabitData()) {
+      Habit clearedHabit = habit;
+      clearedHabit.completionsToday = 0;
+      clearedHabit.streak = 0;
+      clearedHabit.lastSeen = DateTime.now();
+      clearedHabit.daysCompleted = [];
+      clearedHabit.stats = [];
+      clearedHabit.confidenceLevel = 0;
+      clearedHabit.highestStreak = 0;
+      clearedHabit.totalCompletions = 0;
+
+      updateHabit(clearedHabit);
+    }
+  }
+
   String stringifyHabitData() {
     String output = "";
     for (Habit habit in getHabitData()) {

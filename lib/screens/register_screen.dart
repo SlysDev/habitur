@@ -35,24 +35,33 @@ class RegisterScreen extends StatelessWidget {
           const SizedBox(
             height: 40,
           ),
-          FilledTextField(
-            hintText: 'Create your username',
-            onChanged: (newValue) {
-              username = newValue;
-            },
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: FilledTextField(
+              hintText: 'Create your username',
+              onChanged: (newValue) {
+                username = newValue;
+              },
+            ),
           ),
-          FilledTextField(
-            hintText: 'Enter your email',
-            onChanged: (newValue) {
-              email = newValue;
-            },
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: FilledTextField(
+              hintText: 'Enter your email',
+              onChanged: (newValue) {
+                email = newValue;
+              },
+            ),
           ),
-          FilledTextField(
-            obscureText: true,
-            hintText: 'Create your password',
-            onChanged: (newValue) {
-              password = newValue;
-            },
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: FilledTextField(
+              obscureText: true,
+              hintText: 'Create your password',
+              onChanged: (newValue) {
+                password = newValue;
+              },
+            ),
           ),
           AnimatedOpacity(
             duration: const Duration(milliseconds: 700),
@@ -128,7 +137,6 @@ class RegisterScreen extends StatelessWidget {
             child: AsideButton(
               text: 'Login',
               onPressed: () {
-                Navigator.pop(context);
                 Navigator.popAndPushNamed(context, 'login_screen');
               },
             ),

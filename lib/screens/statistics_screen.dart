@@ -74,6 +74,11 @@ class StatisticsScreen extends StatelessWidget {
               insightPostText: insightData['message']['postText'],
             ),
             const SizedBox(height: 60),
+            LineGraph(
+              data:
+                  Provider.of<SummaryStatisticsRepository>(context).statPoints,
+            ),
+            const SizedBox(height: 60),
             const HabitStatsCardList(),
             const SizedBox(height: 20),
             // ... (your existing code)

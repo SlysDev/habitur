@@ -400,6 +400,37 @@ class Database extends ChangeNotifier {
     print('stats uploaded');
   }
 
+  void clearStatistics() async {
+    CollectionReference users = _firestore.collection('users');
+    DocumentReference userReference =
+        users.doc(_auth.currentUser!.uid.toString());
+    var habitsCollectionSnapshot =
+        await userReference.collection('habits').get();
+    userReference.set({
+      'userLevel': 1,
+      'userXP': 0,
+      'stats': {
+        'totalHabitsCompleted': 0,
+        'statPoints': [],
+      }
+    }, SetOptions(merge: true));
+
+    for (var doc in habitsCollectionSnapshot.docs) {
+      doc.reference.set({
+        'completionsToday': 0,
+        'streak': 0,
+        'confidenceLevel': 0,
+        'highestStreak': 0,
+        'totalCompletions': 0,
+        'dateCreated': DateTime.now(),
+        'daysCompleted': [],
+        'stats': {},
+        'lastSeen': DateTime.now(),
+        'resetPeriod': 0,
+      }, SetOptions(merge: true));
+    }
+  }
+
   void loadCommunityChallenges(context) async {
     QuerySnapshot communityChallengesSnapshot =
         await _firestore.collection('community-challenges').get();

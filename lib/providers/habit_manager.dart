@@ -239,4 +239,10 @@ class HabitManager extends ChangeNotifier {
       return false;
     }
   }
+
+  void clearHabitStats() {
+    for (int i = 0; i < _habits.length; i++) {
+      _habits[i].stats = [];
+    }
+  }
 }

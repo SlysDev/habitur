@@ -30,18 +30,24 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(
               height: 40,
             ),
-            FilledTextField(
-              hintText: 'Enter your email',
-              onChanged: (newValue) {
-                email = newValue;
-              },
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: FilledTextField(
+                hintText: 'Enter your email',
+                onChanged: (newValue) {
+                  email = newValue;
+                },
+              ),
             ),
-            FilledTextField(
-              obscureText: true,
-              hintText: 'Enter your password',
-              onChanged: (newValue) {
-                password = newValue;
-              },
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: FilledTextField(
+                obscureText: true,
+                hintText: 'Enter your password',
+                onChanged: (newValue) {
+                  password = newValue;
+                },
+              ),
             ),
             AnimatedOpacity(
               duration: const Duration(milliseconds: 700),
@@ -123,7 +129,6 @@ class LoginScreen extends StatelessWidget {
               child: AsideButton(
                 text: 'Register',
                 onPressed: () {
-                  Navigator.pop(context);
                   Navigator.popAndPushNamed(context, 'register_screen');
                 },
               ),

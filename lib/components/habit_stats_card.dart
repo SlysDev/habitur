@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/components/empty_stats_widget.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/screens/habit_overview_screen.dart';
 import 'package:provider/provider.dart';
 
 class HabitStatsCard extends StatelessWidget {
@@ -28,27 +30,33 @@ class HabitStatsCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            GridView.count(
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              shrinkWrap: true,
-              childAspectRatio: 1.7,
-              children: [
-                _buildStat("Completions", habit.totalCompletions.toString()),
-                _buildStat("Streak 🔥", habit.streak.toString()),
-                _buildStat(
-                    "Consistency",
-                    (statsCalculator.calculateConsistencyFactor(
-                                    habit.stats, habit.requiredCompletions) *
-                                100)
-                            .toStringAsFixed(0) +
-                        "%"),
-                _buildStat("Confidence Level",
-                    habit.confidenceLevel.toStringAsFixed(2)),
-              ],
-            ),
+            habit.stats.isEmpty
+                ? EmptyStatsWidget(
+                    abbreviated: true,
+                  )
+                : GridView.count(
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    shrinkWrap: true,
+                    childAspectRatio: 1.7,
+                    children: [
+                      _buildStat(
+                          "Completions", habit.totalCompletions.toString()),
+                      _buildStat("Streak 🔥", habit.streak.toString()),
+                      _buildStat(
+                          "Consistency",
+                          (statsCalculator.calculateConsistencyFactor(
+                                          habit.stats,
+                                          habit.requiredCompletions) *
+                                      100)
+                                  .toStringAsFixed(0) +
+                              "%"),
+                      _buildStat("Confidence Level",
+                          habit.confidenceLevel.toStringAsFixed(2)),
+                    ],
+                  ),
           ],
         ),
       ),
