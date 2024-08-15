@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:habitur/models/user.dart';
 
 class UserData extends ChangeNotifier {
+  // TODO: Refactor to store summary stats instead of summary stats repo
   int levelUpRequirement = 100;
   UserModel currentUser = UserModel(
       username: 'User', userXP: 0, userLevel: 1, uid: 'N/A', email: 'user');

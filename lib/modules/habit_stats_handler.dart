@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_difficulty_popup.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/stat_point.dart';
@@ -28,6 +29,8 @@ class HabitStatsHandler {
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted++;
       Provider.of<UserData>(context, listen: false).addHabiturRating();
+      await Provider.of<UserLocalStorage>(context, listen: false)
+          .saveData(context);
       Provider.of<Database>(context, listen: false).uploadUserData(context);
       habit.streak++;
       if (habit.streak > habit.highestStreak) {

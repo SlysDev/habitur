@@ -19,9 +19,11 @@ class UserLocalStorage extends ChangeNotifier {
 
   Future<void> loadData(BuildContext context) async {
     await init(); // may need, may not
+    print('initing worked w/ user LS');
     if (_userBox.values.toList().isNotEmpty) {
       Provider.of<UserData>(context, listen: false).currentUser =
           _userBox.getAt(0);
+      print('did we do this?');
     }
   }
 
