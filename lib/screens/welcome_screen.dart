@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/primary-button.dart';
+import 'package:habitur/data/local/auth_local_storage.dart';
 import 'package:habitur/screens/login_screen.dart';
+import 'package:provider/provider.dart';
 import '../constants.dart';
 import '../components/accent_elevated_button.dart';
 import '../components/grayscale_elevated_button.dart';
@@ -9,6 +12,7 @@ import '../components/grayscale_elevated_button.dart';
 class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    FirebaseAuth auth = FirebaseAuth.instance;
     return Scaffold(
       body: Center(
         child: Column(

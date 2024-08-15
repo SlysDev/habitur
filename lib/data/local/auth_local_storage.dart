@@ -36,6 +36,9 @@ class AuthLocalStorage extends ChangeNotifier {
   }
 
   Future<bool> isLoggedIn() async {
+    if (_authBox == null) {
+      await init();
+    }
     return _authBox.containsKey(isLoggedInKey)
         ? _authBox.get(isLoggedInKey) as bool
         : false; // Default to false if key doesn't exist

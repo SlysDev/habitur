@@ -89,7 +89,7 @@ class RegisterScreen extends StatelessWidget {
                       email: email, password: password);
                   if (newUser.user != null) {
                     print('New user created.');
-                    Provider.of<Database>(context, listen: false)
+                    await Provider.of<Database>(context, listen: false)
                         .userSetup(username, email);
                     Navigator.popAndPushNamed(context, 'home_screen');
                   }

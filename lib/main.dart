@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/data/local/auth_local_storage.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/setting.dart';
@@ -47,13 +49,13 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   Directory directory = await path_provider.getApplicationDocumentsDirectory();
-  Hive.initFlutter(directory.path);
+  await Hive.initFlutter(directory.path);
   Hive.registerAdapter(HabitAdapter());
   Hive.registerAdapter(StatPointAdapter());
   Hive.registerAdapter(SettingAdapter());
   Hive.registerAdapter(TimeModelAdapter());
   Hive.registerAdapter(UserModelAdapter());
-  AwesomeNotifications().initialize(
+  await AwesomeNotifications().initialize(
       // set the icon to null if you want to use the default app icon
       null,
       [
@@ -86,6 +88,7 @@ void main() async {
 class Habitur extends StatefulWidget {
   static final GlobalKey<NavigatorState> navigatorKey =
       GlobalKey<NavigatorState>();
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
   State<Habitur> createState() => _HabiturState();
@@ -123,6 +126,8 @@ class _HabiturState extends State<Habitur> {
               create: (context) => LoadingData()),
           ChangeNotifierProvider<SettingsLocalStorage>(
               create: (context) => SettingsLocalStorage()),
+          ChangeNotifierProvider<AuthLocalStorage>(
+              create: (context) => AuthLocalStorage()),
           ChangeNotifierProvider<LocalStorage>(
               create: (context) => LocalStorage()),
           ChangeNotifierProvider<SummaryStatisticsRepository>(
@@ -196,7 +201,9 @@ class _HabiturState extends State<Habitur> {
                   ))),
             ),
           ),
-          initialRoute: 'welcome_screen',
+          initialRoute: widget.auth.currentUser != null
+              ? 'home_screen'
+              : 'welcome_screen',
           routes: {
             'welcome_screen': (context) => WelcomeScreen(),
             'login_screen': (context) => LoginScreen(),
