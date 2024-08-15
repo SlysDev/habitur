@@ -147,7 +147,8 @@ class Database extends ChangeNotifier {
 
 // Database functions
 
-  void loadUserData(context) async {
+  Future<void> loadUserData(context) async {
+    throw Error(); // just mocking an error
     QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
     String uid = _auth.currentUser!.uid.toString();
     for (var user in usersSnapshot.docs) {
@@ -209,7 +210,7 @@ class Database extends ChangeNotifier {
   //   }
   // }
 
-  void loadHabits(context) async {
+  Future<void> loadHabits(context) async {
     CollectionReference users = _firestore.collection('users');
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());
@@ -258,6 +259,8 @@ class Database extends ChangeNotifier {
         .resetWeeklyHabits(context);
     Provider.of<HabitManager>(context, listen: false)
         .resetMonthlyHabits(context);
+    Provider.of<HabitsLocalStorage>(context, listen: false)
+        .uploadAllHabits(context);
   }
 
   void uploadHabits(context) async {
@@ -356,7 +359,7 @@ class Database extends ChangeNotifier {
     habitsCollectionRef.doc(doc.id).delete();
   }
 
-  void loadStatistics(context) async {
+  Future<void> loadStatistics(context) async {
     CollectionReference users = _firestore.collection('users');
     DocumentSnapshot userSnapshot =
         await users.doc(_auth.currentUser!.uid.toString()).get();
@@ -431,7 +434,7 @@ class Database extends ChangeNotifier {
     }
   }
 
-  void loadCommunityChallenges(context) async {
+  Future<void> loadCommunityChallenges(context) async {
     QuerySnapshot communityChallengesSnapshot =
         await _firestore.collection('community-challenges').get();
     List<CommunityChallenge> newChallenges = [];
@@ -603,10 +606,10 @@ class Database extends ChangeNotifier {
   }
 
   void loadData(context) async {
-    loadUserData(context);
-    // loadHabits(context);
-    loadStatistics(context);
-    loadCommunityChallenges(context);
+    await loadUserData(context);
+    await loadHabits(context);
+    await loadStatistics(context);
+    await loadCommunityChallenges(context);
   }
 
   void uploadData(context) async {

@@ -23,6 +23,7 @@ class HabitsLocalStorage extends ChangeNotifier {
 
   Future<void> close() async {
     await Hive.close();
+    // TODO: need to close just habit box
   }
 
   Future<void> addHabit(Habit habit) async {

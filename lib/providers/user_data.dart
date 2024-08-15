@@ -5,6 +5,16 @@ class UserData extends ChangeNotifier {
   int levelUpRequirement = 100;
   UserModel currentUser = UserModel(
       username: 'User', userXP: 0, userLevel: 1, uid: 'N/A', email: 'user');
+  void changeUsername(String newUsername) {
+    currentUser.username = newUsername;
+    notifyListeners();
+  }
+
+  void changeEmail(String newEmail) {
+    currentUser.email = newEmail;
+    notifyListeners();
+  }
+
   void addHabiturRating({int amount = 10}) {
     currentUser.userXP += amount;
     checkLevelUp();

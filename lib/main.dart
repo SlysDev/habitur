@@ -209,12 +209,7 @@ class _HabiturState extends State<Habitur> {
             'login_screen': (context) => LoginScreen(),
             'register_screen': (context) => RegisterScreen(),
             'admin_screen': (context) => AdminScreen(),
-            'home_screen': (context) => HomeScreen(
-                  isOnline: true,
-                ),
-            'home_screen_offline': (context) => HomeScreen(
-                  isOnline: false,
-                ),
+            'home_screen': (context) => HomeScreen(),
             'habits_screen': (context) => HabitsScreen(),
             'habits_screen_offline': (context) => HabitsScreen(),
             'settings_screen': (context) => SettingsScreen(),
