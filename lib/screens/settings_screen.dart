@@ -282,7 +282,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     .email) {
                               Provider.of<UserLocalStorage>(context,
                                       listen: false)
-                                  .changeEmail(email);
+                                  .updateUserProperty('email', email);
                               auth.currentUser!.verifyBeforeUpdateEmail(email);
                               setState(() {
                                 isVerifyingEmail = true;
@@ -300,7 +300,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     .username) {
                               Provider.of<UserLocalStorage>(context,
                                       listen: false)
-                                  .changeUsername(username);
+                                  .updateUserProperty('username', username);
                               auth.currentUser!.updateDisplayName(username);
                               setState(() {
                                 hasUpdatedUsername = true;

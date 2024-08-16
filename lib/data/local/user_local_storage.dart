@@ -22,8 +22,18 @@ class UserLocalStorage extends ChangeNotifier {
     print('initing worked w/ user LS');
     if (_userBox.values.toList().isNotEmpty) {
       Provider.of<UserLocalStorage>(context, listen: false).currentUser =
-          _userBox.getAt(0);
+          _userBox.get(0);
       print('did we do this?');
+    } else {
+      Provider.of<UserLocalStorage>(context, listen: false).currentUser =
+          UserModel(
+        username: 'Guest',
+        email: 'N/A',
+        userLevel: 1,
+        userXP: 0,
+        uid: 'N/A',
+        profilePicture: const AssetImage('assets/images/default-profile.png'),
+      );
     }
   }
 
@@ -33,10 +43,9 @@ class UserLocalStorage extends ChangeNotifier {
   }
 
   // TODO: Refactor to store summary stats instead of summary stats repo
-  int levelUpRequirement = 100;
   UserModel get currentUser {
     if (_userBox.values.toList().isEmpty) {
-      return UserModel(
+      UserModel newUser = UserModel(
         username: 'Guest',
         email: 'N/A',
         userLevel: 1,
@@ -44,28 +53,34 @@ class UserLocalStorage extends ChangeNotifier {
         uid: 'N/A',
         profilePicture: const AssetImage('assets/images/default-profile.png'),
       );
+      return newUser;
     } else {
-      return _userBox.getAt(0);
+      return _userBox.get(0);
     }
   }
 
-  void set currentUser(UserModel value) {
-    _userBox.putAt(0, value);
+  set currentUser(UserModel value) {
+    _userBox.put(0, value);
     notifyListeners();
   }
 
-  void changeUsername(String newUsername) {
-    currentUser.username = newUsername;
-    notifyListeners();
-  }
-
-  void changeEmail(String newEmail) {
-    currentUser.email = newEmail;
+  void updateUserProperty(String propertyName, dynamic newValue) {
+    final user = _userBox.get(0);
+    final updatedUser = UserModel(
+      username: propertyName == "username" ? newValue : user.username,
+      email: propertyName == "email" ? newValue : user.email,
+      userLevel: propertyName == "userLevel" ? newValue : user.userLevel,
+      userXP: propertyName == "userXP" ? newValue : user.userXP,
+      uid: propertyName == "uid" ? newValue : user.uid,
+      profilePicture:
+          propertyName == "profilePicture" ? newValue : user.profilePicture,
+    );
+    currentUser = updatedUser;
     notifyListeners();
   }
 
   void addHabiturRating({int amount = 10}) {
-    currentUser.userXP += amount;
+    updateUserProperty('userXP', currentUser.userXP + amount);
     checkLevelUp();
     notifyListeners();
   }
@@ -75,24 +90,24 @@ class UserLocalStorage extends ChangeNotifier {
       levelDown();
     }
     if (currentUser.userLevel == 1 && currentUser.userXP < amount) {
-      currentUser.userXP = 0;
+      updateUserProperty('userXP', 0);
       return;
     }
-    currentUser.userXP -= amount;
+    updateUserProperty('userXP', currentUser.userXP - amount);
     checkLevelUp();
     notifyListeners();
   }
 
   void checkLevelUp() {
-    if (currentUser.userXP >= levelUpRequirement) {
+    if (currentUser.userXP >= currentUser.levelUpRequirement) {
       levelUp();
     }
   }
 
   void levelUp() {
-    currentUser.userLevel++;
+    updateUserProperty('userLevel', currentUser.userLevel + 1);
     currentUser.userXP = 0;
-    levelUpRequirement += (levelUpRequirement * 0.5).ceil();
+    updateUserProperty('userXP', 0);
     notifyListeners();
   }
 
@@ -100,8 +115,7 @@ class UserLocalStorage extends ChangeNotifier {
     if (currentUser.userLevel == 1) {
       return;
     }
-    currentUser.userLevel--;
-    levelUpRequirement -= (levelUpRequirement * 0.5).ceil();
-    currentUser.userXP = levelUpRequirement;
+    updateUserProperty('userLevel', currentUser.userLevel - 1);
+    updateUserProperty('userXP', currentUser.levelUpRequirement);
   }
 }

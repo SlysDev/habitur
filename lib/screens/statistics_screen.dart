@@ -49,14 +49,16 @@ class StatisticsScreen extends StatelessWidget {
                   progress: Provider.of<UserLocalStorage>(context)
                           .currentUser
                           .userXP /
-                      Provider.of<UserLocalStorage>(context).levelUpRequirement,
+                      Provider.of<UserLocalStorage>(context)
+                          .currentUser
+                          .levelUpRequirement,
                 ),
               ),
             ),
             const SizedBox(height: 10),
             Center(
               child: Text(
-                  "${Provider.of<UserLocalStorage>(context).currentUser.userXP} / ${Provider.of<UserLocalStorage>(context).levelUpRequirement}",
+                  "${Provider.of<UserLocalStorage>(context).currentUser.userXP} / ${Provider.of<UserLocalStorage>(context).currentUser.levelUpRequirement}",
                   style: kHeadingTextStyle.copyWith(fontSize: 20)),
             ),
             const SizedBox(

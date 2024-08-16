@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:hive/hive.dart';
@@ -14,7 +16,6 @@ class UserModel {
   String email;
   @HiveField(3)
   String uid;
-  @HiveField(4)
   AssetImage profilePicture;
   @HiveField(5)
   int userLevel;
@@ -24,6 +25,10 @@ class UserModel {
   List<Habit> habits = []; // only contain those that are marked private
   @HiveField(7)
   bool isAdmin;
+  int get levelUpRequirement {
+    return 100 * pow(1.5, userLevel).ceil();
+  }
+
   UserModel({
     required this.username,
     this.bio = '',

@@ -61,7 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              HomeGreetingHeader(),
+              snapshot.connectionState == ConnectionState.waiting
+                  ? CircularProgressIndicator()
+                  : HomeGreetingHeader(),
               CommunityHabitList(),
               AsideButton(
                   text: 'Upload data',

@@ -49,7 +49,9 @@ class HomeGreetingHeader extends StatelessWidget {
         child: RoundedProgressBar(
           color: kPrimaryColor,
           progress: Provider.of<UserLocalStorage>(context).currentUser.userXP /
-              Provider.of<UserLocalStorage>(context).levelUpRequirement,
+              Provider.of<UserLocalStorage>(context)
+                  .currentUser
+                  .levelUpRequirement,
         ),
       ),
       // Row(
