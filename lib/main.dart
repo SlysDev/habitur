@@ -34,7 +34,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 // Providers
-import 'providers/user_data.dart';
+import 'data/local/user_local_storage.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'providers/loading_data.dart';
 import 'providers/database.dart';
@@ -114,7 +114,8 @@ class _HabiturState extends State<Habitur> {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider<UserData>(create: (context) => UserData()),
+          ChangeNotifierProvider<UserLocalStorage>(
+              create: (context) => UserLocalStorage()),
           ChangeNotifierProvider<LoginRegistrationState>(
               create: (context) => LoginRegistrationState()),
           ChangeNotifierProvider<HabitManager>(

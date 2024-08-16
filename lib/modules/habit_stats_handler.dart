@@ -9,7 +9,7 @@ import 'package:habitur/modules/summary_statistics_recorder.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 
@@ -28,7 +28,7 @@ class HabitStatsHandler {
     if (habit.completionsToday == habit.requiredCompletions) {
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted++;
-      Provider.of<UserData>(context, listen: false).addHabiturRating();
+      Provider.of<UserLocalStorage>(context, listen: false).addHabiturRating();
       await Provider.of<UserLocalStorage>(context, listen: false)
           .saveData(context);
       Provider.of<Database>(context, listen: false).uploadUserData(context);
@@ -117,7 +117,8 @@ class HabitStatsHandler {
         habit.daysCompleted.removeLast();
       }
 
-      Provider.of<UserData>(context, listen: false).removeHabiturRating();
+      Provider.of<UserLocalStorage>(context, listen: false)
+          .removeHabiturRating();
       Provider.of<Database>(context, listen: false).uploadUserData(context);
     }
 

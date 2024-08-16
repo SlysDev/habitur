@@ -11,7 +11,7 @@ import '../components/rounded_progress_bar.dart';
 import '../constants.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
-import '../providers/user_data.dart';
+import '../data/local/user_local_storage.dart';
 
 class StatisticsScreen extends StatelessWidget {
   const StatisticsScreen({
@@ -32,7 +32,10 @@ class StatisticsScreen extends StatelessWidget {
             const SizedBox(height: 30),
             Center(
               child: Text(
-                Provider.of<UserData>(context).currentUser.userLevel.toString(),
+                Provider.of<UserLocalStorage>(context)
+                    .currentUser
+                    .userLevel
+                    .toString(),
                 style: kTitleTextStyle,
                 textAlign: TextAlign.center,
               ),
@@ -43,15 +46,17 @@ class StatisticsScreen extends StatelessWidget {
                 child: RoundedProgressBar(
                   lineHeight: 25,
                   color: kPrimaryColor,
-                  progress: Provider.of<UserData>(context).currentUser.userXP /
-                      Provider.of<UserData>(context).levelUpRequirement,
+                  progress: Provider.of<UserLocalStorage>(context)
+                          .currentUser
+                          .userXP /
+                      Provider.of<UserLocalStorage>(context).levelUpRequirement,
                 ),
               ),
             ),
             const SizedBox(height: 10),
             Center(
               child: Text(
-                  "${Provider.of<UserData>(context).currentUser.userXP} / ${Provider.of<UserData>(context).levelUpRequirement}",
+                  "${Provider.of<UserLocalStorage>(context).currentUser.userXP} / ${Provider.of<UserLocalStorage>(context).levelUpRequirement}",
                   style: kHeadingTextStyle.copyWith(fontSize: 20)),
             ),
             const SizedBox(

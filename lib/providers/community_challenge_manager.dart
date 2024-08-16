@@ -8,7 +8,7 @@ import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -102,7 +102,8 @@ class CommunityChallengeManager extends ChangeNotifier {
 
   void updateParticipantCurrentCompletions(
       BuildContext context, CommunityChallenge challenge, int delta) {
-    UserModel user = Provider.of<UserData>(context, listen: false).currentUser;
+    UserModel user =
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     dynamic participantData;
     try {
       participantData = challenge.participants
@@ -126,7 +127,8 @@ class CommunityChallengeManager extends ChangeNotifier {
 
   void updateParticipantFullCompletions(
       BuildContext context, CommunityChallenge challenge, int delta) {
-    UserModel user = Provider.of<UserData>(context, listen: false).currentUser;
+    UserModel user =
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     ParticipantData participantData = challenge.participants.firstWhere(
         (element) => element.user.uid == user.uid,
         orElse: () => ParticipantData(
@@ -152,7 +154,8 @@ class CommunityChallengeManager extends ChangeNotifier {
         context,
         challenge,
         ParticipantData(
-            user: Provider.of<UserData>(context, listen: false).currentUser,
+            user: Provider.of<UserLocalStorage>(context, listen: false)
+                .currentUser,
             fullCompletionCount: 1,
             lastSeen: DateTime.now(),
             currentCompletions: challenge.habit.completionsToday));
@@ -161,7 +164,7 @@ class CommunityChallengeManager extends ChangeNotifier {
   void decrementParticipantCompletions(
       BuildContext context, CommunityChallenge challenge) {
     decrementParticipantData(
-        challenge, Provider.of<UserData>(context).currentUser);
+        challenge, Provider.of<UserLocalStorage>(context).currentUser);
   }
 
   bool checkFullCompletion(BuildContext context, CommunityChallenge challenge) {
@@ -171,7 +174,8 @@ class CommunityChallengeManager extends ChangeNotifier {
           context,
           challenge,
           ParticipantData(
-              user: Provider.of<UserData>(context, listen: false).currentUser,
+              user: Provider.of<UserLocalStorage>(context, listen: false)
+                  .currentUser,
               lastSeen: DateTime.now(),
               fullCompletionCount: 1));
       print('updated');
@@ -183,8 +187,8 @@ class CommunityChallengeManager extends ChangeNotifier {
   void decrementFullCompletion(
       CommunityChallenge challenge, BuildContext context) {
     challenge.currentFullCompletions--;
-    decrementParticipantData(
-        challenge, Provider.of<UserData>(context, listen: false).currentUser);
+    decrementParticipantData(challenge,
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser);
   }
 
   void addParticipantData(BuildContext context, CommunityChallenge challenge,

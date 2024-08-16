@@ -4,7 +4,7 @@ import '../components/rounded_tile.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:provider/provider.dart';
 
 import '../components/filled_text_field.dart';

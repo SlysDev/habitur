@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import '../components/filled_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:habitur/providers/loading_data.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 
 class LoginScreen extends StatelessWidget {
   late final _auth = FirebaseAuth.instance;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:intl/intl.dart';
 
 class HomeGreetingHeader extends StatelessWidget {
@@ -19,7 +19,7 @@ class HomeGreetingHeader extends StatelessWidget {
     }
     return Column(children: [
       Text(
-        'Good $timeOfDay, ${Provider.of<UserData>(context, listen: false).currentUser.username}',
+        'Good $timeOfDay, ${Provider.of<UserLocalStorage>(context, listen: false).currentUser.username}',
         style: kTitleTextStyle,
         textAlign: TextAlign.center,
       ),
@@ -35,7 +35,10 @@ class HomeGreetingHeader extends StatelessWidget {
       ),
       Center(
         child: Text(
-          Provider.of<UserData>(context).currentUser.userLevel.toString(),
+          Provider.of<UserLocalStorage>(context)
+              .currentUser
+              .userLevel
+              .toString(),
           style: kTitleTextStyle,
           textAlign: TextAlign.center,
         ),
@@ -45,8 +48,8 @@ class HomeGreetingHeader extends StatelessWidget {
         margin: const EdgeInsets.only(top: 20),
         child: RoundedProgressBar(
           color: kPrimaryColor,
-          progress: Provider.of<UserData>(context).currentUser.userXP /
-              Provider.of<UserData>(context).levelUpRequirement,
+          progress: Provider.of<UserLocalStorage>(context).currentUser.userXP /
+              Provider.of<UserLocalStorage>(context).levelUpRequirement,
         ),
       ),
       // Row(

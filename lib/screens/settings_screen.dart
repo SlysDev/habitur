@@ -17,7 +17,7 @@ import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/screens/welcome_screen.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:provider/provider.dart';
@@ -39,8 +39,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     FirebaseAuth auth = FirebaseAuth.instance;
     SettingsLocalStorage settingsData =
         Provider.of<SettingsLocalStorage>(context, listen: false);
-    String email = Provider.of<UserData>(context).currentUser.email;
-    String username = Provider.of<UserData>(context).currentUser.username;
+    String email = Provider.of<UserLocalStorage>(context).currentUser.email;
+    String username =
+        Provider.of<UserLocalStorage>(context).currentUser.username;
     return Scaffold(
       body: FutureBuilder(
         future: settingsData.init(),
@@ -203,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           width: 200,
                           child: FilledTextField(
                             hintText: 'Username',
-                            initialValue: Provider.of<UserData>(context)
+                            initialValue: Provider.of<UserLocalStorage>(context)
                                 .currentUser
                                 .username,
                             onChanged: (newValue) {
@@ -221,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           width: 200,
                           child: FilledTextField(
                             hintText: 'Email',
-                            initialValue: Provider.of<UserData>(context)
+                            initialValue: Provider.of<UserLocalStorage>(context)
                                 .currentUser
                                 .email,
                             onChanged: (newValue) {
@@ -275,10 +276,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ElevatedButton(
                           onPressed: () {
                             if (email !=
-                                Provider.of<UserData>(context, listen: false)
+                                Provider.of<UserLocalStorage>(context,
+                                        listen: false)
                                     .currentUser
                                     .email) {
-                              Provider.of<UserData>(context, listen: false)
+                              Provider.of<UserLocalStorage>(context,
+                                      listen: false)
                                   .changeEmail(email);
                               auth.currentUser!.verifyBeforeUpdateEmail(email);
                               setState(() {
@@ -291,10 +294,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               });
                             }
                             if (username !=
-                                Provider.of<UserData>(context, listen: false)
+                                Provider.of<UserLocalStorage>(context,
+                                        listen: false)
                                     .currentUser
                                     .username) {
-                              Provider.of<UserData>(context, listen: false)
+                              Provider.of<UserLocalStorage>(context,
+                                      listen: false)
                                   .changeUsername(username);
                               auth.currentUser!.updateDisplayName(username);
                               setState(() {
@@ -344,7 +349,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               }),
                         ],
                       ),
-                      Provider.of<UserData>(context, listen: false)
+                      Provider.of<UserLocalStorage>(context, listen: false)
                               .currentUser
                               .isAdmin
                           ? AsideButton(

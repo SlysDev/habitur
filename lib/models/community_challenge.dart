@@ -6,7 +6,7 @@ import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:provider/provider.dart';
 
 class CommunityChallenge extends SharedHabit {

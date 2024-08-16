@@ -6,7 +6,7 @@ import 'package:habitur/models/time_model.dart';
 import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:provider/provider.dart';
 
 class NotificationScheduler {
@@ -73,7 +73,7 @@ class NotificationScheduler {
     // getting notif times from settings
     DateTime now = DateTime.now();
     await notificationManager.scheduleNotification(
-        "Hey ${Provider.of<UserData>(context, listen: false).currentUser.username}!",
+        "Hey ${Provider.of<UserLocalStorage>(context, listen: false).currentUser.username}!",
         "Time to complete your habits––you have ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length} ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length == 1 ? "habit" : "habits"} due today.",
         now.copyWith(hour: firstNotifTime.hour, minute: firstNotifTime.minute),
         1);

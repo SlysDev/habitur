@@ -5,7 +5,7 @@ import 'package:habitur/constants.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/screens/edit_habit_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';

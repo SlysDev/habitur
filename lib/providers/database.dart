@@ -12,7 +12,7 @@ import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/statistics_display_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
-import 'package:habitur/providers/user_data.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:provider/provider.dart';
 
 final _auth = FirebaseAuth.instance;
@@ -154,15 +154,16 @@ class Database extends ChangeNotifier {
     for (var user in usersSnapshot.docs) {
       if (user.get('uid') == uid) {
         print('loading user...');
-        Provider.of<UserData>(context, listen: false).currentUser = UserModel(
-            username: user.get('username'),
-            bio: user.get('bio'),
-            email: user.get('email'),
-            uid: user.get('uid'),
-            userLevel: user.get('userLevel'),
-            userXP: user.get('userXP'),
-            isAdmin: user.get('isAdmin'));
-        Provider.of<UserData>(context, listen: false).notifyListeners();
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser =
+            UserModel(
+                username: user.get('username'),
+                bio: user.get('bio'),
+                email: user.get('email'),
+                uid: user.get('uid'),
+                userLevel: user.get('userLevel'),
+                userXP: user.get('userXP'),
+                isAdmin: user.get('isAdmin'));
+        Provider.of<UserLocalStorage>(context, listen: false).notifyListeners();
       }
     }
   }
@@ -171,25 +172,32 @@ class Database extends ChangeNotifier {
     QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
     for (var user in usersSnapshot.docs) {
       if (user.get('uid') ==
-          Provider.of<UserData>(context, listen: false).currentUser.uid) {
+          Provider.of<UserLocalStorage>(context, listen: false)
+              .currentUser
+              .uid) {
         await user.reference.update({
-          'username': Provider.of<UserData>(context, listen: false)
+          'username': Provider.of<UserLocalStorage>(context, listen: false)
               .currentUser
               .username,
-          'bio': Provider.of<UserData>(context, listen: false).currentUser.bio,
-          'email':
-              Provider.of<UserData>(context, listen: false).currentUser.email,
-          'userLevel': Provider.of<UserData>(context, listen: false)
+          'bio': Provider.of<UserLocalStorage>(context, listen: false)
+              .currentUser
+              .bio,
+          'email': Provider.of<UserLocalStorage>(context, listen: false)
+              .currentUser
+              .email,
+          'userLevel': Provider.of<UserLocalStorage>(context, listen: false)
               .currentUser
               .userLevel,
-          'userXP':
-              Provider.of<UserData>(context, listen: false).currentUser.userXP,
-          'isAdmin':
-              Provider.of<UserData>(context, listen: false).currentUser.isAdmin
+          'userXP': Provider.of<UserLocalStorage>(context, listen: false)
+              .currentUser
+              .userXP,
+          'isAdmin': Provider.of<UserLocalStorage>(context, listen: false)
+              .currentUser
+              .isAdmin
         });
       }
       print('isAdmin: ' +
-          Provider.of<UserData>(context, listen: false)
+          Provider.of<UserLocalStorage>(context, listen: false)
               .currentUser
               .isAdmin
               .toString());
@@ -384,8 +392,9 @@ class Database extends ChangeNotifier {
         users.doc(_auth.currentUser!.uid.toString());
 
     userReference.set({
-      'habiturRating':
-          Provider.of<UserData>(context, listen: false).currentUser.userXP,
+      'habiturRating': Provider.of<UserLocalStorage>(context, listen: false)
+          .currentUser
+          .userXP,
     }, SetOptions(merge: true));
 
     userReference.set({
@@ -490,7 +499,7 @@ class Database extends ChangeNotifier {
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .setChallenges(newChallenges);
     UserModel currentUser =
-        Provider.of<UserData>(context, listen: false).currentUser;
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     Provider.of<CommunityChallengeManager>(context, listen: false)
         .resetDailyChallenges(context, currentUser);
     Provider.of<CommunityChallengeManager>(context, listen: false)
