@@ -313,7 +313,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             }
                             Provider.of<UserLocalStorage>(context,
                                     listen: false)
-                                .saveData(context);
+                                .saveData();
                           },
                           child: Text('Update Profile')),
                       SizedBox(height: 30),

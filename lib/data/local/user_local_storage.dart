@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/user.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
@@ -17,16 +18,14 @@ class UserLocalStorage extends ChangeNotifier {
     }
   }
 
-  Future<void> loadData(BuildContext context) async {
+  Future<void> loadData() async {
     await init(); // may need, may not
     print('initing worked w/ user LS');
     if (_userBox.values.toList().isNotEmpty) {
-      Provider.of<UserLocalStorage>(context, listen: false).currentUser =
-          _userBox.get(0);
+      currentUser = _userBox.get(0);
       print('did we do this?');
     } else {
-      Provider.of<UserLocalStorage>(context, listen: false).currentUser =
-          UserModel(
+      currentUser = UserModel(
         username: 'Guest',
         email: 'N/A',
         userLevel: 1,
@@ -37,9 +36,8 @@ class UserLocalStorage extends ChangeNotifier {
     }
   }
 
-  Future<void> saveData(BuildContext context) async {
-    _userBox.putAt(
-        0, Provider.of<UserLocalStorage>(context, listen: false).currentUser);
+  Future<void> saveData() async {
+    _userBox.putAt(0, currentUser);
   }
 
   // TODO: Refactor to store summary stats instead of summary stats repo
@@ -72,8 +70,41 @@ class UserLocalStorage extends ChangeNotifier {
       userLevel: propertyName == "userLevel" ? newValue : user.userLevel,
       userXP: propertyName == "userXP" ? newValue : user.userXP,
       uid: propertyName == "uid" ? newValue : user.uid,
+      stats: propertyName == "stats" ? newValue : user.stats,
       profilePicture:
           propertyName == "profilePicture" ? newValue : user.profilePicture,
+    );
+    currentUser = updatedUser;
+    notifyListeners();
+  }
+
+  void updateUserStat(String statName, dynamic newValue) {
+    final user = _userBox.get(0);
+    final updatedUser = UserModel(
+      username: user.username,
+      email: user.email,
+      userLevel: user.userLevel,
+      userXP: user.userXP,
+      uid: user.uid,
+      stats: user.stats
+          .map((stat) => statName == stat.name ? newValue : stat)
+          .toList(),
+      profilePicture: user.profilePicture,
+    );
+    currentUser = updatedUser;
+    notifyListeners();
+  }
+
+  void addUserStatPoint(StatPoint newStat) {
+    final user = _userBox.get(0);
+    final updatedUser = UserModel(
+      username: user.username,
+      email: user.email,
+      userLevel: user.userLevel,
+      userXP: user.userXP,
+      uid: user.uid,
+      stats: [...user.stats, newStat],
+      profilePicture: user.profilePicture,
     );
     currentUser = updatedUser;
     notifyListeners();

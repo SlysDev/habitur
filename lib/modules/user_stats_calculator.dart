@@ -1,9 +1,9 @@
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/stats_calculator.dart';
 
-class SummaryStatisticsCalculator extends StatisticsCalculator {
+class UserStatsCalculator extends StatsCalculator {
   List<Habit> habits;
-  SummaryStatisticsCalculator(this.habits);
+  UserStatsCalculator(this.habits);
 
   double calculateTodaysStatAverage(String statisticName) {
     if (habits.isEmpty) return 0.0;

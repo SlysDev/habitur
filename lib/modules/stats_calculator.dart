@@ -4,8 +4,8 @@ import 'dart:math' as math;
 
 import 'package:habitur/models/stat_point.dart';
 
-class StatisticsCalculator {
-  StatisticsCalculator();
+class StatsCalculator {
+  StatsCalculator();
 
   double calculateStatChange(List<StatPoint> stats, String statisticName) {
     if (stats.length < 2) return 0.0;

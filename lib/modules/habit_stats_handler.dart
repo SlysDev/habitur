@@ -5,7 +5,7 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
-import 'package:habitur/modules/summary_statistics_recorder.dart';
+import 'package:habitur/modules/user_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/summary_statistics_repository.dart';
@@ -18,9 +18,8 @@ class HabitStatsHandler {
   HabitStatsHandler(this.habit);
 
   void incrementCompletion(context, {double recordedDifficulty = 5}) async {
-    SummaryStatisticsRecorder statsRecorder = SummaryStatisticsRecorder();
-    HabitStatisticsCalculator statsCalculator =
-        HabitStatisticsCalculator(habit);
+    UserStatsHandler statsRecorder = UserStatsHandler();
+    HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
     int habitIndex =
         Provider.of<HabitManager>(context, listen: false).habits.indexOf(habit);
     habit.completionsToday++;
@@ -29,8 +28,7 @@ class HabitStatsHandler {
       Provider.of<SummaryStatisticsRepository>(context, listen: false)
           .totalHabitsCompleted++;
       Provider.of<UserLocalStorage>(context, listen: false).addHabiturRating();
-      await Provider.of<UserLocalStorage>(context, listen: false)
-          .saveData(context);
+      await Provider.of<UserLocalStorage>(context, listen: false).saveData();
       Provider.of<Database>(context, listen: false).uploadUserData(context);
       habit.streak++;
       if (habit.streak > habit.highestStreak) {
@@ -99,9 +97,8 @@ class HabitStatsHandler {
   }
 
   void decrementCompletion(context) {
-    SummaryStatisticsRecorder statsRecorder = SummaryStatisticsRecorder();
-    HabitStatisticsCalculator statsCalculator =
-        HabitStatisticsCalculator(habit);
+    UserStatsHandler statsRecorder = UserStatsHandler();
+    HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
 
     if (habit.completionsToday == 0) {
       return;
@@ -187,8 +184,7 @@ class HabitStatsHandler {
   }
 
   void setDifficulty(double newDifficulty, context) {
-    HabitStatisticsCalculator statsCalculator =
-        HabitStatisticsCalculator(habit);
+    HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
     int currentDayIndex = habit.stats.indexWhere(
       (dataPoint) =>
           dataPoint.date.year == DateTime.now().year &&
@@ -226,8 +222,7 @@ class HabitStatsHandler {
   }
 
   void fillInMissingDays(context) {
-    HabitStatisticsCalculator statsCalculator =
-        HabitStatisticsCalculator(habit);
+    HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
     // Create a DateTime object for the start date of the habit
     DateTime startDate = habit.dateCreated;
 

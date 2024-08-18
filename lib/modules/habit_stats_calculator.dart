@@ -4,10 +4,10 @@ import 'dart:math' as math;
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/modules/stats_calculator.dart';
 
-class HabitStatisticsCalculator extends StatisticsCalculator {
+class HabitStatsCalculator extends StatsCalculator {
   final Habit habit;
 
-  HabitStatisticsCalculator(this.habit);
+  HabitStatsCalculator(this.habit);
 
   int getLongestStreakSinceLastLapse(List<StatPoint> stats) {
     if (stats.isEmpty) return 0;

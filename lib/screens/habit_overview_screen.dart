@@ -19,8 +19,7 @@ class HabitOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print('Overview Screen - habit.stats: ${habit.stats}');
-    HabitStatisticsCalculator statsCalculator =
-        HabitStatisticsCalculator(habit);
+    HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
     InsightsGenerator insightsGenerator = InsightsGenerator(habit.stats);
     Map<String, dynamic> improvementData =
         insightsGenerator.findAreaForImprovement();

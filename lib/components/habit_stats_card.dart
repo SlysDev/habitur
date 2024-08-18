@@ -14,8 +14,7 @@ class HabitStatsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    HabitStatisticsCalculator statsCalculator =
-        HabitStatisticsCalculator(habit);
+    HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
     return Container(
       margin: const EdgeInsets.only(bottom: 40),
       child: StaticCard(

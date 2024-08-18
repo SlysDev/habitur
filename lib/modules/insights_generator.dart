@@ -9,7 +9,7 @@ class InsightsGenerator {
 
   InsightsGenerator(this.stats, {this.isSummary = false});
   Map<String, dynamic> findAreaForImprovement({int period = 7}) {
-    StatisticsCalculator statsCalculator = StatisticsCalculator();
+    StatsCalculator statsCalculator = StatsCalculator();
     Map<String, dynamic> worstSlopeData =
         statsCalculator.findWorstSlope(stats, period: period);
     String worstSlopeName = worstSlopeData['name'] as String;

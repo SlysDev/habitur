@@ -29,8 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       print(e);
       print('are we loading user data from LS?');
-      await Provider.of<UserLocalStorage>(context, listen: false)
-          .loadData(context);
+      await Provider.of<UserLocalStorage>(context, listen: false).loadData();
     }
   }
 
