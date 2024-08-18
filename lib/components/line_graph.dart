@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 class LineGraph extends StatelessWidget {
   List<StatPoint> data;
+  String statName;
   double height;
   double width;
   double yAxisInterval;
@@ -15,6 +16,7 @@ class LineGraph extends StatelessWidget {
   bool showDots;
   LineGraph({
     required this.data,
+    this.statName = 'confidenceLevel',
     this.width = 400,
     this.height = 200,
     this.yAxisInterval = 0,
@@ -85,8 +87,9 @@ class LineGraph extends StatelessWidget {
                         (statPoint.date.millisecondsSinceEpoch)
                             .ceil()
                             .toDouble(),
-                        double.parse(
-                            statPoint.confidenceLevel.toStringAsFixed(2))))
+                        double.parse(statPoint
+                            .getStatByName(statName)
+                            .toStringAsFixed(2))))
                     .toList())
             // spots: [
             //   FlSpot(0, 3),

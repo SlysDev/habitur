@@ -31,6 +31,29 @@ class StatPoint {
   @HiveField(9)
   double slopeDifficultyRating;
 
+  dynamic getStatByName(String statName) {
+    switch (statName) {
+      case 'completions':
+        return completions;
+      case 'consistencyFactor':
+        return consistencyFactor;
+      case 'confidenceLevel':
+        return confidenceLevel;
+      case 'streak':
+        return streak;
+      case 'difficultyRating':
+        return difficultyRating;
+      case 'slopeCompletions':
+        return slopeCompletions;
+      case 'slopeConfidenceLevel':
+        return slopeConfidenceLevel;
+      case 'slopeConsistency':
+        return slopeConsistency;
+      case 'slopeDifficultyRating':
+        return slopeDifficultyRating;
+    }
+  }
+
   StatPoint({
     required this.date,
     required this.completions,
