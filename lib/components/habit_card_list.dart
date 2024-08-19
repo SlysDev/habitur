@@ -6,13 +6,15 @@ import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/edit_habit_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class HabitCardList extends StatelessWidget {
   bool isOnline;
-  HabitCardList({context, this.isOnline = true});
+  Future<void> Function() onRefresh;
+  HabitCardList({context, this.isOnline = true, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,9 @@ class HabitCardList extends StatelessWidget {
         child: RefreshIndicator(
           backgroundColor: kPrimaryColor,
           color: Colors.white,
-          onRefresh: () async {},
+          onRefresh: () async {
+            await onRefresh();
+          },
           child: ListView.builder(
               itemBuilder: (context, index) {
                 Provider.of<HabitManager>(context, listen: false).sortHabits();

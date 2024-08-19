@@ -1,9 +1,11 @@
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/community-habit-list.dart';
 import 'package:habitur/components/navbar.dart';
+import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../components/home_greeting_header.dart';
@@ -22,15 +24,35 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> loadData(BuildContext context) async {
-    try {
-      await Provider.of<Database>(context, listen: false).loadUserData(context);
-      await Provider.of<Database>(context, listen: false)
-          .loadCommunityChallenges(context);
-    } catch (e) {
-      print(e);
-      print('are we loading user data from LS?');
-      await Provider.of<UserLocalStorage>(context, listen: false).loadData();
+    await Provider.of<UserLocalStorage>(context, listen: false).init();
+    await Provider.of<UserLocalStorage>(context, listen: false).loadData();
+    if (Provider.of<Database>(context, listen: false).isLoggedIn) {
+      DateTime lastUpdated =
+          await Provider.of<Database>(context, listen: false).lastUpdated;
+      if (lastUpdated.isAfter(
+          Provider.of<UserLocalStorage>(context, listen: false).lastUpdated)) {
+        await Provider.of<Database>(context, listen: false)
+            .loadUserData(context);
+        if (!Provider.of<NetworkStateProvider>(context, listen: false)
+            .isConnected) {
+          await Provider.of<UserLocalStorage>(context, listen: false)
+              .loadData();
+        } else {
+          await Provider.of<UserLocalStorage>(context, listen: false)
+              .saveData();
+        } // handles no internet (try/catch in DB sets isConnected to false)
+      } else {
+        await Provider.of<UserLocalStorage>(context, listen: false).loadData();
+      }
+    } else {
+      print('user is not logged in; loading from LS');
+      await Provider.of<HabitsLocalStorage>(context, listen: false)
+          .loadData(context);
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
     }
+    await Provider.of<Database>(context, listen: false)
+        .loadCommunityChallenges(context);
   }
 
   Widget build(BuildContext context) {
@@ -61,9 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               snapshot.connectionState == ConnectionState.waiting
-                  ? CircularProgressIndicator()
+                  ? HomeGreetingHeader(isLoading: true)
                   : HomeGreetingHeader(),
-              CommunityHabitList(),
+              CommunityHabitList(onRefresh: () => loadData(context)),
               AsideButton(
                   text: 'Upload data',
                   onPressed: () {

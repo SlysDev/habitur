@@ -14,30 +14,39 @@ class HabitsLocalStorage extends ChangeNotifier {
     print('are we initing?');
     if (Hive.isBoxOpen('habits')) {
       print('habitsBox is open');
-      _habitsBox = Hive.box<Habit>('habits');
+      _habitsBox = Hive.box('habits');
     } else {
       print('habitsBox must be newly opened');
-      _habitsBox = await Hive.openBox<Habit>('habits');
+      _habitsBox = await Hive.openBox('habits');
     }
   }
 
-  Future<void> close() async {
-    await Hive.close();
+  get lastUpdated => _habitsBox.get('lastUpdated');
+
+  Future<void> deleteData() async {
+    await Hive.deleteBoxFromDisk('habits');
     // TODO: need to close just habit box
+  }
+
+  Future<void> syncLastUpdated() async {
+    await _habitsBox.put('lastUpdated', DateTime.now());
   }
 
   Future<void> addHabit(Habit habit) async {
     await _habitsBox.put(habit.id, habit);
+    await syncLastUpdated();
   }
 
   Future<void> updateHabit(Habit habit) async {
     await _habitsBox.put(habit.id, habit);
+    await syncLastUpdated();
   }
 
   Future<void> deleteHabit(Habit habit) async {
     await _habitsBox.delete(habit.id);
     print('deleted habit with id ${habit.id}');
     print('does it exist now? ${getHabitById(habit.id)}');
+    await syncLastUpdated();
   }
 
   List<Habit> getHabitData() {
@@ -45,22 +54,35 @@ class HabitsLocalStorage extends ChangeNotifier {
       print('habitsBox is null');
       return [];
     }
-    return _habitsBox.values.toList();
+    print(_habitsBox.values
+        .toList()
+        .where((element) => element is Habit)
+        .toList());
+    List<dynamic> allValues = _habitsBox.values.toList();
+    return allValues.whereType<Habit>().toList();
   }
 
   Future<void> uploadAllHabits(List<Habit> habits) async {
-    print('uploading all habits');
+    if (_habitsBox == null) {
+      await init();
+    }
     for (Habit habit in habits) {
       await _habitsBox.put(habit.id, habit);
     }
+    _habitsBox.put('lastUpdated', DateTime.now());
   }
 
   Future<void> loadData(context) async {
     await init();
-    print('are we loading data?');
-    Provider.of<HabitManager>(context, listen: false)
-        .loadHabits(getHabitData());
+    try {
+      Provider.of<HabitManager>(context, listen: false)
+          .loadHabits(getHabitData());
+    } catch (e, s) {
+      print(e);
+      print(s);
+    }
     Provider.of<HabitManager>(context, listen: false).resetHabits(context);
+    Provider.of<HabitManager>(context, listen: false).sortHabits();
     print('data loaded:');
     print(getHabitData().length);
     print(stringifyHabitData());
@@ -70,7 +92,7 @@ class HabitsLocalStorage extends ChangeNotifier {
     return _habitsBox.get(id);
   }
 
-  void clearStats() {
+  Future<void> clearStats() async {
     for (Habit habit in getHabitData()) {
       Habit clearedHabit = habit;
       clearedHabit.completionsToday = 0;
@@ -84,6 +106,7 @@ class HabitsLocalStorage extends ChangeNotifier {
 
       updateHabit(clearedHabit);
     }
+    await syncLastUpdated();
   }
 
   String stringifyHabitData() {

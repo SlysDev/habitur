@@ -4,6 +4,7 @@ import 'package:habitur/components/community_challenge_card.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/providers/database.dart';
@@ -13,7 +14,9 @@ import 'package:habitur/components/habit_card.dart';
 
 class CommunityHabitList extends StatelessWidget {
   bool isAdmin;
-  CommunityHabitList({super.key, this.isAdmin = false});
+  Future<void> Function() onRefresh;
+  CommunityHabitList(
+      {super.key, this.isAdmin = false, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +29,7 @@ class CommunityHabitList extends StatelessWidget {
             backgroundColor: kPrimaryColor,
             color: kBackgroundColor,
             onRefresh: () async {
-              Provider.of<Database>(context, listen: false).loadData(context);
+              await onRefresh();
               communityChallengeManager.clearDuplicateChallenges();
             },
             child: ListView.builder(

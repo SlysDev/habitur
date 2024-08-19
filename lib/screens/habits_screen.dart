@@ -10,6 +10,7 @@ import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:intl/intl.dart';
@@ -25,11 +26,39 @@ class HabitsScreen extends StatefulWidget {
 }
 
 class _HabitsScreenState extends State<HabitsScreen> {
+  Future<void> loadData(BuildContext context) async {
+    await Provider.of<UserLocalStorage>(context, listen: false).init();
+    await Provider.of<HabitsLocalStorage>(context, listen: false).init();
+    if (Provider.of<Database>(context, listen: false).isLoggedIn) {
+      DateTime lastUpdated =
+          await Provider.of<Database>(context, listen: false).lastUpdated;
+      if (lastUpdated.isAfter(
+          Provider.of<HabitsLocalStorage>(context, listen: false)
+              .lastUpdated)) {
+        await Provider.of<Database>(context, listen: false).loadHabits(context);
+        if (!Provider.of<NetworkStateProvider>(context, listen: false)
+            .isConnected) {
+          await Provider.of<HabitsLocalStorage>(context, listen: false)
+              .loadData(context);
+        } // handles no internet (try/catch in DB sets isConnected to false)
+      } else {
+        print('loading from LS; more recent');
+        await Provider.of<HabitsLocalStorage>(context, listen: false)
+            .loadData(context);
+      }
+    } else {
+      print('user is not logged in; loading from LS');
+      await Provider.of<HabitsLocalStorage>(context, listen: false)
+          .loadData(context);
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<HabitsLocalStorage>(context, listen: false)
-          .loadData(context),
+      future: loadData(context),
       builder: (context, snapshot) {
         return Scaffold(
           appBar: AppBar(
@@ -55,7 +84,9 @@ class _HabitsScreenState extends State<HabitsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                HomeGreetingHeader(),
+                snapshot.connectionState == ConnectionState.waiting
+                    ? HomeGreetingHeader(isLoading: true)
+                    : HomeGreetingHeader(),
                 AsideButton(
                     text: 'schedule test notifs',
                     onPressed: () async {
@@ -87,17 +118,26 @@ class _HabitsScreenState extends State<HabitsScreen> {
                       notificationManager.printNotifications();
                     }),
                 AsideButton(
-                    text: 'clear all LS boxes',
+                    text: 'clear habits data',
                     onPressed: () async {
                       await Provider.of<HabitsLocalStorage>(context,
                               listen: false)
-                          .close();
+                          .deleteData();
                     }),
                 AsideButton(
                     text: 'load data from DB',
                     onPressed: () {
-                      Provider.of<Database>(context, listen: false)
-                          .loadHabits(context);
+                      try {
+                        Provider.of<Database>(context, listen: false)
+                            .loadHabits(context);
+                        Provider.of<NetworkStateProvider>(context,
+                                listen: false)
+                            .isConnected = true;
+                      } catch (e) {
+                        Provider.of<NetworkStateProvider>(context,
+                                listen: false)
+                            .isConnected = false;
+                      }
                     }),
                 snapshot.connectionState == ConnectionState.waiting
                     ? Center(
@@ -105,7 +145,9 @@ class _HabitsScreenState extends State<HabitsScreen> {
                             color: kPrimaryColor,
                             strokeWidth: 6,
                             strokeCap: StrokeCap.round))
-                    : HabitCardList(),
+                    : HabitCardList(
+                        onRefresh: () => loadData(context),
+                      ),
                 SizedBox(
                   height: 20,
                 ),

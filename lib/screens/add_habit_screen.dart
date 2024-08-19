@@ -6,6 +6,7 @@ import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import '../components/rounded_tile.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
@@ -429,8 +430,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             requiredCompletions: habitCompletions);
                         Provider.of<HabitManager>(context, listen: false)
                             .addHabit(finalHabit, context);
-                        Provider.of<Database>(context, listen: false)
-                            .addHabit(finalHabit);
+                        try {
+                          Provider.of<Database>(context, listen: false)
+                              .addHabit(finalHabit, context);
+                          Provider.of<NetworkStateProvider>(context,
+                                  listen: false)
+                              .isConnected = true;
+                        } catch (e) {
+                          Provider.of<NetworkStateProvider>(context,
+                                  listen: false)
+                              .isConnected = false;
+                        }
                         Provider.of<HabitsLocalStorage>(context, listen: false)
                             .addHabit(finalHabit);
                         Provider.of<HabitManager>(context, listen: false)

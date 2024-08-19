@@ -10,6 +10,7 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/community_leaderboard_screen.dart';
 import 'package:habitur/screens/edit_community_challenge_screen.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -88,81 +89,97 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
     completeChallenge, color, currentHabit, totalProgress, userProgress) {
   return GestureDetector(
     onTap: () {
-      print('habit tapped');
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  CommunityChallengeOverviewScreen(challenge: challenge)));
+      if (Provider.of<NetworkStateProvider>(context, listen: false)
+          .isConnected) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    CommunityChallengeOverviewScreen(challenge: challenge)));
+      }
     },
     // TODO: Implement popup screen
     onLongPress: decrementChallenge,
     child: EmphasisCard(
-      color:
-          challenge.currentFullCompletions == challenge.requiredFullCompletions
-              ? kLightGreenAccent
-              : (challenge.habit.isCompleted ? color.withOpacity(0.5) : color),
+      color: challenge.currentFullCompletions ==
+              challenge.requiredFullCompletions
+          ? kLightGreenAccent
+          : Provider.of<NetworkStateProvider>(context).isConnected
+              ? (challenge.habit.isCompleted ? color.withOpacity(0.5) : color)
+              : kDarkGray.withOpacity(0.1),
       child: Stack(
         children: [
           Align(
             alignment: Alignment.topRight,
-            child: Icon(Icons.groups, size: 32, color: kOrangeAccent),
+            child: Icon(Icons.groups,
+                size: 32,
+                color: Provider.of<NetworkStateProvider>(context).isConnected
+                    ? kOrangeAccent
+                    : kDarkGray),
           ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                CircularPercentIndicator(
-                  animation: true,
-                  animationDuration: 500,
-                  animateFromLastPercent: true,
-                  curve: Curves.ease,
-                  radius: 50,
-                  percent: totalProgress,
-                  progressColor: challenge.currentFullCompletions ==
-                          challenge.requiredFullCompletions
-                      ? Colors.white
-                      : kPrimaryColor,
-                  backgroundColor: kBackgroundColor.withOpacity(0.3),
-                  circularStrokeCap: CircularStrokeCap.round,
-                  lineWidth: 10,
-                  center: Text(
-                    "${(totalProgress * 100).toStringAsFixed(0)}%",
-                    style: kHeadingTextStyle.copyWith(
-                        color: Colors.white, fontSize: 20),
+          Provider.of<NetworkStateProvider>(context).isConnected
+              ? Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CircularPercentIndicator(
+                        animation: true,
+                        animationDuration: 500,
+                        animateFromLastPercent: true,
+                        curve: Curves.ease,
+                        radius: 50,
+                        percent: totalProgress,
+                        progressColor: challenge.currentFullCompletions ==
+                                challenge.requiredFullCompletions
+                            ? Colors.white
+                            : kPrimaryColor,
+                        backgroundColor: kBackgroundColor.withOpacity(0.3),
+                        circularStrokeCap: CircularStrokeCap.round,
+                        lineWidth: 10,
+                        center: Text(
+                          "${(totalProgress * 100).toStringAsFixed(0)}%",
+                          style: kHeadingTextStyle.copyWith(
+                              color: Colors.white, fontSize: 20),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: Container(
+                          alignment: AlignmentDirectional.center,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                currentHabit.title,
+                                style: kHeadingTextStyle.copyWith(
+                                    color: Colors.white),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              RoundedProgressBar(
+                                progress: userProgress,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Align(
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    height: 80,
+                    child: Icon(Icons.wifi_off, size: 32, color: kGray),
                   ),
                 ),
-                SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child: Container(
-                    alignment: AlignmentDirectional.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          currentHabit.title,
-                          style:
-                              kHeadingTextStyle.copyWith(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        RoundedProgressBar(
-                          progress: userProgress,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     ),
@@ -180,127 +197,134 @@ Widget buildAdminCard(context, challenge, currentHabit, totalProgress) {
         color: !currentHabit.isCompleted ? color : color.withOpacity(0.5),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 140,
-                height: 140,
-                child: CircularPercentIndicator(
-                  animation: true,
-                  animationDuration: 500,
-                  animateFromLastPercent: true,
-                  curve: Curves.ease,
-                  radius: 60,
-                  percent: totalProgress,
-                  progressColor: kPrimaryColor,
-                  backgroundColor: Colors.transparent,
-                  circularStrokeCap: CircularStrokeCap.round,
-                  lineWidth: 10,
-                  center: Text(
-                    "${(totalProgress * 100).toStringAsFixed(0)}%",
-                    style: kHeadingTextStyle.copyWith(color: Colors.white),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              // total completions display
-              Row(
-                children: [
-                  Text(
-                    challenge.currentFullCompletions.toString(),
-                    style: kMainDescription.copyWith(
-                        color: Colors.white, fontSize: 22),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Icon(
-                    Icons.people,
-                    size: 24,
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-            ],
-          ),
-          SizedBox(
-            width: 25,
-          ),
-          Container(
-            width: 175,
-            alignment: AlignmentDirectional.center,
-            child: Column(
+      child: Provider.of<NetworkStateProvider>(context).isConnected
+          ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  currentHabit.title,
-                  style: kHeadingTextStyle.copyWith(color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  challenge.description,
-                  style: kMainDescription.copyWith(color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(
-                  height: 40,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
+                      width: 140,
+                      height: 140,
+                      child: CircularPercentIndicator(
+                        animation: true,
+                        animationDuration: 500,
+                        animateFromLastPercent: true,
+                        curve: Curves.ease,
+                        radius: 60,
+                        percent: totalProgress,
+                        progressColor: kPrimaryColor,
+                        backgroundColor: Colors.transparent,
+                        circularStrokeCap: CircularStrokeCap.round,
+                        lineWidth: 10,
+                        center: Text(
+                          "${(totalProgress * 100).toStringAsFixed(0)}%",
+                          style:
+                              kHeadingTextStyle.copyWith(color: Colors.white),
+                        ),
                       ),
-                      child: AsideButton(
-                          text: 'Edit',
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        EditCommunityChallengeScreen(
-                                            challenge: challenge)));
-                          }),
                     ),
-                    SizedBox(
-                      width: 10,
+                    const SizedBox(height: 10),
+                    // total completions display
+                    Row(
+                      children: [
+                        Text(
+                          challenge.currentFullCompletions.toString(),
+                          style: kMainDescription.copyWith(
+                              color: Colors.white, fontSize: 22),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Icon(
+                          Icons.people,
+                          size: 24,
+                        ),
+                      ],
                     ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: AsideButton(
-                          text: 'Delete',
-                          onPressed: () {
-                            Provider.of<Database>(context, listen: false)
-                                .removeCommunityChallenge(
-                                    challenge.id, context);
-                          }),
-                    ),
+                    SizedBox(height: 10),
                   ],
                 ),
+                SizedBox(
+                  width: 25,
+                ),
+                Container(
+                  width: 175,
+                  alignment: AlignmentDirectional.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        currentHabit.title,
+                        style: kHeadingTextStyle.copyWith(color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        challenge.description,
+                        style: kMainDescription.copyWith(color: Colors.white),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(
+                        height: 40,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: AsideButton(
+                                text: 'Edit',
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditCommunityChallengeScreen(
+                                                  challenge: challenge)));
+                                }),
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: AsideButton(
+                                text: 'Delete',
+                                onPressed: () {
+                                  Provider.of<Database>(context, listen: false)
+                                      .removeCommunityChallenge(
+                                          challenge.id, context);
+                                }),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ],
+            )
+          : Align(
+              alignment: Alignment.center,
+              child:
+                  SizedBox(child: Icon(Icons.wifi_off, size: 32, color: kGray)),
             ),
-          ),
-        ],
-      ),
     ),
   );
 }

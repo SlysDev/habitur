@@ -55,6 +55,11 @@ class WelcomeScreen extends StatelessWidget {
             SizedBox(
               height: 40,
             ),
+            AsideButton(
+                text: 'Continue as Guest',
+                onPressed: () {
+                  Navigator.pushNamed(context, 'habits_screen');
+                }),
             // AsideButton(
             //   text: 'Offline Login',
             //   onPressed: () {

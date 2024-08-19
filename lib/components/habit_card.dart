@@ -11,6 +11,7 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/edit_habit_screen.dart';
 import 'package:habitur/screens/habit_overview_screen.dart';
 import 'package:provider/provider.dart';
@@ -54,9 +55,10 @@ class _HabitCardState extends State<HabitCard> {
         habitStatsHandler.incrementCompletion(context,
             recordedDifficulty: recordedDifficulty);
         Provider.of<HabitManager>(context, listen: false).updateHabits();
-        Provider.of<Database>(context, listen: false).updateHabit(
+        await Provider.of<Database>(context, listen: false).updateHabit(
             Provider.of<HabitManager>(context, listen: false)
-                .habits[widget.index]);
+                .habits[widget.index],
+            context);
         await Provider.of<HabitsLocalStorage>(context, listen: false)
             .updateHabit(habit);
       }
@@ -65,7 +67,10 @@ class _HabitCardState extends State<HabitCard> {
     decrementHabit() async {
       habitStatsHandler.decrementCompletion(context);
       Provider.of<HabitManager>(context, listen: false).updateHabits();
-      Provider.of<Database>(context, listen: false).updateHabit(habit);
+      await Provider.of<Database>(context, listen: false).updateHabit(
+          Provider.of<HabitManager>(context, listen: false)
+              .habits[widget.index],
+          context);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .updateHabit(habit);
     }
@@ -82,7 +87,7 @@ class _HabitCardState extends State<HabitCard> {
     deleteHabit() async {
       await Provider.of<HabitManager>(context, listen: false)
           .deleteHabit(context, widget.index);
-      Provider.of<Database>(context, listen: false)
+      await Provider.of<Database>(context, listen: false)
           .deleteHabit(context, habit.id);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .deleteHabit(habit);

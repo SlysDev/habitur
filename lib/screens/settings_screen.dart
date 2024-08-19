@@ -6,7 +6,10 @@ import 'package:habitur/components/accent_elevated_button.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/custom_alert_dialog.dart';
 import 'package:habitur/components/filled_text_field.dart';
+import 'package:habitur/components/inactive_elevated_button.dart';
 import 'package:habitur/components/navbar.dart';
+import 'package:habitur/components/network_indicator.dart';
+import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
@@ -16,8 +19,8 @@ import 'package:habitur/models/time_model.dart';
 import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
-import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/providers/network_state_provider.dart';
+import 'package:habitur/screens/login_screen.dart';
 import 'package:habitur/screens/welcome_screen.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   double gap = 20.0;
   bool isVerifyingEmail = false;
   bool hasUpdatedUsername = false;
+  bool hasFailed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -195,6 +199,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 StaticCard(
                   child: Column(
                     children: [
+                      !Provider.of<NetworkStateProvider>(context, listen: false)
+                              .isConnected
+                          ? SizedBox(height: 10)
+                          : Container(),
+                      const NetworkIndicator(),
+                      !Provider.of<NetworkStateProvider>(context, listen: false)
+                              .isConnected
+                          ? SizedBox(height: 25)
+                          : Container(),
                       ListTile(
                         title: Text(
                           'Username',
@@ -203,6 +216,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         trailing: Container(
                           width: 200,
                           child: FilledTextField(
+                            enabled: auth.currentUser == null ||
+                                Provider.of<NetworkStateProvider>(context,
+                                        listen: true)
+                                    .isConnected,
                             hintText: 'Username',
                             initialValue: Provider.of<UserLocalStorage>(context)
                                 .currentUser
@@ -221,6 +238,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         trailing: Container(
                           width: 200,
                           child: FilledTextField(
+                            enabled: Provider.of<NetworkStateProvider>(context,
+                                    listen: true)
+                                .isConnected,
                             hintText: 'Email',
                             initialValue: Provider.of<UserLocalStorage>(context)
                                 .currentUser
@@ -235,12 +255,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       AnimatedContainer(
                         duration: Duration(milliseconds: 800),
                         height: isVerifyingEmail ? 52 : 0,
-                        curve: Curves.ease,
+                        curve: Curves.easeInOutSine,
                         child: Center(
                           child: AnimatedOpacity(
                             duration: Duration(milliseconds: 800),
                             opacity: isVerifyingEmail ? 1 : 0,
-                            curve: Curves.ease,
+                            curve: Curves.easeInOutSine,
                             child: Text(
                               'A verification email has been sent to $email',
                               style: kMainDescription.copyWith(
@@ -272,67 +292,159 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                         ),
                       ),
+                      AnimatedContainer(
+                        duration: Duration(milliseconds: 800),
+                        height: hasFailed &&
+                                !Provider.of<NetworkStateProvider>(context)
+                                    .isConnected
+                            ? 70
+                            : hasFailed
+                                ? 40
+                                : 0,
+                        curve: Curves.ease,
+                        child: Center(
+                          child: AnimatedOpacity(
+                            duration: Duration(milliseconds: 800),
+                            opacity: hasFailed ? 1 : 0,
+                            curve: Curves.ease,
+                            child: Text(
+                              'Failed to upload new profile online.' +
+                                  (!Provider.of<NetworkStateProvider>(context)
+                                          .isConnected
+                                      ? ' Looks like you\'re offline.'
+                                      : ''),
+                              style: kMainDescription.copyWith(
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
                       SizedBox(height: 10),
-                      ElevatedButton(
-                          onPressed: () {
-                            if (email !=
+                      auth.currentUser == null ||
+                              Provider.of<NetworkStateProvider>(context,
+                                      listen: true)
+                                  .isConnected
+                          ? PrimaryButton(
+                              text: 'Update Profile',
+                              onPressed: () async {
+                                if (email !=
+                                    Provider.of<UserLocalStorage>(context,
+                                            listen: false)
+                                        .currentUser
+                                        .email) {
+                                  try {
+                                    Provider.of<UserLocalStorage>(context,
+                                            listen: false)
+                                        .updateUserProperty('email', email);
+                                    auth.currentUser!
+                                        .verifyBeforeUpdateEmail(email);
+                                    await Provider.of<Database>(context,
+                                            listen: false)
+                                        .uploadUserData(context);
+                                    Provider.of<NetworkStateProvider>(context,
+                                            listen: false)
+                                        .isConnected = true;
+                                    setState(() {
+                                      isVerifyingEmail = true;
+                                    });
+                                    Future.delayed(Duration(seconds: 5), () {
+                                      setState(() {
+                                        isVerifyingEmail = false;
+                                      });
+                                    });
+                                  } catch (e) {
+                                    Provider.of<NetworkStateProvider>(context,
+                                            listen: false)
+                                        .isConnected = false;
+                                    setState(() {
+                                      hasFailed = true;
+                                    });
+                                    Future.delayed(Duration(seconds: 5), () {
+                                      setState(() {
+                                        hasFailed = false;
+                                      });
+                                    });
+                                  }
+                                }
+                                if (username !=
+                                    Provider.of<UserLocalStorage>(context,
+                                            listen: false)
+                                        .currentUser
+                                        .username) {
+                                  try {
+                                    Provider.of<UserLocalStorage>(context,
+                                            listen: false)
+                                        .updateUserProperty(
+                                            'username', username);
+                                    if (auth.currentUser != null) {
+                                      auth.currentUser!
+                                          .updateDisplayName(username);
+                                      await Provider.of<Database>(context,
+                                              listen: false)
+                                          .uploadUserData(context);
+                                      Provider.of<NetworkStateProvider>(context,
+                                              listen: false)
+                                          .isConnected = true;
+                                    }
+                                    setState(() {
+                                      hasUpdatedUsername = true;
+                                    });
+                                    Future.delayed(Duration(seconds: 5), () {
+                                      setState(() {
+                                        hasUpdatedUsername = false;
+                                      });
+                                    });
+                                  } catch (e) {
+                                    Provider.of<NetworkStateProvider>(context,
+                                            listen: false)
+                                        .isConnected = false;
+                                    setState(() {
+                                      hasFailed = true;
+                                    });
+                                    Future.delayed(Duration(seconds: 5), () {
+                                      setState(() {
+                                        hasFailed = false;
+                                      });
+                                    });
+                                  }
+                                }
                                 Provider.of<UserLocalStorage>(context,
                                         listen: false)
-                                    .currentUser
-                                    .email) {
-                              Provider.of<UserLocalStorage>(context,
-                                      listen: false)
-                                  .updateUserProperty('email', email);
-                              auth.currentUser!.verifyBeforeUpdateEmail(email);
-                              setState(() {
-                                isVerifyingEmail = true;
-                              });
-                              Future.delayed(Duration(seconds: 5), () {
-                                setState(() {
-                                  isVerifyingEmail = false;
-                                });
-                              });
-                            }
-                            if (username !=
-                                Provider.of<UserLocalStorage>(context,
-                                        listen: false)
-                                    .currentUser
-                                    .username) {
-                              Provider.of<UserLocalStorage>(context,
-                                      listen: false)
-                                  .updateUserProperty('username', username);
-                              auth.currentUser!.updateDisplayName(username);
-                              setState(() {
-                                hasUpdatedUsername = true;
-                              });
-                              Future.delayed(Duration(seconds: 5), () {
-                                setState(() {
-                                  hasUpdatedUsername = false;
-                                });
-                              });
-                            }
-                            Provider.of<UserLocalStorage>(context,
-                                    listen: false)
-                                .saveData();
-                          },
-                          child: Text('Update Profile')),
+                                    .saveData();
+                              },
+                            )
+                          : InactiveElevatedButton(
+                              child: Text('Update Profile')),
                       SizedBox(height: 30),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          AsideButton(
-                              text: 'Log out',
-                              onPressed: () async {
-                                late final _auth = FirebaseAuth.instance;
-                                await _auth.signOut();
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => WelcomeScreen()),
-                                    (route) => false);
-                                Navigator.popAndPushNamed(
-                                    context, 'welcome_screen');
-                              }),
+                          Provider.of<Database>(context, listen: false)
+                                  .isLoggedIn
+                              ? AsideButton(
+                                  text: 'Log out',
+                                  onPressed: () async {
+                                    late final _auth = FirebaseAuth.instance;
+                                    await _auth.signOut();
+                                    Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                WelcomeScreen()),
+                                        (route) => false);
+                                    Navigator.popAndPushNamed(
+                                        context, 'welcome_screen');
+                                  })
+                              : AsideButton(
+                                  text: 'Log in',
+                                  onPressed: () async {
+                                    late final _auth = FirebaseAuth.instance;
+                                    await _auth.signOut();
+                                    Navigator.pushNamed(
+                                        context, 'login_screen');
+                                  }),
                           AsideButton(
                               text: 'Delete Account',
                               onPressed: () async {
@@ -346,6 +458,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     (route) => false);
                                 Navigator.popAndPushNamed(
                                     context, 'welcome_screen');
+                              }),
+                          AsideButton(
+                              text: 'Clear Data',
+                              onPressed: () async {
+                                Provider.of<HabitsLocalStorage>(context,
+                                        listen: false)
+                                    .deleteData();
+                                Provider.of<UserLocalStorage>(context,
+                                        listen: false)
+                                    .deleteData();
+                                Provider.of<SettingsLocalStorage>(context,
+                                        listen: false)
+                                    .populateDefaultSettingsData();
+                                Provider.of<SettingsLocalStorage>(context,
+                                        listen: false)
+                                    .updateSettings();
                               }),
                         ],
                       ),

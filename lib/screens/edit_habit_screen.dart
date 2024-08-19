@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
+import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import '../components/rounded_tile.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
@@ -401,7 +403,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                           )
                         : Container(),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         DateTime today = DateTime.now();
                         DateTime habitDueDate;
                         if (selectedPeriod == 'Daily') {
@@ -422,9 +424,21 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                           widget.habitIndex,
                           editedHabit,
                         );
+                        try {
+                          await Provider.of<Database>(context, listen: false)
+                              .updateHabit(editedHabit, context);
+                          Provider.of<NetworkStateProvider>(context,
+                                  listen: false)
+                              .isConnected = true;
+                        } catch (e) {
+                          Provider.of<NetworkStateProvider>(context,
+                                  listen: false)
+                              .isConnected = false;
+                        }
                         Provider.of<HabitManager>(context, listen: false)
                             .updateHabits();
-                        Provider.of<HabitsLocalStorage>(context, listen: false)
+                        await Provider.of<HabitsLocalStorage>(context,
+                                listen: false)
                             .updateHabit(Provider.of<HabitManager>(context,
                                     listen: false)
                                 .habits[widget.habitIndex]);

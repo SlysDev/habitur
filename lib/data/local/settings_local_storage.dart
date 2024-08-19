@@ -30,6 +30,10 @@ class SettingsLocalStorage extends ChangeNotifier {
     }
   }
 
+  Future<void> syncLastUpdated() async {
+    await _settingsBox.put('lastUpdated', DateTime.now());
+  }
+
   List<Setting> get settingsList {
     if (_settingsBox == null) {
       print('settingsBox is null');
@@ -45,7 +49,7 @@ class SettingsLocalStorage extends ChangeNotifier {
     return _settingsBox.get(settingName);
   }
 
-  void populateDefaultSettingsData() {
+  Future<void> populateDefaultSettingsData() async {
     List<Setting> defaultSettings = [
       Setting(settingValue: true, settingName: 'Daily Reminders'),
       Setting(settingValue: 3, settingName: 'Number of Reminders'),
@@ -62,12 +66,15 @@ class SettingsLocalStorage extends ChangeNotifier {
     for (Setting setting in defaultSettings) {
       _settingsBox.put(setting.settingName, setting);
     }
+    await syncLastUpdated();
   }
 
-  void updateSetting(String settingName, dynamic newSettingValue) {
+  Future<void> updateSetting(
+      String settingName, dynamic newSettingValue) async {
     Setting newSettingValues = getSettingByName(settingName);
     newSettingValues.settingValue = newSettingValue;
     _settingsBox.put(settingName, newSettingValues);
+    await syncLastUpdated();
   }
 
   void updateSettings() {

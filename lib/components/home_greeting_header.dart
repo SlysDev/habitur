@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:habitur/components/network_indicator.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
@@ -8,6 +11,8 @@ import 'package:intl/intl.dart';
 class HomeGreetingHeader extends StatelessWidget {
   DateTime currentTime = DateTime.now();
   String timeOfDay = 'Day';
+  bool isLoading;
+  HomeGreetingHeader({super.key, this.isLoading = false});
   @override
   Widget build(BuildContext context) {
     if (currentTime.hour > 3 && currentTime.hour < 12) {
@@ -19,7 +24,12 @@ class HomeGreetingHeader extends StatelessWidget {
     }
     return Column(children: [
       Text(
-        'Good $timeOfDay, ${Provider.of<UserLocalStorage>(context, listen: false).currentUser.username}',
+        'Good $timeOfDay, ' +
+            (isLoading
+                ? '...'
+                : Provider.of<UserLocalStorage>(context, listen: false)
+                    .currentUser
+                    .username),
         style: kTitleTextStyle,
         textAlign: TextAlign.center,
       ),
@@ -31,14 +41,20 @@ class HomeGreetingHeader extends StatelessWidget {
         style: TextStyle(fontSize: 16),
       ),
       const SizedBox(
-        height: 40,
+        height: 30,
+      ),
+      const NetworkIndicator(),
+      const SizedBox(
+        height: 18,
       ),
       Center(
         child: Text(
-          Provider.of<UserLocalStorage>(context)
-              .currentUser
-              .userLevel
-              .toString(),
+          isLoading
+              ? '...'
+              : Provider.of<UserLocalStorage>(context)
+                  .currentUser
+                  .userLevel
+                  .toString(),
           style: kTitleTextStyle,
           textAlign: TextAlign.center,
         ),
@@ -48,10 +64,12 @@ class HomeGreetingHeader extends StatelessWidget {
         margin: const EdgeInsets.only(top: 20),
         child: RoundedProgressBar(
           color: kPrimaryColor,
-          progress: Provider.of<UserLocalStorage>(context).currentUser.userXP /
-              Provider.of<UserLocalStorage>(context)
-                  .currentUser
-                  .levelUpRequirement,
+          progress: isLoading
+              ? 0
+              : Provider.of<UserLocalStorage>(context).currentUser.userXP /
+                  Provider.of<UserLocalStorage>(context)
+                      .currentUser
+                      .levelUpRequirement,
         ),
       ),
       // Row(

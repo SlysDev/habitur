@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
+import 'package:habitur/components/custom_alert_dialog.dart';
 import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/auth_local_storage.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/login_registration_state.dart';
 import 'package:provider/provider.dart';
 import '../components/filled_text_field.dart';
@@ -67,62 +69,104 @@ class LoginScreen extends StatelessWidget {
             Container(
               margin: const EdgeInsets.all(20),
               child: PrimaryButton(
+                text: 'Login',
                 onPressed: () async {
-                  try {
-                    final newUser = await _auth.signInWithEmailAndPassword(
-                        email: email, password: password);
-                    if (newUser != null) {
-                      Navigator.popAndPushNamed(context, 'home_screen');
-                    }
-                  } catch (e) {
-                    print(e);
-                    String errorMessage = '';
-                    if (e is FirebaseAuthException) {
-                      switch (e.code) {
-                        case 'weak-password':
-                          errorMessage =
-                              'Password must be at least 6 characters.';
-                          break;
-                        case 'invalid-email':
-                          errorMessage = 'Please enter a valid email address.';
-                          break;
-                        case 'user-not-found':
-                          errorMessage =
-                              'This email is not associated with an account.';
-                          break;
-                        case 'wrong-password':
-                          errorMessage = 'Incorrect email or password.';
-                          break;
-                        case 'user-disabled':
-                          errorMessage = 'This account has been disabled.';
-                          break;
-                        case 'too-many-requests':
-                          errorMessage =
-                              'Too many login attempts. Please try again later.';
-                          break;
-                        case 'operation-not-allowed':
-                          errorMessage =
-                              'An unexpected error occurred. Please try again.';
-                          break;
-                        default:
-                          errorMessage = 'An unknown error occurred.';
+                  // TODO: Create a popup warning user of overwriting LS data
+                  if (Provider.of<HabitsLocalStorage>(context, listen: false)
+                      .getHabitData()
+                      .isNotEmpty) {
+                    dynamic result = await showDialog(
+                      context: context,
+                      builder: (context) => CustomAlertDialog(
+                        title: 'Warning',
+                        content: Text(
+                            'Are you sure you want to log in? All of your data will be overwritten.'),
+                        actions: [
+                          AsideButton(
+                              onPressed: () {
+                                Navigator.pop(context, true);
+                              },
+                              text: 'Yes'),
+                          SizedBox(width: 10),
+                          AsideButton(
+                              onPressed: () {
+                                Navigator.pop(context, false);
+                              },
+                              text: 'No'),
+                        ],
+                      ),
+                    );
+                    result == null ? result = false : null;
+                    if (result) {
+                      try {
+                        final newUser = await _auth.signInWithEmailAndPassword(
+                            email: email, password: password);
+                        await Provider.of<Database>(context, listen: false)
+                            .loadData(context);
+                        await Provider.of<UserLocalStorage>(context,
+                                listen: false)
+                            .saveData();
+                        await Provider.of<HabitsLocalStorage>(context,
+                                listen: false)
+                            .uploadAllHabits(Provider.of<HabitManager>(context,
+                                    listen: false)
+                                .habits);
+                        // getting data from DB and overriding LS
+                        if (newUser != null) {
+                          Navigator.popAndPushNamed(context, 'home_screen');
+                        }
+                      } catch (e) {
+                        print(e);
+                        String errorMessage = '';
+                        if (e is FirebaseAuthException) {
+                          switch (e.code) {
+                            case 'weak-password':
+                              errorMessage =
+                                  'Password must be at least 6 characters.';
+                              break;
+                            case 'invalid-email':
+                              errorMessage =
+                                  'Please enter a valid email address.';
+                              break;
+                            case 'user-not-found':
+                              errorMessage =
+                                  'This email is not associated with an account.';
+                              break;
+                            case 'wrong-password':
+                              errorMessage = 'Incorrect email or password.';
+                              break;
+                            case 'user-disabled':
+                              errorMessage = 'This account has been disabled.';
+                              break;
+                            case 'too-many-requests':
+                              errorMessage =
+                                  'Too many login attempts. Please try again later.';
+                              break;
+                            case 'operation-not-allowed':
+                              errorMessage =
+                                  'An unexpected error occurred. Please try again.';
+                              break;
+                            default:
+                              errorMessage = 'An unknown error occurred.';
+                          }
+                        } else if (e
+                            .toString()
+                            .contains('LateInitializationError')) {
+                          if (e.toString().contains('email')) {
+                            errorMessage = 'Please enter an email address';
+                          } else if (e.toString().contains('password')) {
+                            errorMessage = 'Please enter a password';
+                          } else {
+                            errorMessage = 'An unknown error has occurred';
+                          }
+                        }
+                        Provider.of<LoginRegistrationState>(context,
+                                listen: false)
+                            .loginFail(errorMessage);
                       }
-                    } else if (e
-                        .toString()
-                        .contains('LateInitializationError')) {
-                      if (e.toString().contains('email')) {
-                        errorMessage = 'Please enter an email address';
-                      } else if (e.toString().contains('password')) {
-                        errorMessage = 'Please enter a password';
-                      } else {
-                        errorMessage = 'An unknown error has occurred';
-                      }
                     }
-                    Provider.of<LoginRegistrationState>(context, listen: false)
-                        .loginFail(errorMessage);
                   }
                 },
-                text: 'Login',
               ),
             ),
             Container(

@@ -6,14 +6,17 @@ class FilledTextField extends StatelessWidget {
   final String hintText;
   final bool obscureText;
   final String initialValue;
+  final bool enabled;
   FilledTextField(
       {required this.onChanged,
       required this.hintText,
+      this.enabled = true,
       this.initialValue = '',
       this.obscureText = false});
   @override
   Widget build(BuildContext context) {
     return TextField(
+      enabled: enabled,
       obscureText: obscureText,
       cursorColor: Colors.white,
       onChanged: onChanged,
@@ -21,8 +24,12 @@ class FilledTextField extends StatelessWidget {
           ? TextEditingController(text: initialValue)
           : TextEditingController(),
       textAlign: TextAlign.center,
-      style: TextStyle(color: Colors.white),
-      decoration: kFilledTextFieldInputDecoration.copyWith(hintText: hintText),
+      style: TextStyle(
+          color: enabled ? Colors.white : Colors.red.withOpacity(0.7)),
+      decoration: kFilledTextFieldInputDecoration.copyWith(
+        hintText: hintText,
+        fillColor: enabled ? kFadedBlue : Colors.red.withOpacity(0.1),
+      ),
     );
   }
 }
