@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/notifications/notification_manager.dart';
@@ -118,8 +117,6 @@ class NotificationScheduler {
             minute: Random().nextInt(59)),
         6);
     // TODO: Implement changing notif times in settings
-
-    await notificationManager.printNotifications();
   }
 
   Future<void> scheduleDayHabitReminderTrack(Habit habit) async {

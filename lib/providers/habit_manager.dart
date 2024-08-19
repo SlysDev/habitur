@@ -126,7 +126,6 @@ class HabitManager extends ChangeNotifier {
               .settingValue;
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
-      await notificationManager.printNotifications();
     }
 
     notifyListeners();
@@ -175,7 +174,6 @@ class HabitManager extends ChangeNotifier {
               .settingValue;
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
-      await notificationManager.printNotifications();
     }
     notifyListeners();
     Provider.of<Database>(context, listen: false).uploadHabits(context);
@@ -211,7 +209,6 @@ class HabitManager extends ChangeNotifier {
               .settingValue;
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
-      await notificationManager.printNotifications();
     }
     notifyListeners();
     Provider.of<Database>(context, listen: false).uploadHabits(context);
@@ -221,9 +218,11 @@ class HabitManager extends ChangeNotifier {
   }
 
   Future<void> resetHabits(context) async {
+    NotificationManager notificationManager = NotificationManager();
     await resetDailyHabits(context);
     await resetWeeklyHabits(context);
     await resetMonthlyHabits(context);
+    await notificationManager.printNotifications();
   }
 
   List<Habit> getTodaysDueHabits() {

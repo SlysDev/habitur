@@ -101,7 +101,7 @@ class UserStatsHandler {
   void unlogHabitCompletion(BuildContext context) {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
-    UserStatsCalculator summaryStatsCalculator = UserStatsCalculator(
+    UserStatsCalculator userStatsCalculator = UserStatsCalculator(
         Provider.of<HabitManager>(context, listen: false).habits);
     fillInMissingDays(context);
 
@@ -117,30 +117,26 @@ class UserStatsHandler {
             'completions', user.stats[currentDayIndex].completions - 1);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'confidenceLevel',
-            summaryStatsCalculator
-                .calculateTodaysStatAverage('confidenceLevel'));
+            userStatsCalculator.calculateTodaysStatAverage('confidenceLevel'));
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'streak',
-            summaryStatsCalculator
-                .calculateTodaysStatAverage('streak')
-                .toInt());
+            userStatsCalculator.calculateTodaysStatAverage('streak').toInt());
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'consistencyFactor',
-            summaryStatsCalculator
+            userStatsCalculator
                 .calculateTodaysStatAverage('consistencyFactor'));
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'difficultyRating',
-            summaryStatsCalculator
-                .calculateTodaysStatAverage('difficultyRating'));
+            userStatsCalculator.calculateTodaysStatAverage('difficultyRating'));
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'slopeCompletions',
-            summaryStatsCalculator.calculateOverallSlope('completions'));
+            userStatsCalculator.calculateOverallSlope('completions'));
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'slopeConsistency',
-            summaryStatsCalculator.calculateOverallSlope('consistencyFactor'));
+            userStatsCalculator.calculateOverallSlope('consistencyFactor'));
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'slopeConfidenceLevel',
-            summaryStatsCalculator.calculateOverallSlope('confidenceLevel'));
+            userStatsCalculator.calculateOverallSlope('confidenceLevel'));
       }
     } else {
       // No need to undo anything if there's no entry for the current day
@@ -152,6 +148,8 @@ class UserStatsHandler {
   }
 
   void recordAverageConfidenceLevel(context) {
+    UserModel user =
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     double Function(BuildContext) getAverageConfidenceLevel =
         Provider.of<SummaryStatisticsRepository>(context, listen: false)
             .getAverageConfidenceLevel;
@@ -177,6 +175,8 @@ class UserStatsHandler {
   }
 
   void fillInMissingDays(context) {
+    UserModel user =
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     UserStatsCalculator statsCalculator = UserStatsCalculator(
         Provider.of<HabitManager>(context, listen: false).habits);
     // Create a DateTime object for the start date of the habit
@@ -222,6 +222,8 @@ class UserStatsHandler {
   }
 
   void sortStats(context) {
+    UserModel user =
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     user.stats.sort((a, b) => a.date.compareTo(b.date));
   }
 }
