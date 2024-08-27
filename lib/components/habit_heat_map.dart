@@ -15,8 +15,10 @@ class HabitHeatMap extends StatelessWidget {
     Map<DateTime, int> formattedData = {};
     for (StatPoint dataPoint in data) {
       DateTime date = dataPoint.date;
-      formattedData[DateTime(date.year, date.month, date.day)] =
-          dataPoint.completions;
+      if (dataPoint.completions != 0) {
+        formattedData[DateTime(date.year, date.month, date.day)] =
+            dataPoint.completions;
+      }
     }
     return Column(
       children: [

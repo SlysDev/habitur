@@ -161,13 +161,18 @@ class UserStatsHandler {
     );
     // If the two dates are more than a minute apart
     if (user.stats.isEmpty) {
-      user.stats.add(StatPoint(
-          date: DateTime.now(), completions: 0, confidenceLevel: 1, streak: 0));
+      Provider.of<UserLocalStorage>(context, listen: false).addUserStatPoint(
+          StatPoint(
+              date: DateTime.now(),
+              completions: 0,
+              confidenceLevel: 1,
+              streak: 0));
     } else if (currentDayIndex == -1) {
       StatPoint newEntry = user.stats.last;
       newEntry.date = DateTime.now();
       newEntry.confidenceLevel = getAverageConfidenceLevel(context);
-      user.stats.add(newEntry);
+      Provider.of<UserLocalStorage>(context, listen: false)
+          .addUserStatPoint(newEntry);
     } else {
       user.stats[currentDayIndex].confidenceLevel =
           getAverageConfidenceLevel(context);
@@ -216,7 +221,8 @@ class UserStatsHandler {
           slopeDifficultyRating:
               statsCalculator.calculateOverallSlope('difficultyRating'),
         );
-        user.stats.add(newStatPoint);
+        Provider.of<UserLocalStorage>(context, listen: false)
+            .addUserStatPoint(newStatPoint);
       }
     }
   }
@@ -224,6 +230,9 @@ class UserStatsHandler {
   void sortStats(context) {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
-    user.stats.sort((a, b) => a.date.compareTo(b.date));
+    List<StatPoint> userStats = user.stats;
+    userStats.sort((a, b) => a.date.compareTo(b.date));
+    Provider.of<UserLocalStorage>(context, listen: false)
+        .updateUserProperty('stats', userStats);
   }
 }

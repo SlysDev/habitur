@@ -184,6 +184,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -231,6 +232,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -253,6 +255,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -329,6 +332,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -367,6 +371,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -427,6 +432,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -441,6 +447,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -462,6 +469,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -489,6 +497,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -524,6 +533,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -564,6 +574,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -645,6 +656,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -700,6 +712,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -717,6 +730,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -741,6 +755,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -765,6 +780,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -786,6 +802,7 @@ class Database extends ChangeNotifier {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
+      print(e);
       print(s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
