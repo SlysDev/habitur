@@ -49,7 +49,8 @@ class NavBar extends StatelessWidget {
                       showModalBottomSheet(
                           context: context,
                           backgroundColor: Colors.transparent,
-                          elevation: 20,
+                          barrierColor: kPrimaryColor.withOpacity(0.2),
+                          elevation: 0,
                           isScrollControlled: true,
                           builder: (context) => AddHabitScreen());
                     }
