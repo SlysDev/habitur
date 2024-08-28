@@ -27,15 +27,16 @@ class HabitsScreen extends StatefulWidget {
 
 class _HabitsScreenState extends State<HabitsScreen> {
   Future<void> loadData(BuildContext context) async {
+    Database db = Database();
     await Provider.of<UserLocalStorage>(context, listen: false).init();
     await Provider.of<HabitsLocalStorage>(context, listen: false).init();
-    if (Provider.of<Database>(context, listen: false).isLoggedIn) {
+    if (db.userDatabase.isLoggedIn) {
       DateTime lastUpdated =
           await Provider.of<Database>(context, listen: false).lastUpdated;
       if (lastUpdated.isAfter(
           Provider.of<HabitsLocalStorage>(context, listen: false)
               .lastUpdated)) {
-        await Provider.of<Database>(context, listen: false).loadHabits(context);
+        db.habitDatabase.loadHabits(context);
         if (!Provider.of<NetworkStateProvider>(context, listen: false)
             .isConnected) {
           await Provider.of<HabitsLocalStorage>(context, listen: false)
@@ -128,8 +129,8 @@ class _HabitsScreenState extends State<HabitsScreen> {
                     text: 'load data from DB',
                     onPressed: () {
                       try {
-                        Provider.of<Database>(context, listen: false)
-                            .loadHabits(context);
+                        Database db = Database();
+                        db.habitDatabase.loadHabits(context);
                         Provider.of<NetworkStateProvider>(context,
                                 listen: false)
                             .isConnected = true;

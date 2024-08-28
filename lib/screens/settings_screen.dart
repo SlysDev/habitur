@@ -43,6 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     FirebaseAuth auth = FirebaseAuth.instance;
     SettingsLocalStorage settingsData =
         Provider.of<SettingsLocalStorage>(context, listen: false);
+    Database db = Database();
     String email = Provider.of<UserLocalStorage>(context).currentUser.email;
     String username =
         Provider.of<UserLocalStorage>(context).currentUser.username;
@@ -340,9 +341,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         .updateUserProperty('email', email);
                                     auth.currentUser!
                                         .verifyBeforeUpdateEmail(email);
-                                    await Provider.of<Database>(context,
-                                            listen: false)
-                                        .uploadUserData(context);
+                                    db.userDatabase.uploadUserData(context);
                                     Provider.of<NetworkStateProvider>(context,
                                             listen: false)
                                         .isConnected = true;
@@ -381,9 +380,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     if (auth.currentUser != null) {
                                       auth.currentUser!
                                           .updateDisplayName(username);
-                                      await Provider.of<Database>(context,
-                                              listen: false)
-                                          .uploadUserData(context);
+                                      db.userDatabase.uploadUserData(context);
                                       Provider.of<NetworkStateProvider>(context,
                                               listen: false)
                                           .isConnected = true;
@@ -421,8 +418,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Provider.of<Database>(context, listen: false)
-                                  .isLoggedIn
+                          db.userDatabase.isLoggedIn
                               ? AsideButton(
                                   text: 'Log out',
                                   onPressed: () async {

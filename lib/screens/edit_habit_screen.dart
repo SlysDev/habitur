@@ -425,8 +425,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                           editedHabit,
                         );
                         try {
-                          await Provider.of<Database>(context, listen: false)
-                              .updateHabit(editedHabit, context);
+                          Database db = Database();
+                          db.habitDatabase.updateHabit(editedHabit, context);
                           Provider.of<NetworkStateProvider>(context,
                                   listen: false)
                               .isConnected = true;

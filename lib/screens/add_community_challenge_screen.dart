@@ -258,8 +258,9 @@ class _AddCommunityChallengeScreenState
               ElevatedButton(
                 child: Text('Submit'),
                 onPressed: () async {
+                  Database db = Database();
                   print(widget.newChallenge);
-                  Provider.of<Database>(context, listen: false)
+                  db.communityChallengeDatabase
                       .addCommunityChallenge(widget.newChallenge, context);
                   Navigator.pop(context);
                 },

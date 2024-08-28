@@ -448,8 +448,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         Provider.of<HabitManager>(context, listen: false)
                             .addHabit(finalHabit, context);
                         try {
-                          Provider.of<Database>(context, listen: false)
-                              .addHabit(finalHabit, context);
+                          Database db = Database();
+                          db.habitDatabase.addHabit(finalHabit, context);
                           Provider.of<NetworkStateProvider>(context,
                                   listen: false)
                               .isConnected = true;

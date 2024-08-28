@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/user.dart';
+import 'package:habitur/modules/summary_stats_calculator.dart';
 import 'package:habitur/modules/user_stats_calculator.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:provider/provider.dart';
 
 class UserStatsHandler {
+  Database db = Database();
   void logHabitCompletion(BuildContext context) {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
@@ -58,12 +59,11 @@ class UserStatsHandler {
             date: DateTime.now(),
             completions: 1,
             confidenceLevel:
-                Provider.of<SummaryStatisticsRepository>(context, listen: false)
+                Provider.of<SummaryStatsCalculator>(context, listen: false)
                     .getAverageConfidenceLevel(context),
-            streak:
-                Provider.of<SummaryStatisticsRepository>(context, listen: false)
-                    .getAverageStreak(context)
-                    .toInt());
+            streak: Provider.of<SummaryStatsCalculator>(context, listen: false)
+                .getAverageStreak(context)
+                .toInt());
         Provider.of<UserLocalStorage>(context, listen: false)
             .addUserStatPoint(newStatPoint);
       } else {
@@ -71,12 +71,11 @@ class UserStatsHandler {
             date: DateTime.now(),
             completions: 1,
             confidenceLevel:
-                Provider.of<SummaryStatisticsRepository>(context, listen: false)
+                Provider.of<SummaryStatsCalculator>(context, listen: false)
                     .getAverageConfidenceLevel(context),
-            streak:
-                Provider.of<SummaryStatisticsRepository>(context, listen: false)
-                    .getAverageStreak(context)
-                    .toInt());
+            streak: Provider.of<SummaryStatsCalculator>(context, listen: false)
+                .getAverageStreak(context)
+                .toInt());
         // TODO: Add calculations for slopes + consistency factor avg
         Provider.of<UserLocalStorage>(context, listen: false)
             .addUserStatPoint(newStatPoint);
@@ -95,7 +94,7 @@ class UserStatsHandler {
         user.stats.last.date.toString() +
         " Completions: " +
         user.stats.last.completions.toString());
-    Provider.of<Database>(context, listen: false).uploadStatistics(context);
+    db.statsDatabase.uploadStatistics(context);
   }
 
   void unlogHabitCompletion(BuildContext context) {
@@ -144,14 +143,14 @@ class UserStatsHandler {
     }
 
     recordAverageConfidenceLevel(context);
-    Provider.of<Database>(context, listen: false).uploadStatistics(context);
+    db.statsDatabase.uploadStatistics(context);
   }
 
   void recordAverageConfidenceLevel(context) {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     double Function(BuildContext) getAverageConfidenceLevel =
-        Provider.of<SummaryStatisticsRepository>(context, listen: false)
+        Provider.of<SummaryStatsCalculator>(context, listen: false)
             .getAverageConfidenceLevel;
     int currentDayIndex = user.stats.indexWhere(
       (stat) =>

@@ -58,10 +58,10 @@ class _InactiveHabitCardState extends State<InactiveHabitCard> {
     }
 
     deleteHabit() async {
+      Database db = Database();
       await Provider.of<HabitManager>(context, listen: false)
           .deleteHabit(context, widget.index);
-      Provider.of<Database>(context, listen: false)
-          .deleteHabit(context, habit.id);
+      db.habitDatabase.deleteHabit(context, habit.id);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .deleteHabit(habit);
     }

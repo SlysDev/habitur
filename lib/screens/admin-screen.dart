@@ -18,7 +18,8 @@ class AdminScreen extends StatelessWidget {
               isAdmin: true,
               onRefresh: () async {
                 try {
-                  Provider.of<Database>(context, listen: false)
+                  Database db = Database();
+                  db.communityChallengeDatabase
                       .loadCommunityChallenges(context);
                   Provider.of<NetworkStateProvider>(context, listen: false)
                       .isConnected = true;

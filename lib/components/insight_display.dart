@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +18,10 @@ class InsightDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<SummaryStatisticsRepository>(context).statPoints.isEmpty) {
+    if (Provider.of<UserLocalStorage>(context, listen: false)
+        .currentUser
+        .stats
+        .isEmpty) {
       insightPreText =
           'Looks like you haven\'t logged any stats yet! Complete your first habit to get started.';
       insightPercentChange = '';

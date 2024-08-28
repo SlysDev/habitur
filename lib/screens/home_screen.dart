@@ -24,15 +24,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> loadData(BuildContext context) async {
-    await Provider.of<UserLocalStorage>(context, listen: false).init();
+    Database db = Database();
     await Provider.of<UserLocalStorage>(context, listen: false).loadData();
-    if (Provider.of<Database>(context, listen: false).isLoggedIn) {
+    if (db.userDatabase.isLoggedIn) {
       DateTime lastUpdated =
           await Provider.of<Database>(context, listen: false).lastUpdated;
       if (lastUpdated.isAfter(
           Provider.of<UserLocalStorage>(context, listen: false).lastUpdated)) {
-        await Provider.of<Database>(context, listen: false)
-            .loadUserData(context);
+        db.userDatabase.loadUserData(context);
         if (!Provider.of<NetworkStateProvider>(context, listen: false)
             .isConnected) {
           await Provider.of<UserLocalStorage>(context, listen: false)
@@ -51,8 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
-    await Provider.of<Database>(context, listen: false)
-        .loadCommunityChallenges(context);
+    db.communityChallengeDatabase.loadCommunityChallenges(context);
   }
 
   Widget build(BuildContext context) {

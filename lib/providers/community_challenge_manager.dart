@@ -67,8 +67,8 @@ class CommunityChallengeManager extends ChangeNotifier {
   }
 
   void updateChallenges(context) {
-    Provider.of<Database>(context, listen: false)
-        .uploadCommunityChallenges(context);
+    Database db = Database();
+    db.communityChallengeDatabase.uploadCommunityChallenges(context);
     print('Challenges updated');
     notifyListeners();
   }

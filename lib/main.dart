@@ -13,8 +13,6 @@ import 'package:habitur/models/user.dart';
 import 'package:habitur/notifications/notification_controller.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/network_state_provider.dart';
-import 'package:habitur/providers/statistics_display_manager.dart';
-import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/screens/admin-screen.dart';
 import 'package:habitur/screens/community_leaderboard_screen.dart';
 import 'package:habitur/screens/habits_screen.dart';
@@ -121,7 +119,6 @@ class _HabiturState extends State<Habitur> {
               create: (context) => LoginRegistrationState()),
           ChangeNotifierProvider<HabitManager>(
               create: (context) => HabitManager()),
-          ChangeNotifierProvider<Database>(create: (context) => Database()),
           ChangeNotifierProvider<HabitsLocalStorage>(
               create: (context) => HabitsLocalStorage()),
           ChangeNotifierProvider<UserLocalStorage>(
@@ -134,10 +131,6 @@ class _HabiturState extends State<Habitur> {
               create: (context) => AuthLocalStorage()),
           ChangeNotifierProvider<LocalStorage>(
               create: (context) => LocalStorage()),
-          ChangeNotifierProvider<SummaryStatisticsRepository>(
-              create: (context) => SummaryStatisticsRepository()),
-          ChangeNotifierProvider<StatisticsDisplayManager>(
-              create: (context) => StatisticsDisplayManager()),
           ChangeNotifierProvider<NetworkStateProvider>(
               create: (context) => NetworkStateProvider()),
           ChangeNotifierProvider<CommunityChallengeManager>(

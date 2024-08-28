@@ -88,9 +88,9 @@ class RegisterScreen extends StatelessWidget {
                   final newUser = await _auth.createUserWithEmailAndPassword(
                       email: email, password: password);
                   if (newUser.user != null) {
+                    Database db = Database();
                     print('New user created.');
-                    await Provider.of<Database>(context, listen: false)
-                        .userSetup(username, email);
+                    db.userDatabase.userSetup(username, email);
                     Navigator.popAndPushNamed(context, 'home_screen');
                   }
                 } catch (e) {

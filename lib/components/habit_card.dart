@@ -48,6 +48,7 @@ class _HabitCardState extends State<HabitCard> {
   Widget build(BuildContext context) {
     Habit habit = Provider.of<HabitManager>(context).sortedHabits[widget.index];
     HabitStatsHandler habitStatsHandler = HabitStatsHandler(habit);
+    Database db = Database();
     double progress = habit.completionsToday / habit.requiredCompletions;
     bool completed = habit.completionsToday == habit.requiredCompletions;
     completeHabit(double recordedDifficulty) async {
@@ -55,7 +56,7 @@ class _HabitCardState extends State<HabitCard> {
         habitStatsHandler.incrementCompletion(context,
             recordedDifficulty: recordedDifficulty);
         Provider.of<HabitManager>(context, listen: false).updateHabits();
-        await Provider.of<Database>(context, listen: false).updateHabit(
+        db.habitDatabase.updateHabit(
             Provider.of<HabitManager>(context, listen: false)
                 .habits[widget.index],
             context);
@@ -67,7 +68,7 @@ class _HabitCardState extends State<HabitCard> {
     decrementHabit() async {
       habitStatsHandler.decrementCompletion(context);
       Provider.of<HabitManager>(context, listen: false).updateHabits();
-      await Provider.of<Database>(context, listen: false).updateHabit(
+      db.habitDatabase.updateHabit(
           Provider.of<HabitManager>(context, listen: false)
               .habits[widget.index],
           context);
@@ -87,8 +88,7 @@ class _HabitCardState extends State<HabitCard> {
     deleteHabit() async {
       await Provider.of<HabitManager>(context, listen: false)
           .deleteHabit(context, widget.index);
-      await Provider.of<Database>(context, listen: false)
-          .deleteHabit(context, habit.id);
+      db.habitDatabase.deleteHabit(context, habit.id);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .deleteHabit(habit);
     }

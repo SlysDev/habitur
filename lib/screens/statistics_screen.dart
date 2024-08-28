@@ -4,8 +4,8 @@ import 'package:habitur/components/habit_stats_card_list.dart';
 import 'package:habitur/components/insight_display.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/modules/insights_generator.dart';
+import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/summary_statistics_repository.dart';
 import '../components/navbar.dart';
 import '../components/rounded_progress_bar.dart';
 import '../constants.dart';
@@ -19,8 +19,9 @@ class StatisticsScreen extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    Database db = Database();
     InsightsGenerator insightsGenerator = InsightsGenerator(
-        Provider.of<SummaryStatisticsRepository>(context).statPoints,
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser.stats,
         isSummary: true);
     Map<String, dynamic> insightData =
         insightsGenerator.findAreaForImprovement();
@@ -69,8 +70,9 @@ class StatisticsScreen extends StatelessWidget {
               child: HabitHeatMap(
                 data:
                     // Converts stats array into a map (list --> iterable --> map)
-                    Provider.of<SummaryStatisticsRepository>(context)
-                        .statPoints,
+                    Provider.of<UserLocalStorage>(context, listen: false)
+                        .currentUser
+                        .stats,
               ),
             ),
             const SizedBox(height: 60),
@@ -82,8 +84,9 @@ class StatisticsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 60),
             LineGraph(
-              data:
-                  Provider.of<SummaryStatisticsRepository>(context).statPoints,
+              data: Provider.of<UserLocalStorage>(context, listen: false)
+                  .currentUser
+                  .stats,
             ),
             const SizedBox(height: 60),
             const HabitStatsCardList(),

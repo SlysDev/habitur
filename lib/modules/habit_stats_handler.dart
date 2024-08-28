@@ -8,7 +8,6 @@ import 'package:habitur/modules/habit_stats_calculator.dart';
 import 'package:habitur/modules/user_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
-import 'package:habitur/providers/summary_statistics_repository.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
@@ -16,6 +15,7 @@ import 'dart:math';
 class HabitStatsHandler {
   Habit habit;
   HabitStatsHandler(this.habit);
+  Database db = Database();
 
   void incrementCompletion(context, {double recordedDifficulty = 5}) async {
     UserStatsHandler statsRecorder = UserStatsHandler();
@@ -25,11 +25,9 @@ class HabitStatsHandler {
     habit.completionsToday++;
     habit.totalCompletions++;
     if (habit.completionsToday == habit.requiredCompletions) {
-      Provider.of<SummaryStatisticsRepository>(context, listen: false)
-          .totalHabitsCompleted++;
       Provider.of<UserLocalStorage>(context, listen: false).addHabiturRating();
       await Provider.of<UserLocalStorage>(context, listen: false).saveData();
-      Provider.of<Database>(context, listen: false).uploadUserData(context);
+      db.userDatabase.uploadUserData(context);
       habit.streak++;
       if (habit.streak > habit.highestStreak) {
         habit.highestStreak = habit.streak;
@@ -106,8 +104,6 @@ class HabitStatsHandler {
 
     // Check if decrementing completion would change habit completion status
     if (habit.completionsToday == habit.requiredCompletions) {
-      Provider.of<SummaryStatisticsRepository>(context, listen: false)
-          .totalHabitsCompleted--;
       statsRecorder.recordAverageConfidenceLevel(context);
 
       if (habit.daysCompleted.isNotEmpty) {
@@ -116,7 +112,7 @@ class HabitStatsHandler {
 
       Provider.of<UserLocalStorage>(context, listen: false)
           .removeHabiturRating();
-      Provider.of<Database>(context, listen: false).uploadUserData(context);
+      db.userDatabase.uploadUserData(context);
     }
 
     // Decrement completions and potentially update streak
@@ -127,7 +123,7 @@ class HabitStatsHandler {
     habit.totalCompletions--;
 
     if (habit.isCommunityHabit) {
-      Provider.of<Database>(context, listen: false).uploadStatistics(context);
+      db.statsDatabase.uploadStatistics(context);
       return;
     }
 
@@ -218,7 +214,7 @@ class HabitStatsHandler {
       );
       habit.stats.add(newStatPoint);
     }
-    Provider.of<Database>(context, listen: false).uploadStatistics(context);
+    db.statsDatabase.uploadStatistics(context);
   }
 
   void fillInMissingDays(context) {

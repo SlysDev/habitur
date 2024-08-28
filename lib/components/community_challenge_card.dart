@@ -308,7 +308,8 @@ Widget buildAdminCard(context, challenge, currentHabit, totalProgress) {
                             child: AsideButton(
                                 text: 'Delete',
                                 onPressed: () {
-                                  Provider.of<Database>(context, listen: false)
+                                  Database db = Database();
+                                  db.communityChallengeDatabase
                                       .removeCommunityChallenge(
                                           challenge.id, context);
                                 }),

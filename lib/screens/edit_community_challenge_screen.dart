@@ -282,10 +282,10 @@ class _EditCommunityChallengeScreenState
             ElevatedButton(
               child: Text('Submit'),
               onPressed: () async {
+                Database db = Database();
                 print(modifiedChallenge);
-                Provider.of<Database>(context, listen: false)
-                    .editCommunityChallenge(
-                        widget.challenge.id, modifiedChallenge, context);
+                db.communityChallengeDatabase.editCommunityChallenge(
+                    widget.challenge.id, modifiedChallenge, context);
                 Navigator.pop(context);
               },
             ),

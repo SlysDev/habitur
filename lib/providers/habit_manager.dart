@@ -16,6 +16,7 @@ class HabitManager extends ChangeNotifier {
   late List<Habit> _sortedHabits;
   late String weekDay;
   late String date;
+  Database db = Database();
   void getDay() {
     weekDay = DateFormat('EEEE').format(DateTime.now());
   }
@@ -129,7 +130,7 @@ class HabitManager extends ChangeNotifier {
     }
 
     notifyListeners();
-    Provider.of<Database>(context, listen: false).uploadHabits(context);
+    db.habitDatabase.uploadHabits(context);
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
             Provider.of<HabitManager>(context, listen: false).habits);
@@ -176,7 +177,7 @@ class HabitManager extends ChangeNotifier {
           context, numberOfReminders);
     }
     notifyListeners();
-    Provider.of<Database>(context, listen: false).uploadHabits(context);
+    db.habitDatabase.uploadHabits(context);
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
             Provider.of<HabitManager>(context, listen: false).habits);
@@ -211,7 +212,7 @@ class HabitManager extends ChangeNotifier {
           context, numberOfReminders);
     }
     notifyListeners();
-    Provider.of<Database>(context, listen: false).uploadHabits(context);
+    db.habitDatabase.uploadHabits(context);
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
             Provider.of<HabitManager>(context, listen: false).habits);
