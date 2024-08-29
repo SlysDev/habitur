@@ -27,8 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Database db = Database();
     await Provider.of<UserLocalStorage>(context, listen: false).loadData();
     if (db.userDatabase.isLoggedIn) {
-      DateTime lastUpdated =
-          await Provider.of<Database>(context, listen: false).lastUpdated;
+      DateTime lastUpdated = await db.lastUpdatedManager.lastUpdated;
       if (lastUpdated.isAfter(
           Provider.of<UserLocalStorage>(context, listen: false).lastUpdated)) {
         db.userDatabase.loadUserData(context);

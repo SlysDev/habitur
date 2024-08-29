@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/network_state_provider.dart';
@@ -75,7 +76,7 @@ class UserDatabase {
   }
 
   Future<void> uploadUserData(context) async {
-    Database db = Database();
+    LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
     // throw Error();
     try {
       QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
@@ -111,7 +112,7 @@ class UserDatabase {
                 .currentUser
                 .isAdmin
                 .toString());
-        db.syncLastUpdated(context);
+        lastUpdatedManager.syncLastUpdated(context);
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;

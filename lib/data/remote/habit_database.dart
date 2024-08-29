@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/remote/data_converter.dart';
+import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
@@ -11,7 +12,8 @@ import 'package:provider/provider.dart';
 class HabitDatabase {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  Database db = Database();
+  LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
+  DataConverter dataConverter = DataConverter();
   Future<void> loadHabits(context) async {
     try {
       CollectionReference users = _firestore.collection('users');
@@ -34,7 +36,7 @@ class HabitDatabase {
                 .toList();
 
         List<DateTime> daysCompletedFormatted =
-            db.dataConverter.dbListToDates(habit.get('daysCompleted'));
+            dataConverter.dbListToDates(habit.get('daysCompleted'));
 
         Habit loadedHabit = Habit(
           title: habit.get('title'),
@@ -53,7 +55,7 @@ class HabitDatabase {
           requiredDatesOfCompletion: requiredDatesOfCompletionFormatted,
         );
         loadedHabit.stats =
-            db.dataConverter.dbListToStatPoints(habit.get('stats'));
+            dataConverter.dbListToStatPoints(habit.get('stats'));
         loadedHabit.daysCompleted = daysCompletedFormatted;
         habitList.add(loadedHabit);
       }
@@ -104,7 +106,7 @@ class HabitDatabase {
         }
         //// TODO: Upload hive's storage of the habit list to Firebase  <22-12-22, slys> //
       }
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -134,7 +136,7 @@ class HabitDatabase {
                 'date': completedDate,
               })
           .toList(),
-      'stats': db.dataConverter.dbStatPointsToMap(habit.stats),
+      'stats': dataConverter.dbStatPointsToMap(habit.stats),
     });
   }
 
@@ -163,9 +165,9 @@ class HabitDatabase {
                   'date': completedDate,
                 })
             .toList(),
-        'stats': db.dataConverter.dbStatPointsToMap(habit.stats),
+        'stats': dataConverter.dbStatPointsToMap(habit.stats),
       });
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -179,7 +181,7 @@ class HabitDatabase {
   Future<void> updateHabit(Habit habit, context) async {
     try {
       await _updateHabitDoc(habit, await getHabitByID(habit.id, context));
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
 
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
@@ -202,7 +204,7 @@ class HabitDatabase {
       QueryDocumentSnapshot doc = await getHabitByID(id, context);
 
       habitsCollectionRef.doc(doc.id).delete();
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

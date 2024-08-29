@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/participant_data.dart';
@@ -13,7 +14,7 @@ import 'package:provider/provider.dart';
 class CommunityChallengeDatabase {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  Database db = Database();
+  LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
   Future<void> loadCommunityChallenges(context) async {
     try {
       QuerySnapshot communityChallengesSnapshot =
@@ -141,7 +142,7 @@ class CommunityChallengeDatabase {
           }
         }
       }
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -159,7 +160,7 @@ class CommunityChallengeDatabase {
       await communityChallengesRef.add(newChallenge);
 
       loadCommunityChallenges(context);
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -184,7 +185,7 @@ class CommunityChallengeDatabase {
       }
 
       loadCommunityChallenges(context);
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -209,7 +210,7 @@ class CommunityChallengeDatabase {
       }
 
       loadCommunityChallenges(context);
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

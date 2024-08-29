@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/data/remote/data_converter.dart';
+import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/modules/summary_stats_calculator.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/network_state_provider.dart';
@@ -10,7 +11,8 @@ import 'package:provider/provider.dart';
 class StatsDatabase {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  Database db = Database();
+  LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
+  DataConverter dataConverter = DataConverter();
   Future<void> loadStatistics(context) async {
     try {
       CollectionReference users = _firestore.collection('users');
@@ -20,7 +22,7 @@ class StatsDatabase {
         Provider.of<UserLocalStorage>(context, listen: false)
             .updateUserProperty(
                 'stats',
-                db.dataConverter.dbListToStatPoints(
+                dataConverter.dbListToStatPoints(
                     userSnapshot.get('stats')['statPoints']));
         ;
       } else {
@@ -38,7 +40,6 @@ class StatsDatabase {
   }
 
   void uploadStatistics(context) async {
-    SummaryStatsCalculator summaryStatsCalculator = SummaryStatsCalculator();
     try {
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
@@ -52,10 +53,8 @@ class StatsDatabase {
 
       userReference.set({
         'stats': {
-          'totalHabitsCompleted':
-              summaryStatsCalculator.getTotalHabitsCompleted(context),
           // Converting confidenceStats into an array of normal objects
-          'statPoints': db.dataConverter.dbStatPointsToMap(
+          'statPoints': dataConverter.dbStatPointsToMap(
               Provider.of<UserLocalStorage>(context, listen: false)
                   .currentUser
                   .stats),
@@ -63,7 +62,7 @@ class StatsDatabase {
       }, SetOptions(merge: true));
 
       print('stats uploaded');
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -104,7 +103,7 @@ class StatsDatabase {
           'resetPeriod': 0,
         }, SetOptions(merge: true));
       }
-      db.syncLastUpdated(context);
+      lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

@@ -5,6 +5,7 @@ import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/remote/community_challenge_database.dart';
 import 'package:habitur/data/remote/data_converter.dart';
 import 'package:habitur/data/remote/habit_database.dart';
+import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/data/remote/stats_database.dart';
 import 'package:habitur/data/remote/user_database.dart';
 import 'package:habitur/models/community_challenge.dart';
@@ -29,40 +30,8 @@ class Database {
       CommunityChallengeDatabase();
   StatsDatabase statsDatabase = StatsDatabase();
   DataConverter dataConverter = DataConverter();
+  LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
   // Helper Functions
-  Future<DateTime> get lastUpdated async {
-    CollectionReference users = _firestore.collection('users');
-    String uid = _auth.currentUser!.uid.toString();
-    DocumentReference userDoc = users.doc(uid);
-    DocumentSnapshot userSnapshot = await userDoc.get();
-    return userSnapshot['lastUpdated'].toDate();
-  }
-
-// Database functions
-
-  Future<void> syncLastUpdated(context) async {
-    try {
-      QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
-      for (var user in usersSnapshot.docs) {
-        if (user.get('uid') ==
-            Provider.of<UserLocalStorage>(context, listen: false)
-                .currentUser
-                .uid) {
-          await user.reference.set({
-            'lastUpdated': DateTime.now(),
-          }, SetOptions(merge: true));
-        }
-      }
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          true;
-    } catch (e, s) {
-      print(e);
-      print(s);
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          false;
-    }
-  }
-
   Future<void> loadData(context) async {
     await userDatabase.loadUserData(context);
     await habitDatabase.loadHabits(context);
