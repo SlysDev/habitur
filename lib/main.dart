@@ -16,6 +16,7 @@ import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/admin-screen.dart';
 import 'package:habitur/screens/community_leaderboard_screen.dart';
 import 'package:habitur/screens/habits_screen.dart';
+import 'package:habitur/screens/splash_screen.dart';
 import 'constants.dart';
 // Screens
 import 'screens/welcome_screen.dart';
@@ -200,19 +201,18 @@ class _HabiturState extends State<Habitur> {
                   ))),
             ),
           ),
-          initialRoute: widget.auth.currentUser != null
-              ? 'home_screen'
-              : 'welcome_screen',
+          initialRoute: 'splash_screen',
           routes: {
+            'splash_screen': (context) => const SplashScreen(),
             'welcome_screen': (context) => WelcomeScreen(),
             'login_screen': (context) => LoginScreen(),
             'register_screen': (context) => RegisterScreen(),
-            'admin_screen': (context) => AdminScreen(),
+            'admin_screen': (context) => const AdminScreen(),
             'home_screen': (context) => HomeScreen(),
             'habits_screen': (context) => HabitsScreen(),
             'habits_screen_offline': (context) => HabitsScreen(),
             'settings_screen': (context) => SettingsScreen(),
-            'statistics_screen': (context) => StatisticsScreen(),
+            'statistics_screen': (context) => const StatisticsScreen(),
           },
         ));
   }
