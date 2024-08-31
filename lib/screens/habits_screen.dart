@@ -28,8 +28,6 @@ class HabitsScreen extends StatefulWidget {
 class _HabitsScreenState extends State<HabitsScreen> {
   Future<void> loadData(BuildContext context) async {
     Database db = Database();
-    await Provider.of<UserLocalStorage>(context, listen: false).init();
-    await Provider.of<HabitsLocalStorage>(context, listen: false).init();
     if (db.userDatabase.isLoggedIn) {
       DateTime lastUpdated = await db.lastUpdatedManager.lastUpdated;
       if (lastUpdated.isAfter(
