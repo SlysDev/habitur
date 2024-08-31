@@ -54,6 +54,38 @@ class StatPoint {
     }
   }
 
+  void updateStatByName(String statName, dynamic newValue) {
+    switch (statName) {
+      case 'completions':
+        completions = newValue;
+        break;
+      case 'consistencyFactor':
+        consistencyFactor = newValue;
+        break;
+      case 'confidenceLevel':
+        confidenceLevel = newValue;
+        break;
+      case 'streak':
+        streak = newValue;
+        break;
+      case 'difficultyRating':
+        difficultyRating = newValue;
+        break;
+      case 'slopeCompletions':
+        slopeCompletions = newValue;
+        break;
+      case 'slopeConfidenceLevel':
+        slopeConfidenceLevel = newValue;
+        break;
+      case 'slopeConsistency':
+        slopeConsistency = newValue;
+        break;
+      case 'slopeDifficultyRating':
+        slopeDifficultyRating = newValue;
+        break;
+    }
+  }
+
   StatPoint({
     required this.date,
     required this.completions,

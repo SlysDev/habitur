@@ -39,19 +39,19 @@ class StatsDatabase {
     }
   }
 
-  void uploadStatistics(context) async {
+  Future<void> uploadStatistics(context) async {
     try {
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());
 
-      userReference.set({
+      await userReference.set({
         'habiturRating': Provider.of<UserLocalStorage>(context, listen: false)
             .currentUser
             .userXP,
       }, SetOptions(merge: true));
 
-      userReference.set({
+      await userReference.set({
         'stats': {
           // Converting confidenceStats into an array of normal objects
           'statPoints': dataConverter.dbStatPointsToMap(
@@ -62,7 +62,7 @@ class StatsDatabase {
       }, SetOptions(merge: true));
 
       print('stats uploaded');
-      lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

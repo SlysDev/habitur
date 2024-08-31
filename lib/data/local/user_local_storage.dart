@@ -98,18 +98,14 @@ class UserLocalStorage extends ChangeNotifier {
 
   void updateUserStat(String statName, dynamic newValue) {
     final user = _userBox.get('currentUser');
-    final updatedUser = UserModel(
-      username: user.username,
-      email: user.email,
-      userLevel: user.userLevel,
-      userXP: user.userXP,
-      uid: user.uid,
-      stats: user.stats
-          .map((stat) => statName == stat.name ? newValue : stat)
-          .toList(),
-      profilePicture: user.profilePicture,
-    );
-    currentUser = updatedUser;
+    try {
+      user.stats.last.updateStatByName(statName, newValue);
+      _userBox.put('currentUser', user);
+    } catch (e, s) {
+      print('unsuccessful stat update');
+      print(e);
+      print(s);
+    }
     notifyListeners();
   }
 

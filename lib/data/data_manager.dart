@@ -1,0 +1,44 @@
+import 'package:habitur/data/local/habits_local_storage.dart';
+import 'package:habitur/data/local/settings_local_storage.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/network_state_provider.dart';
+import 'package:provider/provider.dart';
+
+class DataManager {
+  Future<void> loadData(context) async {
+    Database db = Database();
+    await Provider.of<UserLocalStorage>(context, listen: false).loadData();
+    await Provider.of<HabitsLocalStorage>(context, listen: false).init();
+    await Provider.of<SettingsLocalStorage>(context, listen: false).init();
+    if (db.userDatabase.isLoggedIn) {
+      DateTime lastUpdated = await db.lastUpdatedManager.lastUpdated;
+      if (lastUpdated.isAfter(
+          Provider.of<UserLocalStorage>(context, listen: false).lastUpdated)) {
+        print('loading from DB');
+        await db.userDatabase.loadUserData(context);
+        await db.statsDatabase.loadStatistics(context);
+        if (!Provider.of<NetworkStateProvider>(context, listen: false)
+            .isConnected) {
+          await Provider.of<UserLocalStorage>(context, listen: false)
+              .loadData();
+        } else {
+          await Provider.of<UserLocalStorage>(context, listen: false)
+              .saveData();
+        } // handles no internet (try/catch in DB sets isConnected to false)
+      } else {
+        print('loading from LS');
+        await Provider.of<UserLocalStorage>(context, listen: false).loadData();
+        await db.userDatabase.uploadUserData(context);
+        await db.statsDatabase.uploadStatistics(context);
+      }
+    } else {
+      print('user is not logged in; loading from LS');
+      await Provider.of<HabitsLocalStorage>(context, listen: false)
+          .loadData(context);
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
+    }
+    db.communityChallengeDatabase.loadCommunityChallenges(context);
+  }
+}

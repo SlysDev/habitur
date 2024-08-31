@@ -20,6 +20,9 @@ class StatisticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Database db = Database();
+    print(Provider.of<UserLocalStorage>(context, listen: false)
+        .currentUser
+        .stats);
     InsightsGenerator insightsGenerator = InsightsGenerator(
         Provider.of<UserLocalStorage>(context, listen: false).currentUser.stats,
         isSummary: true);

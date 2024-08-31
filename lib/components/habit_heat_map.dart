@@ -14,6 +14,9 @@ class HabitHeatMap extends StatelessWidget {
   Widget build(BuildContext context) {
     Map<DateTime, int> formattedData = {};
     for (StatPoint dataPoint in data) {
+      print(dataPoint.date);
+      print(dataPoint.completions);
+      print('-------------------');
       DateTime date = dataPoint.date;
       if (dataPoint.completions != 0) {
         formattedData[DateTime(date.year, date.month, date.day)] =

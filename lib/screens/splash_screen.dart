@@ -2,9 +2,12 @@ import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/data/data_manager.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/home_screen.dart';
 import 'package:habitur/screens/welcome_screen.dart';
 import 'package:provider/provider.dart';
@@ -24,10 +27,8 @@ class SplashScreen extends StatelessWidget {
       splashIconSize: 150,
       splashTransition: SplashTransition.scaleTransition,
       screenFunction: () async {
-        print('running?');
-        await Provider.of<UserLocalStorage>(context, listen: false).loadData();
-        await Provider.of<HabitsLocalStorage>(context, listen: false).init();
-        await Provider.of<SettingsLocalStorage>(context, listen: false).init();
+        DataManager dataManager = DataManager();
+        await dataManager.loadData(context);
         return auth.currentUser != null ? HomeScreen() : WelcomeScreen();
       },
     );

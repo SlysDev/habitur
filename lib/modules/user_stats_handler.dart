@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 class UserStatsHandler {
   Database db = Database();
+  SummaryStatsCalculator summaryStatsCalculator = SummaryStatsCalculator();
   void logHabitCompletion(BuildContext context) {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
@@ -27,7 +28,7 @@ class UserStatsHandler {
     );
 
     if (currentDayIndex != -1) {
-      // If there's an entry for the current day, update the completion count
+      // If there's an entry for the current day, update
       Provider.of<UserLocalStorage>(context, listen: false)
           .updateUserStat('date', DateTime.now());
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
@@ -54,36 +55,26 @@ class UserStatsHandler {
           'slopeConfidenceLevel',
           userStatsCalculator.calculateOverallSlope('confidenceLevel'));
     } else {
-      if (user.stats.isEmpty) {
-        StatPoint newStatPoint = StatPoint(
-            date: DateTime.now(),
-            completions: 1,
-            confidenceLevel:
-                Provider.of<SummaryStatsCalculator>(context, listen: false)
-                    .getAverageConfidenceLevel(context),
-            streak: Provider.of<SummaryStatsCalculator>(context, listen: false)
-                .getAverageStreak(context)
-                .toInt());
-        Provider.of<UserLocalStorage>(context, listen: false)
-            .addUserStatPoint(newStatPoint);
-      } else {
-        StatPoint newStatPoint = StatPoint(
-            date: DateTime.now(),
-            completions: 1,
-            confidenceLevel:
-                Provider.of<SummaryStatsCalculator>(context, listen: false)
-                    .getAverageConfidenceLevel(context),
-            streak: Provider.of<SummaryStatsCalculator>(context, listen: false)
-                .getAverageStreak(context)
-                .toInt());
-        // TODO: Add calculations for slopes + consistency factor avg
-        Provider.of<UserLocalStorage>(context, listen: false)
-            .addUserStatPoint(newStatPoint);
-      }
-      // If there's no entry for the current day, add a new entry
-      StatPoint newEntry = user.stats.last;
-      newEntry.date = DateTime.now();
-      newEntry.completions = 1;
+      StatPoint newEntry = StatPoint(
+        date: DateTime.now(),
+        completions: 1,
+        confidenceLevel:
+            userStatsCalculator.calculateTodaysStatAverage('confidenceLevel'),
+        streak:
+            userStatsCalculator.calculateTodaysStatAverage('streak').toInt(),
+        consistencyFactor:
+            userStatsCalculator.calculateTodaysStatAverage('consistencyFactor'),
+        difficultyRating:
+            userStatsCalculator.calculateTodaysStatAverage('difficultyRating'),
+        slopeCompletions:
+            userStatsCalculator.calculateOverallSlope('completions'),
+        slopeConsistency:
+            userStatsCalculator.calculateOverallSlope('consistencyFactor'),
+        slopeConfidenceLevel:
+            userStatsCalculator.calculateOverallSlope('confidenceLevel'),
+        slopeDifficultyRating:
+            userStatsCalculator.calculateOverallSlope('difficultyRating'),
+      );
       Provider.of<UserLocalStorage>(context, listen: false)
           .addUserStatPoint(newEntry);
     }
@@ -150,8 +141,7 @@ class UserStatsHandler {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     double Function(BuildContext) getAverageConfidenceLevel =
-        Provider.of<SummaryStatsCalculator>(context, listen: false)
-            .getAverageConfidenceLevel;
+        summaryStatsCalculator.getAverageConfidenceLevel;
     int currentDayIndex = user.stats.indexWhere(
       (stat) =>
           stat.date.year == DateTime.now().year &&
@@ -229,7 +219,8 @@ class UserStatsHandler {
   void sortStats(context) {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
-    List<StatPoint> userStats = user.stats;
+    List<StatPoint> userStats =
+        user.stats.map((stat) => stat).toList(); // make a copy
     userStats.sort((a, b) => a.date.compareTo(b.date));
     Provider.of<UserLocalStorage>(context, listen: false)
         .updateUserProperty('stats', userStats);
