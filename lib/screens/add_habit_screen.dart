@@ -425,18 +425,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                           )
                         : Container(),
                     ElevatedButton(
-                      onPressed: () {
-                        DateTime today = DateTime.now();
-                        DateTime habitDueDate;
-                        if (selectedPeriod == 'Daily') {
-                          habitDueDate = today;
-                        } else if (selectedPeriod == 'Weekly') {
-                          habitDueDate = today.add(Duration(
-                              days: (DateTime.daysPerWeek) - (today.weekday)));
-                        } else {
-                          habitDueDate = today.add(const Duration(days: 30));
-                          // Defaulting motnh to 30 days, may change later.
-                        }
+                      onPressed: () async {
                         Habit finalHabit = Habit(
                             title: habitTitle,
                             dateCreated: DateTime.now(),
@@ -449,7 +438,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                             .addHabit(finalHabit, context);
                         try {
                           Database db = Database();
-                          db.habitDatabase.addHabit(finalHabit, context);
+                          await db.habitDatabase.addHabit(finalHabit, context);
                           Provider.of<NetworkStateProvider>(context,
                                   listen: false)
                               .isConnected = true;
@@ -458,7 +447,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                   listen: false)
                               .isConnected = false;
                         }
-                        Provider.of<HabitsLocalStorage>(context, listen: false)
+                        await Provider.of<HabitsLocalStorage>(context,
+                                listen: false)
                             .addHabit(finalHabit);
                         Provider.of<HabitManager>(context, listen: false)
                             .sortHabits();
