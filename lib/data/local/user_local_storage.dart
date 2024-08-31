@@ -124,6 +124,21 @@ class UserLocalStorage extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearStats() {
+    final user = _userBox.get('currentUser');
+    final updatedUser = UserModel(
+      username: user.username,
+      email: user.email,
+      userLevel: 1,
+      userXP: 0,
+      uid: user.uid,
+      stats: [],
+      profilePicture: user.profilePicture,
+    );
+    currentUser = updatedUser;
+    notifyListeners();
+  }
+
   void addHabiturRating({int amount = 10}) {
     updateUserProperty('userXP', currentUser.userXP + amount);
     checkLevelUp();

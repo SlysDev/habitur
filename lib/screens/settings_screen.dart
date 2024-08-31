@@ -21,6 +21,7 @@ import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/login_screen.dart';
+import 'package:habitur/screens/splash_screen.dart';
 import 'package:habitur/screens/welcome_screen.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:provider/provider.dart';
@@ -458,18 +459,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           AsideButton(
                               text: 'Clear Data',
                               onPressed: () async {
-                                Provider.of<HabitsLocalStorage>(context,
-                                        listen: false)
-                                    .deleteData();
-                                Provider.of<UserLocalStorage>(context,
-                                        listen: false)
-                                    .deleteData();
-                                Provider.of<SettingsLocalStorage>(context,
-                                        listen: false)
-                                    .populateDefaultSettingsData();
-                                Provider.of<SettingsLocalStorage>(context,
-                                        listen: false)
-                                    .updateSettings();
+                                dynamic result = await showDialog(
+                                  context: context,
+                                  builder: (context) => CustomAlertDialog(
+                                    title: 'Warning',
+                                    content: Text(
+                                        'Are you sure you want to clear all account data (habits, stats, etc.)? This cannot be undone.'),
+                                    actions: [
+                                      AsideButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, true);
+                                          },
+                                          text: 'Yes'),
+                                      SizedBox(width: 10),
+                                      AsideButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, false);
+                                          },
+                                          text: 'No'),
+                                    ],
+                                  ),
+                                );
+                                result == null ? result = false : null;
+                                if (result) {
+                                  await Provider.of<HabitsLocalStorage>(context,
+                                          listen: false)
+                                      .deleteData();
+                                  Provider.of<UserLocalStorage>(context,
+                                          listen: false)
+                                      .clearStats();
+                                  await Provider.of<SettingsLocalStorage>(
+                                          context,
+                                          listen: false)
+                                      .populateDefaultSettingsData();
+                                  Provider.of<SettingsLocalStorage>(context,
+                                          listen: false)
+                                      .updateSettings();
+                                  if (db.userDatabase.isLoggedIn) {
+                                    await db.habitDatabase.clearHabits(context);
+                                    await db.statsDatabase
+                                        .clearStatistics(context);
+                                  }
+                                }
                               }),
                         ],
                       ),

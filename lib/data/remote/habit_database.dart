@@ -237,4 +237,26 @@ class HabitDatabase {
     }
     return Future.error('No Habit Found for id:' + id.toString());
   }
+
+  Future<void> clearHabits(context) async {
+    try {
+      CollectionReference users = _firestore.collection('users');
+      DocumentReference userReference =
+          users.doc(_auth.currentUser!.uid.toString());
+      var habitsCollectionRef = userReference.collection('habits');
+      await habitsCollectionRef.get().then((value) {
+        for (var doc in value.docs) {
+          doc.reference.delete();
+        }
+      });
+      await lastUpdatedManager.syncLastUpdated(context);
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          true;
+    } catch (e, s) {
+      print(e);
+      print(s);
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
+    }
+  }
 }

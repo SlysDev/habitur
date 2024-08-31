@@ -73,7 +73,7 @@ class StatsDatabase {
     }
   }
 
-  void clearStatistics(context) async {
+  Future<void> clearStatistics(context) async {
     try {
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
