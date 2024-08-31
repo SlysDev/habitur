@@ -91,7 +91,11 @@ class HabitStatsHandler {
         statsCalculator
             .calculateStatSlope('completions', habit.stats)
             .toString());
-    habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
+    print('setting confidence level: ' +
+        statsCalculator.calculateConfidenceLevel().toString());
+    habit.confidenceLevel =
+        HabitStatsCalculator(habit).calculateConfidenceLevel();
+    // has to be static because the habit has been updated
   }
 
   void decrementCompletion(context) {

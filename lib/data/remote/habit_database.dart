@@ -203,8 +203,8 @@ class HabitDatabase {
 
       QueryDocumentSnapshot doc = await getHabitByID(id, context);
 
-      habitsCollectionRef.doc(doc.id).delete();
-      lastUpdatedManager.syncLastUpdated(context);
+      await habitsCollectionRef.doc(doc.id).delete();
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

@@ -21,8 +21,8 @@ class HabitStatsCalculator extends StatsCalculator {
     double consistencyFactor =
         calculateConsistencyFactor(habit.stats, habit.requiredCompletions);
     double successStreakBonus = 1.0;
-    double difficultyWeight =
-        habit.stats.isEmpty ? 0 : 1 - (habit.stats.last.difficultyRating / 10);
+    double difficultyWeight = calculateDifficultyWeight(
+        habit.stats); // Initialize to 1 if stats is empty
 
     if (habit.streak > 0) {
       successStreakBonus =
@@ -31,6 +31,10 @@ class HabitStatsCalculator extends StatsCalculator {
 
     print(
         'Confidence level: base: $baseConfidence * consistency: $consistencyFactor * streak bonus: $successStreakBonus}');
+    print(baseConfidence *
+        consistencyFactor *
+        successStreakBonus *
+        difficultyWeight);
     return baseConfidence *
         consistencyFactor *
         successStreakBonus *

@@ -76,7 +76,7 @@ class _HabitCardState extends State<HabitCard> {
           .updateHabit(habit);
     }
 
-    editHabit() {
+    void editHabit() {
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -85,10 +85,10 @@ class _HabitCardState extends State<HabitCard> {
                   )));
     }
 
-    deleteHabit() async {
+    Future<void> deleteHabit() async {
       await Provider.of<HabitManager>(context, listen: false)
           .deleteHabit(context, widget.index);
-      db.habitDatabase.deleteHabit(context, habit.id);
+      await db.habitDatabase.deleteHabit(context, habit.id);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .deleteHabit(habit);
     }
@@ -120,8 +120,8 @@ class _HabitCardState extends State<HabitCard> {
               motion: const DrawerMotion(),
               children: [
                 SlidableAction(
-                  onPressed: (context) {
-                    deleteHabit();
+                  onPressed: (context) async {
+                    await deleteHabit();
                   },
                   backgroundColor: kRed,
                   icon: Icons.delete,
@@ -130,7 +130,7 @@ class _HabitCardState extends State<HabitCard> {
                 ),
                 // TODO: Add editing functionality  <23-12-22, slys> //
                 SlidableAction(
-                  onPressed: (context) {
+                  onPressed: (context) async {
                     editHabit();
                   },
                   backgroundColor: kDarkPrimaryColor,

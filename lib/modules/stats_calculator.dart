@@ -72,7 +72,7 @@ class StatsCalculator {
       List<StatPoint> stats, int requiredCompletions,
       {int period = 7}) {
     if (stats.isEmpty || period <= 0) {
-      return 0.0;
+      return 1;
     }
 
     double totalWeight = 0.0;
@@ -94,6 +94,28 @@ class StatsCalculator {
 
     // Avoid division by zero
     return totalWeight > 0.0 ? weightedCompletionsSum / totalWeight : 0.0;
+  }
+
+  double calculateDifficultyWeight(List<StatPoint> stats,
+      {double decayRate = 0.8}) {
+    double weightSum = 0;
+    double ratingSum = 0;
+
+    if (stats.isEmpty) {
+      return 1;
+    }
+
+    for (int i = 0; i < stats.length; i++) {
+      double weight = math.pow(decayRate, i) as double;
+      ratingSum += stats[i].difficultyRating * weight;
+      weightSum += weight;
+    }
+
+    if (weightSum == 0) {
+      return 1; // Handle empty stats
+    }
+
+    return 1 - (ratingSum / weightSum) / 10;
   }
 
   // double calculateCompletionConsistency({int periodInDays = -1}) {
