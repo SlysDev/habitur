@@ -43,7 +43,7 @@ class InsightsGenerator {
         worstSlopeNameFormatted = ''; // Handle unexpected statistic names
     }
 
-    if (worstSlopeValue >= 0.0) {
+    if (worstSlopeValue > 0.0) {
       return {
         'area': '',
         'message': {
@@ -52,6 +52,17 @@ class InsightsGenerator {
           'postText': 'in the past ${period} days. Bravo!',
           'fullText':
               'All habit stats have been improving in the past ${period} days. Bravo!'
+        }
+      };
+    } else if (worstSlopeValue == 0.0) {
+      return {
+        'area': '',
+        'message': {
+          'preText': 'All stats have kept',
+          'percentChange': 'stable',
+          'postText': 'in the past ${period} days.',
+          'fullText':
+              'All habit stats have kept stable in the past ${period} days.'
         }
       };
     } else {
