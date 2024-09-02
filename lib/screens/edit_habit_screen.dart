@@ -44,7 +44,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
       return Scaffold(
         body: Container(
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: kBackgroundColor,
             borderRadius: BorderRadius.all(Radius.circular(20)),
           ),
           child: Container(
@@ -101,8 +101,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                 'Daily',
                                 style: TextStyle(
                                     color: selectedPeriod == 'Daily'
-                                        ? Colors.white
-                                        : Colors.black),
+                                        ? Colors.black
+                                        : Colors.white),
                               ),
                             ),
                           ),
@@ -123,8 +123,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                 'Weekly',
                                 style: TextStyle(
                                     color: selectedPeriod == 'Weekly'
-                                        ? Colors.white
-                                        : Colors.black),
+                                        ? Colors.black
+                                        : Colors.white),
                               ),
                             ),
                           ),
@@ -145,8 +145,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                 'Monthly',
                                 style: TextStyle(
                                     color: selectedPeriod == 'Monthly'
-                                        ? Colors.white
-                                        : Colors.black),
+                                        ? Colors.black
+                                        : Colors.white),
                               ),
                             ),
                           ),
@@ -157,9 +157,10 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                       height: 40,
                     ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          width: 120,
+                          width: 100,
                           child: FilledTextField(
                               onChanged: (value) {
                                 habitCompletions = int.parse(value);
@@ -167,6 +168,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                               hintText:
                                   selectedHabit.requiredCompletions.toString()),
                         ),
+                        SizedBox(width: 20),
                         Text(
                           selectedPeriod == 'Daily'
                               ? 'time(s) per day'
@@ -215,8 +217,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                         'Mo',
                                         style: TextStyle(
                                             color: daysActive.contains('Monday')
-                                                ? Colors.white
-                                                : Colors.black),
+                                                ? Colors.black
+                                                : Colors.white),
                                       ),
                                     ),
                                     padding: EdgeInsets.symmetric(
@@ -244,8 +246,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                         style: TextStyle(
                                             color:
                                                 daysActive.contains('Tuesday')
-                                                    ? Colors.white
-                                                    : Colors.black),
+                                                    ? Colors.black
+                                                    : Colors.white),
                                       ),
                                     ),
                                     padding: EdgeInsets.symmetric(
@@ -273,8 +275,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                         style: TextStyle(
                                             color:
                                                 daysActive.contains('Wednesday')
-                                                    ? Colors.white
-                                                    : Colors.black),
+                                                    ? Colors.black
+                                                    : Colors.white),
                                       ),
                                     ),
                                     padding: EdgeInsets.symmetric(
@@ -302,8 +304,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                         style: TextStyle(
                                             color:
                                                 daysActive.contains('Thursday')
-                                                    ? Colors.white
-                                                    : Colors.black),
+                                                    ? Colors.black
+                                                    : Colors.white),
                                       ),
                                     ),
                                     padding: EdgeInsets.symmetric(
@@ -330,8 +332,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                         'Fr',
                                         style: TextStyle(
                                             color: daysActive.contains('Friday')
-                                                ? Colors.white
-                                                : Colors.black),
+                                                ? Colors.black
+                                                : Colors.white),
                                       ),
                                     ),
                                     padding: EdgeInsets.symmetric(
@@ -359,8 +361,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                         style: TextStyle(
                                             color:
                                                 daysActive.contains('Saturday')
-                                                    ? Colors.white
-                                                    : Colors.black),
+                                                    ? Colors.black
+                                                    : Colors.white),
                                       ),
                                     ),
                                     padding: EdgeInsets.symmetric(
@@ -387,8 +389,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                         'Su',
                                         style: TextStyle(
                                             color: daysActive.contains('Sunday')
-                                                ? Colors.white
-                                                : Colors.black),
+                                                ? Colors.black
+                                                : Colors.white),
                                       ),
                                     ),
                                     padding: EdgeInsets.symmetric(
