@@ -19,6 +19,7 @@ import 'package:habitur/models/time_model.dart';
 import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/login_screen.dart';
 import 'package:habitur/screens/splash_screen.dart';
@@ -74,125 +75,147 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 SizedBox(height: gap),
                 StaticCard(
-                  child: Column(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(
-                            bottom: dailyReminders.settingValue ? gap : 0),
-                        child: SwitchListTile(
-                          activeColor: Colors.white,
-                          activeTrackColor: kLightPrimaryColor,
-                          inactiveTrackColor: kFadedBlue,
-                          inactiveThumbColor: Colors.white,
-                          visualDensity: VisualDensity.adaptivePlatformDensity,
-                          value: settingsData
-                              .getSettingByName(dailyReminders.settingName)
-                              .settingValue,
-                          selected: dailyReminders.settingValue,
-                          title: Text(
-                            dailyReminders.settingName,
+                  child: Provider.of<HabitManager>(context).habits.isEmpty
+                      ? Center(
+                          child: Text(
+                            "You don't have any habits yet!",
                             style:
                                 kMainDescription.copyWith(color: Colors.white),
                           ),
-                          onChanged: (newValue) async {
-                            NotificationManager notificationManager =
-                                NotificationManager();
-                            await settingsData.updateSetting(
-                                dailyReminders.settingName, newValue);
-                            await db.settingsDatabase.updateSetting(
-                                dailyReminders.settingName, newValue);
-                            settingsData.updateSettings();
-                            notificationManager
-                                .cancelAllScheduledNotifications();
-                            if (newValue) {
-                              NotificationScheduler notificationScheduler =
-                                  NotificationScheduler();
-                              await notificationScheduler.scheduleDefaultTrack(
-                                  context,
-                                  settingsData.numberOfReminders.settingValue);
-                            }
-                            notificationManager.printNotifications();
-                          },
-                        ),
-                      ),
-                      dailyReminders.settingValue
-                          ? Container(
-                              margin: EdgeInsets.only(bottom: gap),
-                              child: ListTile(
+                        )
+                      : Column(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(
+                                  bottom:
+                                      dailyReminders.settingValue ? gap : 0),
+                              child: SwitchListTile(
+                                activeColor: Colors.white,
+                                activeTrackColor: kLightPrimaryColor,
+                                inactiveTrackColor: kFadedBlue,
+                                inactiveThumbColor: Colors.white,
+                                visualDensity:
+                                    VisualDensity.adaptivePlatformDensity,
+                                value: settingsData
+                                    .getSettingByName(
+                                        dailyReminders.settingName)
+                                    .settingValue,
+                                selected: dailyReminders.settingValue,
                                 title: Text(
-                                  numReminders.settingName,
+                                  dailyReminders.settingName,
                                   style: kMainDescription.copyWith(
                                       color: Colors.white),
                                 ),
-                                trailing: DropdownButton(
-                                    onChanged: (value) async {
-                                      NotificationManager notificationManager =
-                                          NotificationManager();
-                                      NotificationScheduler
-                                          notificationScheduler =
-                                          NotificationScheduler();
-                                      await settingsData.updateSetting(
-                                          numReminders.settingName, value);
-                                      await db.settingsDatabase.updateSetting(
-                                          numReminders.settingName, value);
-                                      settingsData.updateSettings();
-                                      await notificationManager
-                                          .cancelAllScheduledNotifications();
-                                      await notificationScheduler
-                                          .scheduleDefaultTrack(
-                                              context,
-                                              settingsData.numberOfReminders
-                                                  .settingValue);
-                                    },
-                                    value: numReminders.settingValue,
-                                    items: [
-                                      DropdownMenuItem(
-                                        value: 1,
-                                        child: Text('1',
-                                            style: kMainDescription.copyWith(
-                                                color: Colors.white)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 2,
-                                        child: Text('2',
-                                            style: kMainDescription.copyWith(
-                                                color: Colors.white)),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 3,
-                                        child: Text('3',
-                                            style: kMainDescription.copyWith(
-                                                color: Colors.white)),
-                                      ),
-                                    ]),
+                                onChanged: (newValue) async {
+                                  NotificationManager notificationManager =
+                                      NotificationManager();
+                                  await settingsData.updateSetting(
+                                      dailyReminders.settingName, newValue);
+                                  await db.settingsDatabase.updateSetting(
+                                      dailyReminders.settingName, newValue);
+                                  settingsData.updateSettings();
+                                  notificationManager
+                                      .cancelAllScheduledNotifications();
+                                  if (newValue) {
+                                    NotificationScheduler
+                                        notificationScheduler =
+                                        NotificationScheduler();
+                                    await notificationScheduler
+                                        .scheduleDefaultTrack(
+                                            context,
+                                            settingsData.numberOfReminders
+                                                .settingValue);
+                                  }
+                                  notificationManager.printNotifications();
+                                },
                               ),
-                            )
-                          : Container(),
-                      dailyReminders.settingValue
-                          ? Container(
-                              margin: EdgeInsets.only(bottom: gap),
-                              child: TimeSettingsListTile(
-                                  timeSetting: firstReminderTime),
-                            )
-                          : Container(),
-                      dailyReminders.settingValue &&
-                              numReminders.settingValue > 1
-                          ? Container(
-                              margin: EdgeInsets.only(bottom: gap),
-                              child: TimeSettingsListTile(
-                                  timeSetting: secondReminderTime),
-                            )
-                          : Container(),
-                      dailyReminders.settingValue &&
-                              numReminders.settingValue > 2
-                          ? Container(
-                              margin: EdgeInsets.only(bottom: gap),
-                              child: TimeSettingsListTile(
-                                  timeSetting: thirdReminderTime),
-                            )
-                          : Container(),
-                    ],
-                  ),
+                            ),
+                            dailyReminders.settingValue
+                                ? Container(
+                                    margin: EdgeInsets.only(bottom: gap),
+                                    child: ListTile(
+                                      title: Text(
+                                        numReminders.settingName,
+                                        style: kMainDescription.copyWith(
+                                            color: Colors.white),
+                                      ),
+                                      trailing: DropdownButton(
+                                          onChanged: (value) async {
+                                            NotificationManager
+                                                notificationManager =
+                                                NotificationManager();
+                                            NotificationScheduler
+                                                notificationScheduler =
+                                                NotificationScheduler();
+                                            await settingsData.updateSetting(
+                                                numReminders.settingName,
+                                                value);
+                                            await db.settingsDatabase
+                                                .updateSetting(
+                                                    numReminders.settingName,
+                                                    value);
+                                            settingsData.updateSettings();
+                                            await notificationManager
+                                                .cancelAllScheduledNotifications();
+                                            await notificationScheduler
+                                                .scheduleDefaultTrack(
+                                                    context,
+                                                    settingsData
+                                                        .numberOfReminders
+                                                        .settingValue);
+                                          },
+                                          value: numReminders.settingValue,
+                                          items: [
+                                            DropdownMenuItem(
+                                              value: 1,
+                                              child: Text('1',
+                                                  style:
+                                                      kMainDescription.copyWith(
+                                                          color: Colors.white)),
+                                            ),
+                                            DropdownMenuItem(
+                                              value: 2,
+                                              child: Text('2',
+                                                  style:
+                                                      kMainDescription.copyWith(
+                                                          color: Colors.white)),
+                                            ),
+                                            DropdownMenuItem(
+                                              value: 3,
+                                              child: Text('3',
+                                                  style:
+                                                      kMainDescription.copyWith(
+                                                          color: Colors.white)),
+                                            ),
+                                          ]),
+                                    ),
+                                  )
+                                : Container(),
+                            dailyReminders.settingValue
+                                ? Container(
+                                    margin: EdgeInsets.only(bottom: gap),
+                                    child: TimeSettingsListTile(
+                                        timeSetting: firstReminderTime),
+                                  )
+                                : Container(),
+                            dailyReminders.settingValue &&
+                                    numReminders.settingValue > 1
+                                ? Container(
+                                    margin: EdgeInsets.only(bottom: gap),
+                                    child: TimeSettingsListTile(
+                                        timeSetting: secondReminderTime),
+                                  )
+                                : Container(),
+                            dailyReminders.settingValue &&
+                                    numReminders.settingValue > 2
+                                ? Container(
+                                    margin: EdgeInsets.only(bottom: gap),
+                                    child: TimeSettingsListTile(
+                                        timeSetting: thirdReminderTime),
+                                  )
+                                : Container(),
+                          ],
+                        ),
                 ),
                 SizedBox(height: 40),
                 Center(

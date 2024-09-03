@@ -33,7 +33,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
       if (lastUpdated.isAfter(
           Provider.of<HabitsLocalStorage>(context, listen: false)
               .lastUpdated)) {
-        db.habitDatabase.loadHabits(context);
+        await db.habitDatabase.loadHabits(context);
         if (!Provider.of<NetworkStateProvider>(context, listen: false)
             .isConnected) {
           await Provider.of<HabitsLocalStorage>(context, listen: false)
@@ -43,6 +43,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
         print('loading from LS; more recent');
         await Provider.of<HabitsLocalStorage>(context, listen: false)
             .loadData(context);
+        await db.habitDatabase.uploadHabits(context);
       }
     } else {
       print('user is not logged in; loading from LS');
@@ -55,108 +56,87 @@ class _HabitsScreenState extends State<HabitsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: loadData(context),
-      builder: (context, snapshot) {
-        return Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            actions: [
-              Container(
-                margin: EdgeInsets.all(5),
-                child: IconButton(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, 'profile-screen'),
-                    icon: Icon(
-                      Icons.menu_rounded,
-                      color: kPrimaryColor,
-                      size: 30,
-                    )),
-              )
-            ],
-            automaticallyImplyLeading: false,
-          ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                snapshot.connectionState == ConnectionState.waiting
-                    ? HomeGreetingHeader(isLoading: true)
-                    : HomeGreetingHeader(),
-                AsideButton(
-                    text: 'schedule test notifs',
-                    onPressed: () async {
-                      NotificationManager notificationManager =
-                          NotificationManager();
-                      await notificationManager
-                          .cancelAllScheduledNotifications();
-                      NotificationScheduler notificationScheduler =
-                          NotificationScheduler();
-                      await notificationScheduler
-                          .scheduleTestDefaultTrack(context);
-                    }),
-                AsideButton(
-                    text: 'reschedule notif track',
-                    onPressed: () async {
-                      NotificationManager notificationManager =
-                          NotificationManager();
-                      await notificationManager
-                          .cancelAllScheduledNotifications();
-                      NotificationScheduler notificationScheduler =
-                          NotificationScheduler();
-                      int numberOfReminders = Provider.of<SettingsLocalStorage>(
-                              context,
-                              listen: false)
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        actions: [
+          Container(
+            margin: EdgeInsets.all(5),
+            child: IconButton(
+                onPressed: () => Navigator.pushNamed(context, 'profile-screen'),
+                icon: Icon(
+                  Icons.menu_rounded,
+                  color: kPrimaryColor,
+                  size: 30,
+                )),
+          )
+        ],
+        automaticallyImplyLeading: false,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            HomeGreetingHeader(),
+            AsideButton(
+                text: 'schedule test notifs',
+                onPressed: () async {
+                  NotificationManager notificationManager =
+                      NotificationManager();
+                  await notificationManager.cancelAllScheduledNotifications();
+                  NotificationScheduler notificationScheduler =
+                      NotificationScheduler();
+                  await notificationScheduler.scheduleTestDefaultTrack(context);
+                }),
+            AsideButton(
+                text: 'reschedule notif track',
+                onPressed: () async {
+                  NotificationManager notificationManager =
+                      NotificationManager();
+                  await notificationManager.cancelAllScheduledNotifications();
+                  NotificationScheduler notificationScheduler =
+                      NotificationScheduler();
+                  int numberOfReminders =
+                      Provider.of<SettingsLocalStorage>(context, listen: false)
                           .numberOfReminders
                           .settingValue;
-                      await notificationScheduler.scheduleDefaultTrack(
-                          context, numberOfReminders);
-                      notificationManager.printNotifications();
-                    }),
-                AsideButton(
-                    text: 'clear habits data',
-                    onPressed: () async {
-                      await Provider.of<HabitsLocalStorage>(context,
-                              listen: false)
-                          .deleteData();
-                    }),
-                AsideButton(
-                    text: 'load data from DB',
-                    onPressed: () {
-                      try {
-                        Database db = Database();
-                        db.habitDatabase.loadHabits(context);
-                        Provider.of<NetworkStateProvider>(context,
-                                listen: false)
-                            .isConnected = true;
-                      } catch (e) {
-                        Provider.of<NetworkStateProvider>(context,
-                                listen: false)
-                            .isConnected = false;
-                      }
-                    }),
-                snapshot.connectionState == ConnectionState.waiting
-                    ? Center(
-                        child: CircularProgressIndicator(
-                            color: kPrimaryColor,
-                            strokeWidth: 6,
-                            strokeCap: StrokeCap.round))
-                    : HabitCardList(
-                        onRefresh: () => loadData(context),
-                      ),
-                SizedBox(
-                  height: 20,
-                ),
-              ],
+                  await notificationScheduler.scheduleDefaultTrack(
+                      context, numberOfReminders);
+                  notificationManager.printNotifications();
+                }),
+            AsideButton(
+                text: 'clear habits data',
+                onPressed: () async {
+                  await Provider.of<HabitsLocalStorage>(context, listen: false)
+                      .deleteData();
+                }),
+            AsideButton(
+                text: 'load data from DB',
+                onPressed: () {
+                  try {
+                    Database db = Database();
+                    db.habitDatabase.loadHabits(context);
+                    Provider.of<NetworkStateProvider>(context, listen: false)
+                        .isConnected = true;
+                  } catch (e) {
+                    Provider.of<NetworkStateProvider>(context, listen: false)
+                        .isConnected = false;
+                  }
+                }),
+            HabitCardList(
+              onRefresh: () => loadData(context),
             ),
-          ),
-          bottomNavigationBar: NavBar(
-            currentPage: 'habits',
-          ),
-        );
-      },
+            SizedBox(
+              height: 20,
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: NavBar(
+        currentPage: 'habits',
+      ),
     );
   }
 }
