@@ -55,25 +55,25 @@ class _HabitCardState extends State<HabitCard> {
       if (habit.completionsToday != habit.requiredCompletions) {
         habitStatsHandler.incrementCompletion(context,
             recordedDifficulty: recordedDifficulty);
-        Provider.of<HabitManager>(context, listen: false).updateHabits();
-        db.habitDatabase.updateHabit(
+        await db.habitDatabase.updateHabit(
             Provider.of<HabitManager>(context, listen: false)
                 .habits[widget.index],
             context);
         await Provider.of<HabitsLocalStorage>(context, listen: false)
             .updateHabit(habit);
+        Provider.of<HabitManager>(context, listen: false).updateHabits();
       }
     }
 
     decrementHabit() async {
       habitStatsHandler.decrementCompletion(context);
-      Provider.of<HabitManager>(context, listen: false).updateHabits();
-      db.habitDatabase.updateHabit(
+      await db.habitDatabase.updateHabit(
           Provider.of<HabitManager>(context, listen: false)
               .habits[widget.index],
           context);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .updateHabit(habit);
+      Provider.of<HabitManager>(context, listen: false).updateHabits();
     }
 
     void editHabit() {
@@ -86,11 +86,11 @@ class _HabitCardState extends State<HabitCard> {
     }
 
     Future<void> deleteHabit() async {
-      await Provider.of<HabitManager>(context, listen: false)
-          .deleteHabit(context, widget.index);
       await db.habitDatabase.deleteHabit(context, habit.id);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .deleteHabit(habit);
+      await Provider.of<HabitManager>(context, listen: false)
+          .deleteHabit(context, widget.index);
     }
 
     ;
@@ -120,6 +120,7 @@ class _HabitCardState extends State<HabitCard> {
               motion: const DrawerMotion(),
               children: [
                 SlidableAction(
+                  autoClose: true,
                   onPressed: (context) async {
                     await deleteHabit();
                   },

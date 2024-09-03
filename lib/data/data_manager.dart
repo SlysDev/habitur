@@ -19,14 +19,12 @@ class DataManager {
         await db.userDatabase.loadUserData(context);
         await db.statsDatabase.loadStatistics(context);
         await db.settingsDatabase.loadData(context);
+        await db.habitDatabase.loadHabits(context);
         if (!Provider.of<NetworkStateProvider>(context, listen: false)
             .isConnected) {
           await Provider.of<UserLocalStorage>(context, listen: false)
               .loadData();
-        } else {
-          await Provider.of<UserLocalStorage>(context, listen: false)
-              .saveData();
-        } // handles no internet (try/catch in DB sets isConnected to false)
+        }
       } else {
         print('loading from LS');
         await Provider.of<UserLocalStorage>(context, listen: false).loadData();

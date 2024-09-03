@@ -180,7 +180,10 @@ class HabitDatabase {
 
   Future<void> updateHabit(Habit habit, context) async {
     try {
-      await _updateHabitDoc(habit, await getHabitByID(habit.id, context));
+      List<QueryDocumentSnapshot> docs = await getHabitByID(habit.id, context);
+      for (var doc in docs) {
+        await _updateHabitDoc(habit, doc);
+      }
       lastUpdatedManager.syncLastUpdated(context);
 
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
@@ -198,12 +201,10 @@ class HabitDatabase {
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());
-
-      var habitsCollectionRef = userReference.collection('habits');
-
-      QueryDocumentSnapshot doc = await getHabitByID(id, context);
-
-      await habitsCollectionRef.doc(doc.id).delete();
+      List<QueryDocumentSnapshot> docs = await getHabitByID(id, context);
+      for (var doc in docs) {
+        await doc.reference.delete();
+      }
       await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
@@ -215,7 +216,7 @@ class HabitDatabase {
     }
   }
 
-  Future<QueryDocumentSnapshot> getHabitByID(int id, context) async {
+  Future<List<QueryDocumentSnapshot>> getHabitByID(int id, context) async {
     try {
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
@@ -224,11 +225,9 @@ class HabitDatabase {
 
       QuerySnapshot foundHabit =
           await habitsCollectionRef.where('id', isEqualTo: id).get();
-      if (foundHabit.docs.length > 0) {
-        return foundHabit.docs[0];
-      }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
+      return foundHabit.docs;
     } catch (e, s) {
       print(e);
       print(s);
