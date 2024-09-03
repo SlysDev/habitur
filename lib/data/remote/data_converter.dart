@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitur/models/data_point.dart';
+import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/stat_point.dart';
+import 'package:habitur/models/time_model.dart';
 
 class DataConverter {
   List<DataPoint> dbListToDataPoints(input) {
@@ -66,6 +68,45 @@ class DataConverter {
     } else {
       return [];
     }
+  }
+
+  List<Setting> dbListToSettings(input) {
+    if (input.isNotEmpty) {
+      return input.map<Setting>((element) {
+        if (element is Map<String, dynamic>) {
+          return Setting(
+              settingValue: element['settingValue'],
+              settingName: element['settingName']);
+        } else {
+          print('input was empty');
+          return Setting(
+              settingValue: true,
+              settingName: 'Daily Reminders'); // Handle unexpected format
+        }
+      }).toList();
+    } else {
+      return [];
+    }
+  }
+
+  List<Map<String, dynamic>> dbSettingsToMap(List<Setting> settings) {
+    return settings.map<Map<String, dynamic>>((setting) {
+      if (setting.settingValue is TimeModel) {
+        final timeModel = setting.settingValue as TimeModel;
+        return {
+          'settingValue': {
+            'hour': timeModel.hour,
+            'minute': timeModel.minute,
+          },
+          'settingName': setting.settingName
+        };
+      } else {
+        return {
+          'settingValue': setting.settingValue,
+          'settingName': setting.settingName
+        };
+      }
+    }).toList();
   }
 
   List<Map<String, dynamic>> dbStatPointsToMap(List<StatPoint> statPoints) {

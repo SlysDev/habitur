@@ -6,6 +6,7 @@ import 'package:habitur/data/remote/community_challenge_database.dart';
 import 'package:habitur/data/remote/data_converter.dart';
 import 'package:habitur/data/remote/habit_database.dart';
 import 'package:habitur/data/remote/last_updated_manager.dart';
+import 'package:habitur/data/remote/settings_database.dart';
 import 'package:habitur/data/remote/stats_database.dart';
 import 'package:habitur/data/remote/user_database.dart';
 import 'package:habitur/models/community_challenge.dart';
@@ -29,6 +30,7 @@ class Database {
   CommunityChallengeDatabase communityChallengeDatabase =
       CommunityChallengeDatabase();
   StatsDatabase statsDatabase = StatsDatabase();
+  SettingsDatabase settingsDatabase = SettingsDatabase();
   DataConverter dataConverter = DataConverter();
   LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
   // Helper Functions

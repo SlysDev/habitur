@@ -20,10 +20,10 @@ class SettingsLocalStorage extends ChangeNotifier {
     print('are we initing settings?');
     if (Hive.isBoxOpen('settings')) {
       print('settingsBox is open');
-      _settingsBox = Hive.box<Setting>('settings');
+      _settingsBox = Hive.box('settings');
     } else {
       print('settingsBox must be newly opened');
-      _settingsBox = await Hive.openBox<Setting>('settings');
+      _settingsBox = await Hive.openBox('settings');
       if (_settingsBox.values.toList().isEmpty) {
         populateDefaultSettingsData();
       }
@@ -42,7 +42,14 @@ class SettingsLocalStorage extends ChangeNotifier {
     if (_settingsBox.values.isEmpty) {
       populateDefaultSettingsData();
     }
-    return _settingsBox.values.toList();
+    List values = _settingsBox.values.toList();
+    List<Setting> settings = [];
+    for (dynamic value in values) {
+      if (value is Setting) {
+        settings.add(value);
+      }
+    }
+    return settings;
   }
 
   Setting getSettingByName(String settingName) {
@@ -71,9 +78,9 @@ class SettingsLocalStorage extends ChangeNotifier {
 
   Future<void> updateSetting(
       String settingName, dynamic newSettingValue) async {
-    Setting newSettingValues = getSettingByName(settingName);
-    newSettingValues.settingValue = newSettingValue;
-    _settingsBox.put(settingName, newSettingValues);
+    Setting setting = getSettingByName(settingName);
+    setting.settingValue = newSettingValue;
+    _settingsBox.put(settingName, setting);
     await syncLastUpdated();
   }
 

@@ -97,7 +97,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onChanged: (newValue) async {
                             NotificationManager notificationManager =
                                 NotificationManager();
-                            settingsData.updateSetting(
+                            await settingsData.updateSetting(
+                                dailyReminders.settingName, newValue);
+                            await db.settingsDatabase.updateSetting(
                                 dailyReminders.settingName, newValue);
                             settingsData.updateSettings();
                             notificationManager
@@ -129,7 +131,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       NotificationScheduler
                                           notificationScheduler =
                                           NotificationScheduler();
-                                      settingsData.updateSetting(
+                                      await settingsData.updateSetting(
+                                          numReminders.settingName, value);
+                                      await db.settingsDatabase.updateSetting(
                                           numReminders.settingName, value);
                                       settingsData.updateSettings();
                                       await notificationManager
@@ -495,6 +499,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   Provider.of<SettingsLocalStorage>(context,
                                           listen: false)
                                       .updateSettings();
+                                  db.settingsDatabase
+                                      .populateDefaultSettingsData();
                                   if (db.userDatabase.isLoggedIn) {
                                     await db.habitDatabase.clearHabits(context);
                                     await db.statsDatabase
@@ -537,6 +543,7 @@ class TimeSettingsListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     SettingsLocalStorage settingsData =
         Provider.of<SettingsLocalStorage>(context);
+    Database db = Database();
     return ListTile(
       title: Text(
         timeSetting.settingName,
@@ -554,7 +561,11 @@ class TimeSettingsListTile extends StatelessWidget {
           TimeModel newTimeFormatted = newTime == null
               ? timeSetting.settingValue
               : TimeModel(hour: newTime.hour, minute: newTime.minute);
-          settingsData.updateSetting(timeSetting.settingName, newTimeFormatted);
+          await settingsData.updateSetting(
+              timeSetting.settingName, newTimeFormatted);
+          await db.settingsDatabase
+              .updateSetting(timeSetting.settingName, newTimeFormatted);
+
           await notificationManager.cancelAllScheduledNotifications();
           await notificationScheduler.scheduleDefaultTrack(
               context, settingsData.numberOfReminders.settingValue);
