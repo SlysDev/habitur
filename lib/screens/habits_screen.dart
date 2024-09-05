@@ -114,10 +114,10 @@ class _HabitsScreenState extends State<HabitsScreen> {
                 }),
             AsideButton(
                 text: 'load data from DB',
-                onPressed: () {
+                onPressed: () async {
                   try {
                     Database db = Database();
-                    db.habitDatabase.loadHabits(context);
+                    await db.habitDatabase.loadHabits(context);
                     Provider.of<NetworkStateProvider>(context, listen: false)
                         .isConnected = true;
                   } catch (e) {

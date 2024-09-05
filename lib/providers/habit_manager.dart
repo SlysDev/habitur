@@ -106,13 +106,15 @@ class HabitManager extends ChangeNotifier {
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
       if (element.resetPeriod == 'Daily') {
         // If the task was not created today, make it incomplete
+        String currentDayOfWeek = DateFormat('EEEE').format(DateTime.now());
+        element.lastSeen = DateTime.now();
         if (DateFormat('d').format(element.lastSeen) !=
-            DateFormat('d').format(DateTime.now())) {
+                DateFormat('d').format(DateTime.now()) &&
+            element.requiredDatesOfCompletion.contains(currentDayOfWeek)) {
           if (element.completionsToday == 0) {
             element.streak = 0;
           }
           habitStatsHandler.resetHabitCompletions();
-          element.lastSeen = DateTime.now();
         }
       }
     }

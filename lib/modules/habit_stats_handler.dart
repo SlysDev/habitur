@@ -9,6 +9,7 @@ import 'package:habitur/modules/user_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 
@@ -120,6 +121,7 @@ class HabitStatsHandler {
     }
 
     // Decrement completions and potentially update streak
+    String currentDayOfWeek = DateFormat('EEEE').format(DateTime.now());
     if (habit.streak > 0) {
       habit.streak--;
     }
@@ -241,20 +243,40 @@ class HabitStatsHandler {
                   dataPoint.date.day) ==
               day) ==
           -1) {
+        String currentDayOfWeek = DateFormat("EEEE").format(day);
+        bool isOffDay =
+            habit.requiredDatesOfCompletion.contains(currentDayOfWeek);
         // If no StatPoint exists, create a new one with 0 completions
         StatPoint newStatPoint = StatPoint(
           date: day,
-          completions: 0,
-          confidenceLevel: statsCalculator.calculateConfidenceLevel(),
-          streak: 0,
-          consistencyFactor: statsCalculator.calculateConsistencyFactor(
-              habit.stats, habit.requiredCompletions),
-          difficultyRating: statsCalculator.calculateAverageValueForStat(
-              'difficultyRating', habit.stats),
-          slopeCompletions: 0,
-          slopeConsistency: 0,
-          slopeConfidenceLevel: 0,
-          slopeDifficultyRating: 0,
+          completions: isOffDay ? habit.stats.last.completions : 0,
+          confidenceLevel: isOffDay
+              ? habit.stats.last.confidenceLevel
+              : statsCalculator.calculateConfidenceLevel(),
+          streak: isOffDay ? 0 : 1,
+          consistencyFactor: isOffDay
+              ? habit.stats.last.consistencyFactor
+              : statsCalculator.calculateConsistencyFactor(
+                  habit.stats, habit.requiredCompletions),
+          difficultyRating: isOffDay
+              ? habit.stats.last.difficultyRating
+              : statsCalculator.calculateAverageValueForStat(
+                  'difficultyRating', habit.stats),
+          slopeCompletions: isOffDay
+              ? habit.stats.last.slopeCompletions
+              : statsCalculator.calculateStatSlope('completions', habit.stats),
+          slopeConsistency: isOffDay
+              ? habit.stats.last.slopeConsistency
+              : statsCalculator.calculateStatSlope(
+                  'consistencyFactor', habit.stats),
+          slopeConfidenceLevel: isOffDay
+              ? habit.stats.last.slopeConfidenceLevel
+              : statsCalculator.calculateStatSlope(
+                  'confidenceLevel', habit.stats),
+          slopeDifficultyRating: isOffDay
+              ? habit.stats.last.slopeDifficultyRating
+              : statsCalculator.calculateStatSlope(
+                  'difficultyRating', habit.stats),
         );
         habit.stats.add(newStatPoint);
       }

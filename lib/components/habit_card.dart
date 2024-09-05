@@ -51,7 +51,7 @@ class _HabitCardState extends State<HabitCard> {
     Database db = Database();
     double progress = habit.completionsToday / habit.requiredCompletions;
     bool completed = habit.completionsToday == habit.requiredCompletions;
-    completeHabit(double recordedDifficulty) async {
+    Future<void> completeHabit(double recordedDifficulty) async {
       if (habit.completionsToday != habit.requiredCompletions) {
         habitStatsHandler.incrementCompletion(context,
             recordedDifficulty: recordedDifficulty);
@@ -65,7 +65,7 @@ class _HabitCardState extends State<HabitCard> {
       }
     }
 
-    decrementHabit() async {
+    Future<void> decrementHabit() async {
       habitStatsHandler.decrementCompletion(context);
       await db.habitDatabase.updateHabit(
           Provider.of<HabitManager>(context, listen: false)
@@ -93,7 +93,6 @@ class _HabitCardState extends State<HabitCard> {
           .deleteHabit(context, widget.index);
     }
 
-    ;
     difficultyPopup(BuildContext context, index, onDifficultySelected) async {
       await showDialog(
         context: context,
@@ -187,8 +186,8 @@ class _HabitCardState extends State<HabitCard> {
                             });
                           }
                         },
-                        onLongPress: () {
-                          decrementHabit();
+                        onLongPress: () async {
+                          await decrementHabit();
                         },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 600),
