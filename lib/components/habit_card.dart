@@ -31,7 +31,14 @@ class HabitCard extends StatefulWidget {
 
 class _HabitCardState extends State<HabitCard> {
   Color completeButtonColor = Colors.green;
+  bool isLoading = false;
   late ConfettiController _controller;
+  void setLoading(bool value) {
+    setState(() {
+      isLoading = value;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -103,129 +110,145 @@ class _HabitCardState extends State<HabitCard> {
       );
     }
 
-    return Stack(
-      children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HabitOverviewScreen(
-                          habit: habit,
-                        )));
-          },
-          child: Slidable(
-            startActionPane: ActionPane(
-              motion: const DrawerMotion(),
-              children: [
-                SlidableAction(
-                  autoClose: true,
-                  onPressed: (context) async {
-                    await deleteHabit();
-                  },
-                  backgroundColor: kRed,
-                  icon: Icons.delete,
-                  borderRadius: BorderRadius.circular(20),
-                  label: 'Delete',
-                ),
-                // TODO: Add editing functionality  <23-12-22, slys> //
-                SlidableAction(
-                  onPressed: (context) async {
-                    editHabit();
-                  },
-                  backgroundColor: kDarkPrimaryColor,
-                  icon: Icons.edit,
-                  borderRadius: BorderRadius.circular(20),
-                  label: 'Edit',
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 600),
-                  curve: Curves.ease,
-                  height: 128,
-                  decoration: BoxDecoration(
-                    color: !completed
-                        ? widget.color
-                        : widget.color.withOpacity(0.5),
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeInOutSine,
+      opacity: isLoading ? 0.1 : 1,
+      child: Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HabitOverviewScreen(
+                            habit: habit,
+                          )));
+            },
+            child: Slidable(
+              startActionPane: ActionPane(
+                motion: const DrawerMotion(),
+                children: [
+                  SlidableAction(
+                    autoClose: true,
+                    onPressed: (context) async {
+                      setLoading(true);
+                      await deleteHabit();
+                      setLoading(false);
+                    },
+                    backgroundColor: kRed,
+                    icon: Icons.delete,
                     borderRadius: BorderRadius.circular(20),
+                    label: 'Delete',
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                habit.title,
-                                style: kHeadingTextStyle.copyWith(
-                                    color: Colors.white),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(
-                                height: 15,
-                              ),
-                              RoundedProgressBar(progress: progress),
-                            ],
+                  // TODO: Add editing functionality  <23-12-22, slys> //
+                  SlidableAction(
+                    onPressed: (context) async {
+                      editHabit();
+                    },
+                    backgroundColor: kDarkPrimaryColor,
+                    icon: Icons.edit,
+                    borderRadius: BorderRadius.circular(20),
+                    label: 'Edit',
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.ease,
+                    height: 128,
+                    decoration: BoxDecoration(
+                      color: !completed
+                          ? widget.color
+                          : widget.color.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  habit.title,
+                                  style: kHeadingTextStyle.copyWith(
+                                      color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                                RoundedProgressBar(progress: progress),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          if (!completed) {
-                            await difficultyPopup(
-                                context, widget.index, completeHabit);
-                            setState(() {
-                              _controller.play();
-                            });
-                          }
-                        },
-                        onLongPress: () async {
-                          await decrementHabit();
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 600),
-                          curve: Curves.ease,
-                          width: 100,
-                          height: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Icon(
-                            Icons.check,
-                            size: 30,
-                            color: kLightGreenAccent,
+                        GestureDetector(
+                          onTap: () async {
+                            if (!completed) {
+                              setLoading(true);
+                              await difficultyPopup(
+                                  context, widget.index, completeHabit);
+                              setLoading(false);
+                              setState(() {
+                                _controller.play();
+                              });
+                            }
+                          },
+                          onLongPress: () async {
+                            setLoading(true);
+                            try {
+                              await decrementHabit();
+                            } catch (e, s) {
+                              print(e);
+                              print(s);
+                            }
+                            setLoading(false);
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 600),
+                            curve: Curves.ease,
+                            width: 100,
+                            height: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(
+                              Icons.check,
+                              size: 30,
+                              color: kLightGreenAccent,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        Container(
-          height: 128,
-          child: Align(
-            alignment: Alignment.center,
-            child: ConfettiWidget(
-              emissionFrequency: 0,
-              minBlastForce: 10,
-              numberOfParticles: 10,
-              blastDirectionality: BlastDirectionality.explosive,
-              confettiController: _controller,
+          Container(
+            height: 128,
+            child: Align(
+              alignment: Alignment.center,
+              child: ConfettiWidget(
+                emissionFrequency: 0,
+                minBlastForce: 10,
+                numberOfParticles: 10,
+                blastDirectionality: BlastDirectionality.explosive,
+                confettiController: _controller,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
