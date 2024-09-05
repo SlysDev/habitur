@@ -2,6 +2,7 @@ import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -41,6 +42,8 @@ class DataManager {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
-    db.communityChallengeDatabase.loadCommunityChallenges(context);
+    await db.communityChallengeDatabase.loadCommunityChallenges(context);
+    await Provider.of<HabitManager>(context, listen: false)
+        .resetHabits(context);
   }
 }

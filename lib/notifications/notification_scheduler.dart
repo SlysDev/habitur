@@ -9,6 +9,7 @@ import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:provider/provider.dart';
 
 class NotificationScheduler {
+  // TODO 9/5/24: Add smart notification support for specific habits (if enabled)
   NotificationManager notificationManager = NotificationManager();
 
   Future<void> scheduleTestDefaultTrack(context) async {
@@ -134,11 +135,6 @@ class NotificationScheduler {
         scheduledTime,
         int.parse("${habit.id}1"));
     await notificationManager.scheduleNotification(
-        "Feeling motivated?",
-        "Time to crush your ${habit.title} habit!",
-        scheduledTime.subtract(Duration(hours: Random().nextInt(2) + 2)),
-        int.parse("${habit.id}0"));
-    await notificationManager.scheduleNotification(
         "Don't forget ${habit.title}!",
         "Time's running out! Complete it now or risk breaking your streak",
         scheduledTime.add(Duration(hours: Random().nextInt(2) + 2)),
@@ -156,7 +152,7 @@ class NotificationScheduler {
         scheduledTime.add(Duration(days: 5)),
         int.parse("${habit.id}05"));
     await notificationManager.scheduleNotification(
-        "Looks like you're taking a break",
+        "Looks like you're taking a break from ${habit.title}",
         "We'll stop sending notifications for now––you can always come back!",
         scheduledTime.add(Duration(days: 10)),
         int.parse("${habit.id}010"));
@@ -179,12 +175,6 @@ class NotificationScheduler {
         "You tend to complete this habit around this time––don't forget!",
         scheduledTime,
         int.parse("${habit.id}1"));
-    await notificationManager.scheduleNotification(
-        "Feeling motivated?",
-        "Time to crush your ${habit.title} habit!",
-        scheduledTime
-            .subtract(Duration(days: Random().nextInt(now.weekday - 1))),
-        int.parse("${habit.id}0"));
     await notificationManager.scheduleNotification(
         "Don't forget ${habit.title}!",
         "Time's running out! Complete it now or risk breaking your streak",
@@ -210,11 +200,6 @@ class NotificationScheduler {
         "You tend to complete this habit around this time––don't forget!",
         scheduledTime,
         int.parse("${habit.id}1"));
-    await notificationManager.scheduleNotification(
-        "Feeling motivated?",
-        "Time to crush your ${habit.title} habit!",
-        scheduledTime.subtract(Duration(days: Random().nextInt(now.day - 1))),
-        int.parse("${habit.id}0"));
     await notificationManager.scheduleNotification(
         "Don't forget ${habit.title}!",
         "Time's running out! Complete it now or risk breaking your streak",

@@ -28,6 +28,7 @@ class HabitAdapter extends TypeAdapter<Habit> {
       totalCompletions: fields[5] as int,
       confidenceLevel: fields[9] as double,
       requiredDatesOfCompletion: (fields[13] as List).cast<String>(),
+      smartNotifsEnabled: fields[15] as bool,
       requiredCompletions: fields[3] as int,
     )
       ..proficiencyRating = fields[1] as int
@@ -38,7 +39,7 @@ class HabitAdapter extends TypeAdapter<Habit> {
   @override
   void write(BinaryWriter writer, Habit obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -68,7 +69,9 @@ class HabitAdapter extends TypeAdapter<Habit> {
       ..writeByte(13)
       ..write(obj.requiredDatesOfCompletion)
       ..writeByte(14)
-      ..write(obj.stats);
+      ..write(obj.stats)
+      ..writeByte(15)
+      ..write(obj.smartNotifsEnabled);
   }
 
   @override

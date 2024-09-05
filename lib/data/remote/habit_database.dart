@@ -46,6 +46,7 @@ class HabitDatabase {
           completionsToday: habit.get('completionsToday'),
           id: habit.get('id'),
           lastSeen: habit.get('lastSeen').toDate(),
+          smartNotifsEnabled: habit.get('smartNotifsEnabled') ?? false,
           totalCompletions: habit.get('totalCompletions'),
           streak: habit.get('streak'),
           highestStreak: habit.get('highestStreak'),
@@ -131,6 +132,7 @@ class HabitDatabase {
       'requiredCompletions': habit.requiredCompletions,
       'totalCompletions': habit.totalCompletions,
       'lastSeen': habit.lastSeen,
+      'smartNotifsEnabled': habit.smartNotifsEnabled,
       'daysCompleted': habit.daysCompleted
           .map((completedDate) => {
                 'date': completedDate,
@@ -160,6 +162,7 @@ class HabitDatabase {
         'requiredCompletions': habit.requiredCompletions,
         'totalCompletions': habit.totalCompletions,
         'lastSeen': habit.lastSeen,
+        'smartNotifsEnabled': habit.smartNotifsEnabled,
         'daysCompleted': habit.daysCompleted
             .map((completedDate) => {
                   'date': completedDate,

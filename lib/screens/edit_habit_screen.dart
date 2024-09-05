@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/components/smart_notification_switch.dart';
+import 'package:habitur/components/static_card.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
+import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import '../components/rounded_tile.dart';
@@ -11,20 +14,6 @@ import 'package:provider/provider.dart';
 
 import '../components/filled_text_field.dart';
 
-int? selectedHabit = 0;
-String habitTitle = '';
-int habitCompletions = 1;
-String selectedPeriod = 'Daily';
-List<String> daysActive = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday'
-];
-
 class EditHabitScreen extends StatefulWidget {
   EditHabitScreen({required this.habitIndex});
   int habitIndex;
@@ -33,13 +22,11 @@ class EditHabitScreen extends StatefulWidget {
 }
 
 class _EditHabitScreenState extends State<EditHabitScreen> {
+  dynamic selectedHabit;
   @override
   Widget build(BuildContext context) {
-    Habit selectedHabit =
-        Provider.of<HabitManager>(context).habits[widget.habitIndex];
-    selectedPeriod = selectedHabit.resetPeriod;
-    daysActive = selectedHabit.requiredDatesOfCompletion;
-
+    selectedHabit ??=
+        Provider.of<HabitManager>(context).habits[widget.habitIndex].copyWith();
     return Consumer<HabitManager>(builder: (context, habitManager, child) {
       return Scaffold(
         body: Container(
@@ -65,123 +52,142 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                       'Name',
                       style: kHeadingTextStyle,
                     ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     FilledTextField(
                         onChanged: (value) {
-                          habitTitle = value;
+                          selectedHabit.title = value;
                         },
                         hintText: selectedHabit.title),
                     const SizedBox(
-                      height: 20,
+                      height: 40,
+                    ),
+                    SmartNotificationSwitch(habit: selectedHabit),
+                    const SizedBox(
+                      height: 40,
                     ),
                     const Text(
                       'Goal',
                       style: kHeadingTextStyle,
                     ),
                     const SizedBox(
-                      height: 40,
+                      height: 20,
                     ),
-                    Container(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    StaticCard(
+                      child: Column(
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedPeriod = 'Daily';
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                  color: selectedPeriod == 'Daily'
-                                      ? kPrimaryColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: Text(
-                                'Daily',
-                                style: TextStyle(
-                                    color: selectedPeriod == 'Daily'
-                                        ? Colors.black
-                                        : Colors.white),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedHabit.resetPeriod = 'Daily';
+                                  });
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                      color: selectedHabit.resetPeriod ==
+                                              'Daily'
+                                          ? kLightGreenAccent.withOpacity(0.5)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Text(
+                                    'Daily',
+                                    style: TextStyle(
+                                        color:
+                                            selectedHabit.resetPeriod == 'Daily'
+                                                ? Colors.white
+                                                : kGray),
+                                  ),
+                                ),
                               ),
-                            ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedHabit.resetPeriod = 'Weekly';
+                                  });
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                      color: selectedHabit.resetPeriod ==
+                                              'Weekly'
+                                          ? kLightGreenAccent.withOpacity(0.5)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Text(
+                                    'Weekly',
+                                    style: TextStyle(
+                                        color: selectedHabit.resetPeriod ==
+                                                'Weekly'
+                                            ? Colors.white
+                                            : kGray),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedHabit.resetPeriod = 'Monthly';
+                                  });
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                      color: selectedHabit.resetPeriod ==
+                                              'Monthly'
+                                          ? kLightGreenAccent.withOpacity(0.5)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Text(
+                                    'Monthly',
+                                    style: TextStyle(
+                                        color: selectedHabit.resetPeriod ==
+                                                'Monthly'
+                                            ? Colors.white
+                                            : kGray),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedPeriod = 'Weekly';
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                  color: selectedPeriod == 'Weekly'
-                                      ? kPrimaryColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: Text(
-                                'Weekly',
-                                style: TextStyle(
-                                    color: selectedPeriod == 'Weekly'
-                                        ? Colors.black
-                                        : Colors.white),
-                              ),
-                            ),
+                          const SizedBox(
+                            height: 20,
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedPeriod = 'Monthly';
-                              });
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                  color: selectedPeriod == 'Monthly'
-                                      ? kPrimaryColor
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(20)),
-                              child: Text(
-                                'Monthly',
-                                style: TextStyle(
-                                    color: selectedPeriod == 'Monthly'
-                                        ? Colors.black
-                                        : Colors.white),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 100,
+                                child: FilledTextField(
+                                    onChanged: (value) {
+                                      selectedHabit.requiredCompletions =
+                                          int.parse(value);
+                                    },
+                                    hintText: selectedHabit.requiredCompletions
+                                        .toString()),
                               ),
-                            ),
+                              SizedBox(width: 20),
+                              Text(
+                                selectedHabit.resetPeriod == 'Daily'
+                                    ? 'time(s) per day'
+                                    : 'time(s) per ${selectedHabit.resetPeriod.substring(0, selectedHabit.resetPeriod.length - 2).toLowerCase()}',
+                                // Removes 'ly' from adverbs
+                                style:
+                                    kSubHeadingTextStyle.copyWith(color: kGray),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 40,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 100,
-                          child: FilledTextField(
-                              onChanged: (value) {
-                                habitCompletions = int.parse(value);
-                              },
-                              hintText:
-                                  selectedHabit.requiredCompletions.toString()),
-                        ),
-                        SizedBox(width: 20),
-                        Text(
-                          selectedPeriod == 'Daily'
-                              ? 'time(s) per day'
-                              : 'time(s) per ${selectedPeriod.substring(0, selectedPeriod.length - 2).toLowerCase()}',
-                          // Removes 'ly' from adverbs
-                          style: kSubHeadingTextStyle,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    selectedPeriod == 'Daily'
+                    selectedHabit.resetPeriod == 'Daily'
                         ? Column(
                             children: [
                               Text(
@@ -199,24 +205,31 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                     onTap: () {
                                       late bool daySelected;
                                       setState(() {
-                                        daySelected =
-                                            daysActive.remove('Monday');
+                                        daySelected = selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .remove('Monday');
                                       });
                                       if (daySelected == false) {
                                         setState(() {
-                                          daysActive.add('Monday');
+                                          selectedHabit
+                                              .requiredDatesOfCompletion
+                                              .add('Monday');
                                         });
                                       }
                                       // If monday isn't yet selected, add. Else, remove.
                                     },
-                                    color: daysActive.contains('Monday')
+                                    color: selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .contains('Monday')
                                         ? kPrimaryColor
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
                                         'Mo',
                                         style: TextStyle(
-                                            color: daysActive.contains('Monday')
+                                            color: selectedHabit
+                                                    .requiredDatesOfCompletion
+                                                    .contains('Monday')
                                                 ? Colors.black
                                                 : Colors.white),
                                       ),
@@ -228,110 +241,30 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                     onTap: () {
                                       late bool daySelected;
                                       setState(() {
-                                        daySelected =
-                                            daysActive.remove('Tuesday');
+                                        daySelected = selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .remove('Tuesday');
                                       });
                                       if (daySelected == false) {
                                         setState(() {
-                                          daysActive.add('Tuesday');
+                                          selectedHabit
+                                              .requiredDatesOfCompletion
+                                              .add('Tuesday');
                                         });
                                       }
                                     },
-                                    color: daysActive.contains('Tuesday')
+                                    color: selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .contains('Tuesday')
                                         ? kPrimaryColor
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
                                         'Tu',
                                         style: TextStyle(
-                                            color:
-                                                daysActive.contains('Tuesday')
-                                                    ? Colors.black
-                                                    : Colors.white),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 20),
-                                  ),
-                                  RoundedTile(
-                                    onTap: () {
-                                      late bool daySelected;
-                                      setState(() {
-                                        daySelected =
-                                            daysActive.remove('Wednesday');
-                                      });
-                                      if (daySelected == false) {
-                                        setState(() {
-                                          daysActive.add('Wednesday');
-                                        });
-                                      }
-                                    },
-                                    color: daysActive.contains('Wednesday')
-                                        ? kPrimaryColor
-                                        : Colors.transparent,
-                                    child: Center(
-                                      child: Text(
-                                        'We',
-                                        style: TextStyle(
-                                            color:
-                                                daysActive.contains('Wednesday')
-                                                    ? Colors.black
-                                                    : Colors.white),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 20),
-                                  ),
-                                  RoundedTile(
-                                    onTap: () {
-                                      late bool daySelected;
-                                      setState(() {
-                                        daySelected =
-                                            daysActive.remove('Thursday');
-                                      });
-                                      if (daySelected == false) {
-                                        setState(() {
-                                          daysActive.add('Thursday');
-                                        });
-                                      }
-                                    },
-                                    color: daysActive.contains('Thursday')
-                                        ? kPrimaryColor
-                                        : Colors.transparent,
-                                    child: Center(
-                                      child: Text(
-                                        'Th',
-                                        style: TextStyle(
-                                            color:
-                                                daysActive.contains('Thursday')
-                                                    ? Colors.black
-                                                    : Colors.white),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 20),
-                                  ),
-                                  RoundedTile(
-                                    onTap: () {
-                                      late bool daySelected;
-                                      setState(() {
-                                        daySelected =
-                                            daysActive.remove('Friday');
-                                      });
-                                      if (daySelected == false) {
-                                        setState(() {
-                                          daysActive.add('Friday');
-                                        });
-                                      }
-                                    },
-                                    color: daysActive.contains('Friday')
-                                        ? kPrimaryColor
-                                        : Colors.transparent,
-                                    child: Center(
-                                      child: Text(
-                                        'Fr',
-                                        style: TextStyle(
-                                            color: daysActive.contains('Friday')
+                                            color: selectedHabit
+                                                    .requiredDatesOfCompletion
+                                                    .contains('Tuesday')
                                                 ? Colors.black
                                                 : Colors.white),
                                       ),
@@ -343,26 +276,32 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                     onTap: () {
                                       late bool daySelected;
                                       setState(() {
-                                        daySelected =
-                                            daysActive.remove('Saturday');
+                                        daySelected = selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .remove('Wednesday');
                                       });
                                       if (daySelected == false) {
                                         setState(() {
-                                          daysActive.add('Saturday');
+                                          selectedHabit
+                                              .requiredDatesOfCompletion
+                                              .add('Wednesday');
                                         });
                                       }
                                     },
-                                    color: daysActive.contains('Saturday')
+                                    color: selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .contains('Wednesday')
                                         ? kPrimaryColor
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
-                                        'Sa',
+                                        'We',
                                         style: TextStyle(
-                                            color:
-                                                daysActive.contains('Saturday')
-                                                    ? Colors.black
-                                                    : Colors.white),
+                                            color: selectedHabit
+                                                    .requiredDatesOfCompletion
+                                                    .contains('Wednesday')
+                                                ? Colors.black
+                                                : Colors.white),
                                       ),
                                     ),
                                     padding: EdgeInsets.symmetric(
@@ -372,23 +311,135 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                     onTap: () {
                                       late bool daySelected;
                                       setState(() {
-                                        daySelected =
-                                            daysActive.remove('Sunday');
+                                        daySelected = selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .remove('Thursday');
                                       });
                                       if (daySelected == false) {
                                         setState(() {
-                                          daysActive.add('Sunday');
+                                          selectedHabit
+                                              .requiredDatesOfCompletion
+                                              .add('Thursday');
                                         });
                                       }
                                     },
-                                    color: daysActive.contains('Sunday')
+                                    color: selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .contains('Thursday')
+                                        ? kPrimaryColor
+                                        : Colors.transparent,
+                                    child: Center(
+                                      child: Text(
+                                        'Th',
+                                        style: TextStyle(
+                                            color: selectedHabit
+                                                    .requiredDatesOfCompletion
+                                                    .contains('Thursday')
+                                                ? Colors.black
+                                                : Colors.white),
+                                      ),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 20),
+                                  ),
+                                  RoundedTile(
+                                    onTap: () {
+                                      late bool daySelected;
+                                      setState(() {
+                                        daySelected = selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .remove('Friday');
+                                      });
+                                      if (daySelected == false) {
+                                        setState(() {
+                                          selectedHabit
+                                              .requiredDatesOfCompletion
+                                              .add('Friday');
+                                        });
+                                      }
+                                    },
+                                    color: selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .contains('Friday')
+                                        ? kPrimaryColor
+                                        : Colors.transparent,
+                                    child: Center(
+                                      child: Text(
+                                        'Fr',
+                                        style: TextStyle(
+                                            color: selectedHabit
+                                                    .requiredDatesOfCompletion
+                                                    .contains('Friday')
+                                                ? Colors.black
+                                                : Colors.white),
+                                      ),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 20),
+                                  ),
+                                  RoundedTile(
+                                    onTap: () {
+                                      late bool daySelected;
+                                      setState(() {
+                                        daySelected = selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .remove('Saturday');
+                                      });
+                                      if (daySelected == false) {
+                                        setState(() {
+                                          selectedHabit
+                                              .requiredDatesOfCompletion
+                                              .add('Saturday');
+                                        });
+                                      }
+                                    },
+                                    color: selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .contains('Saturday')
+                                        ? kPrimaryColor
+                                        : Colors.transparent,
+                                    child: Center(
+                                      child: Text(
+                                        'Sa',
+                                        style: TextStyle(
+                                            color: selectedHabit
+                                                    .requiredDatesOfCompletion
+                                                    .contains('Saturday')
+                                                ? Colors.black
+                                                : Colors.white),
+                                      ),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 20),
+                                  ),
+                                  RoundedTile(
+                                    onTap: () {
+                                      late bool daySelected;
+                                      setState(() {
+                                        daySelected = selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .remove('Sunday');
+                                      });
+                                      if (daySelected == false) {
+                                        setState(() {
+                                          selectedHabit
+                                              .requiredDatesOfCompletion
+                                              .add('Sunday');
+                                        });
+                                      }
+                                    },
+                                    color: selectedHabit
+                                            .requiredDatesOfCompletion
+                                            .contains('Sunday')
                                         ? kPrimaryColor
                                         : Colors.transparent,
                                     child: Center(
                                       child: Text(
                                         'Su',
                                         style: TextStyle(
-                                            color: daysActive.contains('Sunday')
+                                            color: selectedHabit
+                                                    .requiredDatesOfCompletion
+                                                    .contains('Sunday')
                                                 ? Colors.black
                                                 : Colors.white),
                                       ),
@@ -408,9 +459,9 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                       onPressed: () async {
                         DateTime today = DateTime.now();
                         DateTime habitDueDate;
-                        if (selectedPeriod == 'Daily') {
+                        if (selectedHabit.resetPeriod == 'Daily') {
                           habitDueDate = today;
-                        } else if (selectedPeriod == 'Weekly') {
+                        } else if (selectedHabit.resetPeriod == 'Weekly') {
                           habitDueDate = today.add(Duration(
                               days: (DateTime.daysPerWeek) - (today.weekday)));
                         } else {
@@ -418,10 +469,12 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                           // Defaulting motnh to 30 days, may change later.
                         }
                         Habit editedHabit = selectedHabit;
-                        selectedHabit.title = habitTitle;
-                        selectedHabit.resetPeriod = selectedPeriod;
-                        selectedHabit.requiredCompletions = habitCompletions;
-                        selectedHabit.requiredDatesOfCompletion = daysActive;
+                        selectedHabit.title = selectedHabit.title;
+                        selectedHabit.resetPeriod = selectedHabit.resetPeriod;
+                        selectedHabit.requiredCompletions =
+                            selectedHabit.requiredCompletions;
+                        selectedHabit.requiredDatesOfCompletion =
+                            selectedHabit.requiredDatesOfCompletion;
                         habitManager.editHabit(
                           widget.habitIndex,
                           editedHabit,
@@ -440,6 +493,8 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                         }
                         Provider.of<HabitManager>(context, listen: false)
                             .updateHabits();
+                        Provider.of<HabitManager>(context, listen: false)
+                            .scheduleSmartHabitNotifs();
                         await Provider.of<HabitsLocalStorage>(context,
                                 listen: false)
                             .updateHabit(Provider.of<HabitManager>(context,

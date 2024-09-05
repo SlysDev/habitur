@@ -44,7 +44,7 @@ const kCtaBtnStyle = TextStyle(
   fontWeight: FontWeight.bold,
 );
 
-TextStyle kMainDescription = TextStyle(
+const TextStyle kMainDescription = TextStyle(
   fontSize: 18,
 );
 

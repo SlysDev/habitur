@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:habitur/components/smart_notification_switch.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
@@ -15,26 +16,28 @@ import 'package:provider/provider.dart';
 
 import '../components/filled_text_field.dart';
 
-int? selectedHabit = 0;
-String habitTitle = '';
-int habitCompletions = 1;
-String selectedPeriod = 'Daily';
-List<String> daysActive = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday',
-  'Saturday',
-  'Sunday'
-];
-
 class AddHabitScreen extends StatefulWidget {
   @override
   State<AddHabitScreen> createState() => _AddHabitScreenState();
 }
 
 class _AddHabitScreenState extends State<AddHabitScreen> {
+  Habit newHabit = Habit(
+      title: '',
+      dateCreated: DateTime.now(),
+      id: Random().nextInt(100000),
+      resetPeriod: 'Daily',
+      lastSeen: DateTime.now(),
+      requiredDatesOfCompletion: [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+      ],
+      requiredCompletions: 1);
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
@@ -77,9 +80,13 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                     ),
                     FilledTextField(
                         onChanged: (value) {
-                          habitTitle = value;
+                          newHabit.title = value;
                         },
                         hintText: 'Meditate, Run, etc.'),
+                    const SizedBox(
+                      height: 60,
+                    ),
+                    SmartNotificationSwitch(habit: newHabit),
                     const SizedBox(
                       height: 40,
                     ),
@@ -99,20 +106,20 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                               GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    selectedPeriod = 'Daily';
+                                    newHabit.resetPeriod = 'Daily';
                                   });
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                      color: selectedPeriod == 'Daily'
+                                      color: newHabit.resetPeriod == 'Daily'
                                           ? kLightGreenAccent.withOpacity(0.5)
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(20)),
                                   child: Text(
                                     'Daily',
                                     style: TextStyle(
-                                        color: selectedPeriod == 'Daily'
+                                        color: newHabit.resetPeriod == 'Daily'
                                             ? Colors.white
                                             : kGray),
                                   ),
@@ -121,20 +128,20 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                               GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    selectedPeriod = 'Weekly';
+                                    newHabit.resetPeriod = 'Weekly';
                                   });
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                      color: selectedPeriod == 'Weekly'
+                                      color: newHabit.resetPeriod == 'Weekly'
                                           ? kLightGreenAccent.withOpacity(0.5)
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(20)),
                                   child: Text(
                                     'Weekly',
                                     style: TextStyle(
-                                        color: selectedPeriod == 'Weekly'
+                                        color: newHabit.resetPeriod == 'Weekly'
                                             ? Colors.white
                                             : kGray),
                                   ),
@@ -143,20 +150,20 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                               GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    selectedPeriod = 'Monthly';
+                                    newHabit.resetPeriod = 'Monthly';
                                   });
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
-                                      color: selectedPeriod == 'Monthly'
+                                      color: newHabit.resetPeriod == 'Monthly'
                                           ? kLightGreenAccent.withOpacity(0.5)
                                           : Colors.transparent,
                                       borderRadius: BorderRadius.circular(20)),
                                   child: Text(
                                     'Monthly',
                                     style: TextStyle(
-                                        color: selectedPeriod == 'Monthly'
+                                        color: newHabit.resetPeriod == 'Monthly'
                                             ? Colors.white
                                             : kGray),
                                   ),
@@ -174,15 +181,16 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                 width: 100,
                                 child: FilledTextField(
                                     onChanged: (value) {
-                                      habitCompletions = int.parse(value);
+                                      newHabit.requiredCompletions =
+                                          int.parse(value);
                                     },
                                     hintText: '#'),
                               ),
                               SizedBox(width: 20),
                               Text(
-                                selectedPeriod == 'Daily'
+                                newHabit.resetPeriod == 'Daily'
                                     ? 'time(s) per day'
-                                    : 'time(s) per ${selectedPeriod.substring(0, selectedPeriod.length - 2).toLowerCase()}',
+                                    : 'time(s) per ${newHabit.resetPeriod.substring(0, newHabit.resetPeriod.length - 2).toLowerCase()}',
                                 // Removes 'ly' from adverbs
                                 style:
                                     kSubHeadingTextStyle.copyWith(color: kGray),
@@ -195,7 +203,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                     const SizedBox(
                       height: 40,
                     ),
-                    selectedPeriod == 'Daily'
+                    newHabit.resetPeriod == 'Daily'
                         ? Column(
                             children: [
                               Text(
@@ -215,17 +223,20 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                       onTap: () {
                                         late bool daySelected;
                                         setState(() {
-                                          daySelected =
-                                              daysActive.remove('Monday');
+                                          daySelected = newHabit
+                                              .requiredDatesOfCompletion
+                                              .remove('Monday');
                                         });
                                         if (daySelected == false) {
                                           setState(() {
-                                            daysActive.add('Monday');
+                                            newHabit.requiredDatesOfCompletion
+                                                .add('Monday');
                                           });
                                         }
                                         // If monday isn't yet selected, add. Else, remove.
                                       },
-                                      color: daysActive.contains('Monday')
+                                      color: newHabit.requiredDatesOfCompletion
+                                              .contains('Monday')
                                           ? kPrimaryColor
                                           : Colors.transparent,
                                       padding: const EdgeInsets.symmetric(
@@ -234,10 +245,11 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                         child: Text(
                                           'Mo',
                                           style: TextStyle(
-                                              color:
-                                                  daysActive.contains('Monday')
-                                                      ? kBackgroundColor
-                                                      : Colors.white),
+                                              color: newHabit
+                                                      .requiredDatesOfCompletion
+                                                      .contains('Monday')
+                                                  ? kBackgroundColor
+                                                  : Colors.white),
                                         ),
                                       ),
                                     ),
@@ -245,16 +257,19 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                       onTap: () {
                                         late bool daySelected;
                                         setState(() {
-                                          daySelected =
-                                              daysActive.remove('Tuesday');
+                                          daySelected = newHabit
+                                              .requiredDatesOfCompletion
+                                              .remove('Tuesday');
                                         });
                                         if (daySelected == false) {
                                           setState(() {
-                                            daysActive.add('Tuesday');
+                                            newHabit.requiredDatesOfCompletion
+                                                .add('Tuesday');
                                           });
                                         }
                                       },
-                                      color: daysActive.contains('Tuesday')
+                                      color: newHabit.requiredDatesOfCompletion
+                                              .contains('Tuesday')
                                           ? kPrimaryColor
                                           : Colors.transparent,
                                       padding: const EdgeInsets.symmetric(
@@ -263,10 +278,11 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                         child: Text(
                                           'Tu',
                                           style: TextStyle(
-                                              color:
-                                                  daysActive.contains('Tuesday')
-                                                      ? kBackgroundColor
-                                                      : Colors.white),
+                                              color: newHabit
+                                                      .requiredDatesOfCompletion
+                                                      .contains('Tuesday')
+                                                  ? kBackgroundColor
+                                                  : Colors.white),
                                         ),
                                       ),
                                     ),
@@ -274,16 +290,19 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                       onTap: () {
                                         late bool daySelected;
                                         setState(() {
-                                          daySelected =
-                                              daysActive.remove('Wednesday');
+                                          daySelected = newHabit
+                                              .requiredDatesOfCompletion
+                                              .remove('Wednesday');
                                         });
                                         if (daySelected == false) {
                                           setState(() {
-                                            daysActive.add('Wednesday');
+                                            newHabit.requiredDatesOfCompletion
+                                                .add('Wednesday');
                                           });
                                         }
                                       },
-                                      color: daysActive.contains('Wednesday')
+                                      color: newHabit.requiredDatesOfCompletion
+                                              .contains('Wednesday')
                                           ? kPrimaryColor
                                           : Colors.transparent,
                                       padding: const EdgeInsets.symmetric(
@@ -292,7 +311,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                         child: Text(
                                           'We',
                                           style: TextStyle(
-                                              color: daysActive
+                                              color: newHabit
+                                                      .requiredDatesOfCompletion
                                                       .contains('Wednesday')
                                                   ? kBackgroundColor
                                                   : Colors.white),
@@ -303,16 +323,19 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                       onTap: () {
                                         late bool daySelected;
                                         setState(() {
-                                          daySelected =
-                                              daysActive.remove('Thursday');
+                                          daySelected = newHabit
+                                              .requiredDatesOfCompletion
+                                              .remove('Thursday');
                                         });
                                         if (daySelected == false) {
                                           setState(() {
-                                            daysActive.add('Thursday');
+                                            newHabit.requiredDatesOfCompletion
+                                                .add('Thursday');
                                           });
                                         }
                                       },
-                                      color: daysActive.contains('Thursday')
+                                      color: newHabit.requiredDatesOfCompletion
+                                              .contains('Thursday')
                                           ? kPrimaryColor
                                           : Colors.transparent,
                                       padding: const EdgeInsets.symmetric(
@@ -321,7 +344,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                         child: Text(
                                           'Th',
                                           style: TextStyle(
-                                              color: daysActive
+                                              color: newHabit
+                                                      .requiredDatesOfCompletion
                                                       .contains('Thursday')
                                                   ? kBackgroundColor
                                                   : Colors.white),
@@ -332,16 +356,19 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                       onTap: () {
                                         late bool daySelected;
                                         setState(() {
-                                          daySelected =
-                                              daysActive.remove('Friday');
+                                          daySelected = newHabit
+                                              .requiredDatesOfCompletion
+                                              .remove('Friday');
                                         });
                                         if (daySelected == false) {
                                           setState(() {
-                                            daysActive.add('Friday');
+                                            newHabit.requiredDatesOfCompletion
+                                                .add('Friday');
                                           });
                                         }
                                       },
-                                      color: daysActive.contains('Friday')
+                                      color: newHabit.requiredDatesOfCompletion
+                                              .contains('Friday')
                                           ? kPrimaryColor
                                           : Colors.transparent,
                                       padding: const EdgeInsets.symmetric(
@@ -350,10 +377,11 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                         child: Text(
                                           'Fr',
                                           style: TextStyle(
-                                              color:
-                                                  daysActive.contains('Friday')
-                                                      ? kBackgroundColor
-                                                      : Colors.white),
+                                              color: newHabit
+                                                      .requiredDatesOfCompletion
+                                                      .contains('Friday')
+                                                  ? kBackgroundColor
+                                                  : Colors.white),
                                         ),
                                       ),
                                     ),
@@ -361,16 +389,19 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                       onTap: () {
                                         late bool daySelected;
                                         setState(() {
-                                          daySelected =
-                                              daysActive.remove('Saturday');
+                                          daySelected = newHabit
+                                              .requiredDatesOfCompletion
+                                              .remove('Saturday');
                                         });
                                         if (daySelected == false) {
                                           setState(() {
-                                            daysActive.add('Saturday');
+                                            newHabit.requiredDatesOfCompletion
+                                                .add('Saturday');
                                           });
                                         }
                                       },
-                                      color: daysActive.contains('Saturday')
+                                      color: newHabit.requiredDatesOfCompletion
+                                              .contains('Saturday')
                                           ? kPrimaryColor
                                           : Colors.transparent,
                                       padding: const EdgeInsets.symmetric(
@@ -379,7 +410,8 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                         child: Text(
                                           'Sa',
                                           style: TextStyle(
-                                              color: daysActive
+                                              color: newHabit
+                                                      .requiredDatesOfCompletion
                                                       .contains('Saturday')
                                                   ? kBackgroundColor
                                                   : Colors.white),
@@ -390,16 +422,19 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                       onTap: () {
                                         late bool daySelected;
                                         setState(() {
-                                          daySelected =
-                                              daysActive.remove('Sunday');
+                                          daySelected = newHabit
+                                              .requiredDatesOfCompletion
+                                              .remove('Sunday');
                                         });
                                         if (daySelected == false) {
                                           setState(() {
-                                            daysActive.add('Sunday');
+                                            newHabit.requiredDatesOfCompletion
+                                                .add('Sunday');
                                           });
                                         }
                                       },
-                                      color: daysActive.contains('Sunday')
+                                      color: newHabit.requiredDatesOfCompletion
+                                              .contains('Sunday')
                                           ? kPrimaryColor
                                           : Colors.transparent,
                                       padding: const EdgeInsets.symmetric(
@@ -408,10 +443,11 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                         child: Text(
                                           'Su',
                                           style: TextStyle(
-                                              color:
-                                                  daysActive.contains('Sunday')
-                                                      ? kBackgroundColor
-                                                      : Colors.white),
+                                              color: newHabit
+                                                      .requiredDatesOfCompletion
+                                                      .contains('Sunday')
+                                                  ? kBackgroundColor
+                                                  : Colors.white),
                                         ),
                                       ),
                                     ),
@@ -426,19 +462,12 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         : Container(),
                     ElevatedButton(
                       onPressed: () async {
-                        Habit finalHabit = Habit(
-                            title: habitTitle,
-                            dateCreated: DateTime.now(),
-                            id: Random().nextInt(100000),
-                            resetPeriod: selectedPeriod,
-                            lastSeen: DateTime.now(),
-                            requiredDatesOfCompletion: daysActive,
-                            requiredCompletions: habitCompletions);
+                        print(newHabit.smartNotifsEnabled);
                         Provider.of<HabitManager>(context, listen: false)
-                            .addHabit(finalHabit, context);
+                            .addHabit(newHabit, context);
                         try {
                           Database db = Database();
-                          await db.habitDatabase.addHabit(finalHabit, context);
+                          await db.habitDatabase.addHabit(newHabit, context);
                           Provider.of<NetworkStateProvider>(context,
                                   listen: false)
                               .isConnected = true;
@@ -449,7 +478,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         }
                         await Provider.of<HabitsLocalStorage>(context,
                                 listen: false)
-                            .addHabit(finalHabit);
+                            .addHabit(newHabit);
                         Provider.of<HabitManager>(context, listen: false)
                             .sortHabits();
                         Provider.of<HabitManager>(context, listen: false)

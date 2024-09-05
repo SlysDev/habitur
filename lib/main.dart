@@ -12,7 +12,6 @@ import 'package:habitur/models/time_model.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/notifications/notification_controller.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
-import 'package:habitur/providers/habit_card_loading_state.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/admin-screen.dart';
 import 'package:habitur/screens/community_leaderboard_screen.dart';
@@ -123,8 +122,6 @@ class _HabiturState extends State<Habitur> {
               create: (context) => HabitManager()),
           ChangeNotifierProvider<HabitsLocalStorage>(
               create: (context) => HabitsLocalStorage()),
-          ChangeNotifierProvider<HabitCardLoadingState>(
-              create: (context) => HabitCardLoadingState()),
           ChangeNotifierProvider<UserLocalStorage>(
               create: (context) => UserLocalStorage()),
           ChangeNotifierProvider<LoadingData>(

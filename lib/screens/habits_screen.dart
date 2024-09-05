@@ -52,6 +52,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
+    Provider.of<HabitManager>(context, listen: false).resetHabits(context);
   }
 
   @override

@@ -22,9 +22,9 @@ class UserModel {
   @HiveField(6)
   int userXP;
   @HiveField(7)
-  List<StatPoint> stats = [];
-  @HiveField(8)
   bool isAdmin;
+  @HiveField(8)
+  List<StatPoint> stats;
   int get levelUpRequirement {
     return 100 * pow(1.5, userLevel).ceil();
   }

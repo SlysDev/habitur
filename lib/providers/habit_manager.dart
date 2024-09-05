@@ -98,13 +98,14 @@ class HabitManager extends ChangeNotifier {
   }
 
   Future<void> resetDailyHabits(context) async {
-    NotificationManager notificationManager = NotificationManager();
-    await notificationManager.cancelAllScheduledNotifications();
     NotificationScheduler notificationScheduler = NotificationScheduler();
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
       if (element.resetPeriod == 'Daily') {
+        if (element.smartNotifsEnabled) {
+          await notificationScheduler.scheduleDayHabitReminderTrack(element);
+        }
         // If the task was not created today, make it incomplete
         String currentDayOfWeek = DateFormat('EEEE').format(DateTime.now());
         element.lastSeen = DateTime.now();
@@ -139,8 +140,6 @@ class HabitManager extends ChangeNotifier {
   }
 
   Future<void> resetWeeklyHabits(context) async {
-    NotificationManager notificationManager = NotificationManager();
-    await notificationManager.cancelAllScheduledNotifications();
     NotificationScheduler notificationScheduler = NotificationScheduler();
     int getWeekOfYear(DateTime date) {
       // Adjust for potential differences in week number calculations across platforms
@@ -157,6 +156,9 @@ class HabitManager extends ChangeNotifier {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
       if (element.resetPeriod == 'Weekly') {
+        if (element.smartNotifsEnabled) {
+          await notificationScheduler.scheduleWeekHabitReminderTrack(element);
+        }
         final now = DateTime.now();
         final currentWeek = getWeekOfYear(now);
         final lastResetWeek = getWeekOfYear(element.lastSeen);
@@ -186,13 +188,14 @@ class HabitManager extends ChangeNotifier {
   }
 
   Future<void> resetMonthlyHabits(context) async {
-    NotificationManager notificationManager = NotificationManager();
-    await notificationManager.cancelAllScheduledNotifications();
     NotificationScheduler notificationScheduler = NotificationScheduler();
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
       if (element.resetPeriod == 'Monthly') {
+        if (element.smartNotifsEnabled) {
+          await notificationScheduler.scheduleMonthHabitReminderTrack(element);
+        }
         // If the task was not created this month, make it incomplete
         if (DateFormat('m').format(element.lastSeen) !=
             DateFormat('m').format(DateTime.now())) {
@@ -222,10 +225,27 @@ class HabitManager extends ChangeNotifier {
 
   Future<void> resetHabits(context) async {
     NotificationManager notificationManager = NotificationManager();
+    notificationManager.cancelAllScheduledNotifications();
     await resetDailyHabits(context);
     await resetWeeklyHabits(context);
     await resetMonthlyHabits(context);
     await notificationManager.printNotifications();
+  }
+
+  Future<void> scheduleSmartHabitNotifs() async {
+    NotificationScheduler notificationScheduler = NotificationScheduler();
+    for (int i = 0; i < _habits.length; i++) {
+      Habit element = _habits[i];
+      if (element.smartNotifsEnabled) {
+        if (element.resetPeriod == 'Daily') {
+          await notificationScheduler.scheduleDayHabitReminderTrack(element);
+        } else if (element.resetPeriod == 'Weekly') {
+          await notificationScheduler.scheduleWeekHabitReminderTrack(element);
+        } else if (element.resetPeriod == 'Monthly') {
+          await notificationScheduler.scheduleMonthHabitReminderTrack(element);
+        }
+      }
+    }
   }
 
   List<Habit> getTodaysDueHabits() {

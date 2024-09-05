@@ -40,6 +40,8 @@ class Habit {
   List<String> requiredDatesOfCompletion = [];
   @HiveField(14)
   List<StatPoint> stats = [];
+  @HiveField(15)
+  bool smartNotifsEnabled;
 
   bool get isCompleted {
     return completionsToday == requiredCompletions;
@@ -57,6 +59,48 @@ class Habit {
     return rate > 1.0 ? 1.0 : rate;
   }
 
+  Habit copyWith({
+    String? title,
+    int? proficiencyRating,
+    int? streak,
+    int? requiredCompletions,
+    int? completionsToday,
+    int? totalCompletions,
+    int? highestStreak,
+    String? resetPeriod,
+    DateTime? dateCreated,
+    double? confidenceLevel,
+    DateTime? lastSeen,
+    Color? color,
+    int? id,
+    bool? isCommunityHabit,
+    bool? smartNotifsEnabled,
+    List<DateTime>? daysCompleted,
+    List<String>? requiredDatesOfCompletion,
+    List<StatPoint>? stats,
+  }) {
+    return Habit(
+      title: title ?? this.title,
+      dateCreated: dateCreated ?? this.dateCreated,
+      resetPeriod: resetPeriod ?? this.resetPeriod,
+      id: id ?? this.id,
+      lastSeen: lastSeen ?? this.lastSeen,
+      streak: streak ?? this.streak,
+      highestStreak: highestStreak ?? this.highestStreak,
+      completionsToday: completionsToday ?? this.completionsToday,
+      totalCompletions: totalCompletions ?? this.totalCompletions,
+      confidenceLevel: confidenceLevel ?? this.confidenceLevel,
+      requiredDatesOfCompletion:
+          requiredDatesOfCompletion ?? this.requiredDatesOfCompletion,
+      isCommunityHabit: isCommunityHabit ?? this.isCommunityHabit,
+      smartNotifsEnabled: smartNotifsEnabled ?? this.smartNotifsEnabled,
+      requiredCompletions: requiredCompletions ?? this.requiredCompletions,
+    )
+      ..color = color ?? this.color
+      ..daysCompleted = daysCompleted ?? this.daysCompleted
+      ..stats = stats ?? this.stats;
+  }
+
   Habit(
       {required this.title,
       required this.dateCreated,
@@ -70,5 +114,6 @@ class Habit {
       this.confidenceLevel = 0,
       this.requiredDatesOfCompletion = const [],
       this.isCommunityHabit = false,
+      this.smartNotifsEnabled = false,
       this.requiredCompletions = 1});
 }
