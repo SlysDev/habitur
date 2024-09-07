@@ -11,6 +11,7 @@ import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/notifications/notification_controller.dart';
+import 'package:habitur/providers/add_habit_screen_provider.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/admin-screen.dart';
@@ -134,6 +135,8 @@ class _HabiturState extends State<Habitur> {
               create: (context) => LocalStorage()),
           ChangeNotifierProvider<NetworkStateProvider>(
               create: (context) => NetworkStateProvider()),
+          ChangeNotifierProvider<AddHabitScreenProvider>(
+              create: (context) => AddHabitScreenProvider()),
           ChangeNotifierProvider<CommunityChallengeManager>(
               create: (context) => CommunityChallengeManager()),
         ],

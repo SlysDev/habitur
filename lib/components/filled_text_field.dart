@@ -7,11 +7,13 @@ class FilledTextField extends StatelessWidget {
   final bool obscureText;
   final String initialValue;
   final bool enabled;
+  dynamic controller;
   FilledTextField(
       {required this.onChanged,
       required this.hintText,
       this.enabled = true,
       this.initialValue = '',
+      this.controller,
       this.obscureText = false});
   @override
   Widget build(BuildContext context) {
@@ -20,9 +22,10 @@ class FilledTextField extends StatelessWidget {
       obscureText: obscureText,
       cursorColor: Colors.white,
       onChanged: onChanged,
-      controller: initialValue != null
-          ? TextEditingController(text: initialValue)
-          : TextEditingController(),
+      controller: controller ??
+          (initialValue != null
+              ? TextEditingController(text: initialValue)
+              : TextEditingController()),
       textAlign: TextAlign.center,
       style: TextStyle(
           color: enabled ? Colors.white : Colors.red.withOpacity(0.7)),

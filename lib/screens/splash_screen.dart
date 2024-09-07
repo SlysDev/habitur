@@ -65,7 +65,7 @@ class SplashScreen extends StatelessWidget {
       },
       child: AnimatedSplashScreen.withScreenFunction(
         curve: Curves.ease,
-        duration: 2500,
+        duration: 1000,
         splash: 'assets/images/logo.png',
         backgroundColor: kBackgroundColor,
         splashIconSize: 150,
