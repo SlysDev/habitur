@@ -15,7 +15,11 @@ class DataManager {
     if (db.userDatabase.isLoggedIn) {
       DateTime lastUpdated = await db.lastUpdatedManager.lastUpdated;
       if (lastUpdated.isAfter(
-          Provider.of<UserLocalStorage>(context, listen: false).lastUpdated)) {
+              Provider.of<UserLocalStorage>(context, listen: false)
+                  .lastUpdated) ||
+          Provider.of<HabitsLocalStorage>(context, listen: false)
+              .getHabitData()
+              .isEmpty) {
         print('loading from DB');
         await db.userDatabase.loadUserData(context);
         await db.statsDatabase.loadStatistics(context);
