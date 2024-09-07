@@ -452,6 +452,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   onPressed: () async {
                                     late final _auth = FirebaseAuth.instance;
                                     await _auth.signOut();
+                                    Provider.of<UserLocalStorage>(context,
+                                            listen: false)
+                                        .updateUserProperty('email', 'N/A');
                                     Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(

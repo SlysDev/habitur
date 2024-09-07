@@ -56,10 +56,12 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                       height: 20,
                     ),
                     FilledTextField(
-                        onChanged: (value) {
-                          selectedHabit.title = value;
-                        },
-                        hintText: selectedHabit.title),
+                      initialValue: selectedHabit.title,
+                      onChanged: (value) {
+                        selectedHabit.title = value;
+                      },
+                      hintText: 'Enter a name here...',
+                    ),
                     const SizedBox(
                       height: 40,
                     ),
@@ -163,12 +165,14 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                               Container(
                                 width: 100,
                                 child: FilledTextField(
+                                    initialValue: selectedHabit
+                                        .requiredCompletions
+                                        .toString(),
                                     onChanged: (value) {
                                       selectedHabit.requiredCompletions =
                                           int.parse(value);
                                     },
-                                    hintText: selectedHabit.requiredCompletions
-                                        .toString()),
+                                    hintText: '#'),
                               ),
                               SizedBox(width: 20),
                               Text(

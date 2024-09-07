@@ -3,6 +3,7 @@ import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/custom_alert_dialog.dart';
 import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/data/data_manager.dart';
 import 'package:habitur/data/local/auth_local_storage.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/providers/database.dart';
@@ -69,40 +70,46 @@ class LoginScreen extends StatelessWidget {
             Container(
               margin: const EdgeInsets.all(20),
               child: PrimaryButton(
-                text: 'Login',
-                onPressed: () async {
-                  // TODO: Create a popup warning user of overwriting LS data
-                  if (Provider.of<HabitsLocalStorage>(context, listen: false)
-                      .getHabitData()
-                      .isNotEmpty) {
-                    dynamic result = await showDialog(
-                      context: context,
-                      builder: (context) => CustomAlertDialog(
-                        title: 'Warning',
-                        content: Text(
-                            'Are you sure you want to log in? All of your data will be overwritten.'),
-                        actions: [
-                          AsideButton(
-                              onPressed: () {
-                                Navigator.pop(context, true);
-                              },
-                              text: 'Yes'),
-                          SizedBox(width: 10),
-                          AsideButton(
-                              onPressed: () {
-                                Navigator.pop(context, false);
-                              },
-                              text: 'No'),
-                        ],
-                      ),
-                    );
+                  text: 'Login',
+                  onPressed: () async {
+                    // TODO: Create a popup warning user of overwriting LS data
+                    dynamic result;
+                    if (Provider.of<HabitsLocalStorage>(context, listen: false)
+                        .getHabitData()
+                        .isNotEmpty) {
+                      result = await showDialog(
+                        context: context,
+                        builder: (context) => CustomAlertDialog(
+                          title: 'Warning',
+                          content: Text(
+                              'Are you sure you want to log in? All of your data will be overwritten.'),
+                          actions: [
+                            AsideButton(
+                                onPressed: () {
+                                  Navigator.pop(context, true);
+                                },
+                                text: 'Yes'),
+                            SizedBox(width: 10),
+                            AsideButton(
+                                onPressed: () {
+                                  Navigator.pop(context, false);
+                                },
+                                text: 'No'),
+                          ],
+                        ),
+                      );
+                    } else {
+                      result = true;
+                    }
                     result == null ? result = false : null;
                     if (result) {
                       try {
+                        print(email);
+                        print(password);
                         final newUser = await _auth.signInWithEmailAndPassword(
                             email: email, password: password);
-                        await Provider.of<Database>(context, listen: false)
-                            .loadData(context);
+                        DataManager data = DataManager();
+                        await data.loadData(context);
                         await Provider.of<UserLocalStorage>(context,
                                 listen: false)
                             .saveData();
@@ -115,8 +122,9 @@ class LoginScreen extends StatelessWidget {
                         if (newUser != null) {
                           Navigator.popAndPushNamed(context, 'home_screen');
                         }
-                      } catch (e) {
+                      } catch (e, s) {
                         print(e);
+                        print(s);
                         String errorMessage = '';
                         if (e is FirebaseAuthException) {
                           switch (e.code) {
@@ -165,9 +173,7 @@ class LoginScreen extends StatelessWidget {
                             .loginFail(errorMessage);
                       }
                     }
-                  }
-                },
-              ),
+                  }),
             ),
             Container(
               margin: const EdgeInsets.all(20),
