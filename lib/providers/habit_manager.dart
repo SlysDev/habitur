@@ -133,7 +133,7 @@ class HabitManager extends ChangeNotifier {
     }
 
     notifyListeners();
-    db.habitDatabase.uploadHabits(context);
+    db.userDatabase.isLoggedIn ? db.habitDatabase.uploadHabits(context) : null;
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
             Provider.of<HabitManager>(context, listen: false).habits);
@@ -181,7 +181,7 @@ class HabitManager extends ChangeNotifier {
           context, numberOfReminders);
     }
     notifyListeners();
-    db.habitDatabase.uploadHabits(context);
+    db.userDatabase.isLoggedIn ? db.habitDatabase.uploadHabits(context) : null;
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
             Provider.of<HabitManager>(context, listen: false).habits);
@@ -217,7 +217,7 @@ class HabitManager extends ChangeNotifier {
           context, numberOfReminders);
     }
     notifyListeners();
-    db.habitDatabase.uploadHabits(context);
+    db.userDatabase.isLoggedIn ? db.habitDatabase.uploadHabits(context) : null;
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
             Provider.of<HabitManager>(context, listen: false).habits);

@@ -38,6 +38,7 @@ class Database {
     await userDatabase.loadUserData(context);
     await habitDatabase.loadHabits(context);
     await statsDatabase.loadStatistics(context);
+    await settingsDatabase.loadData(context);
     await communityChallengeDatabase.loadCommunityChallenges(context);
   }
 

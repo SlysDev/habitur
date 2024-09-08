@@ -73,7 +73,12 @@ class SplashScreen extends StatelessWidget {
         screenFunction: () async {
           DataManager dataManager = DataManager();
           await dataManager.loadData(context);
-          return auth.currentUser != null ? HomeScreen() : WelcomeScreen();
+          return auth.currentUser != null ||
+                  Provider.of<UserLocalStorage>(context, listen: false)
+                          .currentUser !=
+                      null
+              ? HomeScreen()
+              : WelcomeScreen();
         },
       ),
     );

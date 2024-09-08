@@ -22,10 +22,7 @@ class DataManager {
               .getHabitData()
               .isEmpty) {
         print('loading from DB');
-        await db.userDatabase.loadUserData(context);
-        await db.statsDatabase.loadStatistics(context);
-        await db.settingsDatabase.loadData(context);
-        await db.habitDatabase.loadHabits(context);
+        await db.loadData(context);
         if (!Provider.of<NetworkStateProvider>(context, listen: false)
             .isConnected) {
           await Provider.of<UserLocalStorage>(context, listen: false)
@@ -42,6 +39,7 @@ class DataManager {
       }
     } else {
       print('user is not logged in; loading from LS');
+      await Provider.of<UserLocalStorage>(context, listen: false).loadData();
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .loadData(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
