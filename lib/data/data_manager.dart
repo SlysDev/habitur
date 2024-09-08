@@ -25,8 +25,11 @@ class DataManager {
         await db.loadData(context);
         if (!Provider.of<NetworkStateProvider>(context, listen: false)
             .isConnected) {
+          print('offline; loading from LS');
           await Provider.of<UserLocalStorage>(context, listen: false)
               .loadData();
+          await Provider.of<HabitsLocalStorage>(context, listen: false)
+              .loadData(context);
         }
       } else {
         print('loading from LS');
@@ -36,6 +39,7 @@ class DataManager {
         await db.userDatabase.uploadUserData(context);
         await db.statsDatabase.uploadStatistics(context);
         await db.settingsDatabase.uploadData(context);
+        await db.communityChallengeDatabase.loadCommunityChallenges(context);
       }
     } else {
       print('user is not logged in; loading from LS');
@@ -45,7 +49,6 @@ class DataManager {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
-    await db.communityChallengeDatabase.loadCommunityChallenges(context);
     await Provider.of<HabitManager>(context, listen: false)
         .resetHabits(context);
   }

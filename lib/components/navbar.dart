@@ -22,7 +22,8 @@ class NavBar extends StatelessWidget {
               size: 25,
             ),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pushNamedAndRemoveUntil(
+                  context, 'home_screen', (route) => false);
             },
           ),
           NavItem(
@@ -32,13 +33,8 @@ class NavBar extends StatelessWidget {
               size: 25,
             ),
             onPressed: () {
-              if (currentPage != 'habits') {
-                if (currentPage == 'home') {
-                  Navigator.pushNamed(context, 'habits_screen');
-                } else {
-                  Navigator.popAndPushNamed(context, 'habits_screen');
-                }
-              }
+              Navigator.pushNamedAndRemoveUntil(
+                  context, 'habits_screen', (route) => false);
             },
           ),
           Container(
@@ -64,13 +60,8 @@ class NavBar extends StatelessWidget {
               color: currentPage == 'statistics' ? kPrimaryColor : kGray,
             ),
             onPressed: () {
-              if (currentPage != 'statistics_screen') {
-                if (currentPage == 'home') {
-                  Navigator.pushNamed(context, 'statistics_screen');
-                } else {
-                  Navigator.popAndPushNamed(context, 'statistics_screen');
-                }
-              }
+              Navigator.pushNamedAndRemoveUntil(
+                  context, 'statistics_screen', (route) => false);
             },
           ),
           NavItem(
@@ -79,13 +70,8 @@ class NavBar extends StatelessWidget {
               color: currentPage == 'settings' ? kPrimaryColor : kGray,
             ),
             onPressed: () {
-              if (currentPage != 'settings') {
-                if (currentPage == 'home') {
-                  Navigator.pushNamed(context, 'settings_screen');
-                } else {
-                  Navigator.popAndPushNamed(context, 'settings_screen');
-                }
-              }
+              Navigator.pushNamedAndRemoveUntil(
+                  context, 'settings_screen', (route) => false);
             },
           ),
         ],
