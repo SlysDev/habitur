@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/remote/data_converter.dart';
 import 'package:habitur/data/remote/last_updated_manager.dart';
+import 'package:habitur/data/remote/user_database.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
@@ -16,6 +17,10 @@ class HabitDatabase {
   DataConverter dataConverter = DataConverter();
   Future<void> loadHabits(context) async {
     try {
+      UserDatabase userDatabase = UserDatabase();
+      if (!userDatabase.isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());
@@ -81,6 +86,10 @@ class HabitDatabase {
 
   Future<void> uploadHabits(context) async {
     try {
+      UserDatabase userDatabase = UserDatabase();
+      if (!userDatabase.isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());
@@ -143,6 +152,10 @@ class HabitDatabase {
 
   Future<void> addHabit(Habit habit, context) async {
     try {
+      UserDatabase userDatabase = UserDatabase();
+      if (!userDatabase.isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());
@@ -182,6 +195,10 @@ class HabitDatabase {
 
   Future<void> updateHabit(Habit habit, context) async {
     try {
+      UserDatabase userDatabase = UserDatabase();
+      if (!userDatabase.isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
       List<QueryDocumentSnapshot> docs = await getHabitByID(habit.id, context);
       for (var doc in docs) {
         await _updateHabitDoc(habit, doc);
@@ -200,6 +217,10 @@ class HabitDatabase {
 
   Future<void> deleteHabit(context, int id) async {
     try {
+      UserDatabase userDatabase = UserDatabase();
+      if (!userDatabase.isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());
@@ -220,6 +241,10 @@ class HabitDatabase {
 
   Future<List<QueryDocumentSnapshot>> getHabitByID(int id, context) async {
     try {
+      UserDatabase userDatabase = UserDatabase();
+      if (!userDatabase.isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());
@@ -241,6 +266,10 @@ class HabitDatabase {
 
   Future<void> clearHabits(context) async {
     try {
+      UserDatabase userDatabase = UserDatabase();
+      if (!userDatabase.isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());

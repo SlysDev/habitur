@@ -47,6 +47,9 @@ class UserDatabase {
   Future<void> loadUserData(context) async {
     // throw Error(); // just mocking an error
     try {
+      if (!isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
       QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
       String uid = _auth.currentUser!.uid.toString();
       for (var user in usersSnapshot.docs) {
@@ -79,6 +82,9 @@ class UserDatabase {
     LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
     // throw Error();
     try {
+      if (!isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
       QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
       for (var user in usersSnapshot.docs) {
         if (user.get('uid') ==
