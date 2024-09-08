@@ -105,7 +105,6 @@ class HabitDatabase {
             addHabit(habit, context);
           }
         }
-        //// TODO: Upload hive's storage of the habit list to Firebase  <22-12-22, slys> //
       }
       lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =

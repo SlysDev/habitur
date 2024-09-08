@@ -72,7 +72,6 @@ class LoginScreen extends StatelessWidget {
               child: PrimaryButton(
                   text: 'Login',
                   onPressed: () async {
-                    // TODO: Create a popup warning user of overwriting LS data
                     dynamic result;
                     if (Provider.of<HabitsLocalStorage>(context, listen: false)
                         .getHabitData()

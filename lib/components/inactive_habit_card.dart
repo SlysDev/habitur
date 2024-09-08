@@ -103,7 +103,6 @@ class _InactiveHabitCardState extends State<InactiveHabitCard> {
                     borderRadius: BorderRadius.circular(20),
                     label: 'Delete',
                   ),
-                  // TODO: Add editing functionality  <23-12-22, slys> //
                   SlidableAction(
                     onPressed: (context) {
                       editHabit();

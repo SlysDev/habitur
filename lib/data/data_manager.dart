@@ -7,6 +7,7 @@ import 'package:habitur/providers/network_state_provider.dart';
 import 'package:provider/provider.dart';
 
 class DataManager {
+  // TODO 9/7/24: Fix error when loading data and not logged in & working from offline data
   Future<void> loadData(context) async {
     Database db = Database();
     await Provider.of<UserLocalStorage>(context, listen: false).loadData();

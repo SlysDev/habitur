@@ -83,7 +83,6 @@ class HabitStatsHandler {
             statsCalculator.calculateStatSlope('confidenceLevel', habit.stats),
         slopeDifficultyRating:
             statsCalculator.calculateStatSlope('difficultyRating', habit.stats),
-        // TODO: Add calculations for slopes
       );
       habit.stats.add(newStatPoint);
       statsRecorder.logHabitCompletion(context);
@@ -216,7 +215,6 @@ class HabitStatsHandler {
             statsCalculator.calculateStatSlope('confidenceLevel', habit.stats),
         slopeDifficultyRating:
             statsCalculator.calculateStatSlope('difficultyRating', habit.stats),
-        // TODO: Add calculations for slopes
       );
       habit.stats.add(newStatPoint);
     }

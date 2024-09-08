@@ -25,7 +25,6 @@ class HabitsLocalStorage extends ChangeNotifier {
 
   Future<void> deleteData() async {
     await Hive.deleteBoxFromDisk('habits');
-    // TODO: need to close just habit box
   }
 
   Future<void> syncLastUpdated() async {

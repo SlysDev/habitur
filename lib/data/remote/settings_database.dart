@@ -55,7 +55,6 @@ class SettingsDatabase {
   }
 
   Future<void> populateDefaultSettingsData() async {
-    // TODO 9/2/24: implement (or not)
     CollectionReference users = _firestore.collection('users');
     DocumentReference userReference =
         users.doc(_auth.currentUser!.uid.toString());

@@ -98,7 +98,6 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
                     CommunityChallengeOverviewScreen(challenge: challenge)));
       }
     },
-    // TODO: Implement popup screen
     onLongPress: decrementChallenge,
     child: EmphasisCard(
       color: challenge.currentFullCompletions ==

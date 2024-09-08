@@ -9,7 +9,6 @@ import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:provider/provider.dart';
 
 class NotificationScheduler {
-  // TODO 9/5/24: Add smart notification support for specific habits (if enabled)
   NotificationManager notificationManager = NotificationManager();
 
   Future<void> scheduleTestDefaultTrack(context) async {
@@ -49,7 +48,6 @@ class NotificationScheduler {
         "We'll stop sending notifications for now––you can always come back!",
         now.add(Duration(seconds: 120)),
         6);
-    // TODO: Implement changing notif times in settings
   }
 
   Future<void> scheduleDefaultTrack(context, int numberOfNotifs) async {
@@ -117,7 +115,6 @@ class NotificationScheduler {
             hour: Random().nextInt(10) + 8,
             minute: Random().nextInt(59)),
         6);
-    // TODO: Implement changing notif times in settings
   }
 
   Future<void> scheduleDayHabitReminderTrack(Habit habit) async {

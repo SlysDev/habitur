@@ -477,7 +477,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               onPressed: () async {
                                 late final _auth = FirebaseAuth.instance;
                                 await _auth.currentUser!.delete();
-                                // TODO: Implement user account deletion in DB
                                 Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(

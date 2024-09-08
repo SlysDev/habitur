@@ -141,7 +141,6 @@ class _HabitCardState extends State<HabitCard> {
                     borderRadius: BorderRadius.circular(20),
                     label: 'Delete',
                   ),
-                  // TODO: Add editing functionality  <23-12-22, slys> //
                   SlidableAction(
                     onPressed: (context) async {
                       editHabit();

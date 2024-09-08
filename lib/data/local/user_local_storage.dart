@@ -61,7 +61,6 @@ class UserLocalStorage extends ChangeNotifier {
     );
   }
 
-  // TODO: Refactor to store summary stats instead of summary stats repo
   get currentUser {
     return _userBox.get('currentUser');
   }
