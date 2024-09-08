@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:habitur/components/days_of_week_widget.dart';
 import 'package:habitur/components/network_indicator.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
 import 'package:habitur/providers/network_state_provider.dart';
@@ -40,6 +41,8 @@ class HomeGreetingHeader extends StatelessWidget {
         'Today is ${DateFormat('EEEE,').format(DateTime.now())} ${DateFormat('M').format(DateTime.now())}/${DateFormat('d').format(DateTime.now())}',
         style: TextStyle(fontSize: 16),
       ),
+      SizedBox(height: 40),
+      DaysOfWeekWidget(),
       const SizedBox(
         height: 30,
       ),

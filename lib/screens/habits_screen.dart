@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitur/components/aside_button.dart';
+import 'package:habitur/components/days_of_week_widget.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/models/habit.dart';

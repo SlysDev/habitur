@@ -1,5 +1,6 @@
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/community-habit-list.dart';
+import 'package:habitur/components/days_of_week_widget.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/data/data_manager.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
