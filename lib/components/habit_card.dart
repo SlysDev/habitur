@@ -112,6 +112,7 @@ class _HabitCardState extends State<HabitCard> {
     Future<void> difficultyPopup(
         BuildContext context, index, onDifficultySelected) async {
       await showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context) => HabitDifficultyPopup(
           habitIndex: index,
