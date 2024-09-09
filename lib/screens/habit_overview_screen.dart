@@ -5,6 +5,7 @@ import 'package:habitur/components/empty_stats_widget.dart';
 import 'package:habitur/components/habit_heat_map.dart';
 import 'package:habitur/components/insight_display.dart';
 import 'package:habitur/components/line_graph.dart';
+import 'package:habitur/components/multi_stat_line_graph.dart';
 import 'package:habitur/components/single-stat-card.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
@@ -51,34 +52,11 @@ class HabitOverviewScreen extends StatelessWidget {
                       opacity: 0.3,
                       child: Column(
                         children: [
-                          LineGraph(
+                          MultiStatLineGraph(
                             data: habit.stats,
-                            height: 200,
-                            showDots: true,
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Confidence Level',
-                                style: kHeadingTextStyle.copyWith(
-                                    color: Colors.white),
-                              ),
-                              const SizedBox(width: 20),
-                              StaticCard(
-                                color: changeColor,
-                                opacity: 0.2,
-                                child: Text(
-                                  '${confidenceChange.toStringAsFixed(2)} $changeSymbol',
-                                  style: TextStyle(
-                                    color: changeColor,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
+                            showStatTitle: true,
+                            height: 250,
+                            showChangeIndicator: true,
                           ),
                         ],
                       ),
