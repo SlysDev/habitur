@@ -112,7 +112,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   await settingsData.updateSetting(
                                       dailyReminders.settingName, newValue);
                                   await db.settingsDatabase.updateSetting(
-                                      dailyReminders.settingName, newValue);
+                                      dailyReminders.settingName,
+                                      newValue,
+                                      context);
                                   settingsData.updateSettings();
                                   notificationManager
                                       .cancelAllScheduledNotifications();
@@ -153,7 +155,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                             await db.settingsDatabase
                                                 .updateSetting(
                                                     numReminders.settingName,
-                                                    value);
+                                                    value,
+                                                    context);
                                             settingsData.updateSettings();
                                             await notificationManager
                                                 .cancelAllScheduledNotifications();
@@ -525,7 +528,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           listen: false)
                                       .updateSettings();
                                   db.settingsDatabase
-                                      .populateDefaultSettingsData();
+                                      .populateDefaultSettingsData(context);
                                   if (db.userDatabase.isLoggedIn) {
                                     await db.habitDatabase.clearHabits(context);
                                     await db.statsDatabase
@@ -588,8 +591,8 @@ class TimeSettingsListTile extends StatelessWidget {
               : TimeModel(hour: newTime.hour, minute: newTime.minute);
           await settingsData.updateSetting(
               timeSetting.settingName, newTimeFormatted);
-          await db.settingsDatabase
-              .updateSetting(timeSetting.settingName, newTimeFormatted);
+          await db.settingsDatabase.updateSetting(
+              timeSetting.settingName, newTimeFormatted, context);
 
           await notificationManager.cancelAllScheduledNotifications();
           await notificationScheduler.scheduleDefaultTrack(

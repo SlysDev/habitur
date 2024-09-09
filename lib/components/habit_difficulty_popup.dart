@@ -128,7 +128,7 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
               AccentElevatedButton(
                 onPressed: () {
                   widget.onDifficultySelected(chosenDifficulty);
-                  Navigator.pop(context);
+                  Navigator.pop(context, true);
                 },
                 child: Text('Submit'),
               ),

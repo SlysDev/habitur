@@ -56,7 +56,7 @@ class SplashScreen extends StatelessWidget {
               .populateDefaultSettingsData();
           Provider.of<SettingsLocalStorage>(context, listen: false)
               .updateSettings();
-          db.settingsDatabase.populateDefaultSettingsData();
+          db.settingsDatabase.populateDefaultSettingsData(context);
           if (db.userDatabase.isLoggedIn) {
             await db.habitDatabase.clearHabits(context);
             await db.statsDatabase.clearStatistics(context);

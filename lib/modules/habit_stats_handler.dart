@@ -226,6 +226,22 @@ class HabitStatsHandler {
     // Create a DateTime object for the start date of the habit
     DateTime startDate = habit.dateCreated;
 
+    if (habit.stats.isEmpty) {
+      StatPoint newStatPoint = StatPoint(
+        date: startDate,
+        completions: 0,
+        confidenceLevel: 0,
+        streak: 0,
+        consistencyFactor: 0,
+        difficultyRating: 0,
+        slopeCompletions: 0,
+        slopeConsistency: 0,
+        slopeConfidenceLevel: 0,
+        slopeDifficultyRating: 0,
+      );
+      habit.stats.add(newStatPoint);
+    }
+
     // Iterate through each day from the start date to the current date
     for (DateTime day =
             DateTime(startDate.year, startDate.month, startDate.day);
@@ -243,7 +259,7 @@ class HabitStatsHandler {
           -1) {
         String currentDayOfWeek = DateFormat("EEEE").format(day);
         bool isOffDay =
-            habit.requiredDatesOfCompletion.contains(currentDayOfWeek);
+            !habit.requiredDatesOfCompletion.contains(currentDayOfWeek);
         // If no StatPoint exists, create a new one with 0 completions
         StatPoint newStatPoint = StatPoint(
           date: day,

@@ -13,7 +13,7 @@ import 'dart:collection';
 
 class HabitManager extends ChangeNotifier {
   List<Habit> _habits = [];
-  late List<Habit> _sortedHabits;
+  List<Habit> _sortedHabits = [];
   late String weekDay;
   late String date;
   Database db = Database();
@@ -70,8 +70,8 @@ class HabitManager extends ChangeNotifier {
     await notificationManager.cancelAllScheduledNotifications();
     NotificationScheduler notificationScheduler = NotificationScheduler();
     int habitID = _sortedHabits[index].id;
-    _sortedHabits.removeAt(index);
     _habits.removeWhere((element) => element.id == habitID);
+    sortHabits();
     bool notificationSetting =
         Provider.of<SettingsLocalStorage>(context, listen: false)
             .dailyReminders
@@ -84,6 +84,7 @@ class HabitManager extends ChangeNotifier {
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
     }
+    sortHabits();
     notifyListeners();
   }
 

@@ -423,20 +423,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                           : Container(),
                       ElevatedButton(
                         onPressed: () async {
-                          print(newHabit.smartNotifsEnabled);
                           Provider.of<HabitManager>(context, listen: false)
                               .addHabit(newHabit, context);
-                          try {
-                            Database db = Database();
-                            await db.habitDatabase.addHabit(newHabit, context);
-                            Provider.of<NetworkStateProvider>(context,
-                                    listen: false)
-                                .isConnected = true;
-                          } catch (e) {
-                            Provider.of<NetworkStateProvider>(context,
-                                    listen: false)
-                                .isConnected = false;
-                          }
+                          Database db = Database();
+                          await db.habitDatabase.addHabit(newHabit, context);
                           await Provider.of<HabitsLocalStorage>(context,
                                   listen: false)
                               .addHabit(newHabit);
@@ -444,6 +434,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                               .sortHabits();
                           Provider.of<HabitManager>(context, listen: false)
                               .updateHabits();
+                          Provider.of<AddHabitScreenProvider>(context,
+                                  listen: false)
+                              .reset();
                           Navigator.pop(context);
                         },
                         child: const Text('Create'),
@@ -457,5 +450,17 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
         ),
       );
     });
+  }
+
+  @override
+  void initState() {
+    Provider.of<AddHabitScreenProvider>(context, listen: false).reset();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    Provider.of<AddHabitScreenProvider>(context, listen: false).dispose();
+    super.dispose();
   }
 }

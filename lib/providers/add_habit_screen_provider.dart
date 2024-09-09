@@ -39,10 +39,35 @@ class AddHabitScreenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void reset() {
+    _habit = Habit(
+        title: '',
+        dateCreated: DateTime.now(),
+        id: Random().nextInt(100000),
+        resetPeriod: 'Daily',
+        lastSeen: DateTime.now(),
+        requiredDatesOfCompletion: [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday'
+        ],
+        requiredCompletions: 1);
+
+    titleController.clear();
+    requiredCompletionsController.clear();
+
+    notifyListeners();
+  }
+
   // Dispose the controller when not needed
   @override
   void dispose() {
     titleController.dispose();
+    requiredCompletionsController.dispose();
     super.dispose();
   }
 }
