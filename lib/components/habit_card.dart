@@ -66,7 +66,7 @@ class _HabitCardState extends State<HabitCard> {
     bool completed = habit.completionsToday == habit.requiredCompletions;
     Future<void> completeHabit(double recordedDifficulty) async {
       if (habit.completionsToday != habit.requiredCompletions) {
-        habitStatsHandler.incrementCompletion(context,
+        await habitStatsHandler.incrementCompletion(context,
             recordedDifficulty: recordedDifficulty);
         if (Provider.of<NetworkStateProvider>(context, listen: false)
             .isConnected) {
@@ -76,19 +76,21 @@ class _HabitCardState extends State<HabitCard> {
               context);
         }
         await Provider.of<HabitsLocalStorage>(context, listen: false)
-            .updateHabit(habit);
+            .updateHabit(Provider.of<HabitManager>(context, listen: false)
+                .habits[widget.index]);
         Provider.of<HabitManager>(context, listen: false).updateHabits();
       }
     }
 
     Future<void> decrementHabit() async {
-      habitStatsHandler.decrementCompletion(context);
+      await habitStatsHandler.decrementCompletion(context);
       await db.habitDatabase.updateHabit(
           Provider.of<HabitManager>(context, listen: false)
               .habits[widget.index],
           context);
-      await Provider.of<HabitsLocalStorage>(context, listen: false)
-          .updateHabit(habit);
+      await Provider.of<HabitsLocalStorage>(context, listen: false).updateHabit(
+          Provider.of<HabitManager>(context, listen: false)
+              .habits[widget.index]);
       Provider.of<HabitManager>(context, listen: false).updateHabits();
     }
 

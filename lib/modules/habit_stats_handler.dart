@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_difficulty_popup.dart';
+import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/data_point.dart';
@@ -18,8 +19,9 @@ class HabitStatsHandler {
   HabitStatsHandler(this.habit);
   Database db = Database();
 
-  void incrementCompletion(context, {double recordedDifficulty = 5}) async {
-    UserStatsHandler statsRecorder = UserStatsHandler();
+  Future<void> incrementCompletion(context,
+      {double recordedDifficulty = 5}) async {
+    UserStatsHandler userStatsHandler = UserStatsHandler();
     HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
     int habitIndex =
         Provider.of<HabitManager>(context, listen: false).habits.indexOf(habit);
@@ -28,7 +30,7 @@ class HabitStatsHandler {
     if (habit.completionsToday == habit.requiredCompletions) {
       Provider.of<UserLocalStorage>(context, listen: false).addHabiturRating();
       await Provider.of<UserLocalStorage>(context, listen: false).saveData();
-      db.userDatabase.uploadUserData(context);
+      await db.userDatabase.uploadUserData(context);
       habit.streak++;
       if (habit.streak > habit.highestStreak) {
         habit.highestStreak = habit.streak;
@@ -64,7 +66,7 @@ class HabitStatsHandler {
           statsCalculator.calculateStatSlope('confidenceLevel', habit.stats);
       habit.stats[currentDayIndex].slopeDifficultyRating =
           statsCalculator.calculateStatSlope('difficultyRating', habit.stats);
-      statsRecorder.logHabitCompletion(context);
+      userStatsHandler.logHabitCompletion(context);
     } else {
       // If there's no entry for the current day, add a new entry
       StatPoint newStatPoint = StatPoint(
@@ -85,7 +87,7 @@ class HabitStatsHandler {
             statsCalculator.calculateStatSlope('difficultyRating', habit.stats),
       );
       habit.stats.add(newStatPoint);
-      statsRecorder.logHabitCompletion(context);
+      userStatsHandler.logHabitCompletion(context);
     }
     print('slope: ' +
         statsCalculator
@@ -98,7 +100,7 @@ class HabitStatsHandler {
     // has to be static because the habit has been updated
   }
 
-  void decrementCompletion(context) {
+  Future<void> decrementCompletion(context) async {
     UserStatsHandler statsRecorder = UserStatsHandler();
     HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
 
@@ -128,7 +130,7 @@ class HabitStatsHandler {
     habit.totalCompletions--;
 
     if (habit.isCommunityHabit) {
-      db.statsDatabase.uploadStatistics(context);
+      await db.statsDatabase.uploadStatistics(context);
       return;
     }
 
