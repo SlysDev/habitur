@@ -66,7 +66,6 @@ class HabitStatsHandler {
           statsCalculator.calculateStatSlope('confidenceLevel', habit.stats);
       habit.stats[currentDayIndex].slopeDifficultyRating =
           statsCalculator.calculateStatSlope('difficultyRating', habit.stats);
-      await userStatsHandler.logHabitCompletion(context);
     } else {
       // If there's no entry for the current day, add a new entry
       StatPoint newStatPoint = StatPoint(
@@ -98,6 +97,7 @@ class HabitStatsHandler {
     habit.confidenceLevel =
         HabitStatsCalculator(habit).calculateConfidenceLevel();
     // has to be static because the habit has been updated
+    await userStatsHandler.logHabitCompletion(context);
   }
 
   Future<void> decrementCompletion(context) async {
@@ -170,7 +170,8 @@ class HabitStatsHandler {
       print('No entry found for decrementing habit completion in stats.');
     }
     // Update confidence level based on updated stats
-    habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
+    habit.confidenceLevel =
+        HabitStatsCalculator(habit).calculateConfidenceLevel();
 
     await userStatsHandler.unlogHabitCompletion(context);
     // TODO: Refactor into inc/dec habit + stats functions (separate)

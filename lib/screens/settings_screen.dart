@@ -514,6 +514,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 );
                                 result == null ? result = false : null;
                                 if (result) {
+                                  Provider.of<HabitManager>(context,
+                                          listen: false)
+                                      .deleteAllHabits();
                                   await Provider.of<HabitsLocalStorage>(context,
                                           listen: false)
                                       .deleteData();
@@ -534,6 +537,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     await db.statsDatabase
                                         .clearStatistics(context);
                                   }
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SplashScreen()),
+                                      (route) => false);
                                 }
                               }),
                         ],

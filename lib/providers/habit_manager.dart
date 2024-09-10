@@ -281,4 +281,10 @@ class HabitManager extends ChangeNotifier {
       _habits[i].stats = [];
     }
   }
+
+  void deleteAllHabits() {
+    _habits = [];
+    _sortedHabits = [];
+    notifyListeners();
+  }
 }
