@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 class UserStatsHandler {
   Database db = Database();
   SummaryStatsCalculator summaryStatsCalculator = SummaryStatsCalculator();
-  void logHabitCompletion(BuildContext context) {
+  Future<void> logHabitCompletion(BuildContext context) async {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     UserStatsCalculator userStatsCalculator = UserStatsCalculator(
@@ -29,6 +29,7 @@ class UserStatsHandler {
 
     if (currentDayIndex != -1) {
       // If there's an entry for the current day, update
+      print('updating current day');
       Provider.of<UserLocalStorage>(context, listen: false)
           .updateUserStat('date', DateTime.now());
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
@@ -55,6 +56,7 @@ class UserStatsHandler {
           'slopeConfidenceLevel',
           userStatsCalculator.calculateOverallSlope('confidenceLevel'));
     } else {
+      print('adding new day stat point');
       StatPoint newEntry = StatPoint(
         date: DateTime.now(),
         completions: 1,
@@ -85,10 +87,10 @@ class UserStatsHandler {
         user.stats.last.date.toString() +
         " Completions: " +
         user.stats.last.completions.toString());
-    db.statsDatabase.uploadStatistics(context);
+    await db.statsDatabase.uploadStatistics(context);
   }
 
-  void unlogHabitCompletion(BuildContext context) {
+  Future<void> unlogHabitCompletion(BuildContext context) async {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     UserStatsCalculator userStatsCalculator = UserStatsCalculator(
@@ -101,6 +103,7 @@ class UserStatsHandler {
         stat.date.day == DateTime.now().day);
 
     if (currentDayIndex != -1) {
+      print('updating current day');
       // Decrement completion count if it's positive
       if (user.stats[currentDayIndex].completions > 0) {
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
@@ -134,7 +137,7 @@ class UserStatsHandler {
     }
 
     recordAverageConfidenceLevel(context);
-    db.statsDatabase.uploadStatistics(context);
+    await db.statsDatabase.uploadStatistics(context);
   }
 
   void recordAverageConfidenceLevel(context) {
@@ -169,6 +172,7 @@ class UserStatsHandler {
   }
 
   void fillInMissingDays(context) {
+    print('filling in missing days...');
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     UserStatsCalculator statsCalculator = UserStatsCalculator(
@@ -182,7 +186,8 @@ class UserStatsHandler {
     // Iterate through each day from the start date to the current date
     for (DateTime day =
             DateTime(startDate.year, startDate.month, startDate.day);
-        day.isBefore(DateTime.now());
+        day.isBefore(DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day));
         day = day.add(Duration(days: 1))) {
       // Check if a StatPoint already exists for the current day
       if (user.stats.indexWhere((dataPoint) =>

@@ -39,6 +39,8 @@ class LineGraph extends StatelessWidget {
           Flexible(
             fit: FlexFit.loose,
             child: LineChart(
+              duration: Duration(milliseconds: 500),
+              curve: Curves.fastOutSlowIn,
               LineChartData(
                 borderData: FlBorderData(
                   show: true,

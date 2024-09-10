@@ -66,7 +66,7 @@ class HabitStatsHandler {
           statsCalculator.calculateStatSlope('confidenceLevel', habit.stats);
       habit.stats[currentDayIndex].slopeDifficultyRating =
           statsCalculator.calculateStatSlope('difficultyRating', habit.stats);
-      userStatsHandler.logHabitCompletion(context);
+      await userStatsHandler.logHabitCompletion(context);
     } else {
       // If there's no entry for the current day, add a new entry
       StatPoint newStatPoint = StatPoint(
@@ -87,7 +87,7 @@ class HabitStatsHandler {
             statsCalculator.calculateStatSlope('difficultyRating', habit.stats),
       );
       habit.stats.add(newStatPoint);
-      userStatsHandler.logHabitCompletion(context);
+      await userStatsHandler.logHabitCompletion(context);
     }
     print('slope: ' +
         statsCalculator
@@ -101,7 +101,7 @@ class HabitStatsHandler {
   }
 
   Future<void> decrementCompletion(context) async {
-    UserStatsHandler statsRecorder = UserStatsHandler();
+    UserStatsHandler userStatsHandler = UserStatsHandler();
     HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
 
     if (habit.completionsToday == 0) {
@@ -110,7 +110,7 @@ class HabitStatsHandler {
 
     // Check if decrementing completion would change habit completion status
     if (habit.completionsToday == habit.requiredCompletions) {
-      statsRecorder.recordAverageConfidenceLevel(context);
+      userStatsHandler.recordAverageConfidenceLevel(context);
 
       if (habit.daysCompleted.isNotEmpty) {
         habit.daysCompleted.removeLast();
@@ -172,7 +172,7 @@ class HabitStatsHandler {
     // Update confidence level based on updated stats
     habit.confidenceLevel = statsCalculator.calculateConfidenceLevel();
 
-    statsRecorder.unlogHabitCompletion(context);
+    await userStatsHandler.unlogHabitCompletion(context);
     // TODO: Refactor into inc/dec habit + stats functions (separate)
   }
 
@@ -247,7 +247,8 @@ class HabitStatsHandler {
     // Iterate through each day from the start date to the current date
     for (DateTime day =
             DateTime(startDate.year, startDate.month, startDate.day);
-        day.isBefore(DateTime.now());
+        day.isBefore(DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day));
         day = day.add(habit.resetPeriod == 'Monthly'
             ? Duration(days: 31)
             : (habit.resetPeriod == 'Weekly'

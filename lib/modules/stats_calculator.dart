@@ -212,12 +212,13 @@ class StatsCalculator {
 
   Map<String, dynamic> findWorstSlope(List<StatPoint> stats, {int period = 7}) {
     if (stats.isEmpty) {
-      return {'name': '', 'value': 0.0}; // No data for slope calculation
+      return {'name': '', 'value': null}; // No data for slope calculation
     }
 
     String worstSlopeName = '';
     double worstSlopeValue =
         double.infinity; // Initialize with positive infinity
+    bool isZeroChange = true;
 
     for (String statisticName in [
       'completions',
@@ -233,8 +234,13 @@ class StatsCalculator {
         worstSlopeName = statisticName;
         worstSlopeValue = slope;
       }
+      if (slope == 0.0) {
+        isZeroChange = true;
+      }
     }
-
-    return {'name': worstSlopeName, 'value': worstSlopeValue};
+    return {
+      'name': worstSlopeName,
+      'value': isZeroChange ? null : worstSlopeValue
+    };
   }
 }

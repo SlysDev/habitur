@@ -2,22 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/stat_point.dart';
+import 'package:habitur/modules/insights_generator.dart';
 import 'package:provider/provider.dart';
 
 class InsightDisplay extends StatelessWidget {
-  InsightDisplay({
-    super.key,
-    required this.insightPreText,
-    required this.insightPercentChange,
-    required this.insightPostText,
-  });
+  InsightDisplay({super.key, required this.stats});
 
-  String insightPreText;
-  String insightPercentChange;
-  String insightPostText;
+  List<StatPoint> stats;
 
   @override
   Widget build(BuildContext context) {
+    InsightsGenerator insightsGenerator = InsightsGenerator(stats);
+    Map<String, dynamic> improvementData =
+        insightsGenerator.findAreaForImprovement();
+    String insightPreText = improvementData['message']['preText'];
+    String insightPercentChange =
+        improvementData['message']['percentChange'].toString();
+    String insightPostText = improvementData['message']['postText'];
     if (Provider.of<UserLocalStorage>(context, listen: false)
         .currentUser
         .stats

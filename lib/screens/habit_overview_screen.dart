@@ -19,22 +19,7 @@ class HabitOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Overview Screen - habit.stats: ${habit.stats}');
     HabitStatsCalculator statsCalculator = HabitStatsCalculator(habit);
-    InsightsGenerator insightsGenerator = InsightsGenerator(habit.stats);
-    Map<String, dynamic> improvementData =
-        insightsGenerator.findAreaForImprovement();
-    String insightPreText = improvementData['message']['preText'];
-    String insightPercentChange =
-        improvementData['message']['percentChange'].toString();
-    String insightPostText = improvementData['message']['postText'];
-
-    double confidenceChange =
-        statsCalculator.calculateStatChange(habit.stats, 'confidenceLevel');
-    String changeSymbol = confidenceChange > 0 ? '↑' : '↓';
-    changeSymbol = confidenceChange == 0 ? '–' : changeSymbol;
-    Color changeColor = confidenceChange > 0 ? Colors.green : Colors.red;
-    changeColor = confidenceChange == 0 ? Colors.white60 : changeColor;
     return Scaffold(
       appBar: AppBar(
         title: Text(habit.title),
@@ -48,24 +33,16 @@ class HabitOverviewScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
                     const SizedBox(height: 40),
-                    StaticCard(
-                      opacity: 0.3,
-                      child: Column(
-                        children: [
-                          MultiStatLineGraph(
-                            data: habit.stats,
-                            showStatTitle: true,
-                            height: 250,
-                            showChangeIndicator: true,
-                          ),
-                        ],
-                      ),
+                    MultiStatLineGraph(
+                      data: habit.stats,
+                      showStatTitle: true,
+                      height: 250,
+                      showChangeIndicator: true,
                     ),
                     const SizedBox(height: 60),
                     InsightDisplay(
-                        insightPreText: insightPreText,
-                        insightPercentChange: insightPercentChange,
-                        insightPostText: insightPostText),
+                      stats: habit.stats,
+                    ),
                     const SizedBox(height: 60),
                     GridView.count(
                       physics: const NeverScrollableScrollPhysics(),

@@ -3,6 +3,7 @@ import 'package:habitur/components/habit_heat_map.dart';
 import 'package:habitur/components/habit_stats_card_list.dart';
 import 'package:habitur/components/insight_display.dart';
 import 'package:habitur/components/line_graph.dart';
+import 'package:habitur/components/multi_stat_line_graph.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/modules/insights_generator.dart';
 import 'package:habitur/providers/database.dart';
@@ -101,6 +102,21 @@ class StatisticsScreen extends StatelessWidget {
               const SizedBox(
                 height: 30,
               ),
+              MultiStatLineGraph(
+                data: Provider.of<UserLocalStorage>(context, listen: false)
+                    .currentUser
+                    .stats,
+                height: 250,
+                showStatTitle: true,
+                showChangeIndicator: true,
+              ),
+              const SizedBox(height: 60),
+              InsightDisplay(
+                stats: Provider.of<UserLocalStorage>(context, listen: false)
+                    .currentUser
+                    .stats,
+              ),
+              const SizedBox(height: 60),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 child: HabitHeatMap(
@@ -110,19 +126,6 @@ class StatisticsScreen extends StatelessWidget {
                           .currentUser
                           .stats,
                 ),
-              ),
-              const SizedBox(height: 60),
-              InsightDisplay(
-                insightPreText: insightData['message']['preText'],
-                insightPercentChange:
-                    insightData['message']['percentChange'].toString(),
-                insightPostText: insightData['message']['postText'],
-              ),
-              const SizedBox(height: 60),
-              LineGraph(
-                data: Provider.of<UserLocalStorage>(context, listen: false)
-                    .currentUser
-                    .stats,
               ),
               const SizedBox(height: 60),
               snapshot.connectionState == ConnectionState.waiting
