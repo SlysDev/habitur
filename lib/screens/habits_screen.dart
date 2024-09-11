@@ -59,7 +59,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    loadData(context);
+    Provider.of<HabitManager>(context, listen: false).resetHabits(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -84,51 +84,51 @@ class _HabitsScreenState extends State<HabitsScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             HomeGreetingHeader(),
-            AsideButton(
-                text: 'schedule test notifs',
-                onPressed: () async {
-                  NotificationManager notificationManager =
-                      NotificationManager();
-                  await notificationManager.cancelAllScheduledNotifications();
-                  NotificationScheduler notificationScheduler =
-                      NotificationScheduler();
-                  await notificationScheduler.scheduleTestDefaultTrack(context);
-                }),
-            AsideButton(
-                text: 'reschedule notif track',
-                onPressed: () async {
-                  NotificationManager notificationManager =
-                      NotificationManager();
-                  await notificationManager.cancelAllScheduledNotifications();
-                  NotificationScheduler notificationScheduler =
-                      NotificationScheduler();
-                  int numberOfReminders =
-                      Provider.of<SettingsLocalStorage>(context, listen: false)
-                          .numberOfReminders
-                          .settingValue;
-                  await notificationScheduler.scheduleDefaultTrack(
-                      context, numberOfReminders);
-                  notificationManager.printNotifications();
-                }),
-            AsideButton(
-                text: 'clear habits data',
-                onPressed: () async {
-                  await Provider.of<HabitsLocalStorage>(context, listen: false)
-                      .deleteData();
-                }),
-            AsideButton(
-                text: 'load data from DB',
-                onPressed: () async {
-                  try {
-                    Database db = Database();
-                    await db.habitDatabase.loadHabits(context);
-                    Provider.of<NetworkStateProvider>(context, listen: false)
-                        .isConnected = true;
-                  } catch (e) {
-                    Provider.of<NetworkStateProvider>(context, listen: false)
-                        .isConnected = false;
-                  }
-                }),
+            // AsideButton(
+            //     text: 'schedule test notifs',
+            //     onPressed: () async {
+            //       NotificationManager notificationManager =
+            //           NotificationManager();
+            //       await notificationManager.cancelAllScheduledNotifications();
+            //       NotificationScheduler notificationScheduler =
+            //           NotificationScheduler();
+            //       await notificationScheduler.scheduleTestDefaultTrack(context);
+            //     }),
+            // AsideButton(
+            //     text: 'reschedule notif track',
+            //     onPressed: () async {
+            //       NotificationManager notificationManager =
+            //           NotificationManager();
+            //       await notificationManager.cancelAllScheduledNotifications();
+            //       NotificationScheduler notificationScheduler =
+            //           NotificationScheduler();
+            //       int numberOfReminders =
+            //           Provider.of<SettingsLocalStorage>(context, listen: false)
+            //               .numberOfReminders
+            //               .settingValue;
+            //       await notificationScheduler.scheduleDefaultTrack(
+            //           context, numberOfReminders);
+            //       notificationManager.printNotifications();
+            //     }),
+            // AsideButton(
+            //     text: 'clear habits data',
+            //     onPressed: () async {
+            //       await Provider.of<HabitsLocalStorage>(context, listen: false)
+            //           .deleteData();
+            //     }),
+            // AsideButton(
+            //     text: 'load data from DB',
+            //     onPressed: () async {
+            //       try {
+            //         Database db = Database();
+            //         await db.habitDatabase.loadHabits(context);
+            //         Provider.of<NetworkStateProvider>(context, listen: false)
+            //             .isConnected = true;
+            //       } catch (e) {
+            //         Provider.of<NetworkStateProvider>(context, listen: false)
+            //             .isConnected = false;
+            //       }
+            //     }),
             HabitCardList(
               onRefresh: () => loadData(context),
             ),

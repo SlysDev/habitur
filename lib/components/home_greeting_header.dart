@@ -47,63 +47,33 @@ class HomeGreetingHeader extends StatelessWidget {
         height: 30,
       ),
       const NetworkIndicator(),
-      const SizedBox(
-        height: 18,
-      ),
-      Center(
-        child: Text(
-          isLoading
-              ? '...'
-              : Provider.of<UserLocalStorage>(context)
-                  .currentUser
-                  .userLevel
-                  .toString(),
-          style: kTitleTextStyle,
-          textAlign: TextAlign.center,
-        ),
-      ),
-      Container(
-        width: 300,
-        margin: const EdgeInsets.only(top: 20),
-        child: RoundedProgressBar(
-          color: kPrimaryColor,
-          progress: isLoading
-              ? 0
-              : Provider.of<UserLocalStorage>(context).currentUser.userXP /
-                  Provider.of<UserLocalStorage>(context)
-                      .currentUser
-                      .levelUpRequirement,
-        ),
-      ),
-      // Row(
-      //   mainAxisAlignment: MainAxisAlignment.center,
-      //   crossAxisAlignment: CrossAxisAlignment.center,
-      //   children: [
-      //     // Container(width: 60, child: kHabiturLogo),
-      //     // Container(
-      //     //   child: Text(
-      //     //     Provider.of<LevelingSystem>(context).currentUser.userLevel.toString(),
-      //     //     style: kTitleTextStyle,
-      //     //   ),
-      //     // ),
-      //     // CircularPercentIndicator(
-      //     //   radius: 60,
-      //     //   lineWidth: 20,
-      //     //   progressColor: kDarkBlue,
-      //     //   curve: Curves.ease,
-      //     //   circularStrokeCap: CircularStrokeCap.round,
-      //     //   percent: Provider.of<LevelingSystem>(context).currentUser.userXP /
-      //     //       Provider.of<LevelingSystem>(context).levelUpRequirement,
-      //     //   animation: true,
-      //     //   animateFromLastPercent: true,
-      //     //   center: Container(
-      //     //     child: Text(
-      //     //       Provider.of<LevelingSystem>(context).currentUser.userLevel.toString(),
-      //     //       style: kTitleTextStyle,
-      //     //     ),
-      //     //   ),
-      //     // ),
-      //   ],
+      // const SizedBox(
+      //   height: 18,
+      // ),
+      // Center(
+      //   child: Text(
+      //     isLoading
+      //         ? '...'
+      //         : Provider.of<UserLocalStorage>(context)
+      //             .currentUser
+      //             .userLevel
+      //             .toString(),
+      //     style: kTitleTextStyle,
+      //     textAlign: TextAlign.center,
+      //   ),
+      // ),
+      // Container(
+      //   width: 300,
+      //   margin: const EdgeInsets.only(top: 20),
+      //   child: RoundedProgressBar(
+      //     color: kPrimaryColor,
+      //     progress: isLoading
+      //         ? 0
+      //         : Provider.of<UserLocalStorage>(context).currentUser.userXP /
+      //             Provider.of<UserLocalStorage>(context)
+      //                 .currentUser
+      //                 .levelUpRequirement,
+      //   ),
       // ),
     ]);
   }

@@ -125,8 +125,8 @@ class _HabitCardState extends State<HabitCard> {
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOutSine,
-      opacity: isLoading ? 0.1 : 1,
+      curve: Curves.fastOutSlowIn,
+      opacity: isLoading ? 0.6 : 1,
       child: Stack(
         children: [
           GestureDetector(
@@ -191,7 +191,7 @@ class _HabitCardState extends State<HabitCard> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  habit.title,
+                                  isLoading ? '...' : habit.title,
                                   style: kHeadingTextStyle.copyWith(
                                       color: Colors.white),
                                   textAlign: TextAlign.center,
@@ -199,7 +199,9 @@ class _HabitCardState extends State<HabitCard> {
                                 const SizedBox(
                                   height: 15,
                                 ),
-                                RoundedProgressBar(progress: progress),
+                                isLoading
+                                    ? Container()
+                                    : RoundedProgressBar(progress: progress),
                               ],
                             ),
                           ),
