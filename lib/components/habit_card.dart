@@ -130,6 +130,9 @@ class _HabitCardState extends State<HabitCard> {
       child: Stack(
         children: [
           GestureDetector(
+            onLongPress: () {
+              habit.lastSeen = DateTime.now().subtract(const Duration(days: 1));
+            },
             onTap: () {
               Navigator.push(
                   context,

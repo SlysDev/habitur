@@ -109,7 +109,6 @@ class HabitManager extends ChangeNotifier {
         }
         // If the task was not created today, make it incomplete
         String currentDayOfWeek = DateFormat('EEEE').format(DateTime.now());
-        element.lastSeen = DateTime.now();
         if (DateFormat('d').format(element.lastSeen) !=
                 DateFormat('d').format(DateTime.now()) &&
             element.requiredDatesOfCompletion.contains(currentDayOfWeek)) {
@@ -119,6 +118,7 @@ class HabitManager extends ChangeNotifier {
           habitStatsHandler.resetHabitCompletions();
         }
       }
+      element.lastSeen = DateTime.now();
     }
     bool notificationSetting =
         Provider.of<SettingsLocalStorage>(context, listen: false)
