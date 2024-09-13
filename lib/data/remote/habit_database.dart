@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/remote/data_converter.dart';
 import 'package:habitur/data/remote/last_updated_manager.dart';
@@ -8,6 +10,7 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/network_state_provider.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:provider/provider.dart';
 
 class HabitDatabase {
@@ -17,6 +20,7 @@ class HabitDatabase {
   DataConverter dataConverter = DataConverter();
   Future<void> loadHabits(context) async {
     try {
+      await clearDuplicateHabits(context);
       UserDatabase userDatabase = UserDatabase();
       if (!userDatabase.isLoggedIn) {
         throw Exception('User is not logged in');
@@ -79,6 +83,7 @@ class HabitDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -121,6 +126,7 @@ class HabitDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -188,6 +194,7 @@ class HabitDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -210,6 +217,7 @@ class HabitDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -234,6 +242,7 @@ class HabitDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -258,10 +267,44 @@ class HabitDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
     return Future.error('No Habit Found for id:' + id.toString());
+  }
+
+  Future<void> clearDuplicateHabits(context) async {
+    try {
+      UserDatabase userDatabase = UserDatabase();
+      if (!userDatabase.isLoggedIn) {
+        throw Exception('User is not logged in');
+      }
+      CollectionReference users = _firestore.collection('users');
+      DocumentReference userReference =
+          users.doc(_auth.currentUser!.uid.toString());
+      var habitsCollectionRef = userReference.collection('habits');
+      QuerySnapshot foundHabits = await habitsCollectionRef.get();
+
+      Set<int> uniqueHabitIds = {}; // To track unique habit IDs
+
+      for (var doc in foundHabits.docs) {
+        int habitId = doc.get('id'); // Use 'id' as the unique identifier
+
+        // If the habit ID is already in the set, it's a duplicate
+        if (uniqueHabitIds.contains(habitId)) {
+          // Delete the duplicate habit
+          await habitsCollectionRef.doc(doc.id).delete();
+        } else {
+          // Add the habit ID to the set if it's unique
+          uniqueHabitIds.add(habitId);
+        }
+      }
+    } catch (e, s) {
+      print(e);
+      print(s);
+      showErrorSnackbar(context, e, s);
+    }
   }
 
   Future<void> clearHabits(context) async {
@@ -285,6 +328,7 @@ class HabitDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
