@@ -37,7 +37,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 // Providers
 import 'data/local/user_local_storage.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
-import 'providers/loading_data.dart';
+import 'providers/loading_state_provider.dart';
 import 'providers/database.dart';
 import 'providers/habit_manager.dart';
 import 'providers/local_storage.dart';
@@ -125,8 +125,8 @@ class _HabiturState extends State<Habitur> {
               create: (context) => HabitsLocalStorage()),
           ChangeNotifierProvider<UserLocalStorage>(
               create: (context) => UserLocalStorage()),
-          ChangeNotifierProvider<LoadingData>(
-              create: (context) => LoadingData()),
+          ChangeNotifierProvider<LoadingStateProvider>(
+              create: (context) => LoadingStateProvider()),
           ChangeNotifierProvider<SettingsLocalStorage>(
               create: (context) => SettingsLocalStorage()),
           ChangeNotifierProvider<AuthLocalStorage>(
