@@ -8,7 +8,7 @@ import 'package:habitur/providers/login_registration_state.dart';
 import 'package:provider/provider.dart';
 import '../components/filled_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:habitur/providers/loading_data.dart';
+import 'package:habitur/providers/loading_state_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
