@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/models/time_model.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:collection';
@@ -9,24 +10,30 @@ class SettingsLocalStorage extends ChangeNotifier {
   dynamic _settingsBox;
 
   Setting get dailyReminders {
-    return getSettingByName('Daily Reminders');
+    return getSettingByName('Daily Reminders')!;
   }
 
   Setting get numberOfReminders {
-    return getSettingByName('Number of Reminders');
+    return getSettingByName('Number of Reminders')!;
   }
 
-  Future<void> init() async {
-    print('are we initing settings?');
-    if (Hive.isBoxOpen('settings')) {
-      print('settingsBox is open');
-      _settingsBox = Hive.box('settings');
-    } else {
-      print('settingsBox must be newly opened');
-      _settingsBox = await Hive.openBox('settings');
-      if (_settingsBox.values.toList().isEmpty) {
-        populateDefaultSettingsData();
+  Future<void> init(context) async {
+    try {
+      print('are we initing settings?');
+      if (Hive.isBoxOpen('settings')) {
+        print('settingsBox is open');
+        _settingsBox = Hive.box('settings');
+      } else {
+        print('settingsBox must be newly opened');
+        _settingsBox = await Hive.openBox('settings');
+        if (_settingsBox.values.toList().isEmpty) {
+          populateDefaultSettingsData();
+        }
       }
+    } catch (e, s) {
+      print(e);
+      print(s);
+      showErrorSnackbar(context, e, s);
     }
   }
 
@@ -52,8 +59,14 @@ class SettingsLocalStorage extends ChangeNotifier {
     return settings;
   }
 
-  Setting getSettingByName(String settingName) {
-    return _settingsBox.get(settingName);
+  Setting? getSettingByName(String settingName) {
+    try {
+      return _settingsBox.get(settingName);
+    } catch (e, s) {
+      print(e);
+      print(s);
+      return null;
+    }
   }
 
   Future<void> populateDefaultSettingsData() async {
@@ -78,7 +91,7 @@ class SettingsLocalStorage extends ChangeNotifier {
 
   Future<void> updateSetting(
       String settingName, dynamic newSettingValue) async {
-    Setting setting = getSettingByName(settingName);
+    Setting setting = getSettingByName(settingName)!;
     setting.settingValue = newSettingValue;
     _settingsBox.put(settingName, setting);
     await syncLastUpdated();

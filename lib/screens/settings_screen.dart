@@ -51,18 +51,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Provider.of<UserLocalStorage>(context).currentUser.username;
     return Scaffold(
       body: FutureBuilder(
-        future: settingsData.init(),
+        future: settingsData.init(context),
         builder: (context, snapshot) {
           Setting dailyReminders =
               Provider.of<SettingsLocalStorage>(context).dailyReminders;
           Setting numReminders =
               Provider.of<SettingsLocalStorage>(context).numberOfReminders;
           Setting firstReminderTime =
-              settingsData.getSettingByName('1st Reminder Time');
+              settingsData.getSettingByName('1st Reminder Time')!;
           Setting secondReminderTime =
-              settingsData.getSettingByName('2nd Reminder Time');
+              settingsData.getSettingByName('2nd Reminder Time')!;
           Setting thirdReminderTime =
-              settingsData.getSettingByName('3rd Reminder Time');
+              settingsData.getSettingByName('3rd Reminder Time')!;
           return Container(
             margin: EdgeInsets.all(20),
             child: ListView(
@@ -98,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     VisualDensity.adaptivePlatformDensity,
                                 value: settingsData
                                     .getSettingByName(
-                                        dailyReminders.settingName)
+                                        dailyReminders.settingName)!
                                     .settingValue,
                                 selected: dailyReminders.settingValue,
                                 title: Text(
@@ -440,7 +440,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 }
                                 Provider.of<UserLocalStorage>(context,
                                         listen: false)
-                                    .saveData();
+                                    .saveData(context);
                               },
                             )
                           : InactiveElevatedButton(
@@ -519,7 +519,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       .deleteAllHabits();
                                   await Provider.of<HabitsLocalStorage>(context,
                                           listen: false)
-                                      .deleteData();
+                                      .deleteData(context);
                                   Provider.of<UserLocalStorage>(context,
                                           listen: false)
                                       .clearStats();

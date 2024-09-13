@@ -48,10 +48,10 @@ class SplashScreen extends StatelessWidget {
           print('are we here');
           Database db = Database();
           await Provider.of<HabitsLocalStorage>(context, listen: false)
-              .deleteData();
+              .deleteData(context);
           Provider.of<UserLocalStorage>(context, listen: false).clearStats();
           await Provider.of<UserLocalStorage>(context, listen: false)
-              .deleteData();
+              .deleteData(context);
           await Provider.of<SettingsLocalStorage>(context, listen: false)
               .populateDefaultSettingsData();
           Provider.of<SettingsLocalStorage>(context, listen: false)

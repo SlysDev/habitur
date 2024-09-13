@@ -137,7 +137,7 @@ class HabitManager extends ChangeNotifier {
     db.userDatabase.isLoggedIn ? db.habitDatabase.uploadHabits(context) : null;
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
-            Provider.of<HabitManager>(context, listen: false).habits);
+            Provider.of<HabitManager>(context, listen: false).habits, context);
   }
 
   Future<void> resetWeeklyHabits(context) async {
@@ -185,7 +185,7 @@ class HabitManager extends ChangeNotifier {
     db.userDatabase.isLoggedIn ? db.habitDatabase.uploadHabits(context) : null;
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
-            Provider.of<HabitManager>(context, listen: false).habits);
+            Provider.of<HabitManager>(context, listen: false).habits, context);
   }
 
   Future<void> resetMonthlyHabits(context) async {
@@ -221,7 +221,7 @@ class HabitManager extends ChangeNotifier {
     db.userDatabase.isLoggedIn ? db.habitDatabase.uploadHabits(context) : null;
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
-            Provider.of<HabitManager>(context, listen: false).habits);
+            Provider.of<HabitManager>(context, listen: false).habits, context);
   }
 
   Future<void> resetHabits(context) async {

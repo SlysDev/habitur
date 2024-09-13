@@ -9,16 +9,18 @@ import 'package:provider/provider.dart';
 class DataManager {
   Future<void> loadData(context) async {
     Database db = Database();
-    await Provider.of<UserLocalStorage>(context, listen: false).loadData();
-    await Provider.of<HabitsLocalStorage>(context, listen: false).init();
-    await Provider.of<SettingsLocalStorage>(context, listen: false).init();
+    await Provider.of<UserLocalStorage>(context, listen: false)
+        .loadData(context);
+    await Provider.of<HabitsLocalStorage>(context, listen: false).init(context);
+    await Provider.of<SettingsLocalStorage>(context, listen: false)
+        .init(context);
     if (db.userDatabase.isLoggedIn) {
       DateTime lastUpdated = await db.lastUpdatedManager.lastUpdated;
       if (lastUpdated.isAfter(
               Provider.of<UserLocalStorage>(context, listen: false)
                   .lastUpdated) ||
           Provider.of<HabitsLocalStorage>(context, listen: false)
-              .getHabitData()
+              .getHabitData(context)
               .isEmpty) {
         print('loading from DB');
         await db.loadData(context);
@@ -26,13 +28,14 @@ class DataManager {
             .isConnected) {
           print('offline; loading from LS');
           await Provider.of<UserLocalStorage>(context, listen: false)
-              .loadData();
+              .loadData(context);
           await Provider.of<HabitsLocalStorage>(context, listen: false)
               .loadData(context);
         }
       } else {
         print('loading from LS');
-        await Provider.of<UserLocalStorage>(context, listen: false).loadData();
+        await Provider.of<UserLocalStorage>(context, listen: false)
+            .loadData(context);
         await Provider.of<HabitsLocalStorage>(context, listen: false)
             .loadData(context);
         await db.userDatabase.uploadUserData(context);
@@ -42,7 +45,8 @@ class DataManager {
       }
     } else {
       print('user is not logged in; loading from LS');
-      await Provider.of<UserLocalStorage>(context, listen: false).loadData();
+      await Provider.of<UserLocalStorage>(context, listen: false)
+          .loadData(context);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .loadData(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =

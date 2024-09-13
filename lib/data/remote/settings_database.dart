@@ -8,6 +8,7 @@ import 'package:habitur/data/remote/user_database.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/providers/network_state_provider.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:provider/provider.dart';
 
 class SettingsDatabase {
@@ -39,6 +40,7 @@ class SettingsDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -61,6 +63,7 @@ class SettingsDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -85,6 +88,7 @@ class SettingsDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -118,6 +122,7 @@ class SettingsDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }

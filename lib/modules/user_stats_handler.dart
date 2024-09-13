@@ -31,30 +31,37 @@ class UserStatsHandler {
       // If there's an entry for the current day, update
       print('updating current day');
       Provider.of<UserLocalStorage>(context, listen: false)
-          .updateUserStat('date', DateTime.now());
+          .updateUserStat('date', DateTime.now(), context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'completions', user.stats[currentDayIndex].completions + 1);
+          'completions', user.stats[currentDayIndex].completions + 1, context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'confidenceLevel',
-          userStatsCalculator.calculateTodaysStatAverage('confidenceLevel'));
+          userStatsCalculator.calculateTodaysStatAverage('confidenceLevel'),
+          context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'streak',
-          userStatsCalculator.calculateTodaysStatAverage('streak').toInt());
+          userStatsCalculator.calculateTodaysStatAverage('streak').toInt(),
+          context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'consistencyFactor',
-          userStatsCalculator.calculateTodaysStatAverage('consistencyFactor'));
+          userStatsCalculator.calculateTodaysStatAverage('consistencyFactor'),
+          context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'difficultyRating',
-          userStatsCalculator.calculateTodaysStatAverage('difficultyRating'));
+          userStatsCalculator.calculateTodaysStatAverage('difficultyRating'),
+          context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'slopeCompletions',
-          userStatsCalculator.calculateOverallSlope('completions'));
+          userStatsCalculator.calculateOverallSlope('completions'),
+          context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'slopeConsistency',
-          userStatsCalculator.calculateOverallSlope('consistencyFactor'));
+          userStatsCalculator.calculateOverallSlope('consistencyFactor'),
+          context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'slopeConfidenceLevel',
-          userStatsCalculator.calculateOverallSlope('confidenceLevel'));
+          userStatsCalculator.calculateOverallSlope('confidenceLevel'),
+          context);
     } else {
       print('adding new day stat point');
       StatPoint newEntry = StatPoint(
@@ -78,7 +85,7 @@ class UserStatsHandler {
             userStatsCalculator.calculateOverallSlope('difficultyRating'),
       );
       Provider.of<UserLocalStorage>(context, listen: false)
-          .addUserStatPoint(newEntry);
+          .addUserStatPoint(newEntry, context);
     }
 
     // Notify the display manager to update
@@ -107,29 +114,37 @@ class UserStatsHandler {
       // Decrement completion count if it's positive
       if (user.stats[currentDayIndex].completions > 0) {
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-            'completions', user.stats[currentDayIndex].completions - 1);
+            'completions',
+            user.stats[currentDayIndex].completions - 1,
+            context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'confidenceLevel',
-            userStatsCalculator.calculateTodaysStatAverage('confidenceLevel'));
+            userStatsCalculator.calculateTodaysStatAverage('confidenceLevel'),
+            context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'streak',
-            userStatsCalculator.calculateTodaysStatAverage('streak').toInt());
+            userStatsCalculator.calculateTodaysStatAverage('streak').toInt(),
+            context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'consistencyFactor',
-            userStatsCalculator
-                .calculateTodaysStatAverage('consistencyFactor'));
+            userStatsCalculator.calculateTodaysStatAverage('consistencyFactor'),
+            context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'difficultyRating',
-            userStatsCalculator.calculateTodaysStatAverage('difficultyRating'));
+            userStatsCalculator.calculateTodaysStatAverage('difficultyRating'),
+            context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'slopeCompletions',
-            userStatsCalculator.calculateOverallSlope('completions'));
+            userStatsCalculator.calculateOverallSlope('completions'),
+            context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'slopeConsistency',
-            userStatsCalculator.calculateOverallSlope('consistencyFactor'));
+            userStatsCalculator.calculateOverallSlope('consistencyFactor'),
+            context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'slopeConfidenceLevel',
-            userStatsCalculator.calculateOverallSlope('confidenceLevel'));
+            userStatsCalculator.calculateOverallSlope('confidenceLevel'),
+            context);
       }
     } else {
       // No need to undo anything if there's no entry for the current day
@@ -154,6 +169,7 @@ class UserStatsHandler {
     // If the two dates are more than a minute apart
     if (user.stats.isEmpty) {
       Provider.of<UserLocalStorage>(context, listen: false).addUserStatPoint(
+          context,
           StatPoint(
               date: DateTime.now(),
               completions: 0,
@@ -164,7 +180,7 @@ class UserStatsHandler {
       newEntry.date = DateTime.now();
       newEntry.confidenceLevel = getAverageConfidenceLevel(context);
       Provider.of<UserLocalStorage>(context, listen: false)
-          .addUserStatPoint(newEntry);
+          .addUserStatPoint(context, newEntry);
     } else {
       user.stats[currentDayIndex].confidenceLevel =
           getAverageConfidenceLevel(context);
@@ -216,7 +232,7 @@ class UserStatsHandler {
               statsCalculator.calculateOverallSlope('difficultyRating'),
         );
         Provider.of<UserLocalStorage>(context, listen: false)
-            .addUserStatPoint(newStatPoint);
+            .addUserStatPoint(context, newStatPoint);
       }
     }
   }

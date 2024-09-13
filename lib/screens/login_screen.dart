@@ -5,9 +5,7 @@ import 'package:habitur/components/loading_overlay_wrapper.dart';
 import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/data_manager.dart';
-import 'package:habitur/data/local/auth_local_storage.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
-import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/login_registration_state.dart';
 import 'package:provider/provider.dart';
@@ -81,7 +79,7 @@ class LoginScreen extends StatelessWidget {
                       dynamic result;
                       if (Provider.of<HabitsLocalStorage>(context,
                               listen: false)
-                          .getHabitData()
+                          .getHabitData(context)
                           .isNotEmpty) {
                         result = await showDialog(
                           context: context,
@@ -122,13 +120,14 @@ class LoginScreen extends StatelessWidget {
                           await data.loadData(context);
                           await Provider.of<UserLocalStorage>(context,
                                   listen: false)
-                              .saveData();
+                              .saveData(context);
                           await Provider.of<HabitsLocalStorage>(context,
                                   listen: false)
-                              .uploadAllHabits(Provider.of<HabitManager>(
-                                      context,
-                                      listen: false)
-                                  .habits);
+                              .uploadAllHabits(
+                                  Provider.of<HabitManager>(context,
+                                          listen: false)
+                                      .habits,
+                                  context);
                           // getting data from DB and overriding LS
                           if (newUser != null) {
                             Navigator.popAndPushNamed(context, 'home_screen');

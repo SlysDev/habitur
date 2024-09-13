@@ -77,7 +77,7 @@ class HabitDatabase {
       await Provider.of<HabitManager>(context, listen: false)
           .resetMonthlyHabits(context);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
-          .uploadAllHabits(habitList);
+          .uploadAllHabits(habitList, context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

@@ -5,6 +5,7 @@ import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/network_state_provider.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:provider/provider.dart';
 
 class UserDatabase {
@@ -73,6 +74,7 @@ class UserDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -125,6 +127,7 @@ class UserDatabase {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }

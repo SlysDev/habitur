@@ -2,24 +2,29 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/user.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 
 class UserLocalStorage extends ChangeNotifier {
   dynamic _userBox;
 
-  Future<void> init() async {
-    if (Hive.isBoxOpen('user')) {
-      print('userBox is open');
-      _userBox = Hive.box('user');
-    } else {
-      print('userBox must be newly opened');
-      _userBox = await Hive.openBox('user');
+  Future<void> init(context) async {
+    try {
+      if (Hive.isBoxOpen('user')) {
+        print('userBox is open');
+        _userBox = Hive.box('user');
+      } else {
+        print('userBox must be newly opened');
+        _userBox = await Hive.openBox('user');
+      }
+    } catch (e, s) {
+      showErrorSnackbar(context, e, s);
     }
   }
 
-  Future<void> loadData() async {
-    await init(); // may need, may not
+  Future<void> loadData(context) async {
+    await init(context); // may need, may not
     if (_userBox.get('currentUser') == null) {
       print('filling in default user data...');
       currentUser = UserModel(
@@ -41,13 +46,21 @@ class UserLocalStorage extends ChangeNotifier {
     }
   }
 
-  Future<void> saveData() async {
-    await _userBox.put('currentUser', currentUser);
-    await _userBox.put('lastUpdated', DateTime.now());
+  Future<void> saveData(context) async {
+    try {
+      await _userBox.put('currentUser', currentUser);
+      await _userBox.put('lastUpdated', DateTime.now());
+    } catch (e, s) {
+      showErrorSnackbar(context, e, s);
+    }
   }
 
-  Future<void> deleteData() async {
-    await Hive.deleteBoxFromDisk('user');
+  Future<void> deleteData(context) async {
+    try {
+      await Hive.deleteBoxFromDisk('user');
+    } catch (e, s) {
+      showErrorSnackbar(context, e, s);
+    }
   }
 
   Future<void> populateDefaultUserData() async {
@@ -95,7 +108,7 @@ class UserLocalStorage extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateUserStat(String statName, dynamic newValue) {
+  void updateUserStat(String statName, dynamic newValue, context) {
     final user = _userBox.get('currentUser');
     try {
       user.stats.last.updateStatByName(statName, newValue);
@@ -104,22 +117,29 @@ class UserLocalStorage extends ChangeNotifier {
       print('unsuccessful stat update');
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
     }
     notifyListeners();
   }
 
-  void addUserStatPoint(StatPoint newStat) {
+  void addUserStatPoint(StatPoint newStat, context) {
     final user = _userBox.get('currentUser');
-    final updatedUser = UserModel(
-      username: user.username,
-      email: user.email,
-      userLevel: user.userLevel,
-      userXP: user.userXP,
-      uid: user.uid,
-      stats: [...user.stats, newStat],
-      profilePicture: user.profilePicture,
-    );
-    currentUser = updatedUser;
+    try {
+      final updatedUser = UserModel(
+        username: user.username,
+        email: user.email,
+        userLevel: user.userLevel,
+        userXP: user.userXP,
+        uid: user.uid,
+        stats: [...user.stats, newStat],
+        profilePicture: user.profilePicture,
+      );
+      currentUser = updatedUser;
+    } catch (e, s) {
+      print(e);
+      print(s);
+      showErrorSnackbar(context, e, s);
+    }
     notifyListeners();
   }
 

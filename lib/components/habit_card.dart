@@ -14,6 +14,7 @@ import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/edit_habit_screen.dart';
 import 'package:habitur/screens/habit_overview_screen.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
 import './rounded_progress_bar.dart';
@@ -59,6 +60,7 @@ class _HabitCardState extends State<HabitCard> {
     } catch (e, s) {
       print(e);
       print(s);
+      showErrorSnackbar(context, e, s);
     }
     HabitStatsHandler habitStatsHandler = HabitStatsHandler(habit);
     Database db = Database();

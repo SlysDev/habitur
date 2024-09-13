@@ -58,15 +58,15 @@ class NotificationScheduler {
     }
     TimeModel firstNotifTime =
         Provider.of<SettingsLocalStorage>(context, listen: false)
-            .getSettingByName('1st Reminder Time')
+            .getSettingByName('1st Reminder Time')!
             .settingValue;
     TimeModel secondNotifTime =
         Provider.of<SettingsLocalStorage>(context, listen: false)
-            .getSettingByName('2nd Reminder Time')
+            .getSettingByName('2nd Reminder Time')!
             .settingValue;
     TimeModel thirdNotifTime =
         Provider.of<SettingsLocalStorage>(context, listen: false)
-            .getSettingByName('3rd Reminder Time')
+            .getSettingByName('3rd Reminder Time')!
             .settingValue;
     // getting notif times from settings
     DateTime now = DateTime.now();
