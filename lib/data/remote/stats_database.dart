@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/data/remote/data_converter.dart';
 import 'package:habitur/data/remote/last_updated_manager.dart';
@@ -27,14 +28,14 @@ class StatsDatabase {
                     userSnapshot.get('stats')['statPoints']));
         ;
       } else {
-        print('User doc does not exist.');
+        debugPrint('User doc does not exist.');
       }
 
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -63,13 +64,13 @@ class StatsDatabase {
         }
       }, SetOptions(merge: true));
 
-      print('stats uploaded');
+      debugPrint('stats uploaded');
       await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -110,8 +111,8 @@ class StatsDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;

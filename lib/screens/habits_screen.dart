@@ -41,13 +41,13 @@ class _HabitsScreenState extends State<HabitsScreen> {
               .loadData(context);
         } // handles no internet (try/catch in DB sets isConnected to false)
       } else {
-        print('loading from LS; more recent');
+        debugPrint('loading from LS; more recent');
         await Provider.of<HabitsLocalStorage>(context, listen: false)
             .loadData(context);
         await db.habitDatabase.uploadHabits(context);
       }
     } else {
-      print('user is not logged in; loading from LS');
+      debugPrint('user is not logged in; loading from LS');
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .loadData(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
@@ -144,35 +144,3 @@ class _HabitsScreenState extends State<HabitsScreen> {
     );
   }
 }
-
-// Checking for the day, will implement try/catch for online/offline later.
-    // if (Provider.of<MHabitReset>(context).checkDailyHabits()) {
-    //   Provider.of<UserData>(context).resetDailyHabits();
-    //   Provider.of<MHabitReset>(context).getDay();
-    // } else {
-    //   Provider.of<MHabitReset>(context).getDay();
-    // }
-
-    // Scheduling with Cron - may implement in the future.
-    // final cron = Cron();
-    // cron.schedule(Schedule.parse('0 0 * * *'), () async {
-    //   try {
-    //     Provider.of<UserData>(context, listen: false).resetDailyHabits();
-    //   } catch (e, st) {
-    //     print(e);
-    //   }
-    // });
-    // cron.schedule(Schedule.parse('0 0 * * 1'), () async {
-    //   try {
-    //     Provider.of<UserData>(context, listen: false).resetWeeklyHabits();
-    //   } catch (e, st) {
-    //     print(e);
-    //   }
-    // });
-    // cron.schedule(Schedule.parse('0 0 1 * *'), () async {
-    //   try {
-    //     Provider.of<UserData>(context, listen: false).resetMonthlyHabits();
-    //   } catch (e, st) {
-    //     print(e);
-    //   }
-    // });

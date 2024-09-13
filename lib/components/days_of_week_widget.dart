@@ -9,7 +9,7 @@ class DaysOfWeekWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get the current day index (Monday = 0, Sunday = 6)
     int currentDayIndex = DateTime.now().weekday - 1;
-    print(currentDayIndex);
+    debugPrint(currentDayIndex.toString());
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

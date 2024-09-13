@@ -6,10 +6,12 @@ import 'package:provider/provider.dart';
 
 class LeaderboardCard extends StatelessWidget {
   final ParticipantData participant;
+  final int index;
 
   LeaderboardCard({
     Key? key,
     required this.participant,
+    required this.index,
   }) : super(key: key);
 
   @override
@@ -26,23 +28,50 @@ class LeaderboardCard extends StatelessWidget {
             : kFadedBlue.withOpacity(0.5),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(width: 20),
-          Text(
-            participant.fullCompletionCount.toString(),
-            style: kHeadingTextStyle.copyWith(
-                color: kLightPrimaryColor, fontSize: 25),
+          Container(
+            alignment: Alignment.center,
+            width: 50,
+            height: 50,
+            padding: const EdgeInsets.all(2),
+            margin: const EdgeInsets.only(left: 5),
+            decoration: BoxDecoration(
+              color: index + 1 == 1
+                  ? Colors.yellow
+                  : index + 1 == 2
+                      ? kGray
+                      : index + 1 == 3
+                          ? Colors.brown
+                          : kDarkGray,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              '#' + (index + 1).toString(),
+              style: kHeadingTextStyle.copyWith(
+                  color: kBackgroundColor, fontSize: 24),
+            ),
           ),
-          SizedBox(width: 20),
           CircleAvatar(
             backgroundImage: participant.user.profilePicture,
           ),
-          SizedBox(width: 20),
-          Text(
-            participant.user.username,
-            style: kMainDescription.copyWith(color: Colors.white, fontSize: 22),
+          Container(
+            width: 120,
+            child: Text(
+              participant.user.username,
+              style:
+                  kMainDescription.copyWith(color: Colors.white, fontSize: 22),
+              textAlign: TextAlign.center,
+            ),
           ),
-          SizedBox(width: 20),
+          Container(
+            margin: const EdgeInsets.only(right: 15),
+            child: Text(
+              participant.fullCompletionCount.toString(),
+              style:
+                  kMainDescription.copyWith(color: Colors.white, fontSize: 20),
+            ),
+          ),
         ],
       ),
     );

@@ -24,7 +24,8 @@ class AdminScreen extends StatelessWidget {
                   Provider.of<NetworkStateProvider>(context, listen: false)
                       .isConnected = true;
                 } catch (e, s) {
-                  print(s);
+                  debugPrint(e.toString());
+                  debugPrint(s.toString());
                   Provider.of<NetworkStateProvider>(context, listen: false)
                       .isConnected = false;
                 }

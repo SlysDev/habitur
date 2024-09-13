@@ -1,4 +1,5 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
 
 class NotificationManager {
@@ -32,7 +33,7 @@ class NotificationManager {
         ),
       );
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
     }
   }
 
@@ -63,14 +64,14 @@ class NotificationManager {
   }
 
   Future<void> printNotifications() async {
-    print('notifications:');
+    debugPrint('notifications:');
     List<NotificationModel> notifList =
         await AwesomeNotifications().listScheduledNotifications();
     for (NotificationModel notif in notifList) {
-      print("${notif.content?.title}:");
-      print("Body: ${notif.content?.body}");
-      print("ID: ${notif.content?.id}");
-      print(
+      debugPrint("${notif.content?.title}:");
+      debugPrint("Body: ${notif.content?.body}");
+      debugPrint("ID: ${notif.content?.id}");
+      debugPrint(
           "Scheduled at: ${(notif.schedule as NotificationCalendar).hour}:${(notif.schedule as NotificationCalendar).minute} on ${(notif.schedule as NotificationCalendar).day}/${(notif.schedule as NotificationCalendar).month}");
     }
   }

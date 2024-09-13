@@ -47,7 +47,7 @@ class _AddCommunityChallengeScreenState
       setState(() {
         widget.newChallenge['endDate'] = picked;
       });
-      print(widget.newChallenge['endDate']);
+      debugPrint(widget.newChallenge['endDate']);
     }
   }
 
@@ -259,7 +259,7 @@ class _AddCommunityChallengeScreenState
                 child: Text('Submit'),
                 onPressed: () async {
                   Database db = Database();
-                  print(widget.newChallenge);
+                  debugPrint(widget.newChallenge.toString());
                   db.communityChallengeDatabase
                       .addCommunityChallenge(widget.newChallenge, context);
                   Navigator.pop(context);

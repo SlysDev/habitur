@@ -45,7 +45,6 @@ class SplashScreen extends StatelessWidget {
         );
         result == null ? result = false : null;
         if (result) {
-          print('are we here');
           Database db = Database();
           await Provider.of<HabitsLocalStorage>(context, listen: false)
               .deleteData(context);

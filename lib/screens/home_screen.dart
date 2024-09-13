@@ -55,12 +55,8 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () {
                   Provider.of<Database>(context, listen: false)
                       .loadData(context);
-                  print('downloaded');
+                  debugPrint('downloaded');
                 }),
-            // HabitCardList(
-            //   // Passes network status to card list
-            //   isOnline: widget.isOnline,
-            // ),
             SizedBox(
               height: 20,
             ),
@@ -73,35 +69,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
-// Checking for the day, will implement try/catch for online/offline later.
-    // if (Provider.of<MHabitReset>(context).checkDailyHabits()) {
-    //   Provider.of<UserData>(context).resetDailyHabits();
-    //   Provider.of<MHabitReset>(context).getDay();
-    // } else {
-    //   Provider.of<MHabitReset>(context).getDay();
-    // }
-
-    // Scheduling with Cron - may implement in the future.
-    // final cron = Cron();
-    // cron.schedule(Schedule.parse('0 0 * * *'), () async {
-    //   try {
-    //     Provider.of<UserData>(context, listen: false).resetDailyHabits();
-    //   } catch (e, st) {
-    //     print(e);
-    //   }
-    // });
-    // cron.schedule(Schedule.parse('0 0 * * 1'), () async {
-    //   try {
-    //     Provider.of<UserData>(context, listen: false).resetWeeklyHabits();
-    //   } catch (e, st) {
-    //     print(e);
-    //   }
-    // });
-    // cron.schedule(Schedule.parse('0 0 1 * *'), () async {
-    //   try {
-    //     Provider.of<UserData>(context, listen: false).resetMonthlyHabits();
-    //   } catch (e, st) {
-    //     print(e);
-    //   }
-    // });

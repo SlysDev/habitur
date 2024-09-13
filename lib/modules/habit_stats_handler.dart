@@ -22,8 +22,6 @@ class HabitStatsHandler {
   Future<void> incrementCompletion(context,
       {double recordedDifficulty = 5}) async {
     UserStatsHandler userStatsHandler = UserStatsHandler();
-    int habitIndex =
-        Provider.of<HabitManager>(context, listen: false).habits.indexOf(habit);
     habit.completionsToday++;
     habit.totalCompletions++;
     if (habit.completionsToday == habit.requiredCompletions) {
@@ -94,11 +92,11 @@ class HabitStatsHandler {
           HabitStatsCalculator(habit).calculateConfidenceLevel();
       await userStatsHandler.logHabitCompletion(context);
     }
-    print('slope: ' +
+    debugPrint('slope: ' +
         HabitStatsCalculator(habit)
             .calculateStatSlope('completions', habit.stats)
             .toString());
-    print('setting confidence level: ' +
+    debugPrint('setting confidence level: ' +
         HabitStatsCalculator(habit).calculateConfidenceLevel().toString());
     habit.confidenceLevel =
         HabitStatsCalculator(habit).calculateConfidenceLevel();
@@ -179,7 +177,8 @@ class HabitStatsHandler {
                 .calculateStatSlope('difficultyRating', habit.stats);
       } else {
         // Shouldn't reach here ideally (log a message?)
-        print('No entry found for decrementing habit completion in stats.');
+        debugPrint(
+            'No entry found for decrementing habit completion in stats.');
       }
       // Update confidence level based on updated stats
       habit.confidenceLevel =

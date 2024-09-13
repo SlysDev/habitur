@@ -14,12 +14,12 @@ class AuthLocalStorage extends ChangeNotifier {
   dynamic _authBox;
 
   Future<void> init() async {
-    print('are we initing?');
+    debugPrint('are we initing?');
     if (Hive.isBoxOpen(authBoxKey)) {
-      print('authBox is open');
+      debugPrint('authBox is open');
       _authBox = Hive.box(authBoxKey);
     } else {
-      print('authBox must be newly opened');
+      debugPrint('authBox must be newly opened');
       _authBox = await Hive.openBox(authBoxKey);
     }
   }

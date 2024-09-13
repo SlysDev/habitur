@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/models/community_challenge.dart';
@@ -82,8 +83,8 @@ class CommunityChallengeDatabase {
           .resetMonthlyChallenges(context, currentUser);
       Provider.of<CommunityChallengeManager>(context, listen: false)
           .updateChallenges(context);
-      print('Community challenges loaded');
-      print(Provider.of<CommunityChallengeManager>(context, listen: false)
+      debugPrint('Community challenges loaded');
+      debugPrint(Provider.of<CommunityChallengeManager>(context, listen: false)
           .challenges
           .last
           .habit
@@ -91,8 +92,8 @@ class CommunityChallengeDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -148,8 +149,8 @@ class CommunityChallengeDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -167,8 +168,8 @@ class CommunityChallengeDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -177,7 +178,7 @@ class CommunityChallengeDatabase {
 
   void removeCommunityChallenge(int id, context) async {
     try {
-      print("Removing community challenge with id: " + id.toString());
+      debugPrint("Removing community challenge with id: " + id.toString());
       CollectionReference communityChallengesRef =
           _firestore.collection('community-challenges');
       QuerySnapshot communityChallengesSnapshot =
@@ -193,8 +194,8 @@ class CommunityChallengeDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -219,8 +220,8 @@ class CommunityChallengeDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;

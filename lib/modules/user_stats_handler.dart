@@ -29,7 +29,7 @@ class UserStatsHandler {
 
     if (currentDayIndex != -1) {
       // If there's an entry for the current day, update
-      print('updating current day');
+      debugPrint('updating current day');
       Provider.of<UserLocalStorage>(context, listen: false)
           .updateUserStat('date', DateTime.now(), context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
@@ -63,7 +63,7 @@ class UserStatsHandler {
           userStatsCalculator.calculateOverallSlope('confidenceLevel'),
           context);
     } else {
-      print('adding new day stat point');
+      debugPrint('adding new day stat point');
       StatPoint newEntry = StatPoint(
         date: DateTime.now(),
         completions: 1,
@@ -90,7 +90,7 @@ class UserStatsHandler {
 
     // Notify the display manager to update
     recordAverageConfidenceLevel(context);
-    print('Date: ' +
+    debugPrint('Date: ' +
         user.stats.last.date.toString() +
         " Completions: " +
         user.stats.last.completions.toString());
@@ -110,7 +110,7 @@ class UserStatsHandler {
         stat.date.day == DateTime.now().day);
 
     if (currentDayIndex != -1) {
-      print('updating current day');
+      debugPrint('updating current day');
       // Decrement completion count if it's positive
       if (user.stats[currentDayIndex].completions > 0) {
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
@@ -148,7 +148,7 @@ class UserStatsHandler {
       }
     } else {
       // No need to undo anything if there's no entry for the current day
-      print('No entry found for unlogging habit completion.');
+      debugPrint('No entry found for unlogging habit completion.');
     }
 
     recordAverageConfidenceLevel(context);
@@ -188,7 +188,7 @@ class UserStatsHandler {
   }
 
   void fillInMissingDays(context) {
-    print('filling in missing days...');
+    debugPrint('filling in missing days...');
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     UserStatsCalculator statsCalculator = UserStatsCalculator(

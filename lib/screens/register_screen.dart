@@ -94,12 +94,12 @@ class RegisterScreen extends StatelessWidget {
                         email: email, password: password);
                     if (newUser.user != null) {
                       Database db = Database();
-                      print('New user created.');
+                      debugPrint('New user created.');
                       db.userDatabase.userSetup(username, email);
                       Navigator.popAndPushNamed(context, 'home_screen');
                     }
                   } catch (e) {
-                    print(e);
+                    debugPrint(e.toString());
                     String errorMessage = '';
                     if (e is FirebaseAuthException) {
                       switch (e.code) {

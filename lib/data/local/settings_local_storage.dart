@@ -19,20 +19,20 @@ class SettingsLocalStorage extends ChangeNotifier {
 
   Future<void> init(context) async {
     try {
-      print('are we initing settings?');
+      debugPrint('are we initing settings?');
       if (Hive.isBoxOpen('settings')) {
-        print('settingsBox is open');
+        debugPrint('settingsBox is open');
         _settingsBox = Hive.box('settings');
       } else {
-        print('settingsBox must be newly opened');
+        debugPrint('settingsBox must be newly opened');
         _settingsBox = await Hive.openBox('settings');
         if (_settingsBox.values.toList().isEmpty) {
           populateDefaultSettingsData();
         }
       }
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
     }
   }
@@ -43,7 +43,7 @@ class SettingsLocalStorage extends ChangeNotifier {
 
   List<Setting> get settingsList {
     if (_settingsBox == null) {
-      print('settingsBox is null');
+      debugPrint('settingsBox is null');
       return [];
     }
     if (_settingsBox.values.isEmpty) {
@@ -63,8 +63,8 @@ class SettingsLocalStorage extends ChangeNotifier {
     try {
       return _settingsBox.get(settingName);
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       return null;
     }
   }

@@ -69,7 +69,7 @@ class CommunityChallengeManager extends ChangeNotifier {
   void updateChallenges(context) {
     Database db = Database();
     db.communityChallengeDatabase.uploadCommunityChallenges(context);
-    print('Challenges updated');
+    debugPrint('Challenges updated');
     notifyListeners();
   }
 
@@ -121,7 +121,7 @@ class CommunityChallengeManager extends ChangeNotifier {
           currentCompletions: delta > 0 ? delta : 0,
           fullCompletionCount: 0));
       // Handle case where user is not yet a participant (add them?)
-      print('User not found in participantDataList');
+      debugPrint('User not found in participantDataList');
     }
   }
 
@@ -178,7 +178,7 @@ class CommunityChallengeManager extends ChangeNotifier {
                   .currentUser,
               lastSeen: DateTime.now(),
               fullCompletionCount: 1));
-      print('updated');
+      debugPrint('updated');
       return true;
     }
     return false;
@@ -227,7 +227,7 @@ class CommunityChallengeManager extends ChangeNotifier {
       if (participantData.currentCompletions > 0) {
         participantData.currentCompletions--;
       }
-      print('User not found in participantDataList');
+      debugPrint('User not found in participantDataList');
     }
   }
 

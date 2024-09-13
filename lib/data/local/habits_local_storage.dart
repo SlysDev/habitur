@@ -13,17 +13,17 @@ class HabitsLocalStorage extends ChangeNotifier {
 
   Future<void> init(context) async {
     try {
-      print('are we initing?');
+      debugPrint('are we initing?');
       if (Hive.isBoxOpen('habits')) {
-        print('habitsBox is open');
+        debugPrint('habitsBox is open');
         _habitsBox = Hive.box('habits');
       } else {
-        print('habitsBox must be newly opened');
+        debugPrint('habitsBox must be newly opened');
         _habitsBox = await Hive.openBox('habits');
       }
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
     }
   }
@@ -34,8 +34,8 @@ class HabitsLocalStorage extends ChangeNotifier {
     try {
       await Hive.deleteBoxFromDisk('habits');
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
     }
   }
@@ -62,18 +62,18 @@ class HabitsLocalStorage extends ChangeNotifier {
   List<Habit> getHabitData(context) {
     try {
       if (_habitsBox == null) {
-        print('habitsBox is null');
+        debugPrint('habitsBox is null');
         return [];
       }
-      print(_habitsBox.values
+      debugPrint(_habitsBox.values
           .toList()
           .where((element) => element is Habit)
           .toList());
       List<dynamic> allValues = _habitsBox.values.toList();
       return allValues.whereType<Habit>().toList();
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       return [];
     }
@@ -89,8 +89,8 @@ class HabitsLocalStorage extends ChangeNotifier {
       }
       _habitsBox.put('lastUpdated', DateTime.now());
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
     }
   }
@@ -101,15 +101,15 @@ class HabitsLocalStorage extends ChangeNotifier {
       Provider.of<HabitManager>(context, listen: false)
           .loadHabits(getHabitData(context));
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
     }
     Provider.of<HabitManager>(context, listen: false).resetHabits(context);
     Provider.of<HabitManager>(context, listen: false).sortHabits();
-    print('data loaded:');
-    print(getHabitData(context).length);
-    print(stringifyHabitData(context));
+    debugPrint('data loaded:');
+    debugPrint(getHabitData(context).length.toString());
+    debugPrint(stringifyHabitData(context));
   }
 
   Habit? getHabitById(int id) {
@@ -136,7 +136,7 @@ class HabitsLocalStorage extends ChangeNotifier {
   String stringifyHabitData(context) {
     String output = "";
     for (Habit habit in getHabitData(context)) {
-      print(habit.title);
+      debugPrint(habit.title);
       output += "${habit.title}:\n";
       output += "Completions: ${habit.completionsToday}\n";
       output += "Streak: ${habit.streak}\n";

@@ -28,8 +28,8 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
     double totalProgress =
         challenge.currentFullCompletions / challenge.requiredFullCompletions;
     challenge.sortParticipantData();
-    print(challenge.participants);
-    print('participants');
+    debugPrint(challenge.participants.toString());
+    debugPrint('participants');
     List<ParticipantData> participants =
         Provider.of<CommunityChallengeManager>(context)
             .challenges[0]
@@ -153,15 +153,16 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
                         itemCount: participants.length,
                         itemBuilder: (context, index) {
                           ParticipantData participant = participants[index];
-                          print('participant uid:');
-                          print(participant.user.uid);
-                          print('current user id:');
-                          print(Provider.of<UserLocalStorage>(context)
+                          debugPrint('participant uid:');
+                          debugPrint(participant.user.uid);
+                          debugPrint('current user id:');
+                          debugPrint(Provider.of<UserLocalStorage>(context)
                               .currentUser
                               .uid);
                           return Column(
                             children: [
-                              LeaderboardCard(participant: participant),
+                              LeaderboardCard(
+                                  participant: participant, index: index),
                               SizedBox(height: 20),
                             ],
                           );
@@ -186,7 +187,7 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
                         onPressed: () {
                           if (!(challenge.currentFullCompletions ==
                               challenge.requiredFullCompletions)) {
-                            print('completed');
+                            debugPrint('completed');
                             completeChallenge();
                           }
                         },

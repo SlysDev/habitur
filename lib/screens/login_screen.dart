@@ -111,8 +111,8 @@ class LoginScreen extends StatelessWidget {
                                 listen: false)
                             .setLoading(true);
                         try {
-                          print(email);
-                          print(password);
+                          debugPrint(email);
+                          debugPrint(password);
                           final newUser =
                               await _auth.signInWithEmailAndPassword(
                                   email: email, password: password);
@@ -133,8 +133,8 @@ class LoginScreen extends StatelessWidget {
                             Navigator.popAndPushNamed(context, 'home_screen');
                           }
                         } catch (e, s) {
-                          print(e);
-                          print(s);
+                          debugPrint(e.toString());
+                          debugPrint(s.toString());
                           String errorMessage = '';
                           if (e is FirebaseAuthException) {
                             switch (e.code) {

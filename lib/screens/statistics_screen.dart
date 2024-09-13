@@ -35,12 +35,12 @@ class StatisticsScreen extends StatelessWidget {
                 .loadData(context);
           } // handles no internet (try/catch in DB sets isConnected to false)
         } else {
-          print('loading from LS; more recent');
+          debugPrint('loading from LS; more recent');
           await Provider.of<HabitsLocalStorage>(context, listen: false)
               .loadData(context);
         }
       } else {
-        print('user is not logged in; loading from LS');
+        debugPrint('user is not logged in; loading from LS');
         await Provider.of<HabitsLocalStorage>(context, listen: false)
             .loadData(context);
         Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
@@ -52,7 +52,7 @@ class StatisticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Database db = Database();
-    print(Provider.of<UserLocalStorage>(context, listen: false)
+    debugPrint(Provider.of<UserLocalStorage>(context, listen: false)
         .currentUser
         .stats);
     InsightsGenerator insightsGenerator = InsightsGenerator(

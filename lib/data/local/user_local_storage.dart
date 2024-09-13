@@ -12,10 +12,10 @@ class UserLocalStorage extends ChangeNotifier {
   Future<void> init(context) async {
     try {
       if (Hive.isBoxOpen('user')) {
-        print('userBox is open');
+        debugPrint('userBox is open');
         _userBox = Hive.box('user');
       } else {
-        print('userBox must be newly opened');
+        debugPrint('userBox must be newly opened');
         _userBox = await Hive.openBox('user');
       }
     } catch (e, s) {
@@ -26,7 +26,7 @@ class UserLocalStorage extends ChangeNotifier {
   Future<void> loadData(context) async {
     await init(context); // may need, may not
     if (_userBox.get('currentUser') == null) {
-      print('filling in default user data...');
+      debugPrint('filling in default user data...');
       currentUser = UserModel(
         username: 'Guest',
         email: 'N/A',
@@ -37,11 +37,12 @@ class UserLocalStorage extends ChangeNotifier {
       );
     }
     if (FirebaseAuth.instance.currentUser != null) {
-      print('auth has something');
+      debugPrint('auth has something');
       updateUserProperty('uid', FirebaseAuth.instance.currentUser!.uid);
       updateUserProperty(
           'username', FirebaseAuth.instance.currentUser!.displayName);
-      print('username is ${FirebaseAuth.instance.currentUser!.displayName}');
+      debugPrint(
+          'username is ${FirebaseAuth.instance.currentUser!.displayName}');
       updateUserProperty('email', FirebaseAuth.instance.currentUser!.email);
     }
   }
@@ -114,9 +115,9 @@ class UserLocalStorage extends ChangeNotifier {
       user.stats.last.updateStatByName(statName, newValue);
       _userBox.put('currentUser', user);
     } catch (e, s) {
-      print('unsuccessful stat update');
-      print(e);
-      print(s);
+      debugPrint('unsuccessful stat update');
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
     }
     notifyListeners();
@@ -136,8 +137,8 @@ class UserLocalStorage extends ChangeNotifier {
       );
       currentUser = updatedUser;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
     }
     notifyListeners();

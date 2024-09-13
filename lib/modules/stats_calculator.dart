@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/habit.dart';
 import 'dart:math' as math;
@@ -51,7 +52,7 @@ class StatsCalculator {
       // Avoid division by zero (consider handling very small start values)
       return 0.0;
     }
-    print("startValue: $startValue, endValue: $endValue");
+    debugPrint("startValue: $startValue, endValue: $endValue");
 
     return ((endValue - startValue) / startValue) * 100.0;
   }

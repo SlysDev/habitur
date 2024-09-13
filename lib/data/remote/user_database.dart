@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/models/user.dart';
@@ -55,7 +56,7 @@ class UserDatabase {
       String uid = _auth.currentUser!.uid.toString();
       for (var user in usersSnapshot.docs) {
         if (user.get('uid') == uid) {
-          print('loading user...');
+          debugPrint('loading user...');
           Provider.of<UserLocalStorage>(context, listen: false).currentUser =
               UserModel(
                   username: user.get('username'),
@@ -72,8 +73,8 @@ class UserDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -115,7 +116,7 @@ class UserDatabase {
             'lastUpdated': DateTime.now(),
           }, SetOptions(merge: true));
         }
-        print('isAdmin: ' +
+        debugPrint('isAdmin: ' +
             Provider.of<UserLocalStorage>(context, listen: false)
                 .currentUser
                 .isAdmin
@@ -125,8 +126,8 @@ class UserDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;

@@ -58,8 +58,8 @@ class _HabitCardState extends State<HabitCard> {
     try {
       habit = Provider.of<HabitManager>(context).sortedHabits[widget.index];
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
     }
     HabitStatsHandler habitStatsHandler = HabitStatsHandler(habit);
@@ -225,8 +225,8 @@ class _HabitCardState extends State<HabitCard> {
                             try {
                               await decrementHabit();
                             } catch (e, s) {
-                              print(e);
-                              print(s);
+                              debugPrint(e.toString());
+                              debugPrint(s.toString());
                             }
                             setLoading(false);
                           },

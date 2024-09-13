@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/data/remote/data_converter.dart';
@@ -38,8 +39,8 @@ class SettingsDatabase {
           {'settings': dataConverter.dbSettingsToMap(settings)},
           SetOptions(merge: true));
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -61,8 +62,8 @@ class SettingsDatabase {
                 dataConverter.dbListToSettings(userSnapshot.get('settings')));
       }
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -86,8 +87,8 @@ class SettingsDatabase {
           {'settings': dataConverter.dbSettingsToMap(settings)},
           SetOptions(merge: true));
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -120,8 +121,8 @@ class SettingsDatabase {
         {'settings': dataConverter.dbSettingsToMap(defaultSettings)},
       );
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;

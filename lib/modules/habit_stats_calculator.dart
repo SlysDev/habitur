@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
 import 'dart:math' as math;
 
@@ -29,12 +30,8 @@ class HabitStatsCalculator extends StatsCalculator {
           math.pow(1.1, habit.streak) as double; // Increase bonus with streak
     }
 
-    print(
+    debugPrint(
         'Confidence level: base: $baseConfidence * consistency: $consistencyFactor * streak bonus: $successStreakBonus}');
-    print(baseConfidence *
-        consistencyFactor *
-        successStreakBonus *
-        difficultyWeight);
     return baseConfidence *
         consistencyFactor *
         successStreakBonus *

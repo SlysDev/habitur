@@ -75,7 +75,7 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                           controller: addHabitProvider.titleController,
                           onChanged: (value) {
                             setHabit(newHabit.copyWith(title: value));
-                            print(newHabit.title);
+                            debugPrint(newHabit.title);
                           },
                           hintText: 'Meditate, Run, etc.'),
                       const SizedBox(

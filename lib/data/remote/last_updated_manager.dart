@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:provider/provider.dart';
@@ -33,8 +34,8 @@ class LastUpdatedManager {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }

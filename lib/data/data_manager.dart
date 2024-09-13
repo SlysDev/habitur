@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
@@ -22,18 +23,18 @@ class DataManager {
           Provider.of<HabitsLocalStorage>(context, listen: false)
               .getHabitData(context)
               .isEmpty) {
-        print('loading from DB');
+        debugPrint('loading from DB');
         await db.loadData(context);
         if (!Provider.of<NetworkStateProvider>(context, listen: false)
             .isConnected) {
-          print('offline; loading from LS');
+          debugPrint('offline; loading from LS');
           await Provider.of<UserLocalStorage>(context, listen: false)
               .loadData(context);
           await Provider.of<HabitsLocalStorage>(context, listen: false)
               .loadData(context);
         }
       } else {
-        print('loading from LS');
+        debugPrint('loading from LS');
         await Provider.of<UserLocalStorage>(context, listen: false)
             .loadData(context);
         await Provider.of<HabitsLocalStorage>(context, listen: false)
@@ -44,7 +45,7 @@ class DataManager {
         await db.communityChallengeDatabase.loadCommunityChallenges(context);
       }
     } else {
-      print('user is not logged in; loading from LS');
+      debugPrint('user is not logged in; loading from LS');
       await Provider.of<UserLocalStorage>(context, listen: false)
           .loadData(context);
       await Provider.of<HabitsLocalStorage>(context, listen: false)

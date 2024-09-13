@@ -47,7 +47,7 @@ class _EditCommunityChallengeScreenState
         setState(() {
           modifiedChallenge['startDate'] = picked;
         });
-        print(modifiedChallenge['startDate']);
+        debugPrint(modifiedChallenge['startDate']);
       }
     }
 
@@ -62,7 +62,7 @@ class _EditCommunityChallengeScreenState
         setState(() {
           modifiedChallenge['endDate'] = picked;
         });
-        print(modifiedChallenge['endDate']);
+        debugPrint(modifiedChallenge['endDate']);
       }
     }
 
@@ -283,7 +283,7 @@ class _EditCommunityChallengeScreenState
               child: Text('Submit'),
               onPressed: () async {
                 Database db = Database();
-                print(modifiedChallenge);
+                debugPrint(modifiedChallenge.toString());
                 db.communityChallengeDatabase.editCommunityChallenge(
                     widget.challenge.id, modifiedChallenge, context);
                 Navigator.pop(context);

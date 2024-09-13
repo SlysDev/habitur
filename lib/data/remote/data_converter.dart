@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/stat_point.dart';
@@ -15,11 +16,11 @@ class DataConverter {
             dateTime = date.toDate();
           } else {
             dateTime = DateTime.now(); // Handle unexpected format
-            print('weird formatting, used DateTime.now() for this one.');
+            debugPrint('weird formatting, used DateTime.now() for this one.');
           }
           return DataPoint(date: dateTime, value: element['value']);
         } else {
-          print('input was empty');
+          debugPrint('input was empty');
           return DataPoint(
               date: DateTime.now(), value: 0); // Handle unexpected format
         }
@@ -39,7 +40,7 @@ class DataConverter {
             dateTime = date.toDate();
           } else {
             dateTime = DateTime.now(); // Handle unexpected format
-            print('weird formatting, used DateTime.now() for this one.');
+            debugPrint('weird formatting, used DateTime.now() for this one.');
           }
           return StatPoint(
             date: dateTime,
@@ -57,7 +58,7 @@ class DataConverter {
                 (element['slopeDifficultyRating'] ?? 0).toDouble(),
           );
         } else {
-          print('input was empty');
+          debugPrint('input was empty');
           return StatPoint(
               date: DateTime.now(),
               completions: 0,
@@ -78,7 +79,7 @@ class DataConverter {
               settingValue: element['settingValue'],
               settingName: element['settingName']);
         } else {
-          print('input was empty');
+          debugPrint('input was empty');
           return Setting(
               settingValue: true,
               settingName: 'Daily Reminders'); // Handle unexpected format
@@ -131,7 +132,7 @@ class DataConverter {
         if (date is Map<String, dynamic>) {
           return date['date'].toDate() as DateTime;
         } else {
-          print('weird formatting, used DateTime.now() for this one.');
+          debugPrint('weird formatting, used DateTime.now() for this one.');
           return DateTime.now(); // Handle unexpected format
         }
       }).toList();

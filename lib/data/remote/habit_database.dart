@@ -81,8 +81,8 @@ class HabitDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -124,8 +124,8 @@ class HabitDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -192,8 +192,8 @@ class HabitDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -215,8 +215,8 @@ class HabitDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -240,8 +240,8 @@ class HabitDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -265,8 +265,8 @@ class HabitDatabase {
           true;
       return foundHabit.docs;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -301,8 +301,8 @@ class HabitDatabase {
         }
       }
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
     }
   }
@@ -326,8 +326,8 @@ class HabitDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
-      print(e);
-      print(s);
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       showErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
