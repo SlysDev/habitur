@@ -41,6 +41,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             HomeGreetingHeader(),
+            SizedBox(height: 20),
             CommunityHabitList(onRefresh: () async {
               DataManager dataManager = DataManager();
               await dataManager.loadData(context);

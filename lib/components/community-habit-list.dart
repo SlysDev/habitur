@@ -38,11 +38,11 @@ class CommunityHabitList extends StatelessWidget {
                       communityChallengeManager.challenges[index];
                   return Column(
                     children: [
-                      SizedBox(height: 30),
                       CommunityChallengeCard(
                         isAdmin: isAdmin,
                         challenge: currentChallenge,
                       ),
+                      SizedBox(height: 20),
                     ],
                   );
                 },
