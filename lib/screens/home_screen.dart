@@ -1,6 +1,7 @@
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/community-habit-list.dart';
 import 'package:habitur/components/days_of_week_widget.dart';
+import 'package:habitur/components/habit_card_list.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/data/data_manager.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
@@ -44,22 +45,6 @@ class HomeScreen extends StatelessWidget {
               DataManager dataManager = DataManager();
               await dataManager.loadData(context);
             }),
-            AsideButton(
-                text: 'Upload data',
-                onPressed: () {
-                  Provider.of<Database>(context, listen: false)
-                      .uploadData(context);
-                }),
-            AsideButton(
-                text: 'Download data',
-                onPressed: () {
-                  Provider.of<Database>(context, listen: false)
-                      .loadData(context);
-                  debugPrint('downloaded');
-                }),
-            SizedBox(
-              height: 20,
-            ),
           ],
         ),
       ),

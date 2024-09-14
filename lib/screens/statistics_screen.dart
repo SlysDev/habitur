@@ -54,7 +54,8 @@ class StatisticsScreen extends StatelessWidget {
     Database db = Database();
     debugPrint(Provider.of<UserLocalStorage>(context, listen: false)
         .currentUser
-        .stats);
+        .stats
+        .toString());
     InsightsGenerator insightsGenerator = InsightsGenerator(
         Provider.of<UserLocalStorage>(context, listen: false).currentUser.stats,
         isSummary: true);

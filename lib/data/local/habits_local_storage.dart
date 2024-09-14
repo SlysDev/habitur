@@ -65,10 +65,6 @@ class HabitsLocalStorage extends ChangeNotifier {
         debugPrint('habitsBox is null');
         return [];
       }
-      debugPrint(_habitsBox.values
-          .toList()
-          .where((element) => element is Habit)
-          .toList());
       List<dynamic> allValues = _habitsBox.values.toList();
       return allValues.whereType<Habit>().toList();
     } catch (e, s) {

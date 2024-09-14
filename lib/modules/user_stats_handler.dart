@@ -188,7 +188,7 @@ class UserStatsHandler {
   }
 
   void fillInMissingDays(context) {
-    debugPrint('filling in missing days...');
+    debugPrint('filling in missing days... (user)');
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     UserStatsCalculator statsCalculator = UserStatsCalculator(

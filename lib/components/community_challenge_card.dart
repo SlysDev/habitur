@@ -176,7 +176,14 @@ Widget buildNormalCard(context, challenge, decrementChallenge,
                   alignment: Alignment.center,
                   child: SizedBox(
                     height: 80,
-                    child: Icon(Icons.wifi_off, size: 32, color: kGray),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(Icons.no_accounts_rounded, size: 32, color: kGray),
+                        Text("Login to access",
+                            style: kMainDescription.copyWith(color: kGray)),
+                      ],
+                    ),
                   ),
                 ),
         ],

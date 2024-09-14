@@ -11,13 +11,21 @@ class NavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(bottom: 30),
+      padding: EdgeInsets.only(bottom: 30, top: 15),
+      decoration: BoxDecoration(
+        color: kFadedBlue.withOpacity(0.4),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(40),
+          topRight: Radius.circular(40),
+        ),
+      ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           NavItem(
             icon: Icon(
-              Icons.home_filled,
+              Icons.home_rounded,
               color: currentPage == 'home' ? kPrimaryColor : kGray,
               size: 25,
             ),
@@ -28,7 +36,7 @@ class NavBar extends StatelessWidget {
           ),
           NavItem(
             icon: Icon(
-              Icons.done_all_rounded,
+              Icons.check_circle_rounded,
               color: currentPage == 'habits' ? kPrimaryColor : kGray,
               size: 25,
             ),
@@ -56,7 +64,7 @@ class NavBar extends StatelessWidget {
           ),
           NavItem(
             icon: Icon(
-              Icons.bar_chart,
+              Icons.bar_chart_rounded,
               color: currentPage == 'statistics' ? kPrimaryColor : kGray,
             ),
             onPressed: () {
@@ -66,7 +74,7 @@ class NavBar extends StatelessWidget {
           ),
           NavItem(
             icon: Icon(
-              Icons.settings,
+              Icons.settings_rounded,
               color: currentPage == 'settings' ? kPrimaryColor : kGray,
             ),
             onPressed: () {
@@ -87,11 +95,9 @@ class NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: IconButton(
-        onPressed: onPressed,
-        icon: icon,
-      ),
+    return IconButton(
+      onPressed: onPressed,
+      icon: icon,
     );
   }
 }

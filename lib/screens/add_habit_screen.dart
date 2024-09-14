@@ -451,16 +451,4 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
       );
     });
   }
-
-  @override
-  void initState() {
-    Provider.of<AddHabitScreenProvider>(context, listen: false).reset();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    Provider.of<AddHabitScreenProvider>(context, listen: false).dispose();
-    super.dispose();
-  }
 }

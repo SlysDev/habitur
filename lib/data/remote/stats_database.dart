@@ -35,8 +35,10 @@ class StatsDatabase {
           true;
     } catch (e, s) {
       debugPrint(e.toString());
-      debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      if (!e.toString().contains('User is not logged in')) {
+        debugPrint(s.toString());
+        showErrorSnackbar(context, e, s);
+      }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -70,8 +72,10 @@ class StatsDatabase {
           true;
     } catch (e, s) {
       debugPrint(e.toString());
-      debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      if (!e.toString().contains('User is not logged in')) {
+        debugPrint(s.toString());
+        showErrorSnackbar(context, e, s);
+      }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -112,8 +116,10 @@ class StatsDatabase {
           true;
     } catch (e, s) {
       debugPrint(e.toString());
-      debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      if (!e.toString().contains('User is not logged in')) {
+        debugPrint(s.toString());
+        showErrorSnackbar(context, e, s);
+      }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
