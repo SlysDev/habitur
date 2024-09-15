@@ -41,6 +41,7 @@ class UserLocalStorage extends ChangeNotifier {
       updateUserProperty('uid', FirebaseAuth.instance.currentUser!.uid);
       updateUserProperty(
           'username', FirebaseAuth.instance.currentUser!.displayName);
+      // TODO: fix error here; firebase auth is returning null for username
       debugPrint(
           'username is ${FirebaseAuth.instance.currentUser!.displayName}');
       updateUserProperty('email', FirebaseAuth.instance.currentUser!.email);
@@ -94,18 +95,24 @@ class UserLocalStorage extends ChangeNotifier {
   }
 
   void updateUserProperty(String propertyName, dynamic newValue) {
-    final updatedUser = UserModel(
-      username: propertyName == "username" ? newValue : currentUser.username,
-      email: propertyName == "email" ? newValue : currentUser.email,
-      userLevel: propertyName == "userLevel" ? newValue : currentUser.userLevel,
-      userXP: propertyName == "userXP" ? newValue : currentUser.userXP,
-      uid: propertyName == "uid" ? newValue : currentUser.uid,
-      stats: propertyName == "stats" ? newValue : currentUser.stats,
-      profilePicture: propertyName == "profilePicture"
-          ? newValue
-          : currentUser.profilePicture,
-    );
-    currentUser = updatedUser;
+    try {
+      final updatedUser = UserModel(
+        username: propertyName == "username" ? newValue : currentUser.username,
+        email: propertyName == "email" ? newValue : currentUser.email,
+        userLevel:
+            propertyName == "userLevel" ? newValue : currentUser.userLevel,
+        userXP: propertyName == "userXP" ? newValue : currentUser.userXP,
+        uid: propertyName == "uid" ? newValue : currentUser.uid,
+        stats: propertyName == "stats" ? newValue : currentUser.stats,
+        profilePicture: propertyName == "profilePicture"
+            ? newValue
+            : currentUser.profilePicture,
+      );
+      currentUser = updatedUser;
+    } catch (e, s) {
+      debugPrint(e.toString());
+      debugPrint(s.toString());
+    }
     notifyListeners();
   }
 

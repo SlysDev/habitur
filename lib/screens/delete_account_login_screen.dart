@@ -14,7 +14,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:habitur/providers/loading_state_provider.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 
-class LoginScreen extends StatelessWidget {
+class DeleteAcccountLoginScreen extends StatelessWidget {
   late final _auth = FirebaseAuth.instance;
   late String email;
   late String password;
@@ -28,7 +28,7 @@ class LoginScreen extends StatelessWidget {
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               const Flexible(child: kHabiturLogo),
               const Text(
-                'Welcome Back.',
+                'Please login again to delete your account',
                 textAlign: TextAlign.center,
                 style: kTitleTextStyle,
               ),
@@ -121,13 +121,6 @@ class LoginScreen extends StatelessWidget {
                           await Provider.of<UserLocalStorage>(context,
                                   listen: false)
                               .saveData(context);
-                          if (newUser.user!.displayName == null) {
-                            await _auth.currentUser?.updateDisplayName(
-                                Provider.of<UserLocalStorage>(context,
-                                        listen: false)
-                                    .currentUser
-                                    .username);
-                          }
                           await Provider.of<HabitsLocalStorage>(context,
                                   listen: false)
                               .uploadAllHabits(

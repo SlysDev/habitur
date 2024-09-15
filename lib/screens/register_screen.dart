@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/components/loading_overlay_wrapper.dart';
 import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/models/user.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/loading_state_provider.dart';
 import 'package:habitur/providers/login_registration_state.dart';
@@ -95,7 +96,18 @@ class RegisterScreen extends StatelessWidget {
                     if (newUser.user != null) {
                       Database db = Database();
                       debugPrint('New user created.');
-                      db.userDatabase.userSetup(username, email);
+                      _auth.currentUser?.updateDisplayName(username);
+                      await db.userDatabase.userSetup(username, email, context);
+                      Provider.of<UserLocalStorage>(context, listen: false)
+                              .currentUser =
+                          UserModel(
+                              username: username,
+                              bio: '',
+                              email: email,
+                              uid: newUser.user!.uid,
+                              userLevel: 0,
+                              userXP: 0,
+                              isAdmin: false);
                       Navigator.popAndPushNamed(context, 'home_screen');
                     }
                   } catch (e) {

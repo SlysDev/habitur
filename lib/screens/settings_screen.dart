@@ -7,6 +7,7 @@ import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/custom_alert_dialog.dart';
 import 'package:habitur/components/filled_text_field.dart';
 import 'package:habitur/components/inactive_elevated_button.dart';
+import 'package:habitur/components/loading_overlay_wrapper.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/components/network_indicator.dart';
 import 'package:habitur/components/primary-button.dart';
@@ -20,7 +21,9 @@ import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/loading_state_provider.dart';
 import 'package:habitur/providers/network_state_provider.dart';
+import 'package:habitur/screens/delete_account_login_screen.dart';
 import 'package:habitur/screens/login_screen.dart';
 import 'package:habitur/screens/splash_screen.dart';
 import 'package:habitur/screens/welcome_screen.dart';
@@ -49,524 +52,590 @@ class _SettingsScreenState extends State<SettingsScreen> {
     String email = Provider.of<UserLocalStorage>(context).currentUser.email;
     String username =
         Provider.of<UserLocalStorage>(context).currentUser.username;
-    return Scaffold(
-      body: FutureBuilder(
-        future: settingsData.init(context),
-        builder: (context, snapshot) {
-          Setting dailyReminders =
-              Provider.of<SettingsLocalStorage>(context).dailyReminders;
-          Setting numReminders =
-              Provider.of<SettingsLocalStorage>(context).numberOfReminders;
-          Setting firstReminderTime =
-              settingsData.getSettingByName('1st Reminder Time')!;
-          Setting secondReminderTime =
-              settingsData.getSettingByName('2nd Reminder Time')!;
-          Setting thirdReminderTime =
-              settingsData.getSettingByName('3rd Reminder Time')!;
-          return Container(
-            margin: EdgeInsets.all(20),
-            child: ListView(
-              children: [
-                Center(
-                  child: Text(
-                    'Reminders',
-                    style: kHeadingTextStyle,
+    return LoadingOverlayWrapper(
+      child: Scaffold(
+        body: FutureBuilder(
+          future: settingsData.init(context),
+          builder: (context, snapshot) {
+            Setting dailyReminders =
+                Provider.of<SettingsLocalStorage>(context).dailyReminders;
+            Setting numReminders =
+                Provider.of<SettingsLocalStorage>(context).numberOfReminders;
+            Setting firstReminderTime =
+                settingsData.getSettingByName('1st Reminder Time')!;
+            Setting secondReminderTime =
+                settingsData.getSettingByName('2nd Reminder Time')!;
+            Setting thirdReminderTime =
+                settingsData.getSettingByName('3rd Reminder Time')!;
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              child: ListView(
+                children: [
+                  Center(
+                    child: Text(
+                      'Reminders',
+                      style: kHeadingTextStyle,
+                    ),
                   ),
-                ),
-                SizedBox(height: gap),
-                StaticCard(
-                  child: Provider.of<HabitManager>(context).habits.isEmpty
-                      ? Center(
-                          child: Text(
-                            "You don't have any habits yet!",
+                  SizedBox(height: gap),
+                  StaticCard(
+                    child: Provider.of<HabitManager>(context).habits.isEmpty
+                        ? Center(
+                            child: Text(
+                              "You don't have any habits yet!",
+                              style: kMainDescription.copyWith(
+                                  color: Colors.white),
+                            ),
+                          )
+                        : Column(
+                            children: [
+                              Container(
+                                margin: EdgeInsets.only(
+                                    bottom:
+                                        dailyReminders.settingValue ? gap : 0),
+                                child: SwitchListTile(
+                                  activeColor: Colors.white,
+                                  activeTrackColor: kLightPrimaryColor,
+                                  inactiveTrackColor: kFadedBlue,
+                                  inactiveThumbColor: Colors.white,
+                                  visualDensity:
+                                      VisualDensity.adaptivePlatformDensity,
+                                  value: settingsData
+                                      .getSettingByName(
+                                          dailyReminders.settingName)!
+                                      .settingValue,
+                                  selected: dailyReminders.settingValue,
+                                  title: Text(
+                                    dailyReminders.settingName,
+                                    style: kMainDescription.copyWith(
+                                        color: Colors.white),
+                                  ),
+                                  onChanged: (newValue) async {
+                                    NotificationManager notificationManager =
+                                        NotificationManager();
+                                    await settingsData.updateSetting(
+                                        dailyReminders.settingName, newValue);
+                                    await db.settingsDatabase.updateSetting(
+                                        dailyReminders.settingName,
+                                        newValue,
+                                        context);
+                                    settingsData.updateSettings();
+                                    notificationManager
+                                        .cancelAllScheduledNotifications();
+                                    if (newValue) {
+                                      NotificationScheduler
+                                          notificationScheduler =
+                                          NotificationScheduler();
+                                      await notificationScheduler
+                                          .scheduleDefaultTrack(
+                                              context,
+                                              settingsData.numberOfReminders
+                                                  .settingValue);
+                                    }
+                                    notificationManager.printNotifications();
+                                  },
+                                ),
+                              ),
+                              dailyReminders.settingValue
+                                  ? Container(
+                                      margin: EdgeInsets.only(bottom: gap),
+                                      child: ListTile(
+                                        title: Text(
+                                          numReminders.settingName,
+                                          style: kMainDescription.copyWith(
+                                              color: Colors.white),
+                                        ),
+                                        trailing: DropdownButton(
+                                            onChanged: (value) async {
+                                              NotificationManager
+                                                  notificationManager =
+                                                  NotificationManager();
+                                              NotificationScheduler
+                                                  notificationScheduler =
+                                                  NotificationScheduler();
+                                              await settingsData.updateSetting(
+                                                  numReminders.settingName,
+                                                  value);
+                                              await db.settingsDatabase
+                                                  .updateSetting(
+                                                      numReminders.settingName,
+                                                      value,
+                                                      context);
+                                              settingsData.updateSettings();
+                                              await notificationManager
+                                                  .cancelAllScheduledNotifications();
+                                              await notificationScheduler
+                                                  .scheduleDefaultTrack(
+                                                      context,
+                                                      settingsData
+                                                          .numberOfReminders
+                                                          .settingValue);
+                                            },
+                                            value: numReminders.settingValue,
+                                            items: [
+                                              DropdownMenuItem(
+                                                value: 1,
+                                                child: Text('1',
+                                                    style: kMainDescription
+                                                        .copyWith(
+                                                            color:
+                                                                Colors.white)),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: 2,
+                                                child: Text('2',
+                                                    style: kMainDescription
+                                                        .copyWith(
+                                                            color:
+                                                                Colors.white)),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: 3,
+                                                child: Text('3',
+                                                    style: kMainDescription
+                                                        .copyWith(
+                                                            color:
+                                                                Colors.white)),
+                                              ),
+                                            ]),
+                                      ),
+                                    )
+                                  : Container(),
+                              dailyReminders.settingValue
+                                  ? Container(
+                                      margin: EdgeInsets.only(bottom: gap),
+                                      child: TimeSettingsListTile(
+                                          timeSetting: firstReminderTime),
+                                    )
+                                  : Container(),
+                              dailyReminders.settingValue &&
+                                      numReminders.settingValue > 1
+                                  ? Container(
+                                      margin: EdgeInsets.only(bottom: gap),
+                                      child: TimeSettingsListTile(
+                                          timeSetting: secondReminderTime),
+                                    )
+                                  : Container(),
+                              dailyReminders.settingValue &&
+                                      numReminders.settingValue > 2
+                                  ? Container(
+                                      margin: EdgeInsets.only(bottom: gap),
+                                      child: TimeSettingsListTile(
+                                          timeSetting: thirdReminderTime),
+                                    )
+                                  : Container(),
+                            ],
+                          ),
+                  ),
+                  SizedBox(height: 40),
+                  Center(
+                    child: Text(
+                      'Profile',
+                      style: kHeadingTextStyle,
+                    ),
+                  ),
+                  SizedBox(height: gap),
+                  StaticCard(
+                    child: Column(
+                      children: [
+                        !Provider.of<NetworkStateProvider>(context,
+                                    listen: false)
+                                .isConnected
+                            ? SizedBox(height: 10)
+                            : Container(),
+                        const NetworkIndicator(),
+                        !Provider.of<NetworkStateProvider>(context,
+                                    listen: false)
+                                .isConnected
+                            ? SizedBox(height: 25)
+                            : Container(),
+                        ListTile(
+                          title: Text(
+                            'Username',
                             style:
                                 kMainDescription.copyWith(color: Colors.white),
                           ),
-                        )
-                      : Column(
-                          children: [
-                            Container(
-                              margin: EdgeInsets.only(
-                                  bottom:
-                                      dailyReminders.settingValue ? gap : 0),
-                              child: SwitchListTile(
-                                activeColor: Colors.white,
-                                activeTrackColor: kLightPrimaryColor,
-                                inactiveTrackColor: kFadedBlue,
-                                inactiveThumbColor: Colors.white,
-                                visualDensity:
-                                    VisualDensity.adaptivePlatformDensity,
-                                value: settingsData
-                                    .getSettingByName(
-                                        dailyReminders.settingName)!
-                                    .settingValue,
-                                selected: dailyReminders.settingValue,
-                                title: Text(
-                                  dailyReminders.settingName,
-                                  style: kMainDescription.copyWith(
-                                      color: Colors.white),
+                          trailing: Container(
+                            width: 200,
+                            child: FilledTextField(
+                              enabled: auth.currentUser == null ||
+                                  Provider.of<NetworkStateProvider>(context,
+                                          listen: true)
+                                      .isConnected,
+                              hintText: 'Username',
+                              initialValue:
+                                  Provider.of<UserLocalStorage>(context)
+                                      .currentUser
+                                      .username,
+                              onChanged: (newValue) {
+                                username = newValue;
+                              },
+                            ),
+                          ),
+                        ),
+                        ListTile(
+                          title: Text(
+                            'Email',
+                            style:
+                                kMainDescription.copyWith(color: Colors.white),
+                          ),
+                          trailing: Container(
+                            width: 200,
+                            child: FilledTextField(
+                              enabled: Provider.of<NetworkStateProvider>(
+                                      context,
+                                      listen: true)
+                                  .isConnected,
+                              hintText: 'Email',
+                              initialValue:
+                                  Provider.of<UserLocalStorage>(context)
+                                      .currentUser
+                                      .email,
+                              onChanged: (newValue) {
+                                email = newValue;
+                              },
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        AnimatedContainer(
+                          duration: Duration(milliseconds: 800),
+                          height: isVerifyingEmail ? 52 : 0,
+                          curve: Curves.easeInOutSine,
+                          child: Center(
+                            child: AnimatedOpacity(
+                              duration: Duration(milliseconds: 800),
+                              opacity: isVerifyingEmail ? 1 : 0,
+                              curve: Curves.easeInOutSine,
+                              child: Text(
+                                'A verification email has been sent to $email',
+                                style: kMainDescription.copyWith(
+                                  color: Colors.white,
                                 ),
-                                onChanged: (newValue) async {
-                                  NotificationManager notificationManager =
-                                      NotificationManager();
-                                  await settingsData.updateSetting(
-                                      dailyReminders.settingName, newValue);
-                                  await db.settingsDatabase.updateSetting(
-                                      dailyReminders.settingName,
-                                      newValue,
-                                      context);
-                                  settingsData.updateSettings();
-                                  notificationManager
-                                      .cancelAllScheduledNotifications();
-                                  if (newValue) {
-                                    NotificationScheduler
-                                        notificationScheduler =
-                                        NotificationScheduler();
-                                    await notificationScheduler
-                                        .scheduleDefaultTrack(
-                                            context,
-                                            settingsData.numberOfReminders
-                                                .settingValue);
-                                  }
-                                  notificationManager.printNotifications();
-                                },
+                                textAlign: TextAlign.center,
                               ),
                             ),
-                            dailyReminders.settingValue
-                                ? Container(
-                                    margin: EdgeInsets.only(bottom: gap),
-                                    child: ListTile(
-                                      title: Text(
-                                        numReminders.settingName,
-                                        style: kMainDescription.copyWith(
-                                            color: Colors.white),
-                                      ),
-                                      trailing: DropdownButton(
-                                          onChanged: (value) async {
-                                            NotificationManager
-                                                notificationManager =
-                                                NotificationManager();
-                                            NotificationScheduler
-                                                notificationScheduler =
-                                                NotificationScheduler();
-                                            await settingsData.updateSetting(
-                                                numReminders.settingName,
-                                                value);
-                                            await db.settingsDatabase
-                                                .updateSetting(
-                                                    numReminders.settingName,
-                                                    value,
-                                                    context);
-                                            settingsData.updateSettings();
-                                            await notificationManager
-                                                .cancelAllScheduledNotifications();
-                                            await notificationScheduler
-                                                .scheduleDefaultTrack(
-                                                    context,
-                                                    settingsData
-                                                        .numberOfReminders
-                                                        .settingValue);
-                                          },
-                                          value: numReminders.settingValue,
-                                          items: [
-                                            DropdownMenuItem(
-                                              value: 1,
-                                              child: Text('1',
-                                                  style:
-                                                      kMainDescription.copyWith(
-                                                          color: Colors.white)),
-                                            ),
-                                            DropdownMenuItem(
-                                              value: 2,
-                                              child: Text('2',
-                                                  style:
-                                                      kMainDescription.copyWith(
-                                                          color: Colors.white)),
-                                            ),
-                                            DropdownMenuItem(
-                                              value: 3,
-                                              child: Text('3',
-                                                  style:
-                                                      kMainDescription.copyWith(
-                                                          color: Colors.white)),
-                                            ),
-                                          ]),
-                                    ),
-                                  )
-                                : Container(),
-                            dailyReminders.settingValue
-                                ? Container(
-                                    margin: EdgeInsets.only(bottom: gap),
-                                    child: TimeSettingsListTile(
-                                        timeSetting: firstReminderTime),
-                                  )
-                                : Container(),
-                            dailyReminders.settingValue &&
-                                    numReminders.settingValue > 1
-                                ? Container(
-                                    margin: EdgeInsets.only(bottom: gap),
-                                    child: TimeSettingsListTile(
-                                        timeSetting: secondReminderTime),
-                                  )
-                                : Container(),
-                            dailyReminders.settingValue &&
-                                    numReminders.settingValue > 2
-                                ? Container(
-                                    margin: EdgeInsets.only(bottom: gap),
-                                    child: TimeSettingsListTile(
-                                        timeSetting: thirdReminderTime),
-                                  )
-                                : Container(),
-                          ],
+                          ),
                         ),
-                ),
-                SizedBox(height: 40),
-                Center(
-                  child: Text(
-                    'Profile',
-                    style: kHeadingTextStyle,
-                  ),
-                ),
-                SizedBox(height: gap),
-                StaticCard(
-                  child: Column(
-                    children: [
-                      !Provider.of<NetworkStateProvider>(context, listen: false)
-                              .isConnected
-                          ? SizedBox(height: 10)
-                          : Container(),
-                      const NetworkIndicator(),
-                      !Provider.of<NetworkStateProvider>(context, listen: false)
-                              .isConnected
-                          ? SizedBox(height: 25)
-                          : Container(),
-                      ListTile(
-                        title: Text(
-                          'Username',
-                          style: kMainDescription.copyWith(color: Colors.white),
+                        AnimatedContainer(
+                          duration: Duration(milliseconds: 800),
+                          height:
+                              hasUpdatedUsername && !isVerifyingEmail ? 40 : 0,
+                          curve: Curves.ease,
+                          child: Center(
+                            child: AnimatedOpacity(
+                              duration: Duration(milliseconds: 800),
+                              opacity: hasUpdatedUsername && !isVerifyingEmail
+                                  ? 1
+                                  : 0,
+                              curve: Curves.ease,
+                              child: Text(
+                                'Username updated!',
+                                style: kMainDescription.copyWith(
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
                         ),
-                        trailing: Container(
-                          width: 200,
-                          child: FilledTextField(
-                            enabled: auth.currentUser == null ||
+                        AnimatedContainer(
+                          duration: Duration(milliseconds: 800),
+                          height: hasFailed &&
+                                  !Provider.of<NetworkStateProvider>(context)
+                                      .isConnected
+                              ? 70
+                              : hasFailed
+                                  ? 40
+                                  : 0,
+                          curve: Curves.ease,
+                          child: Center(
+                            child: AnimatedOpacity(
+                              duration: Duration(milliseconds: 800),
+                              opacity: hasFailed ? 1 : 0,
+                              curve: Curves.ease,
+                              child: Text(
+                                'Failed to upload new profile online.' +
+                                    (!Provider.of<NetworkStateProvider>(context)
+                                            .isConnected
+                                        ? ' Looks like you\'re offline.'
+                                        : ''),
+                                style: kMainDescription.copyWith(
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        auth.currentUser == null ||
                                 Provider.of<NetworkStateProvider>(context,
                                         listen: true)
-                                    .isConnected,
-                            hintText: 'Username',
-                            initialValue: Provider.of<UserLocalStorage>(context)
-                                .currentUser
-                                .username,
-                            onChanged: (newValue) {
-                              username = newValue;
-                            },
-                          ),
-                        ),
-                      ),
-                      ListTile(
-                        title: Text(
-                          'Email',
-                          style: kMainDescription.copyWith(color: Colors.white),
-                        ),
-                        trailing: Container(
-                          width: 200,
-                          child: FilledTextField(
-                            enabled: Provider.of<NetworkStateProvider>(context,
-                                    listen: true)
-                                .isConnected,
-                            hintText: 'Email',
-                            initialValue: Provider.of<UserLocalStorage>(context)
-                                .currentUser
-                                .email,
-                            onChanged: (newValue) {
-                              email = newValue;
-                            },
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      AnimatedContainer(
-                        duration: Duration(milliseconds: 800),
-                        height: isVerifyingEmail ? 52 : 0,
-                        curve: Curves.easeInOutSine,
-                        child: Center(
-                          child: AnimatedOpacity(
-                            duration: Duration(milliseconds: 800),
-                            opacity: isVerifyingEmail ? 1 : 0,
-                            curve: Curves.easeInOutSine,
-                            child: Text(
-                              'A verification email has been sent to $email',
-                              style: kMainDescription.copyWith(
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ),
-                      AnimatedContainer(
-                        duration: Duration(milliseconds: 800),
-                        height:
-                            hasUpdatedUsername && !isVerifyingEmail ? 40 : 0,
-                        curve: Curves.ease,
-                        child: Center(
-                          child: AnimatedOpacity(
-                            duration: Duration(milliseconds: 800),
-                            opacity:
-                                hasUpdatedUsername && !isVerifyingEmail ? 1 : 0,
-                            curve: Curves.ease,
-                            child: Text(
-                              'Username updated!',
-                              style: kMainDescription.copyWith(
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ),
-                      AnimatedContainer(
-                        duration: Duration(milliseconds: 800),
-                        height: hasFailed &&
-                                !Provider.of<NetworkStateProvider>(context)
                                     .isConnected
-                            ? 70
-                            : hasFailed
-                                ? 40
-                                : 0,
-                        curve: Curves.ease,
-                        child: Center(
-                          child: AnimatedOpacity(
-                            duration: Duration(milliseconds: 800),
-                            opacity: hasFailed ? 1 : 0,
-                            curve: Curves.ease,
-                            child: Text(
-                              'Failed to upload new profile online.' +
-                                  (!Provider.of<NetworkStateProvider>(context)
-                                          .isConnected
-                                      ? ' Looks like you\'re offline.'
-                                      : ''),
-                              style: kMainDescription.copyWith(
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      auth.currentUser == null ||
-                              Provider.of<NetworkStateProvider>(context,
-                                      listen: true)
-                                  .isConnected
-                          ? PrimaryButton(
-                              text: 'Update Profile',
-                              onPressed: () async {
-                                if (email !=
-                                    Provider.of<UserLocalStorage>(context,
-                                            listen: false)
-                                        .currentUser
-                                        .email) {
-                                  try {
-                                    Provider.of<UserLocalStorage>(context,
-                                            listen: false)
-                                        .updateUserProperty('email', email);
-                                    auth.currentUser!
-                                        .verifyBeforeUpdateEmail(email);
-                                    db.userDatabase.uploadUserData(context);
-                                    Provider.of<NetworkStateProvider>(context,
-                                            listen: false)
-                                        .isConnected = true;
-                                    setState(() {
-                                      isVerifyingEmail = true;
-                                    });
-                                    Future.delayed(Duration(seconds: 5), () {
-                                      setState(() {
-                                        isVerifyingEmail = false;
-                                      });
-                                    });
-                                  } catch (e) {
-                                    Provider.of<NetworkStateProvider>(context,
-                                            listen: false)
-                                        .isConnected = false;
-                                    setState(() {
-                                      hasFailed = true;
-                                    });
-                                    Future.delayed(Duration(seconds: 5), () {
-                                      setState(() {
-                                        hasFailed = false;
-                                      });
-                                    });
-                                  }
-                                }
-                                if (username !=
-                                    Provider.of<UserLocalStorage>(context,
-                                            listen: false)
-                                        .currentUser
-                                        .username) {
-                                  try {
-                                    Provider.of<UserLocalStorage>(context,
-                                            listen: false)
-                                        .updateUserProperty(
-                                            'username', username);
-                                    if (auth.currentUser != null) {
+                            ? PrimaryButton(
+                                text: 'Update Profile',
+                                onPressed: () async {
+                                  if (email !=
+                                      Provider.of<UserLocalStorage>(context,
+                                              listen: false)
+                                          .currentUser
+                                          .email) {
+                                    try {
+                                      Provider.of<UserLocalStorage>(context,
+                                              listen: false)
+                                          .updateUserProperty('email', email);
                                       auth.currentUser!
-                                          .updateDisplayName(username);
+                                          .verifyBeforeUpdateEmail(email);
                                       db.userDatabase.uploadUserData(context);
                                       Provider.of<NetworkStateProvider>(context,
                                               listen: false)
                                           .isConnected = true;
+                                      setState(() {
+                                        isVerifyingEmail = true;
+                                      });
+                                      Future.delayed(Duration(seconds: 5), () {
+                                        setState(() {
+                                          isVerifyingEmail = false;
+                                        });
+                                      });
+                                    } catch (e) {
+                                      Provider.of<NetworkStateProvider>(context,
+                                              listen: false)
+                                          .isConnected = false;
+                                      setState(() {
+                                        hasFailed = true;
+                                      });
+                                      Future.delayed(Duration(seconds: 5), () {
+                                        setState(() {
+                                          hasFailed = false;
+                                        });
+                                      });
                                     }
-                                    setState(() {
-                                      hasUpdatedUsername = true;
-                                    });
-                                    Future.delayed(Duration(seconds: 5), () {
-                                      setState(() {
-                                        hasUpdatedUsername = false;
-                                      });
-                                    });
-                                  } catch (e) {
-                                    Provider.of<NetworkStateProvider>(context,
-                                            listen: false)
-                                        .isConnected = false;
-                                    setState(() {
-                                      hasFailed = true;
-                                    });
-                                    Future.delayed(Duration(seconds: 5), () {
-                                      setState(() {
-                                        hasFailed = false;
-                                      });
-                                    });
                                   }
-                                }
-                                Provider.of<UserLocalStorage>(context,
-                                        listen: false)
-                                    .saveData(context);
-                              },
-                            )
-                          : InactiveElevatedButton(
-                              child: Text('Update Profile')),
-                      SizedBox(height: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          db.userDatabase.isLoggedIn
-                              ? AsideButton(
-                                  text: 'Log out',
-                                  onPressed: () async {
-                                    late final _auth = FirebaseAuth.instance;
-                                    await _auth.signOut();
+                                  if (username !=
+                                      Provider.of<UserLocalStorage>(context,
+                                              listen: false)
+                                          .currentUser
+                                          .username) {
+                                    try {
+                                      Provider.of<UserLocalStorage>(context,
+                                              listen: false)
+                                          .updateUserProperty(
+                                              'username', username);
+                                      if (auth.currentUser != null) {
+                                        auth.currentUser!
+                                            .updateDisplayName(username);
+                                        db.userDatabase.uploadUserData(context);
+                                        Provider.of<NetworkStateProvider>(
+                                                context,
+                                                listen: false)
+                                            .isConnected = true;
+                                      }
+                                      setState(() {
+                                        hasUpdatedUsername = true;
+                                      });
+                                      Future.delayed(Duration(seconds: 5), () {
+                                        setState(() {
+                                          hasUpdatedUsername = false;
+                                        });
+                                      });
+                                    } catch (e) {
+                                      Provider.of<NetworkStateProvider>(context,
+                                              listen: false)
+                                          .isConnected = false;
+                                      setState(() {
+                                        hasFailed = true;
+                                      });
+                                      Future.delayed(Duration(seconds: 5), () {
+                                        setState(() {
+                                          hasFailed = false;
+                                        });
+                                      });
+                                    }
+                                  }
+                                  Provider.of<UserLocalStorage>(context,
+                                          listen: false)
+                                      .saveData(context);
+                                },
+                              )
+                            : InactiveElevatedButton(
+                                child: Text('Update Profile')),
+                        SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            db.userDatabase.isLoggedIn
+                                ? AsideButton(
+                                    text: 'Log out',
+                                    onPressed: () async {
+                                      Provider.of<LoadingStateProvider>(context,
+                                              listen: false)
+                                          .setLoading(true);
+
+                                      late final _auth = FirebaseAuth.instance;
+                                      await _auth.signOut();
+                                      Provider.of<UserLocalStorage>(context,
+                                              listen: false)
+                                          .updateUserProperty('email', 'N/A');
+                                      Provider.of<LoadingStateProvider>(context,
+                                              listen: false)
+                                          .setLoading(false);
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  WelcomeScreen()),
+                                          (route) => false);
+                                      Navigator.popAndPushNamed(
+                                          context, 'welcome_screen');
+                                    })
+                                : AsideButton(
+                                    text: 'Log in',
+                                    onPressed: () async {
+                                      Navigator.pushNamed(
+                                          context, 'login_screen');
+                                    }),
+                            AsideButton(
+                                text: 'Delete Account',
+                                onPressed: () async {
+                                  dynamic result = await showDialog(
+                                    context: context,
+                                    builder: (context) => CustomAlertDialog(
+                                      title: 'Warning',
+                                      content: Text(
+                                          'Are you sure you want to delete your account? This cannot be undone.'),
+                                      actions: [
+                                        AsideButton(
+                                            onPressed: () {
+                                              Navigator.pop(context, true);
+                                            },
+                                            text: 'Yes'),
+                                        SizedBox(width: 10),
+                                        AsideButton(
+                                            onPressed: () {
+                                              Navigator.pop(context, false);
+                                            },
+                                            text: 'No'),
+                                      ],
+                                    ),
+                                  );
+                                  result == null ? result = false : null;
+                                  if (result) {
+                                    try {
+                                      Provider.of<LoadingStateProvider>(context,
+                                              listen: false)
+                                          .setLoading(true);
+                                      late final _auth = FirebaseAuth.instance;
+                                      Provider.of<LoadingStateProvider>(context,
+                                              listen: false)
+                                          .setLoading(false);
+                                      Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  WelcomeScreen()),
+                                          (route) => false);
+                                      Navigator.popAndPushNamed(
+                                          context, 'welcome_screen');
+                                    } catch (e) {
+                                      debugPrint(e.toString());
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  DeleteAcccountLoginScreen()));
+                                    }
+                                  }
+                                }),
+                            AsideButton(
+                                text: 'Clear Data',
+                                onPressed: () async {
+                                  dynamic result = await showDialog(
+                                    context: context,
+                                    builder: (context) => CustomAlertDialog(
+                                      title: 'Warning',
+                                      content: Text(
+                                          'Are you sure you want to clear all account data (habits, stats, etc.)? This cannot be undone.'),
+                                      actions: [
+                                        AsideButton(
+                                            onPressed: () {
+                                              Navigator.pop(context, true);
+                                            },
+                                            text: 'Yes'),
+                                        SizedBox(width: 10),
+                                        AsideButton(
+                                            onPressed: () {
+                                              Navigator.pop(context, false);
+                                            },
+                                            text: 'No'),
+                                      ],
+                                    ),
+                                  );
+                                  result == null ? result = false : null;
+                                  if (result) {
+                                    Provider.of<LoadingStateProvider>(context,
+                                            listen: false)
+                                        .setLoading(true);
+                                    Provider.of<HabitManager>(context,
+                                            listen: false)
+                                        .deleteAllHabits();
+                                    await Provider.of<HabitsLocalStorage>(
+                                            context,
+                                            listen: false)
+                                        .deleteData(context);
                                     Provider.of<UserLocalStorage>(context,
                                             listen: false)
-                                        .updateUserProperty('email', 'N/A');
+                                        .clearStats();
+                                    await Provider.of<SettingsLocalStorage>(
+                                            context,
+                                            listen: false)
+                                        .populateDefaultSettingsData();
+                                    Provider.of<SettingsLocalStorage>(context,
+                                            listen: false)
+                                        .updateSettings();
+                                    db.settingsDatabase
+                                        .populateDefaultSettingsData(context);
+                                    if (db.userDatabase.isLoggedIn) {
+                                      await db.habitDatabase
+                                          .clearHabits(context);
+                                      await db.statsDatabase
+                                          .clearStatistics(context);
+                                    }
+                                    Provider.of<LoadingStateProvider>(context,
+                                            listen: false)
+                                        .setLoading(false);
                                     Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                WelcomeScreen()),
+                                                const SplashScreen()),
                                         (route) => false);
-                                    Navigator.popAndPushNamed(
-                                        context, 'welcome_screen');
-                                  })
-                              : AsideButton(
-                                  text: 'Log in',
-                                  onPressed: () async {
-                                    late final _auth = FirebaseAuth.instance;
-                                    await _auth.signOut();
-                                    Navigator.pushNamed(
-                                        context, 'login_screen');
-                                  }),
-                          AsideButton(
-                              text: 'Delete Account',
-                              onPressed: () async {
-                                late final _auth = FirebaseAuth.instance;
-                                await _auth.currentUser!.delete();
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => WelcomeScreen()),
-                                    (route) => false);
-                                Navigator.popAndPushNamed(
-                                    context, 'welcome_screen');
-                              }),
-                          AsideButton(
-                              text: 'Clear Data',
-                              onPressed: () async {
-                                dynamic result = await showDialog(
-                                  context: context,
-                                  builder: (context) => CustomAlertDialog(
-                                    title: 'Warning',
-                                    content: Text(
-                                        'Are you sure you want to clear all account data (habits, stats, etc.)? This cannot be undone.'),
-                                    actions: [
-                                      AsideButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, true);
-                                          },
-                                          text: 'Yes'),
-                                      SizedBox(width: 10),
-                                      AsideButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, false);
-                                          },
-                                          text: 'No'),
-                                    ],
-                                  ),
-                                );
-                                result == null ? result = false : null;
-                                if (result) {
-                                  Provider.of<HabitManager>(context,
-                                          listen: false)
-                                      .deleteAllHabits();
-                                  await Provider.of<HabitsLocalStorage>(context,
-                                          listen: false)
-                                      .deleteData(context);
-                                  Provider.of<UserLocalStorage>(context,
-                                          listen: false)
-                                      .clearStats();
-                                  await Provider.of<SettingsLocalStorage>(
-                                          context,
-                                          listen: false)
-                                      .populateDefaultSettingsData();
-                                  Provider.of<SettingsLocalStorage>(context,
-                                          listen: false)
-                                      .updateSettings();
-                                  db.settingsDatabase
-                                      .populateDefaultSettingsData(context);
-                                  if (db.userDatabase.isLoggedIn) {
-                                    await db.habitDatabase.clearHabits(context);
-                                    await db.statsDatabase
-                                        .clearStatistics(context);
                                   }
-                                  Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const SplashScreen()),
-                                      (route) => false);
-                                }
-                              }),
-                        ],
-                      ),
-                      Provider.of<UserLocalStorage>(context, listen: false)
-                              .currentUser
-                              .isAdmin
-                          ? AsideButton(
-                              text: 'Admin Panel',
-                              onPressed: () {
-                                Navigator.popAndPushNamed(
-                                    context, 'admin_screen');
-                              })
-                          : Container(),
-                    ],
+                                }),
+                          ],
+                        ),
+                        Provider.of<UserLocalStorage>(context, listen: false)
+                                .currentUser
+                                .isAdmin
+                            ? AsideButton(
+                                text: 'Admin Panel',
+                                onPressed: () {
+                                  Navigator.popAndPushNamed(
+                                      context, 'admin_screen');
+                                })
+                            : Container(),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-      bottomNavigationBar: NavBar(
-        currentPage: 'settings',
+                ],
+              ),
+            );
+          },
+        ),
+        bottomNavigationBar: NavBar(
+          currentPage: 'settings',
+        ),
       ),
     );
   }

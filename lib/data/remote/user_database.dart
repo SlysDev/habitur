@@ -12,22 +12,34 @@ import 'package:provider/provider.dart';
 class UserDatabase {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  Future<void> userSetup(String username, String email) async {
-    CollectionReference users = _firestore.collection('users');
-    String uid = _auth.currentUser!.uid.toString();
-    DocumentReference userDoc = users.doc(uid); // create a new doc w/ uid.
-    userDoc.set({
-      'username': username,
-      'bio': '',
-      'email': email,
-      'uid': uid,
-      'stats': {'totalHabitsCompleted': 0, 'statPoints': []},
-      'userLevel': 1,
-      'userXP': 0,
-      'isAdmin': false,
-      'lastUpdated': DateTime.now()
-    });
-    return;
+  Future<void> userSetup(String username, String email, context) async {
+    try {
+      CollectionReference users = _firestore.collection('users');
+      String uid = _auth.currentUser!.uid.toString();
+      DocumentReference userDoc = users.doc(uid); // create a new doc w/ uid.
+      userDoc.set({
+        'username': username,
+        'bio': '',
+        'email': email,
+        'uid': uid,
+        'stats': {'totalHabitsCompleted': 0, 'statPoints': []},
+        'userLevel': 1,
+        'userXP': 0,
+        'isAdmin': false,
+        'lastUpdated': DateTime.now()
+      });
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          true;
+      return;
+    } catch (e, s) {
+      debugPrint(e.toString());
+      if (!e.toString().contains('User is not logged in')) {
+        debugPrint(s.toString());
+        showErrorSnackbar(context, e, s);
+      }
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
+    }
   }
 
   get userData async {
