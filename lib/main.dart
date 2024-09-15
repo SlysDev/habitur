@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/data/local/auth_local_storage.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
@@ -49,8 +50,13 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  Directory directory = await path_provider.getApplicationDocumentsDirectory();
-  await Hive.initFlutter(directory.path);
+  if (kIsWeb) {
+    await Hive.initFlutter();
+  } else {
+    Directory directory =
+        await path_provider.getApplicationDocumentsDirectory();
+    await Hive.initFlutter(directory.path);
+  }
   Hive.registerAdapter(HabitAdapter());
   Hive.registerAdapter(StatPointAdapter());
   Hive.registerAdapter(SettingAdapter());
