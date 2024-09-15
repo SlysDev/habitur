@@ -64,18 +64,6 @@ class _HabitsScreenState extends State<HabitsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         shadowColor: Colors.transparent,
-        actions: [
-          Container(
-            margin: EdgeInsets.all(5),
-            child: IconButton(
-                onPressed: () => Navigator.pushNamed(context, 'profile-screen'),
-                icon: Icon(
-                  Icons.menu_rounded,
-                  color: kPrimaryColor,
-                  size: 30,
-                )),
-          )
-        ],
         automaticallyImplyLeading: false,
       ),
       body: Padding(

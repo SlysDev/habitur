@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/constants.dart';
@@ -46,7 +47,11 @@ class _MultiStatLineGraphState extends State<MultiStatLineGraph> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Platform.isIOS ? _buildCupertinoPicker() : _buildDropdown(),
+          kIsWeb
+              ? _buildDropdown()
+              : Platform.isIOS
+                  ? _buildCupertinoPicker()
+                  : _buildDropdown(),
           // Dropdown for selecting the stat
           const SizedBox(height: 16), // Spacing between dropdown and graph
 
