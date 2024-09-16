@@ -29,8 +29,6 @@ class AddHabitScreenProvider extends ChangeNotifier {
 
   set habit(Habit habit) {
     _habit = habit;
-    titleController.text =
-        habit.title; // Keep the controller in sync with the habit state
     notifyListeners();
   }
 

@@ -22,6 +22,7 @@ class FilledTextField extends StatelessWidget {
       obscureText: obscureText,
       cursorColor: Colors.white,
       onChanged: onChanged,
+      cursorOpacityAnimates: true,
       controller: controller ??
           (initialValue != null
               ? TextEditingController(text: initialValue)
