@@ -111,7 +111,7 @@ class StatsDatabase {
           'resetPeriod': 0,
         }, SetOptions(merge: true));
       }
-      lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

@@ -1,4 +1,4 @@
-package com.example.habitur_new_version
+package com.example.habitur
 
 import io.flutter.embedding.android.FlutterActivity
 

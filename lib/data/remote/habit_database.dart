@@ -120,7 +120,7 @@ class HabitDatabase {
           }
         }
       }
-      lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -190,7 +190,7 @@ class HabitDatabase {
             .toList(),
         'stats': dataConverter.dbStatPointsToMap(habit.stats),
       });
-      lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -214,7 +214,7 @@ class HabitDatabase {
       for (var doc in docs) {
         await _updateHabitDoc(habit, doc);
       }
-      lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context);
 
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;

@@ -135,7 +135,7 @@ class UserDatabase {
                 .currentUser
                 .isAdmin
                 .toString());
-        lastUpdatedManager.syncLastUpdated(context);
+        await lastUpdatedManager.syncLastUpdated(context);
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
