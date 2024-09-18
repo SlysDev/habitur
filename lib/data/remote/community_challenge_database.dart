@@ -145,7 +145,7 @@ class CommunityChallengeDatabase {
           }
         }
       }
-      lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -164,7 +164,7 @@ class CommunityChallengeDatabase {
       await communityChallengesRef.add(newChallenge);
 
       loadCommunityChallenges(context);
-      lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -190,7 +190,7 @@ class CommunityChallengeDatabase {
       }
 
       loadCommunityChallenges(context);
-      lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -216,7 +216,7 @@ class CommunityChallengeDatabase {
       }
 
       loadCommunityChallenges(context);
-      lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
