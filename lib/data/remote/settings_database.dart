@@ -58,10 +58,16 @@ class SettingsDatabase {
       CollectionReference users = _firestore.collection('users');
       DocumentSnapshot userSnapshot =
           await users.doc(_auth.currentUser!.uid.toString()).get();
+      try {
+        userSnapshot.get('settings');
+      } catch (e, s) {
+        populateDefaultSettingsData(context);
+      }
+      List<Setting> settings =
+          dataConverter.dbListToSettings(userSnapshot.get('settings'));
       if (userSnapshot.exists) {
         Provider.of<UserLocalStorage>(context, listen: false)
-            .updateUserProperty('settings',
-                dataConverter.dbListToSettings(userSnapshot.get('settings')));
+            .updateUserProperty('settings', settings);
       }
     } catch (e, s) {
       debugPrint(e.toString());
