@@ -20,19 +20,20 @@ class _SmartNotificationSwitchState extends State<SmartNotificationSwitch> {
     return StaticCard(
       color: kFadedGreen,
       opacity: 0.2,
-      padding: 16,
+      padding: 10,
       child: SwitchListTile.adaptive(
         title: Row(
           children: [
             Icon(
               Icons.bolt,
               color: kLightGreenAccent,
-              size: 40,
+              size: 36,
             ),
             SizedBox(
               width: 10,
             ),
-            const Text('Smart Notifications', style: kMainDescription),
+            Text('Smart Notifications',
+                style: kMainDescription.copyWith(fontSize: 16)),
           ],
         ),
         onChanged: (value) {
