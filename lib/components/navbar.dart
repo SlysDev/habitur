@@ -30,8 +30,10 @@ class NavBar extends StatelessWidget {
               size: 25,
             ),
             onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, 'home_screen', (route) => false);
+              currentPage != 'home'
+                  ? Navigator.pushNamedAndRemoveUntil(
+                      context, 'home_screen', (route) => false)
+                  : null;
             },
           ),
           NavItem(
@@ -41,8 +43,10 @@ class NavBar extends StatelessWidget {
               size: 25,
             ),
             onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, 'habits_screen', (route) => false);
+              currentPage != 'habits'
+                  ? Navigator.pushNamedAndRemoveUntil(
+                      context, 'habits_screen', (route) => false)
+                  : null;
             },
           ),
           Container(
@@ -68,8 +72,10 @@ class NavBar extends StatelessWidget {
               color: currentPage == 'statistics' ? kPrimaryColor : kGray,
             ),
             onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, 'statistics_screen', (route) => false);
+              currentPage != 'statistics'
+                  ? Navigator.pushNamedAndRemoveUntil(
+                      context, 'statistics_screen', (route) => false)
+                  : null;
             },
           ),
           NavItem(
@@ -78,8 +84,10 @@ class NavBar extends StatelessWidget {
               color: currentPage == 'settings' ? kPrimaryColor : kGray,
             ),
             onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, 'settings_screen', (route) => false);
+              currentPage != 'settings'
+                  ? Navigator.pushNamedAndRemoveUntil(
+                      context, 'settings_screen', (route) => false)
+                  : null;
             },
           ),
         ],
