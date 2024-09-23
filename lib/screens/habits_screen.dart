@@ -61,69 +61,66 @@ class _HabitsScreenState extends State<HabitsScreen> {
   Widget build(BuildContext context) {
     Provider.of<HabitManager>(context, listen: false).resetHabits(context);
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            HomeGreetingHeader(),
-            // AsideButton(
-            //     text: 'schedule test notifs',
-            //     onPressed: () async {
-            //       NotificationManager notificationManager =
-            //           NotificationManager();
-            //       await notificationManager.cancelAllScheduledNotifications();
-            //       NotificationScheduler notificationScheduler =
-            //           NotificationScheduler();
-            //       await notificationScheduler.scheduleTestDefaultTrack(context);
-            //     }),
-            // AsideButton(
-            //     text: 'reschedule notif track',
-            //     onPressed: () async {
-            //       NotificationManager notificationManager =
-            //           NotificationManager();
-            //       await notificationManager.cancelAllScheduledNotifications();
-            //       NotificationScheduler notificationScheduler =
-            //           NotificationScheduler();
-            //       int numberOfReminders =
-            //           Provider.of<SettingsLocalStorage>(context, listen: false)
-            //               .numberOfReminders
-            //               .settingValue;
-            //       await notificationScheduler.scheduleDefaultTrack(
-            //           context, numberOfReminders);
-            //       notificationManager.printNotifications();
-            //     }),
-            // AsideButton(
-            //     text: 'clear habits data',
-            //     onPressed: () async {
-            //       await Provider.of<HabitsLocalStorage>(context, listen: false)
-            //           .deleteData();
-            //     }),
-            // AsideButton(
-            //     text: 'load data from DB',
-            //     onPressed: () async {
-            //       try {
-            //         Database db = Database();
-            //         await db.habitDatabase.loadHabits(context);
-            //         Provider.of<NetworkStateProvider>(context, listen: false)
-            //             .isConnected = true;
-            //       } catch (e) {
-            //         Provider.of<NetworkStateProvider>(context, listen: false)
-            //             .isConnected = false;
-            //       }
-            //     }),
-            HabitCardList(
-              onRefresh: () => loadData(context),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-          ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              HomeGreetingHeader(),
+              // AsideButton(
+              //     text: 'schedule test notifs',
+              //     onPressed: () async {
+              //       NotificationManager notificationManager =
+              //           NotificationManager();
+              //       await notificationManager.cancelAllScheduledNotifications();
+              //       NotificationScheduler notificationScheduler =
+              //           NotificationScheduler();
+              //       await notificationScheduler.scheduleTestDefaultTrack(context);
+              //     }),
+              // AsideButton(
+              //     text: 'reschedule notif track',
+              //     onPressed: () async {
+              //       NotificationManager notificationManager =
+              //           NotificationManager();
+              //       await notificationManager.cancelAllScheduledNotifications();
+              //       NotificationScheduler notificationScheduler =
+              //           NotificationScheduler();
+              //       int numberOfReminders =
+              //           Provider.of<SettingsLocalStorage>(context, listen: false)
+              //               .numberOfReminders
+              //               .settingValue;
+              //       await notificationScheduler.scheduleDefaultTrack(
+              //           context, numberOfReminders);
+              //       notificationManager.printNotifications();
+              //     }),
+              // AsideButton(
+              //     text: 'clear habits data',
+              //     onPressed: () async {
+              //       await Provider.of<HabitsLocalStorage>(context, listen: false)
+              //           .deleteData();
+              //     }),
+              // AsideButton(
+              //     text: 'load data from DB',
+              //     onPressed: () async {
+              //       try {
+              //         Database db = Database();
+              //         await db.habitDatabase.loadHabits(context);
+              //         Provider.of<NetworkStateProvider>(context, listen: false)
+              //             .isConnected = true;
+              //       } catch (e) {
+              //         Provider.of<NetworkStateProvider>(context, listen: false)
+              //             .isConnected = false;
+              //       }
+              //     }),
+              HabitCardList(
+                onRefresh: () => loadData(context),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: NavBar(

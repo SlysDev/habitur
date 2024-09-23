@@ -18,23 +18,20 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            HomeGreetingHeader(),
-            SizedBox(height: 20),
-            CommunityHabitList(onRefresh: () async {
-              DataManager dataManager = DataManager();
-              await dataManager.loadData(context);
-            }),
-          ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              HomeGreetingHeader(),
+              SizedBox(height: 20),
+              CommunityHabitList(onRefresh: () async {
+                DataManager dataManager = DataManager();
+                await dataManager.loadData(context);
+              }),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: NavBar(
