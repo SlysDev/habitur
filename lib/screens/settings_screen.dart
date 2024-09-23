@@ -111,6 +111,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         color: Colors.white),
                                   ),
                                   onChanged: (newValue) async {
+                                    Provider.of<LoadingStateProvider>(context,
+                                            listen: false)
+                                        .setLoading(true);
                                     NotificationManager notificationManager =
                                         NotificationManager();
                                     await settingsData.updateSetting(
@@ -120,8 +123,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         newValue,
                                         context);
                                     settingsData.updateSettings();
-                                    notificationManager
+                                    await notificationManager
                                         .cancelAllScheduledNotifications();
+                                    await Provider.of<HabitManager>(context,
+                                            listen: false)
+                                        .scheduleSmartHabitNotifs();
                                     if (newValue) {
                                       NotificationScheduler
                                           notificationScheduler =
@@ -132,7 +138,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               settingsData.numberOfReminders
                                                   .settingValue);
                                     }
-                                    notificationManager.printNotifications();
+                                    await notificationManager
+                                        .printNotifications();
+                                    Provider.of<LoadingStateProvider>(context,
+                                            listen: false)
+                                        .setLoading(false);
                                   },
                                 ),
                               ),
@@ -147,6 +157,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         ),
                                         trailing: DropdownButton(
                                             onChanged: (value) async {
+                                              Provider.of<LoadingStateProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .setLoading(true);
                                               NotificationManager
                                                   notificationManager =
                                                   NotificationManager();
@@ -170,6 +184,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                       settingsData
                                                           .numberOfReminders
                                                           .settingValue);
+                                              Provider.of<LoadingStateProvider>(
+                                                      context,
+                                                      listen: false)
+                                                  .setLoading(false);
                                             },
                                             value: numReminders.settingValue,
                                             items: [
@@ -669,6 +687,8 @@ class TimeSettingsListTile extends StatelessWidget {
           TimeModel newTimeFormatted = newTime == null
               ? timeSetting.settingValue
               : TimeModel(hour: newTime.hour, minute: newTime.minute);
+          Provider.of<LoadingStateProvider>(context, listen: false)
+              .setLoading(true);
           await settingsData.updateSetting(
               timeSetting.settingName, newTimeFormatted);
           await db.settingsDatabase.updateSetting(
@@ -677,6 +697,8 @@ class TimeSettingsListTile extends StatelessWidget {
           await notificationManager.cancelAllScheduledNotifications();
           await notificationScheduler.scheduleDefaultTrack(
               context, settingsData.numberOfReminders.settingValue);
+          Provider.of<LoadingStateProvider>(context, listen: false)
+              .setLoading(false);
           settingsData.updateSettings();
         },
         child: StaticCard(
