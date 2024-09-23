@@ -24,7 +24,6 @@ class RegisterScreen extends StatelessWidget {
   bool showSpinner = false;
   @override
   Widget build(BuildContext context) {
-    Provider.of<LoginRegistrationState>(context).setRegisterSuccess(true);
     return LoadingOverlayWrapper(
       child: Scaffold(
         body: Container(
@@ -78,7 +77,7 @@ class RegisterScreen extends StatelessWidget {
                 child: Text(
                   Provider.of<LoginRegistrationState>(context).errorMessage,
                   style: kErrorTextStyle.copyWith(
-                    color: Colors.red,
+                    color: kRed,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -108,11 +107,14 @@ class RegisterScreen extends StatelessWidget {
                               userLevel: 0,
                               userXP: 0,
                               isAdmin: false);
+                      Provider.of<LoadingStateProvider>(context, listen: false)
+                          .setLoading(false);
                       Navigator.popAndPushNamed(context, 'home_screen');
                     }
                   } catch (e) {
                     debugPrint(e.toString());
                     String errorMessage = '';
+                    debugPrint(e.runtimeType.toString());
                     if (e is FirebaseAuthException) {
                       switch (e.code) {
                         case 'weak-password':
@@ -130,6 +132,10 @@ class RegisterScreen extends StatelessWidget {
                           errorMessage =
                               'An unexpected error occurred. Please try again.';
                           break;
+                        case 'email-already-in-use':
+                          errorMessage =
+                              'An account with this email already exists.';
+                          break;
                         default:
                           errorMessage = 'An unknown error occurred.';
                       }
@@ -140,15 +146,24 @@ class RegisterScreen extends StatelessWidget {
                         errorMessage = 'Please enter an email address';
                       } else if (e.toString().contains('password')) {
                         errorMessage = 'Please enter a password';
+                      } else if (e.toString().contains(
+                          'The email address is already in use by another account')) {
+                        errorMessage =
+                            'An account with this email already exists';
                       } else {
                         errorMessage = 'An unknown error has occurred';
                       }
                     }
+                    Provider.of<LoadingStateProvider>(context, listen: false)
+                        .setLoading(false);
                     Provider.of<LoginRegistrationState>(context, listen: false)
                         .registrationFail(errorMessage);
+                    Future.delayed(Duration(milliseconds: 2500), () {
+                      Provider.of<LoginRegistrationState>(context,
+                              listen: false)
+                          .setRegisterSuccess(true);
+                    });
                   }
-                  Provider.of<LoadingStateProvider>(context, listen: false)
-                      .setLoading(false);
                 },
                 text: 'Register',
               ),

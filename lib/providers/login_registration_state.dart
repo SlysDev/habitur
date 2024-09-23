@@ -26,9 +26,11 @@ class LoginRegistrationState extends ChangeNotifier {
 
   void setRegisterSuccess(bool success) {
     _registerSuccess = success;
+    notifyListeners();
   }
 
   void setLoginSuccess(bool success) {
     _loginSuccess = success;
+    notifyListeners();
   }
 }

@@ -527,6 +527,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               listen: false)
                                           .setLoading(true);
                                       late final _auth = FirebaseAuth.instance;
+                                      await db.userDatabase.deleteUser(context);
+                                      await _auth.currentUser!.delete();
                                       Provider.of<LoadingStateProvider>(context,
                                               listen: false)
                                           .setLoading(false);

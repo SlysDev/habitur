@@ -15,6 +15,11 @@ class UserDatabase {
   Future<void> userSetup(String username, String email, context) async {
     try {
       CollectionReference users = _firestore.collection('users');
+      QuerySnapshot accountsWithSameEmail =
+          await users.where('email', isEqualTo: email).get();
+      if (accountsWithSameEmail.docs.isNotEmpty) {
+        throw Exception('An account with this email already exists');
+      }
       String uid = _auth.currentUser!.uid.toString();
       DocumentReference userDoc = users.doc(uid); // create a new doc w/ uid.
       userDoc.set({
@@ -42,7 +47,14 @@ class UserDatabase {
     }
   }
 
-  get userData async {
+  DocumentReference get userDoc {
+    CollectionReference users = _firestore.collection('users');
+    String uid = _auth.currentUser!.uid.toString();
+    DocumentReference userDoc = users.doc(uid);
+    return userDoc;
+  }
+
+  Future<DocumentSnapshot> get userData async {
     CollectionReference users = _firestore.collection('users');
     String uid = _auth.currentUser!.uid.toString();
     DocumentReference userDoc = users.doc(uid);
@@ -147,6 +159,27 @@ class UserDatabase {
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
+    }
+  }
+
+  Future<void> deleteUser(context) async {
+    CollectionReference userCollection = _firestore.collection('users');
+    if (isLoggedIn) {
+      try {
+// Query for all documents matching the user ID
+        final querySnapshot = await userCollection
+            .where('uid', isEqualTo: userDoc.id) // or any unique identifier
+            .get();
+
+        // Loop through all the matching documents and delete them (handles duplicates)
+        for (final doc in querySnapshot.docs) {
+          querySnapshot.docs.remove(doc);
+        }
+      } catch (e, s) {
+        debugPrint(e.toString());
+        debugPrint(s.toString());
+        showErrorSnackbar(context, e, s);
+      }
     }
   }
 }

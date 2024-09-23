@@ -137,6 +137,9 @@ class LoginScreen extends StatelessWidget {
                                   context);
                           // getting data from DB and overriding LS
                           if (newUser != null) {
+                            Provider.of<LoadingStateProvider>(context,
+                                    listen: false)
+                                .setLoading(false);
                             Navigator.popAndPushNamed(context, 'home_screen');
                           }
                         } catch (e, s) {
@@ -186,13 +189,18 @@ class LoginScreen extends StatelessWidget {
                               errorMessage = 'An unknown error has occurred';
                             }
                           }
+                          Provider.of<LoadingStateProvider>(context,
+                                  listen: false)
+                              .setLoading(false);
                           Provider.of<LoginRegistrationState>(context,
                                   listen: false)
                               .loginFail(errorMessage);
+                          Future.delayed(Duration(milliseconds: 2500), () {
+                            Provider.of<LoginRegistrationState>(context,
+                                    listen: false)
+                                .setLoginSuccess(true);
+                          });
                         }
-                        Provider.of<LoadingStateProvider>(context,
-                                listen: false)
-                            .setLoading(false);
                       }
                     }),
               ),
