@@ -21,10 +21,7 @@ class InsightDisplay extends StatelessWidget {
     String insightPercentChange =
         improvementData['message']['percentChange'].toString();
     String insightPostText = improvementData['message']['postText'];
-    if (Provider.of<UserLocalStorage>(context, listen: false)
-        .currentUser
-        .stats
-        .isEmpty) {
+    if (stats.isEmpty) {
       insightPreText =
           'Looks like you haven\'t logged any stats yet! Complete your first habit to get started.';
       insightPercentChange = '';

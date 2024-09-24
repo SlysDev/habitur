@@ -8,7 +8,7 @@ import 'package:habitur/providers/network_state_provider.dart';
 import 'package:provider/provider.dart';
 
 class DataManager {
-  Future<void> loadData(context) async {
+  Future<void> loadData(context, {bool forceDbLoad = false}) async {
     Database db = Database();
     await Provider.of<UserLocalStorage>(context, listen: false)
         .loadData(context);
@@ -22,7 +22,8 @@ class DataManager {
                   .lastUpdated) ||
           Provider.of<HabitsLocalStorage>(context, listen: false)
               .getHabitData(context)
-              .isEmpty) {
+              .isEmpty ||
+          forceDbLoad) {
         debugPrint('loading from DB');
         await db.loadData(context);
         if (!Provider.of<NetworkStateProvider>(context, listen: false)

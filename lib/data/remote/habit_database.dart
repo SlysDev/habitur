@@ -285,6 +285,7 @@ class HabitDatabase {
   }
 
   Future<void> clearDuplicateHabits(context) async {
+    debugPrint('clearing duplicate habits');
     try {
       UserDatabase userDatabase = UserDatabase();
       if (!userDatabase.isLoggedIn) {

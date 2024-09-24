@@ -138,8 +138,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               settingsData.numberOfReminders
                                                   .settingValue);
                                     }
-                                    await notificationManager
-                                        .printNotifications();
                                     Provider.of<LoadingStateProvider>(context,
                                             listen: false)
                                         .setLoading(false);

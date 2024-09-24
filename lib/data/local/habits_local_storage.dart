@@ -94,6 +94,7 @@ class HabitsLocalStorage extends ChangeNotifier {
   Future<void> loadData(context) async {
     await init(context);
     try {
+      await clearDuplicateHabits(context);
       Provider.of<HabitManager>(context, listen: false)
           .loadHabits(getHabitData(context));
     } catch (e, s) {
@@ -127,6 +128,26 @@ class HabitsLocalStorage extends ChangeNotifier {
       updateHabit(clearedHabit);
     }
     await syncLastUpdated();
+  }
+
+  Future<void> clearDuplicateHabits(context) async {
+    debugPrint('clearing duplicate habits');
+    try {
+      List<Habit> allHabits = getHabitData(context);
+      for (Habit habit in allHabits) {
+        if (allHabits.where((element) => element.id == habit.id).length > 1) {
+          debugPrint('clearing a habit');
+          Habit duplicateHabit =
+              allHabits.where((element) => element.id == habit.id).first;
+          await deleteHabit(duplicateHabit);
+        }
+      } // clears dups
+      syncLastUpdated();
+      uploadAllHabits(allHabits, context);
+    } catch (e, s) {
+      debugPrint(e.toString());
+      showErrorSnackbar(context, e, s);
+    }
   }
 
   String stringifyHabitData(context) {

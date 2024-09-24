@@ -235,8 +235,8 @@ class StatsCalculator {
         worstSlopeName = statisticName;
         worstSlopeValue = slope;
       }
-      if (slope == 0.0) {
-        isZeroChange = true;
+      if (slope != 0.0) {
+        isZeroChange = false;
       }
     }
     return {

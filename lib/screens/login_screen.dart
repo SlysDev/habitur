@@ -117,7 +117,7 @@ class LoginScreen extends StatelessWidget {
                               await _auth.signInWithEmailAndPassword(
                                   email: email, password: password);
                           DataManager data = DataManager();
-                          await data.loadData(context);
+                          await data.loadData(context, forceDbLoad: true);
                           await Provider.of<UserLocalStorage>(context,
                                   listen: false)
                               .saveData(context);

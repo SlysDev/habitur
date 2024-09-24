@@ -230,7 +230,6 @@ class HabitManager extends ChangeNotifier {
     await resetDailyHabits(context);
     await resetWeeklyHabits(context);
     await resetMonthlyHabits(context);
-    await notificationManager.printNotifications();
   }
 
   Future<void> scheduleSmartHabitNotifs() async {
