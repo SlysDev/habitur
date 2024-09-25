@@ -65,7 +65,7 @@ class StatisticsScreen extends StatelessWidget {
       future: loadData(context),
       builder: (context, snapshot) => Scaffold(
         body: Container(
-          margin: EdgeInsets.symmetric(horizontal: 10),
+          margin: EdgeInsets.symmetric(horizontal: 20),
           child: ListView(
             children: [
               const SizedBox(height: 30),

@@ -74,7 +74,7 @@ Widget _buildStat(String label, String value) {
       const SizedBox(height: 5),
       Text(
         label,
-        style: kMainDescription,
+        style: kMainDescription.copyWith(fontSize: 15),
         textAlign: TextAlign.center,
       ),
     ],
