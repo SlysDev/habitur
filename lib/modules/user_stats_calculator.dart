@@ -9,7 +9,11 @@ class UserStatsCalculator extends StatsCalculator {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
     for (Habit habit in habits) {
-      sum = getStatisticValue(habit.stats.last, statisticName).toDouble();
+      if (habit.stats.isEmpty) {
+        sum += 0;
+      } else {
+        sum += getStatisticValue(habit.stats.last, statisticName).toDouble();
+      }
     }
     return sum / habits.length;
   }
@@ -18,7 +22,11 @@ class UserStatsCalculator extends StatsCalculator {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
     for (Habit habit in habits) {
-      sum += calculateStatSlope(statisticName, habit.stats);
+      if (habit.stats.isEmpty) {
+        sum += 0;
+      } else {
+        sum += calculateStatSlope(statisticName, habit.stats);
+      }
     }
     return sum / habits.length;
   }
