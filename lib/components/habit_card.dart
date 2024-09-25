@@ -1,14 +1,9 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:habitur/components/accent_elevated_button.dart';
 import 'package:habitur/components/habit_difficulty_popup.dart';
-import 'package:habitur/components/static_card.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
-import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
+import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/network_state_provider.dart';
@@ -81,6 +76,15 @@ class _HabitCardState extends State<HabitCard> {
             .updateHabit(Provider.of<HabitManager>(context, listen: false)
                 .habits[widget.index]);
         Provider.of<HabitManager>(context, listen: false).updateHabits();
+        NotificationScheduler notificationScheduler = NotificationScheduler();
+        notificationScheduler.cancelHabitSchedule(habit.id);
+        notificationScheduler.scheduleHabitReminderTrack(habit,
+            delay: Duration(
+                days: habit.resetPeriod == "Daily"
+                    ? 1
+                    : habit.resetPeriod == "Weekly"
+                        ? 7
+                        : 31)); // schedule notifs for next period
       }
     }
 

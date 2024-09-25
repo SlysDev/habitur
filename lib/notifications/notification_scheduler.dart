@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/notifications/notification_manager.dart';
@@ -117,7 +118,8 @@ class NotificationScheduler {
         6);
   }
 
-  Future<void> scheduleDayHabitReminderTrack(Habit habit) async {
+  Future<void> scheduleDayHabitReminderTrack(Habit habit,
+      {Duration delay = const Duration()}) async {
     DateTime scheduledTime = DateTime.now();
     TimeModel optimalTime =
         calculateOptimalNotificationTime(habit.daysCompleted);
@@ -125,6 +127,7 @@ class NotificationScheduler {
       hour: optimalTime.hour,
       minute: optimalTime.minute,
     );
+    scheduledTime = scheduledTime.add(delay);
     // current day's round of notifs
     await notificationManager.scheduleNotification(
         "Your habit \"${habit.title}\" is due!",
@@ -155,7 +158,8 @@ class NotificationScheduler {
         int.parse("${habit.id}010"));
   }
 
-  Future<void> scheduleWeekHabitReminderTrack(Habit habit) async {
+  Future<void> scheduleWeekHabitReminderTrack(Habit habit,
+      {Duration delay = const Duration()}) async {
     DateTime now = DateTime.now();
     int todayWeekday = now.weekday;
 
@@ -167,6 +171,7 @@ class NotificationScheduler {
       hour: optimalTime.hour,
       minute: optimalTime.minute,
     );
+    scheduledTime = scheduledTime.add(delay);
     await notificationManager.scheduleNotification(
         "Your habit \"${habit.title}\" is due!",
         "You tend to complete this habit around this time––don't forget!",
@@ -179,7 +184,8 @@ class NotificationScheduler {
         int.parse("${habit.id}2"));
   }
 
-  Future<void> scheduleMonthHabitReminderTrack(Habit habit) async {
+  Future<void> scheduleMonthHabitReminderTrack(Habit habit,
+      {Duration delay = const Duration()}) async {
     DateTime now = DateTime.now();
     DateTime firstDayOfNextMonth = DateTime(now.year, now.month + 1, 1);
     DateTime lastDayOfThisMonth =
@@ -192,6 +198,7 @@ class NotificationScheduler {
       hour: optimalTime.hour,
       minute: optimalTime.minute,
     );
+    scheduledTime = scheduledTime.add(delay);
     await notificationManager.scheduleNotification(
         "Your habit \"${habit.title}\" is due!",
         "You tend to complete this habit around this time––don't forget!",
@@ -202,6 +209,32 @@ class NotificationScheduler {
         "Time's running out! Complete it now or risk breaking your streak",
         scheduledTime.add(Duration(hours: Random().nextInt(daysUntilMonthEnd))),
         int.parse("${habit.id}2"));
+  }
+
+  Future<void> scheduleHabitReminderTrack(Habit habit,
+      {Duration delay = const Duration()}) async {
+    if (habit.resetPeriod == "Daily") {
+      await scheduleDayHabitReminderTrack(habit, delay: delay);
+    } else if (habit.resetPeriod == "Weekly") {
+      await scheduleWeekHabitReminderTrack(habit, delay: delay);
+    } else {
+      await scheduleMonthHabitReminderTrack(habit, delay: delay);
+    }
+  }
+
+  Future<void> cancelHabitSchedule(int habitID) async {
+    try {
+      notificationManager.cancelScheduledNotification(int.parse("{habit.id}1"));
+      notificationManager.cancelScheduledNotification(int.parse("{habit.id}2"));
+      notificationManager
+          .cancelScheduledNotification(int.parse("{habit.id}01"));
+      notificationManager
+          .cancelScheduledNotification(int.parse("{habit.id}05"));
+      notificationManager
+          .cancelScheduledNotification(int.parse("{habit.id}010"));
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 
   TimeModel calculateOptimalNotificationTime(List<DateTime> completionTimes) {
