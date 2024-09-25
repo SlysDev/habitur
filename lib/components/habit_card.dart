@@ -180,7 +180,7 @@ class _HabitCardState extends State<HabitCard> {
                     duration: const Duration(milliseconds: 600),
                     curve: Curves.ease,
                     height: habit.title.length > 20
-                        ? habit.title.length.toDouble() * 6
+                        ? 128.0 + (habit.title.length.toDouble() * 2.15)
                         : 128,
                     decoration: BoxDecoration(
                       color: !completed
