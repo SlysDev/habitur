@@ -179,7 +179,9 @@ class _HabitCardState extends State<HabitCard> {
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 600),
                     curve: Curves.ease,
-                    height: 128,
+                    height: habit.title.length > 20
+                        ? habit.title.length.toDouble() * 6
+                        : 128,
                     decoration: BoxDecoration(
                       color: !completed
                           ? widget.color
@@ -191,7 +193,7 @@ class _HabitCardState extends State<HabitCard> {
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 20),
+                                horizontal: 25, vertical: 20),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.center,
