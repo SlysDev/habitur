@@ -18,6 +18,10 @@ class UserStatsHandler {
         Provider.of<HabitManager>(context, listen: false).habits);
     fillInMissingDays(context);
     sortStats(context);
+    Provider.of<UserLocalStorage>(context, listen: false).addHabiturRating();
+    await Provider.of<UserLocalStorage>(context, listen: false)
+        .saveData(context);
+    await db.userDatabase.uploadUserData(context);
 
     // Check if there's an entry for the current day
     int currentDayIndex = user.stats.indexWhere(

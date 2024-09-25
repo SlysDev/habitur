@@ -142,8 +142,8 @@ class UserDatabase {
             'lastUpdated': DateTime.now(),
           }, SetOptions(merge: true));
         }
-        await lastUpdatedManager.syncLastUpdated(context);
       }
+      await lastUpdatedManager.syncLastUpdated(context);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

@@ -59,6 +59,8 @@ class SettingsLocalStorage extends ChangeNotifier {
     return settings;
   }
 
+  get lastUpdated => _settingsBox.get('lastUpdated');
+
   Setting? getSettingByName(String settingName) {
     try {
       return _settingsBox.get(settingName);

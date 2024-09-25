@@ -9,52 +9,111 @@ import 'package:provider/provider.dart';
 
 class DataManager {
   Future<void> loadData(context, {bool forceDbLoad = false}) async {
-    Database db = Database();
-    await Provider.of<UserLocalStorage>(context, listen: false)
-        .loadData(context);
-    await Provider.of<HabitsLocalStorage>(context, listen: false).init(context);
+    await initLocalStorage(context);
+    await loadUserData(context, forceDbLoad: forceDbLoad);
+    await loadHabitsData(context, forceDbLoad: forceDbLoad);
+    await loadSettingsData(context, forceDbLoad: forceDbLoad);
+    await loadStatsData(context, forceDbLoad: forceDbLoad);
+    await loadCommunityChallenges(context, forceDbLoad: forceDbLoad);
+    await _resetHabits(context);
+  }
+
+  Future<void> initLocalStorage(context) async {
+    await Provider.of<UserLocalStorage>(context, listen: false).init(context);
     await Provider.of<SettingsLocalStorage>(context, listen: false)
         .init(context);
+    await Provider.of<HabitsLocalStorage>(context, listen: false).init(context);
+  }
+
+  Future<void> loadUserData(BuildContext context,
+      {bool forceDbLoad = false}) async {
+    Database db = Database();
+    final userLocalStorage =
+        Provider.of<UserLocalStorage>(context, listen: false);
     if (db.userDatabase.isLoggedIn) {
-      DateTime lastUpdated = await db.lastUpdatedManager.lastUpdated;
-      if (lastUpdated.isAfter(
-              Provider.of<UserLocalStorage>(context, listen: false)
-                  .lastUpdated) ||
-          Provider.of<HabitsLocalStorage>(context, listen: false)
-              .getHabitData(context)
-              .isEmpty ||
-          forceDbLoad) {
-        debugPrint('loading from DB');
-        await db.loadData(context);
-        if (!Provider.of<NetworkStateProvider>(context, listen: false)
-            .isConnected) {
-          debugPrint('offline; loading from LS');
-          await Provider.of<UserLocalStorage>(context, listen: false)
-              .loadData(context);
-          await Provider.of<HabitsLocalStorage>(context, listen: false)
-              .loadData(context);
-        }
+      if (await _shouldLoadFromDb(userLocalStorage.lastUpdated, forceDbLoad)) {
+        debugPrint('Loading user data from DB');
+        await db.userDatabase.loadUserData(context);
       } else {
-        debugPrint('loading from LS');
-        await Provider.of<UserLocalStorage>(context, listen: false)
-            .loadData(context);
-        await Provider.of<HabitsLocalStorage>(context, listen: false)
-            .loadData(context);
-        await db.userDatabase.uploadUserData(context);
-        await db.statsDatabase.uploadStatistics(context);
-        await db.settingsDatabase.uploadData(context);
-        await db.communityChallengeDatabase.loadCommunityChallenges(context);
+        debugPrint('Loading user data from Local Storage');
+        await userLocalStorage.loadData(context);
       }
     } else {
-      debugPrint('user is not logged in; loading from LS');
-      await Provider.of<UserLocalStorage>(context, listen: false)
-          .loadData(context);
-      await Provider.of<HabitsLocalStorage>(context, listen: false)
-          .loadData(context);
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          false;
+      debugPrint('User not logged in, loading from Local Storage');
+      await userLocalStorage.loadData(context);
     }
+  }
+
+  Future<void> loadHabitsData(BuildContext context,
+      {bool forceDbLoad = false}) async {
+    Database db = Database();
+    final habitsLocalStorage =
+        Provider.of<HabitsLocalStorage>(context, listen: false);
+
+    if (db.userDatabase.isLoggedIn) {
+      if (await _shouldLoadFromDb(
+          habitsLocalStorage.lastUpdated, forceDbLoad)) {
+        debugPrint('Loading habits from DB');
+        await db.habitDatabase.loadHabits(context);
+      } else {
+        debugPrint('Loading habits from Local Storage');
+        await habitsLocalStorage.loadData(context);
+      }
+    } else {
+      debugPrint('User not logged in, loading habits from Local Storage');
+      await habitsLocalStorage.loadData(context);
+    }
+  }
+
+  Future<void> loadStatsData(BuildContext context,
+      {bool forceDbLoad = false}) async {
+    Database db = Database();
+    final userLocalStorage = Provider.of<UserLocalStorage>(context,
+        listen: false); // stats are stored in user local storage
+    if (db.userDatabase.isLoggedIn) {
+      if (await _shouldLoadFromDb(userLocalStorage.lastUpdated, forceDbLoad)) {
+        debugPrint('Loading stats from DB');
+        await db.statsDatabase.loadStatistics(context);
+      } else {
+        debugPrint('Loading stats from Local Storage');
+        await userLocalStorage.loadData(context);
+      }
+    } else {
+      debugPrint('User not logged in, loading stats from Local Storage');
+      await userLocalStorage.loadData(context);
+    }
+  }
+
+  Future<void> loadSettingsData(BuildContext context,
+      {bool forceDbLoad = false}) async {
+    Database db = Database();
+    final settingsLocalStorage =
+        Provider.of<SettingsLocalStorage>(context, listen: false);
+
+    if (db.userDatabase.isLoggedIn) {
+      if (await _shouldLoadFromDb(
+          settingsLocalStorage.lastUpdated, forceDbLoad)) {
+        debugPrint('Loading settings from DB');
+        await db.settingsDatabase.loadData(context);
+      }
+    }
+  }
+
+  Future<void> loadCommunityChallenges(BuildContext context,
+      {bool forceDbLoad = false}) async {
+    Database db = Database();
+    await db.communityChallengeDatabase.loadCommunityChallenges(context);
+  }
+
+  Future<void> _resetHabits(BuildContext context) async {
     await Provider.of<HabitManager>(context, listen: false)
         .resetHabits(context);
+  }
+
+  Future<bool> _shouldLoadFromDb(
+      DateTime localLastUpdated, bool forceDbLoad) async {
+    Database db = Database();
+    DateTime dbLastUpdated = await db.lastUpdatedManager.lastUpdated;
+    return dbLastUpdated.isAfter(localLastUpdated) || forceDbLoad;
   }
 }

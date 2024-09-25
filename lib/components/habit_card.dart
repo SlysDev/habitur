@@ -211,10 +211,12 @@ class _HabitCardState extends State<HabitCard> {
                         GestureDetector(
                           onTap: () async {
                             if (!completed) {
-                              setLoading(true);
-                              await difficultyPopup(
-                                  context, widget.index, completeHabit);
-                              setLoading(false);
+                              await difficultyPopup(context, widget.index,
+                                  (recordedDifficulty) async {
+                                setLoading(true);
+                                await completeHabit(recordedDifficulty);
+                                setLoading(false);
+                              });
                               setState(() {
                                 _controller.play();
                               });

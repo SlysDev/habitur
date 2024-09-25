@@ -25,10 +25,6 @@ class HabitStatsHandler {
     habit.completionsToday++;
     habit.totalCompletions++;
     if (habit.completionsToday == habit.requiredCompletions) {
-      Provider.of<UserLocalStorage>(context, listen: false).addHabiturRating();
-      await Provider.of<UserLocalStorage>(context, listen: false)
-          .saveData(context);
-      await db.userDatabase.uploadUserData(context);
       habit.streak++;
       if (habit.streak > habit.highestStreak) {
         habit.highestStreak = habit.streak;
@@ -90,7 +86,6 @@ class HabitStatsHandler {
       habit.stats.add(newStatPoint);
       habit.stats.last.confidenceLevel =
           HabitStatsCalculator(habit).calculateConfidenceLevel();
-      await userStatsHandler.logHabitCompletion(context);
     }
     debugPrint('slope: ' +
         HabitStatsCalculator(habit)

@@ -4,6 +4,7 @@ import 'package:habitur/components/habit_stats_card_list.dart';
 import 'package:habitur/components/insight_display.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/components/multi_stat_line_graph.dart';
+import 'package:habitur/data/data_manager.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/modules/insights_generator.dart';
 import 'package:habitur/providers/database.dart';
@@ -21,32 +22,8 @@ class StatisticsScreen extends StatelessWidget {
     super.key,
   });
   Future<void> loadData(BuildContext context) async {
-    if (Provider.of<HabitManager>(context, listen: false).habits.isEmpty) {
-      Database db = Database();
-      if (db.userDatabase.isLoggedIn) {
-        DateTime lastUpdated = await db.lastUpdatedManager.lastUpdated;
-        if (lastUpdated.isAfter(
-            Provider.of<HabitsLocalStorage>(context, listen: false)
-                .lastUpdated)) {
-          db.habitDatabase.loadHabits(context);
-          if (!Provider.of<NetworkStateProvider>(context, listen: false)
-              .isConnected) {
-            await Provider.of<HabitsLocalStorage>(context, listen: false)
-                .loadData(context);
-          } // handles no internet (try/catch in DB sets isConnected to false)
-        } else {
-          debugPrint('loading from LS; more recent');
-          await Provider.of<HabitsLocalStorage>(context, listen: false)
-              .loadData(context);
-        }
-      } else {
-        debugPrint('user is not logged in; loading from LS');
-        await Provider.of<HabitsLocalStorage>(context, listen: false)
-            .loadData(context);
-        Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-            false;
-      }
-    }
+    DataManager dataManager = DataManager();
+    await dataManager.loadStatsData(context);
   }
 
   @override
