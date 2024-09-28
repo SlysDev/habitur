@@ -28,19 +28,21 @@ class DataManager {
   Future<void> loadUserData(BuildContext context,
       {bool forceDbLoad = false}) async {
     Database db = Database();
-    final userLocalStorage =
-        Provider.of<UserLocalStorage>(context, listen: false);
     if (db.userDatabase.isLoggedIn) {
-      if (await _shouldLoadFromDb(userLocalStorage.lastUpdated, forceDbLoad)) {
+      if (await _shouldLoadFromDb(
+          Provider.of<UserLocalStorage>(context, listen: false).lastUpdated,
+          forceDbLoad)) {
         debugPrint('Loading user data from DB');
         await db.userDatabase.loadUserData(context);
       } else {
         debugPrint('Loading user data from Local Storage');
-        await userLocalStorage.loadData(context);
+        await Provider.of<UserLocalStorage>(context, listen: false)
+            .loadData(context);
       }
     } else {
       debugPrint('User not logged in, loading from Local Storage');
-      await userLocalStorage.loadData(context);
+      await Provider.of<UserLocalStorage>(context, listen: false)
+          .loadData(context);
     }
   }
 
@@ -68,19 +70,21 @@ class DataManager {
   Future<void> loadStatsData(BuildContext context,
       {bool forceDbLoad = false}) async {
     Database db = Database();
-    final userLocalStorage = Provider.of<UserLocalStorage>(context,
-        listen: false); // stats are stored in user local storage
     if (db.userDatabase.isLoggedIn) {
-      if (await _shouldLoadFromDb(userLocalStorage.lastUpdated, forceDbLoad)) {
+      if (await _shouldLoadFromDb(
+          Provider.of<UserLocalStorage>(context, listen: false).lastUpdated,
+          forceDbLoad)) {
         debugPrint('Loading stats from DB');
         await db.statsDatabase.loadStatistics(context);
       } else {
         debugPrint('Loading stats from Local Storage');
-        await userLocalStorage.loadData(context);
+        await Provider.of<UserLocalStorage>(context, listen: false)
+            .loadData(context);
       }
     } else {
       debugPrint('User not logged in, loading stats from Local Storage');
-      await userLocalStorage.loadData(context);
+      await Provider.of<UserLocalStorage>(context, listen: false)
+          .loadData(context);
     }
   }
 
