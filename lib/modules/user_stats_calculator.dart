@@ -5,14 +5,16 @@ class UserStatsCalculator extends StatsCalculator {
   List<Habit> habits;
   UserStatsCalculator(this.habits);
 
-  double calculateTodaysStatAverage(String statisticName) {
+  double calculateStatAverage(String statisticName) {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
     for (Habit habit in habits) {
       if (habit.stats.isEmpty) {
         sum += 0;
       } else {
-        sum += getStatisticValue(habit.stats.last, statisticName).toDouble();
+        sum +=
+            calculateAverageValueForStat(statisticName, habit.stats).toDouble();
+        // make commit showing that you're now calculating the true average for all days
       }
     }
     return sum / habits.length;

@@ -40,19 +40,19 @@ class UserStatsHandler {
           'completions', user.stats[currentDayIndex].completions + 1, context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'confidenceLevel',
-          userStatsCalculator.calculateTodaysStatAverage('confidenceLevel'),
+          userStatsCalculator.calculateStatAverage('confidenceLevel'),
           context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'streak',
-          userStatsCalculator.calculateTodaysStatAverage('streak').toInt(),
+          userStatsCalculator.calculateStatAverage('streak').toInt(),
           context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'consistencyFactor',
-          userStatsCalculator.calculateTodaysStatAverage('consistencyFactor'),
+          userStatsCalculator.calculateStatAverage('consistencyFactor'),
           context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'difficultyRating',
-          userStatsCalculator.calculateTodaysStatAverage('difficultyRating'),
+          userStatsCalculator.calculateStatAverage('difficultyRating'),
           context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'slopeCompletions',
@@ -72,13 +72,12 @@ class UserStatsHandler {
         date: DateTime.now(),
         completions: 1,
         confidenceLevel:
-            userStatsCalculator.calculateTodaysStatAverage('confidenceLevel'),
-        streak:
-            userStatsCalculator.calculateTodaysStatAverage('streak').toInt(),
+            userStatsCalculator.calculateStatAverage('confidenceLevel'),
+        streak: userStatsCalculator.calculateStatAverage('streak').toInt(),
         consistencyFactor:
-            userStatsCalculator.calculateTodaysStatAverage('consistencyFactor'),
+            userStatsCalculator.calculateStatAverage('consistencyFactor'),
         difficultyRating:
-            userStatsCalculator.calculateTodaysStatAverage('difficultyRating'),
+            userStatsCalculator.calculateStatAverage('difficultyRating'),
         slopeCompletions:
             userStatsCalculator.calculateOverallSlope('completions'),
         slopeConsistency:
@@ -123,19 +122,19 @@ class UserStatsHandler {
             context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'confidenceLevel',
-            userStatsCalculator.calculateTodaysStatAverage('confidenceLevel'),
+            userStatsCalculator.calculateStatAverage('confidenceLevel'),
             context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'streak',
-            userStatsCalculator.calculateTodaysStatAverage('streak').toInt(),
+            userStatsCalculator.calculateStatAverage('streak').toInt(),
             context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'consistencyFactor',
-            userStatsCalculator.calculateTodaysStatAverage('consistencyFactor'),
+            userStatsCalculator.calculateStatAverage('consistencyFactor'),
             context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'difficultyRating',
-            userStatsCalculator.calculateTodaysStatAverage('difficultyRating'),
+            userStatsCalculator.calculateStatAverage('difficultyRating'),
             context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'slopeCompletions',
@@ -220,12 +219,12 @@ class UserStatsHandler {
           date: day,
           completions: 0,
           confidenceLevel:
-              statsCalculator.calculateTodaysStatAverage('confidenceLevel'),
+              statsCalculator.calculateStatAverage('confidenceLevel'),
           streak: 0,
           consistencyFactor:
-              statsCalculator.calculateTodaysStatAverage('consistencyFactor'),
+              statsCalculator.calculateStatAverage('consistencyFactor'),
           difficultyRating:
-              statsCalculator.calculateTodaysStatAverage('difficultyRating'),
+              statsCalculator.calculateStatAverage('difficultyRating'),
           slopeCompletions:
               statsCalculator.calculateOverallSlope('completions'),
           slopeConsistency:
