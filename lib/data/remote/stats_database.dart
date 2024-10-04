@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/data/remote/data_converter.dart';
 import 'package:habitur/data/remote/last_updated_manager.dart';
-import 'package:habitur/modules/summary_stats_calculator.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/util_functions.dart';

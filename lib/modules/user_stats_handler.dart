@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/user.dart';
-import 'package:habitur/modules/summary_stats_calculator.dart';
 import 'package:habitur/modules/user_stats_calculator.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
@@ -10,7 +9,6 @@ import 'package:provider/provider.dart';
 
 class UserStatsHandler {
   Database db = Database();
-  SummaryStatsCalculator summaryStatsCalculator = SummaryStatsCalculator();
   Future<void> logHabitCompletion(BuildContext context) async {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
@@ -161,8 +159,8 @@ class UserStatsHandler {
   void recordAverageConfidenceLevel(context) {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
-    double Function(BuildContext) getAverageConfidenceLevel =
-        summaryStatsCalculator.getAverageConfidenceLevel;
+    UserStatsCalculator calc = UserStatsCalculator(
+        Provider.of<HabitManager>(context, listen: false).habits);
     int currentDayIndex = user.stats.indexWhere(
       (stat) =>
           stat.date.year == DateTime.now().year &&
@@ -181,12 +179,12 @@ class UserStatsHandler {
     } else if (currentDayIndex == -1) {
       StatPoint newEntry = user.stats.last;
       newEntry.date = DateTime.now();
-      newEntry.confidenceLevel = getAverageConfidenceLevel(context);
+      newEntry.confidenceLevel = calc.calculateStatAverage('confidenceLevel');
       Provider.of<UserLocalStorage>(context, listen: false)
           .addUserStatPoint(context, newEntry);
     } else {
       user.stats[currentDayIndex].confidenceLevel =
-          getAverageConfidenceLevel(context);
+          calc.calculateStatAverage('confidenceLevel');
     }
   }
 

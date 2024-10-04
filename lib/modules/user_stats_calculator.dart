@@ -32,4 +32,41 @@ class UserStatsCalculator extends StatsCalculator {
     }
     return sum / habits.length;
   }
+
+  int getTotalHabitsCompleted(context) {
+    int totalHabitsCompleted = 0;
+    for (Habit habit in habits) {
+      totalHabitsCompleted += habit.daysCompleted.length;
+    }
+    return totalHabitsCompleted;
+  }
+
+  double getLongestStreak(context) {
+    var longestStreakHabit;
+    for (Habit habit in habits) {
+      if (longestStreakHabit ??= null) {
+        longestStreakHabit = habit;
+      } else if (habit.streak > longestStreakHabit.streak) {
+        longestStreakHabit = habit;
+      }
+    }
+    return longestStreakHabit.streak;
+  }
+
+  int getWeekCompletions(context) {
+    int weekCompletions = 0;
+    DateTime startOfWeek =
+        DateTime.now().subtract(Duration(days: DateTime.now().weekday - 1));
+
+    for (Habit habit in habits) {
+      for (DateTime completedDate in habit.daysCompleted) {
+        if (completedDate.isAfter(startOfWeek) &&
+            completedDate.isBefore(startOfWeek.add(Duration(days: 7)))) {
+          weekCompletions++;
+        }
+      }
+    }
+
+    return weekCompletions;
+  }
 }
