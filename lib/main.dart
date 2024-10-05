@@ -19,6 +19,7 @@ import 'package:habitur/screens/admin-screen.dart';
 import 'package:habitur/screens/community_leaderboard_screen.dart';
 import 'package:habitur/screens/habits_screen.dart';
 import 'package:habitur/screens/splash_screen.dart';
+import 'package:habitur/util_functions.dart';
 import 'constants.dart';
 // Screens
 import 'screens/welcome_screen.dart';
@@ -211,17 +212,46 @@ class _HabiturState extends State<Habitur> {
             ),
           ),
           initialRoute: 'splash_screen',
-          routes: {
-            'splash_screen': (context) => const SplashScreen(),
-            'welcome_screen': (context) => WelcomeScreen(),
-            'login_screen': (context) => LoginScreen(),
-            'register_screen': (context) => RegisterScreen(),
-            'admin_screen': (context) => const AdminScreen(),
-            'home_screen': (context) => HomeScreen(),
-            'habits_screen': (context) => HabitsScreen(),
-            'habits_screen_offline': (context) => HabitsScreen(),
-            'settings_screen': (context) => SettingsScreen(),
-            'statistics_screen': (context) => const StatisticsScreen(),
+          onGenerateRoute: (settings) {
+            Widget page;
+            switch (settings.name) {
+              case 'splash_screen':
+                page = const SplashScreen();
+                break;
+              case 'welcome_screen':
+                page = WelcomeScreen();
+                break;
+              case 'login_screen':
+                page = LoginScreen();
+                break;
+              case 'register_screen':
+                page = RegisterScreen();
+                break;
+              case 'admin_screen':
+                page = const AdminScreen();
+                break;
+              case 'home_screen':
+                page = HomeScreen();
+                break;
+              case 'habits_screen':
+                page = HabitsScreen();
+                break;
+              case 'habits_screen_offline':
+                page =
+                    HabitsScreen(); // You can differentiate offline here if needed
+                break;
+              case 'settings_screen':
+                page = SettingsScreen();
+                break;
+              case 'statistics_screen':
+                page = const StatisticsScreen();
+                break;
+              default:
+                page = const SplashScreen(); // Default fallback
+                break;
+            }
+
+            return createFadeRoute(page);
           },
         ));
   }

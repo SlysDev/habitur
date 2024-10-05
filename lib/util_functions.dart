@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 
+// error handling
 showErrorSnackbar(BuildContext context, e, s) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -9,5 +10,19 @@ showErrorSnackbar(BuildContext context, e, s) {
       content: Text(
           'Error--Take a screenshot and send to our team: \n \n ${e.toString()}, $s'),
     ),
+  );
+}
+
+// UI transitions
+
+Route createFadeRoute(Widget page) {
+  return PageRouteBuilder(
+    pageBuilder: (context, animation, secondaryAnimation) => page,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+    },
   );
 }
