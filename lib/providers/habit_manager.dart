@@ -17,7 +17,7 @@ class HabitManager extends ChangeNotifier {
   List<Habit> _sortedHabits = [];
   late String weekDay;
   late String date;
-  Database db = Database();
+  final Database _db = Database();
   void getDay() {
     weekDay = DateFormat('EEEE').format(DateTime.now());
   }
@@ -35,6 +35,9 @@ class HabitManager extends ChangeNotifier {
     await notificationManager.cancelAllScheduledNotifications();
     NotificationScheduler notificationScheduler = NotificationScheduler();
     _habits.add(habit);
+    await Provider.of<HabitsLocalStorage>(context, listen: false)
+        .addHabit(habit);
+    await _db.habitDatabase.addHabit(habit, context);
     bool notificationSetting =
         Provider.of<SettingsLocalStorage>(context, listen: false)
             .dailyReminders
@@ -72,6 +75,9 @@ class HabitManager extends ChangeNotifier {
     NotificationScheduler notificationScheduler = NotificationScheduler();
     int habitID = _sortedHabits[index].id;
     _habits.removeWhere((element) => element.id == habitID);
+    await Provider.of<HabitsLocalStorage>(context, listen: false)
+        .deleteHabit(sortedHabits[index]);
+    await _db.habitDatabase.deleteHabit(context, habitID);
     sortHabits();
     bool notificationSetting =
         Provider.of<SettingsLocalStorage>(context, listen: false)
@@ -168,8 +174,8 @@ class HabitManager extends ChangeNotifier {
     notifyListeners();
 
     // Upload habits if user is logged in
-    if (db.userDatabase.isLoggedIn) {
-      await db.habitDatabase.uploadHabits(context);
+    if (_db.userDatabase.isLoggedIn) {
+      await _db.habitDatabase.uploadHabits(context);
     }
 
     // Upload all habits to local storage
@@ -233,8 +239,8 @@ class HabitManager extends ChangeNotifier {
 
     notifyListeners();
 
-    if (db.userDatabase.isLoggedIn) {
-      await db.habitDatabase.uploadHabits(context);
+    if (_db.userDatabase.isLoggedIn) {
+      await _db.habitDatabase.uploadHabits(context);
     }
 
     await Provider.of<HabitsLocalStorage>(context, listen: false)
@@ -292,8 +298,8 @@ class HabitManager extends ChangeNotifier {
 
     notifyListeners();
 
-    if (db.userDatabase.isLoggedIn) {
-      await db.habitDatabase.uploadHabits(context);
+    if (_db.userDatabase.isLoggedIn) {
+      await _db.habitDatabase.uploadHabits(context);
     }
 
     await Provider.of<HabitsLocalStorage>(context, listen: false)

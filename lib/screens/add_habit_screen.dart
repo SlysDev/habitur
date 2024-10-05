@@ -163,13 +163,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                           : Container(),
                       ElevatedButton(
                         onPressed: () async {
-                          Provider.of<HabitManager>(context, listen: false)
+                          await Provider.of<HabitManager>(context,
+                                  listen: false)
                               .addHabit(newHabit, context);
                           Database db = Database();
-                          await db.habitDatabase.addHabit(newHabit, context);
-                          await Provider.of<HabitsLocalStorage>(context,
-                                  listen: false)
-                              .addHabit(newHabit);
                           Provider.of<HabitManager>(context, listen: false)
                               .sortHabits();
                           Provider.of<HabitManager>(context, listen: false)
