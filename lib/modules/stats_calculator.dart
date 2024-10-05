@@ -24,7 +24,8 @@ class StatsCalculator {
     double sum = 0.0;
     for (int i = stats.length - period; i < stats.length; i++) {
       if (i >= 0) {
-        double statisticValue = getStatisticValue(stats[i], statisticName);
+        double statisticValue =
+            getStatisticValue(stats[i], statisticName).toDouble();
         sum += statisticValue;
       }
     }

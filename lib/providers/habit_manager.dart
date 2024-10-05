@@ -100,26 +100,57 @@ class HabitManager extends ChangeNotifier {
 
   Future<void> resetDailyHabits(context) async {
     NotificationScheduler notificationScheduler = NotificationScheduler();
+
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
+
       if (element.resetPeriod == 'Daily') {
-        if (element.smartNotifsEnabled) {
-          await notificationScheduler.scheduleDayHabitReminderTrack(element);
-        }
-        // If the task was not created today, make it incomplete
-        String currentDayOfWeek = DateFormat('EEEE').format(DateTime.now());
-        if (DateFormat('d').format(element.lastSeen) !=
-                DateFormat('d').format(DateTime.now()) &&
-            element.requiredDatesOfCompletion.contains(currentDayOfWeek)) {
-          if (element.completionsToday == 0) {
+        // If element.daysCompleted is not empty
+        if (element.daysCompleted.isNotEmpty) {
+          int counter = 0;
+
+          // Get the difference in days between the last completion date and today
+          int daysDifference = element.daysCompleted.last
+              .difference(DateTime.now())
+              .inDays
+              .abs();
+
+          for (int i = 0; i <= daysDifference; i++) {
+            // Get the current day being checked
+            DateTime currentDay =
+                element.daysCompleted.last.subtract(Duration(days: i));
+
+            // Get the day of the week as a string (e.g., "Monday", "Tuesday", etc.)
+            String dayOfWeek = DateFormat('EEEE').format(currentDay);
+
+            // Check if this day is a required date of completion for the habit
+            if (element.requiredDatesOfCompletion.contains(dayOfWeek)) {
+              counter++;
+            }
+          }
+
+          debugPrint("${element.title} days not completed: $counter");
+          counter -= 1; // for loop includes today; so subtract one from counter
+          // Reset habit completions if today is a new day and it requires completion
+          if (counter >= 1) {
+            habitStatsHandler
+                .resetHabitCompletions(); // Allows user to complete the habit again
+            if (element.smartNotifsEnabled) {
+              await notificationScheduler
+                  .scheduleDayHabitReminderTrack(element);
+            }
+          }
+
+          // Reset the streak only if more than one required day has passed without completion
+          if (counter > 1) {
             element.streak = 0;
           }
-          habitStatsHandler.resetHabitCompletions();
         }
       }
-      element.lastSeen = DateTime.now();
     }
+
+    // Schedule daily reminders if enabled
     bool notificationSetting =
         Provider.of<SettingsLocalStorage>(context, listen: false)
             .dailyReminders
@@ -134,7 +165,13 @@ class HabitManager extends ChangeNotifier {
     }
 
     notifyListeners();
-    db.userDatabase.isLoggedIn ? db.habitDatabase.uploadHabits(context) : null;
+
+    // Upload habits if user is logged in
+    if (db.userDatabase.isLoggedIn) {
+      await db.habitDatabase.uploadHabits(context);
+    }
+
+    // Upload all habits to local storage
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
             Provider.of<HabitManager>(context, listen: false).habits, context);
@@ -142,9 +179,8 @@ class HabitManager extends ChangeNotifier {
 
   Future<void> resetWeeklyHabits(context) async {
     NotificationScheduler notificationScheduler = NotificationScheduler();
+
     int getWeekOfYear(DateTime date) {
-      // Adjust for potential differences in week number calculations across platforms
-      // You might need to experiment with different calculations based on your requirements
       final startOfYear = DateTime(date.year, 1, 1);
       final weekNumber =
           ((date.difference(startOfYear).inDays + startOfYear.weekday) / 7)
@@ -156,19 +192,31 @@ class HabitManager extends ChangeNotifier {
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
+
       if (element.resetPeriod == 'Weekly') {
-        if (element.smartNotifsEnabled) {
-          await notificationScheduler.scheduleWeekHabitReminderTrack(element);
-        }
-        final now = DateTime.now();
-        final currentWeek = getWeekOfYear(now);
-        final lastResetWeek = getWeekOfYear(element.lastSeen);
-        if (currentWeek > lastResetWeek) {
-          habitStatsHandler.resetHabitCompletions();
-          element.lastSeen = DateTime.now();
+        if (element.daysCompleted.isNotEmpty) {
+          final now = DateTime.now();
+          final currentWeek = getWeekOfYear(now);
+          DateTime lastCompletedDay = element.daysCompleted.last;
+          final lastCompletedWeek = getWeekOfYear(lastCompletedDay);
+
+          // Reset completions if we're in a new week
+          if (currentWeek > lastCompletedWeek) {
+            habitStatsHandler.resetHabitCompletions();
+            if (element.smartNotifsEnabled) {
+              await notificationScheduler
+                  .scheduleWeekHabitReminderTrack(element);
+            }
+          }
+
+          // Reset the streak if more than a week has passed without completion
+          if (now.difference(lastCompletedDay).inDays >= 7) {
+            element.streak = 0;
+          }
         }
       }
     }
+
     bool notificationSetting =
         Provider.of<SettingsLocalStorage>(context, listen: false)
             .dailyReminders
@@ -181,8 +229,13 @@ class HabitManager extends ChangeNotifier {
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
     }
+
     notifyListeners();
-    db.userDatabase.isLoggedIn ? db.habitDatabase.uploadHabits(context) : null;
+
+    if (db.userDatabase.isLoggedIn) {
+      await db.habitDatabase.uploadHabits(context);
+    }
+
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
             Provider.of<HabitManager>(context, listen: false).habits, context);
@@ -190,21 +243,39 @@ class HabitManager extends ChangeNotifier {
 
   Future<void> resetMonthlyHabits(context) async {
     NotificationScheduler notificationScheduler = NotificationScheduler();
+
+    int getMonth(DateTime date) {
+      return date.month;
+    }
+
     for (int i = 0; i < _habits.length; i++) {
       Habit element = _habits[i];
       HabitStatsHandler habitStatsHandler = HabitStatsHandler(element);
+
       if (element.resetPeriod == 'Monthly') {
-        if (element.smartNotifsEnabled) {
-          await notificationScheduler.scheduleMonthHabitReminderTrack(element);
-        }
-        // If the task was not created this month, make it incomplete
-        if (DateFormat('m').format(element.lastSeen) !=
-            DateFormat('m').format(DateTime.now())) {
-          habitStatsHandler.resetHabitCompletions();
-          element.lastSeen = DateTime.now();
+        if (element.daysCompleted.isNotEmpty) {
+          final now = DateTime.now();
+          final currentMonth = getMonth(now);
+          DateTime lastCompletedDay = element.daysCompleted.last;
+          final lastCompletedMonth = getMonth(lastCompletedDay);
+
+          // Reset completions if we're in a new month
+          if (currentMonth > lastCompletedMonth) {
+            habitStatsHandler.resetHabitCompletions();
+            if (element.smartNotifsEnabled) {
+              await notificationScheduler
+                  .scheduleMonthHabitReminderTrack(element);
+            }
+          }
+
+          // Reset the streak if more than a month has passed without completion
+          if (now.difference(lastCompletedDay).inDays >= 30) {
+            element.streak = 0;
+          }
         }
       }
     }
+
     bool notificationSetting =
         Provider.of<SettingsLocalStorage>(context, listen: false)
             .dailyReminders
@@ -217,8 +288,13 @@ class HabitManager extends ChangeNotifier {
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
     }
+
     notifyListeners();
-    db.userDatabase.isLoggedIn ? db.habitDatabase.uploadHabits(context) : null;
+
+    if (db.userDatabase.isLoggedIn) {
+      await db.habitDatabase.uploadHabits(context);
+    }
+
     await Provider.of<HabitsLocalStorage>(context, listen: false)
         .uploadAllHabits(
             Provider.of<HabitManager>(context, listen: false).habits, context);
@@ -226,7 +302,8 @@ class HabitManager extends ChangeNotifier {
 
   Future<void> resetHabits(context) async {
     NotificationManager notificationManager = NotificationManager();
-    notificationManager.cancelAllScheduledNotifications();
+    notificationManager
+        .cancelAllScheduledNotifications(); // TODO: cancel notifs by channel
     await resetDailyHabits(context);
     await resetWeeklyHabits(context);
     await resetMonthlyHabits(context);

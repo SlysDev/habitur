@@ -130,7 +130,7 @@ class UserLocalStorage extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addUserStatPoint(StatPoint newStat, context) {
+  void addUserStatPoint(BuildContext context, StatPoint newStat) {
     final user = _userBox.get('currentUser');
     try {
       final updatedUser = UserModel(

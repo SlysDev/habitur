@@ -22,6 +22,8 @@ class HabitStatsHandler {
   Future<void> incrementCompletion(context,
       {double recordedDifficulty = 5}) async {
     UserStatsHandler userStatsHandler = UserStatsHandler();
+    await Provider.of<HabitManager>(context, listen: false)
+        .resetHabits(context);
     habit.completionsToday++;
     habit.totalCompletions++;
     if (habit.completionsToday == habit.requiredCompletions) {

@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 class NotificationScheduler {
   NotificationManager notificationManager = NotificationManager();
+  // TODO: Handle errors + display snackbar for all functions
 
   Future<void> scheduleTestDefaultTrack(context) async {
     if (Provider.of<HabitManager>(context, listen: false)

@@ -86,7 +86,7 @@ class UserStatsHandler {
             userStatsCalculator.calculateOverallSlope('difficultyRating'),
       );
       Provider.of<UserLocalStorage>(context, listen: false)
-          .addUserStatPoint(newEntry, context);
+          .addUserStatPoint(context, newEntry);
     }
 
     // Notify the display manager to update
@@ -233,7 +233,7 @@ class UserStatsHandler {
               statsCalculator.calculateOverallSlope('difficultyRating'),
         );
         Provider.of<UserLocalStorage>(context, listen: false)
-            .addUserStatPoint(newStatPoint, context);
+            .addUserStatPoint(context, newStatPoint);
       }
     }
   }
