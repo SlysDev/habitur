@@ -152,14 +152,17 @@ class HabitsLocalStorage extends ChangeNotifier {
 
   String stringifyHabitData(context) {
     String output = "";
+    output += "----------------------------------\n";
+    output += "LS Habits:\n";
     for (Habit habit in getHabitData(context)) {
       debugPrint(habit.title);
-      output += "${habit.title}:\n";
-      output += "Completions: ${habit.completionsToday}\n";
-      output += "Streak: ${habit.streak}\n";
-      output += "Last seen: ${habit.lastSeen}\n";
-      output += "Days Completed: ${habit.daysCompleted}\n";
+      output += " ${habit.title}:\n";
+      output += " -> Completions: ${habit.completionsToday}\n";
+      output += " -> Streak: ${habit.streak}\n";
+      output += " -> Last seen: ${habit.lastSeen}\n";
+      output += " -> Days Completed: ${habit.daysCompleted}\n";
     }
+    output += "----------------------------------\n";
     return output;
   }
 }

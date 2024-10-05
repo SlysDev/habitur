@@ -110,11 +110,13 @@ class _HabitCardState extends State<HabitCard> {
     }
 
     Future<void> deleteHabit() async {
-      await db.habitDatabase.deleteHabit(context, habit.id);
       await Provider.of<HabitsLocalStorage>(context, listen: false)
           .deleteHabit(habit);
+      await db.habitDatabase.deleteHabit(context, habit.id);
       await Provider.of<HabitManager>(context, listen: false)
           .deleteHabit(context, widget.index);
+      debugPrint(Provider.of<HabitsLocalStorage>(context, listen: false)
+          .stringifyHabitData(context));
     }
 
     Future<void> difficultyPopup(
