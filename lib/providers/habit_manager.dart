@@ -152,6 +152,7 @@ class HabitManager extends ChangeNotifier {
           // Reset the streak only if more than one required day has passed without completion
           if (counter > 1) {
             element.streak = 0;
+            habitStatsHandler.fillInMissingDays(context);
           }
         }
       }
@@ -219,6 +220,7 @@ class HabitManager extends ChangeNotifier {
           // Reset the streak if more than a week has passed without completion
           if (now.difference(lastCompletedDay).inDays >= 7) {
             element.streak = 0;
+            habitStatsHandler.fillInMissingDays(context);
           }
         }
       }
@@ -278,6 +280,7 @@ class HabitManager extends ChangeNotifier {
           // Reset the streak if more than a month has passed without completion
           if (now.difference(lastCompletedDay).inDays >= 30) {
             element.streak = 0;
+            habitStatsHandler.fillInMissingDays(context);
           }
         }
       }
@@ -308,6 +311,7 @@ class HabitManager extends ChangeNotifier {
   }
 
   Future<void> resetHabits(context) async {
+    // TODO: Consider filling in missing days for all habits even if they aren't being reset
     NotificationManager notificationManager = NotificationManager();
     notificationManager
         .cancelAllScheduledNotifications(); // TODO: cancel notifs by channel
