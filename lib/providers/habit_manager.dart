@@ -12,6 +12,7 @@ import 'database.dart';
 import 'dart:collection';
 
 class HabitManager extends ChangeNotifier {
+  // TODO: Refactor so it handles persistence asw (DB/LS)
   List<Habit> _habits = [];
   List<Habit> _sortedHabits = [];
   late String weekDay;

@@ -106,7 +106,7 @@ class HabitDatabase {
       for (var habit
           in Provider.of<HabitManager>(context, listen: false).habits) {
         if (habitsCollectionSnapshot.size == 0) {
-          addHabit(habit, context);
+          await addHabit(habit, context);
         } else {
           bool found = false;
           for (var doc in habitsCollectionSnapshot.docs) {
@@ -116,7 +116,7 @@ class HabitDatabase {
             }
           }
           if (!found) {
-            addHabit(habit, context);
+            await addHabit(habit, context);
           }
         }
       }

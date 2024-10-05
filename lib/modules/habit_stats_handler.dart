@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/habit_difficulty_popup.dart';
+import 'package:habitur/data/data_manager.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/models/habit.dart';
@@ -22,6 +23,13 @@ class HabitStatsHandler {
   Future<void> incrementCompletion(context,
       {double recordedDifficulty = 5}) async {
     UserStatsHandler userStatsHandler = UserStatsHandler();
+    if (Provider.of<UserLocalStorage>(context, listen: false)
+        .currentUser
+        .stats
+        .isEmpty) {
+      debugPrint('user stats hasn\'t been loaded in yet; doing it now');
+      await DataManager().loadStatsData(context);
+    }
     await Provider.of<HabitManager>(context, listen: false)
         .resetHabits(context);
     habit.completionsToday++;
