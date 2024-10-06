@@ -191,7 +191,6 @@ class HabitStatsHandler {
     }
 
     await userStatsHandler.unlogHabitCompletion(context);
-    // TODO: Refactor into inc/dec habit + stats functions (separate)
   }
 
   void resetHabitCompletions() {
