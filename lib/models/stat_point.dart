@@ -1,3 +1,4 @@
+// Import necessary libraries
 import 'package:hive/hive.dart';
 
 part 'stat_point.g.dart';
@@ -9,10 +10,13 @@ class StatPoint {
 
   @HiveField(1)
   int completions;
+
   @HiveField(2)
   double consistencyFactor;
+
   @HiveField(3)
   double confidenceLevel;
+
   @HiveField(4)
   int streak;
 
@@ -23,11 +27,14 @@ class StatPoint {
   // Slope information for various statistics
   @HiveField(6)
   double slopeCompletions;
+
   @HiveField(7)
   double
       slopeConfidenceLevel; // You can replace 'ConfidenceLevel' with your actual statistic name
+
   @HiveField(8)
   double slopeConsistency;
+
   @HiveField(9)
   double slopeDifficultyRating;
 
@@ -98,6 +105,7 @@ class StatPoint {
     this.slopeConsistency = 0.0,
     this.slopeDifficultyRating = 0.0,
   });
+
   // for converting from JSON (local storage)
   factory StatPoint.fromJson(Map<String, dynamic> json) {
     return StatPoint(
@@ -112,6 +120,22 @@ class StatPoint {
       slopeConfidenceLevel: json['slopeConfidenceLevel'] as double,
       slopeConsistency: json['slopeConsistency'] as double,
       slopeDifficultyRating: json['slopeDifficultyRating'] as double,
+    );
+  }
+
+  // for converting from Firestore Map to StatPoint
+  factory StatPoint.fromMap(Map<String, dynamic> data) {
+    return StatPoint(
+      date: data['date'].toDate(), // Assuming the date is stored as a string
+      completions: data['completions'] ?? 0,
+      confidenceLevel: (data['confidenceLevel'] ?? 0).toDouble(),
+      streak: data['streak'] ?? 0,
+      consistencyFactor: (data['consistencyFactor'] ?? 0.0).toDouble(),
+      difficultyRating: (data['difficultyRating'] ?? 0.0).toDouble(),
+      slopeCompletions: (data['slopeCompletions'] ?? 0.0).toDouble(),
+      slopeConfidenceLevel: (data['slopeConfidenceLevel'] ?? 0.0).toDouble(),
+      slopeConsistency: (data['slopeConsistency'] ?? 0.0).toDouble(),
+      slopeDifficultyRating: (data['slopeDifficultyRating'] ?? 0.0).toDouble(),
     );
   }
 }

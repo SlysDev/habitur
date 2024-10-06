@@ -28,7 +28,12 @@ class HabitsLocalStorage extends ChangeNotifier {
     }
   }
 
-  get lastUpdated => _habitsBox.get('lastUpdated');
+  get lastUpdated {
+    if (_habitsBox.get('lastUpdated') == null) {
+      _habitsBox.put('lastUpdated', DateTime.now());
+    }
+    return _habitsBox.get('lastUpdated');
+  }
 
   Future<void> deleteData(context) async {
     try {

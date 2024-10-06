@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/components/profile_dialog.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
@@ -19,75 +20,91 @@ class LeaderboardCard extends StatelessWidget {
     final isCurrentUser = participant.user.uid ==
         Provider.of<UserLocalStorage>(context).currentUser.uid;
 
-    return Container(
-      width: double.infinity, // Ensure the card uses available width
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: isCurrentUser
-            ? kLightPrimaryColor.withOpacity(0.5)
-            : kFadedBlue.withOpacity(0.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            alignment: Alignment.center,
-            width: 50,
-            height: 50,
-            padding: const EdgeInsets.all(2),
-            margin: const EdgeInsets.only(left: 5),
-            decoration: BoxDecoration(
-              color: _getRankColor(index + 1),
-              borderRadius: BorderRadius.circular(10),
+    return GestureDetector(
+      onTap: () {
+        _showProfileDialog(context, participant);
+      },
+      child: Container(
+        width: double.infinity, // Ensure the card uses available width
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: isCurrentUser
+              ? kLightPrimaryColor.withOpacity(0.5)
+              : kFadedBlue.withOpacity(0.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: Offset(0, 4),
             ),
-            child: Text(
-              '#' + (index + 1).toString(),
-              style: kHeadingTextStyle.copyWith(
-                color: kBackgroundColor,
-                fontSize: 24,
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              alignment: Alignment.center,
+              width: 50,
+              height: 50,
+              padding: const EdgeInsets.all(2),
+              margin: const EdgeInsets.only(left: 5),
+              decoration: BoxDecoration(
+                color: _getRankColor(index + 1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '#' + (index + 1).toString(),
+                style: kHeadingTextStyle.copyWith(
+                  color: kBackgroundColor,
+                  fontSize: 24,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 15),
-          CircleAvatar(
-            backgroundImage: participant.user.profilePicture,
-            radius: 30,
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  participant.user.username,
-                  style: kSubHeadingTextStyle.copyWith(
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
-                  overflow: TextOverflow.ellipsis, // Truncates long names
-                  maxLines: 1,
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  '${participant.fullCompletionCount} completions',
-                  style: kMainDescription.copyWith(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+            const SizedBox(width: 15),
+            CircleAvatar(
+              backgroundImage: participant.user.profilePicture,
+              radius: 30,
             ),
-          ),
-        ],
+            const SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    participant.user.username,
+                    style: kSubHeadingTextStyle.copyWith(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                    overflow: TextOverflow.ellipsis, // Truncates long names
+                    maxLines: 1,
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    '${participant.fullCompletionCount} completions',
+                    style: kMainDescription.copyWith(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  void _showProfileDialog(BuildContext context, ParticipantData participant) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ProfileDialog(
+          uid: participant.user.uid,
+        );
+      },
     );
   }
 

@@ -8,6 +8,7 @@ import 'package:habitur/components/custom_alert_dialog.dart';
 import 'package:habitur/components/filled_text_field.dart';
 import 'package:habitur/components/inactive_elevated_button.dart';
 import 'package:habitur/components/loading_overlay_wrapper.dart';
+import 'package:habitur/components/multiline_outlined_text_field.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/components/network_indicator.dart';
 import 'package:habitur/components/primary-button.dart';
@@ -40,7 +41,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   double gap = 20.0;
   bool isVerifyingEmail = false;
-  bool hasUpdatedUsername = false;
+  bool hasUpdatedProfile = false;
   bool hasFailed = false;
 
   @override
@@ -50,6 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Provider.of<SettingsLocalStorage>(context, listen: false);
     Database db = Database();
     String email = Provider.of<UserLocalStorage>(context).currentUser.email;
+    String bio = Provider.of<UserLocalStorage>(context).currentUser.bio;
     String username =
         Provider.of<UserLocalStorage>(context).currentUser.username;
     return LoadingOverlayWrapper(
@@ -265,53 +267,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 .isConnected
                             ? SizedBox(height: 25)
                             : Container(),
-                        ListTile(
-                          title: Text(
-                            'Username',
-                            style:
-                                kMainDescription.copyWith(color: Colors.white),
-                          ),
-                          trailing: Container(
-                            width: 200,
-                            child: FilledTextField(
-                              enabled: auth.currentUser == null ||
-                                  Provider.of<NetworkStateProvider>(context,
-                                          listen: true)
-                                      .isConnected,
-                              hintText: 'Username',
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SettingRow(
+                              title: 'Username',
                               initialValue:
                                   Provider.of<UserLocalStorage>(context)
                                       .currentUser
                                       .username,
+                              enabled:
+                                  Provider.of<NetworkStateProvider>(context)
+                                      .isConnected,
                               onChanged: (newValue) {
-                                username = newValue;
+                                // Handle username change
                               },
+                              hintText: 'Username',
                             ),
-                          ),
-                        ),
-                        ListTile(
-                          title: Text(
-                            'Email',
-                            style:
-                                kMainDescription.copyWith(color: Colors.white),
-                          ),
-                          trailing: Container(
-                            width: 200,
-                            child: FilledTextField(
-                              enabled: Provider.of<NetworkStateProvider>(
-                                      context,
-                                      listen: true)
-                                  .isConnected,
-                              hintText: 'Email',
+                            SizedBox(
+                                height: 16.0), // Add some spacing between rows
+                            SettingRow(
+                              title: 'Email',
                               initialValue:
                                   Provider.of<UserLocalStorage>(context)
                                       .currentUser
                                       .email,
+                              enabled:
+                                  Provider.of<NetworkStateProvider>(context)
+                                      .isConnected,
                               onChanged: (newValue) {
-                                email = newValue;
+                                // Handle email change
                               },
+                              hintText: 'Email',
                             ),
-                          ),
+                            SizedBox(
+                                height: 16.0), // Add some spacing between rows
+                            SettingRow(
+                              title: 'Bio',
+                              multiline: true,
+                              initialValue:
+                                  Provider.of<UserLocalStorage>(context)
+                                      .currentUser
+                                      .bio,
+                              enabled:
+                                  Provider.of<NetworkStateProvider>(context)
+                                      .isConnected,
+                              onChanged: (newValue) {
+                                bio = newValue;
+                              },
+                              hintText: 'Enter bio here...',
+                            ),
+                          ],
                         ),
                         SizedBox(height: 10),
                         AnimatedContainer(
@@ -336,22 +342,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         AnimatedContainer(
                           duration: Duration(milliseconds: 800),
                           height:
-                              hasUpdatedUsername && !isVerifyingEmail ? 40 : 0,
+                              hasUpdatedProfile && !isVerifyingEmail ? 40 : 0,
                           curve: Curves.ease,
                           child: Center(
                             child: AnimatedOpacity(
                               duration: Duration(milliseconds: 800),
-                              opacity: hasUpdatedUsername && !isVerifyingEmail
+                              opacity: hasUpdatedProfile && !isVerifyingEmail
                                   ? 1
                                   : 0,
                               curve: Curves.ease,
-                              child: Text(
-                                'Username updated!',
-                                style: kMainDescription.copyWith(
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
+                              child: Icon(Icons.check_circle_rounded,
+                                  color: kLightGreenAccent, size: 35),
                             ),
                           ),
                         ),
@@ -392,6 +393,59 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ? PrimaryButton(
                                 text: 'Update Profile',
                                 onPressed: () async {
+                                  Provider.of<LoadingStateProvider>(context,
+                                          listen: false)
+                                      .setLoading(true);
+                                  if (bio !=
+                                      Provider.of<UserLocalStorage>(context,
+                                              listen: false)
+                                          .currentUser
+                                          .bio) {
+                                    try {
+                                      // Update the bio property in local storage
+                                      Provider.of<UserLocalStorage>(context,
+                                              listen: false)
+                                          .updateUserProperty('bio', bio);
+
+                                      if (auth.currentUser != null) {
+                                        // Upload the updated user data to the database
+                                        await db.userDatabase
+                                            .uploadUserData(context);
+
+                                        // Update the network state to reflect a successful connection
+                                        Provider.of<NetworkStateProvider>(
+                                                context,
+                                                listen: false)
+                                            .isConnected = true;
+                                      }
+
+                                      setState(() {
+                                        hasUpdatedProfile = true;
+                                      });
+                                      Future.delayed(Duration(seconds: 5), () {
+                                        setState(() {
+                                          hasUpdatedProfile = false;
+                                        });
+                                      });
+                                      // Set a delay to simulate verification status UI (like for email verification)
+                                    } catch (e) {
+                                      // Handle errors and set the network state accordingly
+                                      Provider.of<NetworkStateProvider>(context,
+                                              listen: false)
+                                          .isConnected = false;
+
+                                      setState(() {
+                                        hasFailed = true;
+                                      });
+
+                                      // Reset the failure status after a delay
+                                      Future.delayed(Duration(seconds: 5), () {
+                                        setState(() {
+                                          hasFailed = false;
+                                        });
+                                      });
+                                    }
+                                  }
                                   if (email !=
                                       Provider.of<UserLocalStorage>(context,
                                               listen: false)
@@ -401,9 +455,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       Provider.of<UserLocalStorage>(context,
                                               listen: false)
                                           .updateUserProperty('email', email);
-                                      auth.currentUser!
+                                      await auth.currentUser!
                                           .verifyBeforeUpdateEmail(email);
-                                      db.userDatabase.uploadUserData(context);
+                                      await db.userDatabase
+                                          .uploadUserData(context);
                                       Provider.of<NetworkStateProvider>(context,
                                               listen: false)
                                           .isConnected = true;
@@ -440,20 +495,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           .updateUserProperty(
                                               'username', username);
                                       if (auth.currentUser != null) {
-                                        auth.currentUser!
+                                        await auth.currentUser!
                                             .updateDisplayName(username);
-                                        db.userDatabase.uploadUserData(context);
+                                        await db.userDatabase
+                                            .uploadUserData(context);
                                         Provider.of<NetworkStateProvider>(
                                                 context,
                                                 listen: false)
                                             .isConnected = true;
                                       }
                                       setState(() {
-                                        hasUpdatedUsername = true;
+                                        hasUpdatedProfile = true;
                                       });
                                       Future.delayed(Duration(seconds: 5), () {
                                         setState(() {
-                                          hasUpdatedUsername = false;
+                                          hasUpdatedProfile = false;
                                         });
                                       });
                                     } catch (e) {
@@ -470,9 +526,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       });
                                     }
                                   }
-                                  Provider.of<UserLocalStorage>(context,
+                                  await Provider.of<UserLocalStorage>(context,
                                           listen: false)
                                       .saveData(context);
+                                  Provider.of<LoadingStateProvider>(context,
+                                          listen: false)
+                                      .setLoading(false);
                                 },
                               )
                             : InactiveElevatedButton(
@@ -707,6 +766,50 @@ class TimeSettingsListTile extends StatelessWidget {
                   kMainDescription.copyWith(color: Colors.white, fontSize: 14)),
         ),
       ),
+    );
+  }
+}
+
+class SettingRow extends StatelessWidget {
+  final String title;
+  final String initialValue;
+  final bool enabled;
+  final void Function(String) onChanged;
+  final String hintText;
+  final bool multiline; // New flag for multiline support
+
+  const SettingRow({
+    required this.title,
+    required this.initialValue,
+    required this.enabled,
+    required this.onChanged,
+    required this.hintText,
+    this.multiline = false, // Default to false
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: kMainDescription.copyWith(color: Colors.white)),
+        SizedBox(
+          width: 200,
+          child: multiline
+              ? MultilineTextField(
+                  enabled: enabled,
+                  hintText: hintText,
+                  initialValue: initialValue,
+                  onChanged: onChanged,
+                )
+              : FilledTextField(
+                  enabled: enabled,
+                  hintText: hintText,
+                  initialValue: initialValue,
+                  onChanged: onChanged,
+                ),
+        ),
+      ],
     );
   }
 }

@@ -8,12 +8,16 @@ import 'package:provider/provider.dart';
 class LastUpdatedManager {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  Future<DateTime> get lastUpdated async {
+  Future<DateTime?> get lastUpdated async {
     CollectionReference users = _firestore.collection('users');
     String uid = _auth.currentUser!.uid.toString();
     DocumentReference userDoc = users.doc(uid);
     DocumentSnapshot userSnapshot = await userDoc.get();
-    return userSnapshot['lastUpdated'].toDate();
+    try {
+      return userSnapshot['lastUpdated'].toDate();
+    } catch (e) {
+      return null;
+    }
   }
 
 // Database functions

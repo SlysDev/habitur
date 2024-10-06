@@ -27,14 +27,7 @@ class UserLocalStorage extends ChangeNotifier {
     await init(context); // may need, may not
     if (_userBox.get('currentUser') == null) {
       debugPrint('filling in default user data...');
-      currentUser = UserModel(
-        username: 'Guest',
-        email: 'N/A',
-        userLevel: 1,
-        userXP: 0,
-        uid: 'N/A',
-        profilePicture: const AssetImage('assets/images/default-profile.png'),
-      );
+      await populateDefaultUserData();
     }
     if (FirebaseAuth.instance.currentUser != null) {
       debugPrint('auth has something');
@@ -68,12 +61,14 @@ class UserLocalStorage extends ChangeNotifier {
   Future<void> populateDefaultUserData() async {
     currentUser = UserModel(
       username: 'Guest',
+      bio: '',
       email: 'N/A',
       userLevel: 1,
       userXP: 0,
       uid: 'N/A',
       profilePicture: const AssetImage('assets/images/default-profile.png'),
     );
+    await _userBox.put('lastUpdated', DateTime.now());
   }
 
   get currentUser {
@@ -91,6 +86,9 @@ class UserLocalStorage extends ChangeNotifier {
   }
 
   DateTime get lastUpdated {
+    if (_userBox.get('lastUpdated') == null) {
+      _userBox.put('lastUpdated', DateTime.now());
+    }
     return _userBox.get('lastUpdated'); // last updated in 1, user in 0
   }
 
@@ -98,6 +96,7 @@ class UserLocalStorage extends ChangeNotifier {
     try {
       final updatedUser = UserModel(
         username: propertyName == "username" ? newValue : currentUser.username,
+        bio: propertyName == "bio" ? newValue : currentUser.bio,
         email: propertyName == "email" ? newValue : currentUser.email,
         userLevel:
             propertyName == "userLevel" ? newValue : currentUser.userLevel,

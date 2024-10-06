@@ -201,10 +201,12 @@ class CommunityChallengeManager extends ChangeNotifier {
       ParticipantData currentParticipantData = challenge.participants
           .firstWhere(
               (element) => element.user.uid == newParticipantData.user.uid);
-      currentParticipantData.fullCompletionCount +=
-          newParticipantData.fullCompletionCount;
-      currentParticipantData.currentCompletions +=
-          newParticipantData.currentCompletions;
+      int tempCompletions = currentParticipantData.currentCompletions;
+      int tempFullCompletions = currentParticipantData.fullCompletionCount;
+      currentParticipantData = newParticipantData;
+      currentParticipantData.currentCompletions += tempCompletions;
+      currentParticipantData.fullCompletionCount += tempFullCompletions;
+      // Carries over all user data (so usernames, bios, etc. update) but increments completions
     }
   }
 

@@ -31,7 +31,8 @@ class DataManager {
     if (db.userDatabase.isLoggedIn) {
       if (await _shouldLoadFromDb(
           Provider.of<UserLocalStorage>(context, listen: false).lastUpdated,
-          forceDbLoad)) {
+          forceDbLoad,
+          context)) {
         debugPrint('Loading user data from DB');
         await db.userDatabase.loadUserData(context);
       } else {
@@ -54,7 +55,7 @@ class DataManager {
 
     if (db.userDatabase.isLoggedIn) {
       if (await _shouldLoadFromDb(
-          habitsLocalStorage.lastUpdated, forceDbLoad)) {
+          habitsLocalStorage.lastUpdated, forceDbLoad, context)) {
         debugPrint('Loading habits from DB');
         await db.habitDatabase.loadHabits(context);
       } else {
@@ -73,7 +74,8 @@ class DataManager {
     if (db.userDatabase.isLoggedIn) {
       if (await _shouldLoadFromDb(
           Provider.of<UserLocalStorage>(context, listen: false).lastUpdated,
-          forceDbLoad)) {
+          forceDbLoad,
+          context)) {
         debugPrint('Loading stats from DB');
         await db.statsDatabase.loadStatistics(context);
       } else {
@@ -96,7 +98,7 @@ class DataManager {
 
     if (db.userDatabase.isLoggedIn) {
       if (await _shouldLoadFromDb(
-          settingsLocalStorage.lastUpdated, forceDbLoad)) {
+          settingsLocalStorage.lastUpdated, forceDbLoad, context)) {
         debugPrint('Loading settings from DB');
         await db.settingsDatabase.loadData(context);
       }
@@ -115,9 +117,14 @@ class DataManager {
   }
 
   Future<bool> _shouldLoadFromDb(
-      DateTime localLastUpdated, bool forceDbLoad) async {
+      DateTime localLastUpdated, bool forceDbLoad, BuildContext context) async {
     Database db = Database();
-    DateTime dbLastUpdated = await db.lastUpdatedManager.lastUpdated;
+    DateTime? dbLastUpdated = await db.lastUpdatedManager.lastUpdated;
+    if (dbLastUpdated == null) {
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
+      return false;
+    }
     return dbLastUpdated.isAfter(localLastUpdated) || forceDbLoad;
   }
 }

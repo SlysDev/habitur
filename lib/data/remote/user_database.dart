@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/data/remote/data_converter.dart';
 import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/providers/database.dart';
@@ -12,7 +13,8 @@ import 'package:provider/provider.dart';
 class UserDatabase {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  Future<void> userSetup(String username, String email, context) async {
+  Future<void> userSetup(
+      String username, String email, String bio, context) async {
     try {
       CollectionReference users = _firestore.collection('users');
       QuerySnapshot accountsWithSameEmail =
@@ -24,7 +26,7 @@ class UserDatabase {
       DocumentReference userDoc = users.doc(uid); // create a new doc w/ uid.
       userDoc.set({
         'username': username,
-        'bio': '',
+        'bio': bio,
         'email': email,
         'uid': uid,
         'stats': {'totalHabitsCompleted': 0, 'statPoints': []},
@@ -44,6 +46,35 @@ class UserDatabase {
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
+    }
+  }
+
+  Future<UserModel?> getUserById(String uid) async {
+    try {
+      CollectionReference users = _firestore.collection('users');
+      QuerySnapshot usersFound = await users.where('uid', isEqualTo: uid).get();
+
+      if (usersFound.docs.isNotEmpty) {
+        if (usersFound.docs.length > 1) {
+          // Log error for monitoring purposes, but don’t break the app.
+          print("Error: Multiple users found with the same UID ($uid).");
+          // Optionally report this to a monitoring tool like Firebase Crashlytics
+          // FirebaseCrashlytics.instance.recordError(Exception('Duplicate users found for UID'), StackTrace.current);
+        }
+
+        // Return the first user found to continue normal app flow.
+        return DataConverter()
+            .queryDocumentSnapshotToUserModel(usersFound.docs.first);
+      }
+
+      // Handle case where no user was found (user might have been deleted)
+      print("Error: User not found for UID ($uid).");
+      return null; // Return null to handle this gracefully in the UI
+    } catch (e, s) {
+      // Catch any other unexpected errors and log them
+      print("Error: Failed to fetch user for UID ($uid): $e $s");
+      // Optionally, log this to Firebase Crashlytics or another error logging service
+      return null; // Return null to ensure the app continues to function
     }
   }
 

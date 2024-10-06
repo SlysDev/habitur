@@ -4,6 +4,7 @@ import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/time_model.dart';
+import 'package:habitur/models/user.dart';
 
 class DataConverter {
   List<DataPoint> dbListToDataPoints(input) {
@@ -139,5 +140,9 @@ class DataConverter {
     } else {
       return [];
     }
+  }
+
+  UserModel queryDocumentSnapshotToUserModel(QueryDocumentSnapshot snapshot) {
+    return UserModel.fromMap(snapshot.data() as Map<String, dynamic>);
   }
 }

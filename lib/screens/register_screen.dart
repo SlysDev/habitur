@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/loading_overlay_wrapper.dart';
+import 'package:habitur/components/multiline_outlined_text_field.dart';
 import 'package:habitur/components/primary-button.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/user.dart';
@@ -19,6 +20,7 @@ final _firestore = FirebaseFirestore.instance;
 class RegisterScreen extends StatelessWidget {
   late final _auth = FirebaseAuth.instance;
   late String username;
+  late String bio;
   late String email;
   late String password;
   bool showSpinner = false;
@@ -44,6 +46,15 @@ class RegisterScreen extends StatelessWidget {
                 hintText: 'Create your username',
                 onChanged: (newValue) {
                   username = newValue;
+                },
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: MultilineTextField(
+                hintText: 'Add your bio',
+                onChanged: (newValue) {
+                  bio = newValue;
                 },
               ),
             ),
@@ -96,12 +107,13 @@ class RegisterScreen extends StatelessWidget {
                       Database db = Database();
                       debugPrint('New user created.');
                       _auth.currentUser?.updateDisplayName(username);
-                      await db.userDatabase.userSetup(username, email, context);
+                      await db.userDatabase
+                          .userSetup(username, email, bio, context);
                       Provider.of<UserLocalStorage>(context, listen: false)
                               .currentUser =
                           UserModel(
                               username: username,
-                              bio: '',
+                              bio: bio,
                               email: email,
                               uid: newUser.user!.uid,
                               userLevel: 0,
