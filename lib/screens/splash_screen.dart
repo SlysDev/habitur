@@ -21,47 +21,6 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     FirebaseAuth auth = FirebaseAuth.instance;
     return GestureDetector(
-      onDoubleTap: () async {
-        dynamic result = await showDialog(
-          context: context,
-          builder: (context) => CustomAlertDialog(
-            title: 'Warning',
-            content: Text(
-                'Are you sure you want to clear all account data (habits, stats, etc.)? This cannot be undone.'),
-            actions: [
-              AsideButton(
-                  onPressed: () {
-                    Navigator.pop(context, true);
-                  },
-                  text: 'Yes'),
-              SizedBox(width: 10),
-              AsideButton(
-                  onPressed: () {
-                    Navigator.pop(context, false);
-                  },
-                  text: 'No'),
-            ],
-          ),
-        );
-        result == null ? result = false : null;
-        if (result) {
-          Database db = Database();
-          await Provider.of<HabitsLocalStorage>(context, listen: false)
-              .deleteData(context);
-          Provider.of<UserLocalStorage>(context, listen: false).clearStats();
-          await Provider.of<UserLocalStorage>(context, listen: false)
-              .deleteData(context);
-          await Provider.of<SettingsLocalStorage>(context, listen: false)
-              .populateDefaultSettingsData();
-          Provider.of<SettingsLocalStorage>(context, listen: false)
-              .updateSettings();
-          db.settingsDatabase.populateDefaultSettingsData(context);
-          if (db.userDatabase.isLoggedIn) {
-            await db.habitDatabase.clearHabits(context);
-            await db.statsDatabase.clearStatistics(context);
-          }
-        }
-      },
       child: AnimatedSplashScreen.withScreenFunction(
         curve: Curves.ease,
         duration: 1000,
