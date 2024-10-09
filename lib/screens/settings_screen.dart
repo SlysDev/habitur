@@ -11,7 +11,7 @@ import 'package:habitur/components/loading_overlay_wrapper.dart';
 import 'package:habitur/components/multiline_outlined_text_field.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/components/network_indicator.dart';
-import 'package:habitur/components/primary-button.dart';
+import 'package:habitur/components/primary_button.dart';
 import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';

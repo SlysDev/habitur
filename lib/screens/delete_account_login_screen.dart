@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/custom_alert_dialog.dart';
 import 'package:habitur/components/loading_overlay_wrapper.dart';
-import 'package:habitur/components/primary-button.dart';
+import 'package:habitur/components/primary_button.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/data_manager.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';

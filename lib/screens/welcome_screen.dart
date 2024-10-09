@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
-import 'package:habitur/components/primary-button.dart';
+import 'package:habitur/components/primary_button.dart';
 import 'package:habitur/data/local/auth_local_storage.dart';
 import 'package:habitur/screens/login_screen.dart';
 import 'package:provider/provider.dart';
