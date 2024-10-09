@@ -540,19 +540,101 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            db.userDatabase.isLoggedIn
-                                ? AsideButton(
-                                    text: 'Log out',
-                                    onPressed: () async {
+                            StaticCard(
+                              padding: 12,
+                              child: db.userDatabase.isLoggedIn
+                                  ? AsideButton(
+                                      text: 'Log out',
+                                      onPressed: () async {
+                                        Provider.of<LoadingStateProvider>(
+                                                context,
+                                                listen: false)
+                                            .setLoading(true);
+
+                                        late final _auth =
+                                            FirebaseAuth.instance;
+                                        await _auth.signOut();
+                                        Provider.of<UserLocalStorage>(context,
+                                                listen: false)
+                                            .updateUserProperty('email', 'N/A');
+                                        Provider.of<LoadingStateProvider>(
+                                                context,
+                                                listen: false)
+                                            .setLoading(false);
+                                        Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    WelcomeScreen()),
+                                            (route) => false);
+                                        Navigator.popAndPushNamed(
+                                            context, 'welcome_screen');
+                                      })
+                                  : AsideButton(
+                                      text: 'Log in',
+                                      onPressed: () async {
+                                        Navigator.pushNamed(
+                                            context, 'login_screen');
+                                      }),
+                            ),
+                            StaticCard(
+                              padding: 12,
+                              opacity: 0.2,
+                              color: kOrangeAccent,
+                              child: AsideButton(
+                                  text: 'Clear Data',
+                                  onPressed: () async {
+                                    dynamic result = await showDialog(
+                                      context: context,
+                                      builder: (context) => CustomAlertDialog(
+                                        title: 'Warning',
+                                        content: Text(
+                                            'Are you sure you want to clear all account data (habits, stats, etc.)? This cannot be undone.'),
+                                        actions: [
+                                          AsideButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, true);
+                                              },
+                                              text: 'Yes'),
+                                          SizedBox(width: 10),
+                                          AsideButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, false);
+                                              },
+                                              text: 'No'),
+                                        ],
+                                      ),
+                                    );
+                                    result == null ? result = false : null;
+                                    if (result) {
                                       Provider.of<LoadingStateProvider>(context,
                                               listen: false)
                                           .setLoading(true);
-
-                                      late final _auth = FirebaseAuth.instance;
-                                      await _auth.signOut();
+                                      Provider.of<HabitManager>(context,
+                                              listen: false)
+                                          .deleteAllHabits();
+                                      await Provider.of<HabitsLocalStorage>(
+                                              context,
+                                              listen: false)
+                                          .deleteData(context);
                                       Provider.of<UserLocalStorage>(context,
                                               listen: false)
-                                          .updateUserProperty('email', 'N/A');
+                                          .clearStats();
+                                      await Provider.of<SettingsLocalStorage>(
+                                              context,
+                                              listen: false)
+                                          .populateDefaultSettingsData();
+                                      Provider.of<SettingsLocalStorage>(context,
+                                              listen: false)
+                                          .updateSettings();
+                                      db.settingsDatabase
+                                          .populateDefaultSettingsData(context);
+                                      if (db.userDatabase.isLoggedIn) {
+                                        await db.habitDatabase
+                                            .clearHabits(context);
+                                        await db.statsDatabase
+                                            .clearStatistics(context);
+                                      }
                                       Provider.of<LoadingStateProvider>(context,
                                               listen: false)
                                           .setLoading(false);
@@ -560,136 +642,80 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           context,
                                           MaterialPageRoute(
                                               builder: (context) =>
-                                                  WelcomeScreen()),
+                                                  const SplashScreen()),
                                           (route) => false);
-                                      Navigator.popAndPushNamed(
-                                          context, 'welcome_screen');
-                                    })
-                                : AsideButton(
-                                    text: 'Log in',
-                                    onPressed: () async {
-                                      Navigator.pushNamed(
-                                          context, 'login_screen');
-                                    }),
-                            AsideButton(
-                                text: 'Delete Account',
-                                onPressed: () async {
-                                  dynamic result = await showDialog(
-                                    context: context,
-                                    builder: (context) => CustomAlertDialog(
-                                      title: 'Warning',
-                                      content: Text(
-                                          'Are you sure you want to delete your account? This cannot be undone.'),
-                                      actions: [
-                                        AsideButton(
-                                            onPressed: () {
-                                              Navigator.pop(context, true);
-                                            },
-                                            text: 'Yes'),
-                                        SizedBox(width: 10),
-                                        AsideButton(
-                                            onPressed: () {
-                                              Navigator.pop(context, false);
-                                            },
-                                            text: 'No'),
-                                      ],
-                                    ),
-                                  );
-                                  result == null ? result = false : null;
-                                  if (result) {
-                                    try {
-                                      Provider.of<LoadingStateProvider>(context,
-                                              listen: false)
-                                          .setLoading(true);
-                                      late final _auth = FirebaseAuth.instance;
-                                      await db.userDatabase.deleteUser(context);
-                                      await _auth.currentUser!.delete();
-                                      Provider.of<LoadingStateProvider>(context,
-                                              listen: false)
-                                          .setLoading(false);
-                                      Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  WelcomeScreen()),
-                                          (route) => false);
-                                      Navigator.popAndPushNamed(
-                                          context, 'welcome_screen');
-                                    } catch (e) {
-                                      debugPrint(e.toString());
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  DeleteAcccountLoginScreen()));
                                     }
-                                  }
-                                }),
-                            AsideButton(
-                                text: 'Clear Data',
-                                onPressed: () async {
-                                  dynamic result = await showDialog(
-                                    context: context,
-                                    builder: (context) => CustomAlertDialog(
-                                      title: 'Warning',
-                                      content: Text(
-                                          'Are you sure you want to clear all account data (habits, stats, etc.)? This cannot be undone.'),
-                                      actions: [
-                                        AsideButton(
-                                            onPressed: () {
-                                              Navigator.pop(context, true);
-                                            },
-                                            text: 'Yes'),
-                                        SizedBox(width: 10),
-                                        AsideButton(
-                                            onPressed: () {
-                                              Navigator.pop(context, false);
-                                            },
-                                            text: 'No'),
-                                      ],
-                                    ),
-                                  );
-                                  result == null ? result = false : null;
-                                  if (result) {
-                                    Provider.of<LoadingStateProvider>(context,
-                                            listen: false)
-                                        .setLoading(true);
-                                    Provider.of<HabitManager>(context,
-                                            listen: false)
-                                        .deleteAllHabits();
-                                    await Provider.of<HabitsLocalStorage>(
+                                  }),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            StaticCard(
+                              padding: 12,
+                              opacity: 0.2,
+                              color: kRed,
+                              child: AsideButton(
+                                  text: 'Delete Account',
+                                  onPressed: () async {
+                                    dynamic result = await showDialog(
+                                      context: context,
+                                      builder: (context) => CustomAlertDialog(
+                                        title: 'Warning',
+                                        content: Text(
+                                            'Are you sure you want to delete your account? This cannot be undone.'),
+                                        actions: [
+                                          AsideButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, true);
+                                              },
+                                              text: 'Yes'),
+                                          SizedBox(width: 10),
+                                          AsideButton(
+                                              onPressed: () {
+                                                Navigator.pop(context, false);
+                                              },
+                                              text: 'No'),
+                                        ],
+                                      ),
+                                    );
+                                    result == null ? result = false : null;
+                                    if (result) {
+                                      try {
+                                        Provider.of<LoadingStateProvider>(
+                                                context,
+                                                listen: false)
+                                            .setLoading(true);
+                                        late final _auth =
+                                            FirebaseAuth.instance;
+                                        await db.userDatabase
+                                            .deleteUser(context);
+                                        await _auth.currentUser!.delete();
+                                        Provider.of<LoadingStateProvider>(
+                                                context,
+                                                listen: false)
+                                            .setLoading(false);
+                                        Navigator.pushAndRemoveUntil(
                                             context,
-                                            listen: false)
-                                        .deleteData(context);
-                                    Provider.of<UserLocalStorage>(context,
-                                            listen: false)
-                                        .clearStats();
-                                    await Provider.of<SettingsLocalStorage>(
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    WelcomeScreen()),
+                                            (route) => false);
+                                        Navigator.popAndPushNamed(
+                                            context, 'welcome_screen');
+                                      } catch (e) {
+                                        debugPrint(e.toString());
+                                        Navigator.push(
                                             context,
-                                            listen: false)
-                                        .populateDefaultSettingsData();
-                                    Provider.of<SettingsLocalStorage>(context,
-                                            listen: false)
-                                        .updateSettings();
-                                    db.settingsDatabase
-                                        .populateDefaultSettingsData(context);
-                                    if (db.userDatabase.isLoggedIn) {
-                                      await db.habitDatabase
-                                          .clearHabits(context);
-                                      await db.statsDatabase
-                                          .clearStatistics(context);
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    DeleteAcccountLoginScreen()));
+                                      }
                                     }
-                                    Provider.of<LoadingStateProvider>(context,
-                                            listen: false)
-                                        .setLoading(false);
-                                    Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const SplashScreen()),
-                                        (route) => false);
-                                  }
-                                }),
+                                  }),
+                            ),
                           ],
                         ),
                         Provider.of<UserLocalStorage>(context, listen: false)
