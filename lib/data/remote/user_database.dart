@@ -110,6 +110,11 @@ class UserDatabase {
       QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
       String uid = _auth.currentUser!.uid.toString();
       for (var user in usersSnapshot.docs) {
+        try {
+          user.get('uid');
+        } catch (e) {
+          continue;
+        } // handles users w/o uids
         if (user.get('uid') == uid) {
           debugPrint('loading user...');
           Provider.of<UserLocalStorage>(context, listen: false).currentUser =
@@ -147,6 +152,11 @@ class UserDatabase {
       }
       QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
       for (var user in usersSnapshot.docs) {
+        try {
+          user.get('uid');
+        } catch (e) {
+          continue;
+        } // handles users w/o uids
         if (user.get('uid') ==
             Provider.of<UserLocalStorage>(context, listen: false)
                 .currentUser

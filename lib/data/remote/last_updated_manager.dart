@@ -25,7 +25,12 @@ class LastUpdatedManager {
   Future<void> syncLastUpdated(context) async {
     try {
       QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
-      for (var user in usersSnapshot.docs) {
+      for (QueryDocumentSnapshot user in usersSnapshot.docs) {
+        try {
+          user.get('uid');
+        } catch (e) {
+          continue;
+        } // handles users w/o uids
         if (user.get('uid') ==
             Provider.of<UserLocalStorage>(context, listen: false)
                 .currentUser
