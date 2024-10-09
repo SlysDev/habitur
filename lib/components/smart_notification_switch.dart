@@ -32,8 +32,14 @@ class _SmartNotificationSwitchState extends State<SmartNotificationSwitch> {
             SizedBox(
               width: 10,
             ),
-            Text('Smart Notifications',
-                style: kMainDescription.copyWith(fontSize: 16)),
+            Expanded(
+              child: Text(
+                  MediaQuery.of(context).size.width > 600
+                      ? 'Smart Notifications'
+                      : 'Smart \n Notifications',
+                  textAlign: TextAlign.center,
+                  style: kMainDescription.copyWith(fontSize: 16)),
+            ),
           ],
         ),
         onChanged: (value) {

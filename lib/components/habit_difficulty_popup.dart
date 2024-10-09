@@ -38,7 +38,7 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
         backgroundColor: kBackgroundColor,
         content: Container(
           alignment: Alignment.center,
-          height: 275,
+          height: 325,
           width: 300,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

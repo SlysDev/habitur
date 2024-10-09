@@ -22,11 +22,11 @@ class _ResetPeriodButtonState extends State<ResetPeriodButton> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(17.5),
         decoration: BoxDecoration(
             color: widget.habit.resetPeriod == widget.resetPeriod
                 ? kLightGreenAccent.withOpacity(0.5)
-                : Colors.transparent,
+                : kDarkGray.withOpacity(0.2),
             borderRadius: BorderRadius.circular(20)),
         child: Text(
           widget.resetPeriod,

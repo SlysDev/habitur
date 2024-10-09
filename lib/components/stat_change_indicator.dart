@@ -19,6 +19,7 @@ class StatChangeIndicator extends StatelessWidget {
     changeColor = valueChange == 0 ? Colors.white60 : changeColor;
 
     return StaticCard(
+      padding: MediaQuery.of(context).size.width * 0.05,
       color: changeColor,
       opacity: 0.2,
       child: Text(

@@ -129,7 +129,8 @@ class LineGraph extends StatelessWidget {
                                   ? 'Consistency'
                                   : 'Completions',
                       style: kHeadingTextStyle.copyWith(
-                          color: Colors.white, fontSize: 25),
+                          color: Colors.white,
+                          fontSize: MediaQuery.of(context).size.width * 0.06),
                     )
                   : Container(),
               showStatTitle && showChangeIndicator

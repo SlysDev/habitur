@@ -6,10 +6,14 @@ class RoundedTile extends StatelessWidget {
   final void Function() onTap;
   final Color color;
   final EdgeInsets padding;
+  final double? width;
+  final double? height;
   const RoundedTile(
       {required this.color,
       required this.child,
       required this.onTap,
+      this.width,
+      this.height,
       this.padding = const EdgeInsets.all(10)});
 
   @override
@@ -18,6 +22,8 @@ class RoundedTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
+          width: width,
+          height: height,
           margin: EdgeInsets.all(2),
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(

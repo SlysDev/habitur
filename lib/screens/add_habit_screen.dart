@@ -58,9 +58,9 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         'New Habit',
-                        style: kTitleTextStyle,
+                        style: kTitleTextStyle.copyWith(color: kDarkGray),
                       ),
                       const SizedBox(
                         height: 40,

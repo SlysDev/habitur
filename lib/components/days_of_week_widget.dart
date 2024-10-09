@@ -24,8 +24,8 @@ class DaysOfWeekWidget extends StatelessWidget {
                   : kFadedBlue, // Light blue for today, faded blue for others
               borderRadius: BorderRadius.circular(10), // Curved edges
             ),
-            width: 40,
-            height: 40,
+            width: MediaQuery.of(context).size.width * 0.10,
+            height: MediaQuery.of(context).size.width * 0.10,
             alignment: Alignment.center,
             child: Text(
               days[index],

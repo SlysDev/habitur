@@ -16,43 +16,54 @@ class DaysOfWeekSelector extends StatelessWidget {
       create: (_) =>
           DaysOfWeekSelectorProvider(habit.requiredDatesOfCompletion),
       child: Consumer<DaysOfWeekSelectorProvider>(
-          builder: (context, daysOfWeekSelectorProvider, child) {
-        return Column(
-          children: [
-            Text(
-              'Days of the week',
-              style: kHeadingTextStyle.copyWith(color: Colors.white),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            StaticCard(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildDayTile(
-                      context, daysOfWeekSelectorProvider, 'Mo', 'Monday'),
-                  _buildDayTile(
-                      context, daysOfWeekSelectorProvider, 'Tu', 'Tuesday'),
-                  _buildDayTile(
-                      context, daysOfWeekSelectorProvider, 'We', 'Wednesday'),
-                  _buildDayTile(
-                      context, daysOfWeekSelectorProvider, 'Th', 'Thursday'),
-                  _buildDayTile(
-                      context, daysOfWeekSelectorProvider, 'Fr', 'Friday'),
-                  _buildDayTile(
-                      context, daysOfWeekSelectorProvider, 'Sa', 'Saturday'),
-                  _buildDayTile(
-                      context, daysOfWeekSelectorProvider, 'Su', 'Sunday'),
-                ],
+        builder: (context, daysOfWeekSelectorProvider, child) {
+          return Column(
+            children: [
+              Text(
+                'Days of the week',
+                style: kHeadingTextStyle.copyWith(color: Colors.white),
               ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-          ],
-        );
-      }),
+              const SizedBox(
+                height: 30,
+              ),
+              StaticCard(
+                padding: 15,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildDayTile(context, daysOfWeekSelectorProvider, 'Mo',
+                            'Monday'),
+                        _buildDayTile(context, daysOfWeekSelectorProvider, 'Tu',
+                            'Tuesday'),
+                        _buildDayTile(context, daysOfWeekSelectorProvider, 'We',
+                            'Wednesday'),
+                        _buildDayTile(context, daysOfWeekSelectorProvider, 'Th',
+                            'Thursday'),
+                        _buildDayTile(context, daysOfWeekSelectorProvider, 'Fr',
+                            'Friday'),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildDayTile(context, daysOfWeekSelectorProvider, 'Sa',
+                            'Saturday'),
+                        _buildDayTile(context, daysOfWeekSelectorProvider, 'Su',
+                            'Sunday'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -64,18 +75,21 @@ class DaysOfWeekSelector extends StatelessWidget {
   ) {
     bool isSelected = provider.isDaySelected(fullDay);
 
-    return RoundedTile(
-      onTap: () {
-        provider.toggleDay(fullDay);
-      },
-      color: isSelected ? kPrimaryColor : Colors.transparent,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-      child: Center(
-        child: Text(
-          shortDay,
-          style: TextStyle(
-            fontSize: 12,
-            color: isSelected ? kBackgroundColor : Colors.white,
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.14,
+      child: RoundedTile(
+        onTap: () {
+          provider.toggleDay(fullDay);
+        },
+        color: isSelected ? kPrimaryColor : Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+        child: Center(
+          child: Text(
+            shortDay,
+            style: TextStyle(
+              fontSize: MediaQuery.of(context).size.width * 0.04,
+              color: isSelected ? kBackgroundColor : Colors.white,
+            ),
           ),
         ),
       ),
