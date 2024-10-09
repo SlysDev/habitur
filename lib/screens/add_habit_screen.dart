@@ -34,153 +34,164 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
     Habit newHabit = Provider.of<AddHabitScreenProvider>(context).habit;
     return Consumer<AddHabitScreenProvider>(
         builder: (context, addHabitProvider, child) {
-      return BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: kBackgroundColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20),
-              topRight: Radius.circular(20),
-            ),
-          ),
-          height: MediaQuery.of(context).size.height * 0.85,
+      return GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
             decoration: const BoxDecoration(
               color: kBackgroundColor,
               borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
             ),
+            height: MediaQuery.of(context).size.height * 0.85,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-              child: ListView(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'New Habit',
-                        style: kTitleTextStyle.copyWith(color: kDarkGray),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      Text(
-                        'Name',
-                        style: kHeadingTextStyle.copyWith(color: Colors.white),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      FilledTextField(
-                          controller: addHabitProvider.titleController,
-                          onChanged: (value) {
-                            setHabit(newHabit.copyWith(title: value));
-                            debugPrint(newHabit.title);
-                          },
-                          hintText: 'Meditate, Run, etc.'),
-                      const SizedBox(
-                        height: 60,
-                      ),
-                      SmartNotificationSwitch(habit: newHabit),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      Text(
-                        'Goal',
-                        style: kHeadingTextStyle.copyWith(color: Colors.white),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      StaticCard(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                ResetPeriodButton(
-                                    habit: newHabit,
-                                    resetPeriod: 'Daily',
-                                    onTap: () {
-                                      setHabit(newHabit.copyWith(
-                                          resetPeriod: 'Daily'));
-                                    }),
-                                ResetPeriodButton(
-                                    habit: newHabit,
-                                    resetPeriod: 'Weekly',
-                                    onTap: () {
-                                      setHabit(newHabit.copyWith(
-                                          resetPeriod: 'Weekly'));
-                                    }),
-                                ResetPeriodButton(
-                                  habit: newHabit,
-                                  resetPeriod: 'Monthly',
-                                  onTap: () {
-                                    setHabit(newHabit.copyWith(
-                                        resetPeriod: 'Monthly'));
-                                  },
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  width: 100,
-                                  child: FilledTextField(
-                                      controller: addHabitProvider
-                                          .requiredCompletionsController,
-                                      onChanged: (value) {
-                                        setHabit(newHabit.copyWith(
-                                          requiredCompletions: int.parse(value),
-                                        ));
-                                      },
-                                      hintText: '#'),
-                                ),
-                                SizedBox(width: 20),
-                                Text(
-                                  newHabit.resetPeriod == 'Daily'
-                                      ? 'time(s) per day'
-                                      : 'time(s) per ${newHabit.resetPeriod.substring(0, newHabit.resetPeriod.length - 2).toLowerCase()}',
-                                  // Removes 'ly' from adverbs
-                                  style: kSubHeadingTextStyle.copyWith(
-                                      color: kGray),
-                                ),
-                              ],
-                            ),
-                          ],
+              decoration: const BoxDecoration(
+                color: kBackgroundColor,
+                borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20)),
+              ),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                child: ListView(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'New Habit',
+                          style: kTitleTextStyle.copyWith(color: kDarkGray),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      newHabit.resetPeriod == 'Daily'
-                          ? DaysOfWeekSelector(habit: newHabit)
-                          : Container(),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await Provider.of<HabitManager>(context,
-                                  listen: false)
-                              .addHabit(newHabit, context);
-                          Database db = Database();
-                          Provider.of<HabitManager>(context, listen: false)
-                              .sortHabits();
-                          Provider.of<HabitManager>(context, listen: false)
-                              .updateHabits();
-                          Provider.of<AddHabitScreenProvider>(context,
-                                  listen: false)
-                              .reset();
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Create'),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(
+                          height: 40,
+                        ),
+                        Text(
+                          'Name',
+                          style:
+                              kHeadingTextStyle.copyWith(color: Colors.white),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        FilledTextField(
+                            controller: addHabitProvider.titleController,
+                            onChanged: (value) {
+                              setHabit(newHabit.copyWith(title: value));
+                              debugPrint(newHabit.title);
+                            },
+                            hintText: 'Meditate, Run, etc.'),
+                        const SizedBox(
+                          height: 60,
+                        ),
+                        SmartNotificationSwitch(habit: newHabit),
+                        const SizedBox(
+                          height: 40,
+                        ),
+                        Text(
+                          'Goal',
+                          style:
+                              kHeadingTextStyle.copyWith(color: Colors.white),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        StaticCard(
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ResetPeriodButton(
+                                      habit: newHabit,
+                                      resetPeriod: 'Daily',
+                                      onTap: () {
+                                        setHabit(newHabit.copyWith(
+                                            resetPeriod: 'Daily'));
+                                      }),
+                                  ResetPeriodButton(
+                                      habit: newHabit,
+                                      resetPeriod: 'Weekly',
+                                      onTap: () {
+                                        setHabit(newHabit.copyWith(
+                                            resetPeriod: 'Weekly'));
+                                      }),
+                                  ResetPeriodButton(
+                                    habit: newHabit,
+                                    resetPeriod: 'Monthly',
+                                    onTap: () {
+                                      setHabit(newHabit.copyWith(
+                                          resetPeriod: 'Monthly'));
+                                    },
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 100,
+                                    child: FilledTextField(
+                                        controller: addHabitProvider
+                                            .requiredCompletionsController,
+                                        onChanged: (value) {
+                                          setHabit(newHabit.copyWith(
+                                            requiredCompletions:
+                                                int.parse(value),
+                                          ));
+                                        },
+                                        hintText: '#'),
+                                  ),
+                                  SizedBox(width: 20),
+                                  Text(
+                                    newHabit.resetPeriod == 'Daily'
+                                        ? 'time(s) per day'
+                                        : 'time(s) per ${newHabit.resetPeriod.substring(0, newHabit.resetPeriod.length - 2).toLowerCase()}',
+                                    // Removes 'ly' from adverbs
+                                    style: kSubHeadingTextStyle.copyWith(
+                                        color: kGray),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 40,
+                        ),
+                        newHabit.resetPeriod == 'Daily'
+                            ? DaysOfWeekSelector(habit: newHabit)
+                            : Container(),
+                        ElevatedButton(
+                          onPressed: () async {
+                            await Provider.of<HabitManager>(context,
+                                    listen: false)
+                                .addHabit(newHabit, context);
+                            Database db = Database();
+                            Provider.of<HabitManager>(context, listen: false)
+                                .sortHabits();
+                            Provider.of<HabitManager>(context, listen: false)
+                                .updateHabits();
+                            Provider.of<AddHabitScreenProvider>(context,
+                                    listen: false)
+                                .reset();
+                            Navigator.pop(context);
+                          },
+                          child: const Text('Create'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

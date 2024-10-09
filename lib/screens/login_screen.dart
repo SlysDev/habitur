@@ -25,196 +25,203 @@ class LoginScreen extends StatelessWidget {
       builder: (context, loadingData, child) {
         return LoadingOverlayWrapper(
           child: Scaffold(
-            body: SafeArea(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                children: [
-                  const SizedBox(height: 20),
-                  Container(
-                    height: 100,
-                    child: Flexible(
-                      child: Container(
-                        margin: EdgeInsets.all(10),
-                        child: kHabiturLogo,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height *
-                        0.04, // Spacing for logo
-                  ),
-                  const Text(
-                    'Welcome Back.',
-                    textAlign: TextAlign.center,
-                    style: kTitleTextStyle,
-                  ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.04),
-                  FilledTextField(
-                    hintText: 'Enter your email',
-                    onChanged: (newValue) {
-                      email = newValue;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  FilledTextField(
-                    obscureText: true,
-                    hintText: 'Enter your password',
-                    onChanged: (newValue) {
-                      password = newValue;
-                    },
-                  ),
-                  const SizedBox(height: 40),
-                  AnimatedContainer(
-                    padding: EdgeInsets.all(
-                        Provider.of<LoginRegistrationState>(context)
-                                .loginSuccess
-                            ? 0
-                            : 15),
-                    duration: const Duration(milliseconds: 700),
-                    curve: Curves.fastOutSlowIn,
-                    height: Provider.of<LoginRegistrationState>(context)
-                            .loginSuccess
-                        ? 0
-                        : 50,
-                    child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 1200),
-                      opacity: Provider.of<LoginRegistrationState>(context)
-                              .loginSuccess
-                          ? 0
-                          : 1,
-                      child: Container(
-                        child: Text(
-                          Provider.of<LoginRegistrationState>(context)
-                              .errorMessage,
-                          style: kErrorTextStyle.copyWith(
-                            color: kRed,
-                            fontSize:
-                                MediaQuery.of(context).size.height * 0.0275,
-                          ),
-                          textAlign: TextAlign.center,
+            body: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              child: SafeArea(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  children: [
+                    const SizedBox(height: 20),
+                    Container(
+                      height: 100,
+                      child: Flexible(
+                        child: Container(
+                          margin: EdgeInsets.all(10),
+                          child: kHabiturLogo,
                         ),
                       ),
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 80),
-                    child: PrimaryButton(
-                      text: 'Login',
-                      onPressed: () async {
-                        dynamic result;
-                        if (Provider.of<HabitsLocalStorage>(context,
-                                listen: false)
-                            .getHabitData(context)
-                            .isNotEmpty) {
-                          result = await showDialog(
-                            context: context,
-                            builder: (context) => CustomAlertDialog(
-                              title: 'Warning',
-                              content: Text(
-                                  'Are you sure you want to log in? All of your data will be overwritten.'),
-                              actions: [
-                                AsideButton(
-                                  onPressed: () {
-                                    Navigator.pop(context, true);
-                                  },
-                                  text: 'Yes',
-                                ),
-                                const SizedBox(width: 10),
-                                AsideButton(
-                                  onPressed: () {
-                                    Navigator.pop(context, false);
-                                  },
-                                  text: 'No',
-                                ),
-                              ],
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height *
+                          0.04, // Spacing for logo
+                    ),
+                    const Text(
+                      'Welcome Back.',
+                      textAlign: TextAlign.center,
+                      style: kTitleTextStyle,
+                    ),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+                    FilledTextField(
+                      hintText: 'Enter your email',
+                      onChanged: (newValue) {
+                        email = newValue;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    FilledTextField(
+                      obscureText: true,
+                      hintText: 'Enter your password',
+                      onChanged: (newValue) {
+                        password = newValue;
+                      },
+                    ),
+                    const SizedBox(height: 40),
+                    AnimatedContainer(
+                      padding: EdgeInsets.all(
+                          Provider.of<LoginRegistrationState>(context)
+                                  .loginSuccess
+                              ? 0
+                              : 15),
+                      duration: const Duration(milliseconds: 700),
+                      curve: Curves.fastOutSlowIn,
+                      height: Provider.of<LoginRegistrationState>(context)
+                              .loginSuccess
+                          ? 0
+                          : 50,
+                      child: AnimatedOpacity(
+                        duration: const Duration(milliseconds: 1200),
+                        opacity: Provider.of<LoginRegistrationState>(context)
+                                .loginSuccess
+                            ? 0
+                            : 1,
+                        child: Container(
+                          child: Text(
+                            Provider.of<LoginRegistrationState>(context)
+                                .errorMessage,
+                            style: kErrorTextStyle.copyWith(
+                              color: kRed,
+                              fontSize:
+                                  MediaQuery.of(context).size.height * 0.0275,
                             ),
-                          );
-                        } else {
-                          result = true;
-                        }
-                        result ??= false;
-                        if (result) {
-                          Provider.of<LoadingStateProvider>(context,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 80),
+                      child: PrimaryButton(
+                        text: 'Login',
+                        onPressed: () async {
+                          dynamic result;
+                          if (Provider.of<HabitsLocalStorage>(context,
                                   listen: false)
-                              .setLoading(true);
-                          try {
-                            final newUser =
-                                await _auth.signInWithEmailAndPassword(
-                                    email: email, password: password);
-                            DataManager data = DataManager();
-                            await data.loadData(context, forceDbLoad: true);
-                            await Provider.of<UserLocalStorage>(context,
+                              .getHabitData(context)
+                              .isNotEmpty) {
+                            result = await showDialog(
+                              context: context,
+                              builder: (context) => CustomAlertDialog(
+                                title: 'Warning',
+                                content: Text(
+                                    'Are you sure you want to log in? All of your data will be overwritten.'),
+                                actions: [
+                                  AsideButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, true);
+                                    },
+                                    text: 'Yes',
+                                  ),
+                                  const SizedBox(width: 10),
+                                  AsideButton(
+                                    onPressed: () {
+                                      Navigator.pop(context, false);
+                                    },
+                                    text: 'No',
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else {
+                            result = true;
+                          }
+                          result ??= false;
+                          if (result) {
+                            Provider.of<LoadingStateProvider>(context,
                                     listen: false)
-                                .saveData(context);
-                            if (newUser.user?.displayName == null) {
-                              await _auth.currentUser?.updateDisplayName(
-                                  Provider.of<UserLocalStorage>(context,
-                                          listen: false)
-                                      .currentUser
-                                      .username);
-                            }
-                            await Provider.of<HabitsLocalStorage>(context,
-                                    listen: false)
-                                .uploadAllHabits(
-                                    Provider.of<HabitManager>(context,
+                                .setLoading(true);
+                            try {
+                              final newUser =
+                                  await _auth.signInWithEmailAndPassword(
+                                      email: email, password: password);
+                              DataManager data = DataManager();
+                              await data.loadData(context, forceDbLoad: true);
+                              await Provider.of<UserLocalStorage>(context,
+                                      listen: false)
+                                  .saveData(context);
+                              if (newUser.user?.displayName == null) {
+                                await _auth.currentUser?.updateDisplayName(
+                                    Provider.of<UserLocalStorage>(context,
                                             listen: false)
-                                        .habits,
-                                    context);
-                            if (newUser != null) {
+                                        .currentUser
+                                        .username);
+                              }
+                              await Provider.of<HabitsLocalStorage>(context,
+                                      listen: false)
+                                  .uploadAllHabits(
+                                      Provider.of<HabitManager>(context,
+                                              listen: false)
+                                          .habits,
+                                      context);
+                              if (newUser != null) {
+                                Provider.of<LoadingStateProvider>(context,
+                                        listen: false)
+                                    .setLoading(false);
+                                Navigator.popAndPushNamed(
+                                    context, 'home_screen');
+                              }
+                            } catch (e, s) {
+                              String errorMessage = handleLoginError(e);
                               Provider.of<LoadingStateProvider>(context,
                                       listen: false)
                                   .setLoading(false);
-                              Navigator.popAndPushNamed(context, 'home_screen');
-                            }
-                          } catch (e, s) {
-                            String errorMessage = handleLoginError(e);
-                            Provider.of<LoadingStateProvider>(context,
-                                    listen: false)
-                                .setLoading(false);
-                            Provider.of<LoginRegistrationState>(context,
-                                    listen: false)
-                                .loginFail(errorMessage);
-                            Future.delayed(Duration(milliseconds: 2500), () {
                               Provider.of<LoginRegistrationState>(context,
                                       listen: false)
-                                  .setLoginSuccess(true);
-                            });
+                                  .loginFail(errorMessage);
+                              Future.delayed(Duration(milliseconds: 2500), () {
+                                Provider.of<LoginRegistrationState>(context,
+                                        listen: false)
+                                    .setLoginSuccess(true);
+                              });
+                            }
                           }
-                        }
-                      },
+                        },
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Center(
-                          child: AsideButton(
-                            text: 'Register',
-                            onPressed: () {
-                              Navigator.popAndPushNamed(
-                                  context, 'register_screen');
-                            },
+                    const SizedBox(height: 40),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: AsideButton(
+                              text: 'Register',
+                              onPressed: () {
+                                Navigator.popAndPushNamed(
+                                    context, 'register_screen');
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Center(
-                          child: AsideButton(
-                            text: 'Offline Login',
-                            onPressed: () {
-                              Navigator.pop(context);
-                              Navigator.popAndPushNamed(context, 'home_screen');
-                            },
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Center(
+                            child: AsideButton(
+                              text: 'Offline Login',
+                              onPressed: () {
+                                Navigator.pop(context);
+                                Navigator.popAndPushNamed(
+                                    context, 'home_screen');
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 40),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 40),
+                  ],
+                ),
               ),
             ),
           ),
