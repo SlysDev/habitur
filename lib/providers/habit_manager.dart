@@ -56,10 +56,11 @@ class HabitManager extends ChangeNotifier {
     NotificationManager notificationManager = NotificationManager();
     await notificationManager.cancelAllScheduledNotifications();
     NotificationScheduler notificationScheduler = NotificationScheduler();
-    int habitID = _habits[index].id;
+    Habit habitToDelete = _habits[index];
+    int habitID = habitToDelete.id;
     _habits.removeWhere((element) => element.id == habitID);
     await Provider.of<HabitsLocalStorage>(context, listen: false)
-        .deleteHabit(_habits[index]);
+        .deleteHabit(habitToDelete);
     await _db.habitDatabase.deleteHabit(context, habitID);
     bool notificationSetting =
         Provider.of<SettingsLocalStorage>(context, listen: false)
