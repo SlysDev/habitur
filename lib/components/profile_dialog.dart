@@ -91,6 +91,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                             fontSize: 18,
                             color: kGray,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 30),
 
