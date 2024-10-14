@@ -66,9 +66,9 @@ class CommunityChallengeManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateChallenges(context) {
+  Future<void> updateChallenges(context) async {
     Database db = Database();
-    db.communityChallengeDatabase.uploadCommunityChallenges(context);
+    await db.communityChallengeDatabase.uploadCommunityChallenges(context);
     debugPrint('Challenges updated');
     notifyListeners();
   }

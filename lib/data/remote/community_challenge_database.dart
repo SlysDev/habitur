@@ -100,7 +100,7 @@ class CommunityChallengeDatabase {
     }
   }
 
-  void uploadCommunityChallenges(context) async {
+  Future<void> uploadCommunityChallenges(context) async {
     try {
       CollectionReference communityChallenges =
           _firestore.collection('community-challenges');
