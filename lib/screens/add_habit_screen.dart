@@ -168,6 +168,14 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                         const SizedBox(
                           height: 40,
                         ),
+                        Text(
+                          'Days of the week',
+                          style:
+                              kHeadingTextStyle.copyWith(color: Colors.white),
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
                         newHabit.resetPeriod == 'Daily'
                             ? DaysOfWeekSelector(habit: newHabit)
                             : Container(),

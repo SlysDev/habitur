@@ -18,23 +18,21 @@ class RoundedTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: width,
-          height: height,
-          margin: EdgeInsets.all(2),
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: color,
-          ),
-          child: DefaultTextStyle(
-            style: const TextStyle(
-                color: kBackgroundColor, fontWeight: FontWeight.bold),
-            child: child,
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width,
+        height: height,
+        margin: EdgeInsets.all(2),
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: color,
+        ),
+        child: DefaultTextStyle(
+          style: const TextStyle(
+              color: kBackgroundColor, fontWeight: FontWeight.bold),
+          child: child,
         ),
       ),
     );

@@ -19,18 +19,12 @@ class DaysOfWeekSelector extends StatelessWidget {
         builder: (context, daysOfWeekSelectorProvider, child) {
           return Column(
             children: [
-              Text(
-                'Days of the week',
-                style: kHeadingTextStyle.copyWith(color: Colors.white),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
               StaticCard(
                 padding: 15,
                 child: Column(
                   children: [
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _buildDayTile(context, daysOfWeekSelectorProvider, 'Mo',
