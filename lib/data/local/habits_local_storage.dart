@@ -108,7 +108,6 @@ class HabitsLocalStorage extends ChangeNotifier {
       showErrorSnackbar(context, e, s);
     }
     Provider.of<HabitManager>(context, listen: false).resetHabits(context);
-    Provider.of<HabitManager>(context, listen: false).sortHabits();
     debugPrint('data loaded:');
     debugPrint(getHabitData(context).length.toString());
     debugPrint(stringifyHabitData(context));

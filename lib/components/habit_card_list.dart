@@ -29,9 +29,8 @@ class HabitCardList extends StatelessWidget {
           },
           child: ListView.builder(
               itemBuilder: (context, index) {
-                Provider.of<HabitManager>(context, listen: false).sortHabits();
                 return Provider.of<HabitManager>(context)
-                        .sortedHabits[index]
+                        .habits[index]
                         .requiredDatesOfCompletion
                         .contains(DateFormat('EEEE').format(DateTime.now()))
                     ? Column(

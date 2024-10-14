@@ -51,7 +51,7 @@ class _HabitCardState extends State<HabitCard> {
   Widget build(BuildContext context) {
     dynamic habit;
     try {
-      habit = Provider.of<HabitManager>(context).sortedHabits[widget.index];
+      habit = Provider.of<HabitManager>(context).habits[widget.index];
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());

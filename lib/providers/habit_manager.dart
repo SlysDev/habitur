@@ -13,7 +13,6 @@ import 'dart:collection';
 
 class HabitManager extends ChangeNotifier {
   List<Habit> _habits = [];
-  List<Habit> _sortedHabits = [];
   late String weekDay;
   late String date;
   final Database _db = Database();
@@ -23,10 +22,6 @@ class HabitManager extends ChangeNotifier {
 
   UnmodifiableListView<Habit> get habits {
     return UnmodifiableListView(_habits);
-  }
-
-  UnmodifiableListView<Habit> get sortedHabits {
-    return UnmodifiableListView(_sortedHabits);
   }
 
   Future<void> addHabit(Habit habit, context) async {
@@ -52,17 +47,6 @@ class HabitManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void sortHabits() {
-    _sortedHabits = _habits;
-    // Sorts the habits by urgency
-    _sortedHabits.sort(((Habit a, Habit b) =>
-        b.resetPeriod == 'Daily' && a.resetPeriod == 'Weekly' ||
-                b.resetPeriod == 'Daily' && a.resetPeriod == 'Monthly' ||
-                b.resetPeriod == 'Weekly' && a.resetPeriod == 'Monthly'
-            ? 1
-            : 0));
-  }
-
   void loadHabits(List<Habit> habitList) {
     _habits = habitList;
     notifyListeners();
@@ -72,12 +56,11 @@ class HabitManager extends ChangeNotifier {
     NotificationManager notificationManager = NotificationManager();
     await notificationManager.cancelAllScheduledNotifications();
     NotificationScheduler notificationScheduler = NotificationScheduler();
-    int habitID = _sortedHabits[index].id;
+    int habitID = _habits[index].id;
     _habits.removeWhere((element) => element.id == habitID);
     await Provider.of<HabitsLocalStorage>(context, listen: false)
-        .deleteHabit(sortedHabits[index]);
+        .deleteHabit(_habits[index]);
     await _db.habitDatabase.deleteHabit(context, habitID);
-    sortHabits();
     bool notificationSetting =
         Provider.of<SettingsLocalStorage>(context, listen: false)
             .dailyReminders
@@ -90,7 +73,6 @@ class HabitManager extends ChangeNotifier {
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
     }
-    sortHabits();
     notifyListeners();
   }
 
@@ -100,7 +82,6 @@ class HabitManager extends ChangeNotifier {
   }
 
   void updateHabits() {
-    sortHabits();
     notifyListeners();
   }
 
@@ -362,15 +343,20 @@ class HabitManager extends ChangeNotifier {
     }
   }
 
-  void clearHabitStats() {
+  Future<void> clearHabitStats(BuildContext context) async {
     for (int i = 0; i < _habits.length; i++) {
       _habits[i].stats = [];
     }
+    await Provider.of<HabitsLocalStorage>(context, listen: false)
+        .clearStats(context);
   }
 
-  void deleteAllHabits() {
+  Future<void> deleteAllHabits(BuildContext context) async {
+    Database db = Database();
     _habits = [];
-    _sortedHabits = [];
+    await Provider.of<HabitsLocalStorage>(context, listen: false)
+        .deleteData(context);
+    await db.habitDatabase.clearHabits(context);
     notifyListeners();
   }
 }

@@ -52,7 +52,7 @@ class _InactiveHabitCardState extends State<InactiveHabitCard> {
 
   @override
   Widget build(BuildContext context) {
-    Habit habit = Provider.of<HabitManager>(context).sortedHabits[widget.index];
+    Habit habit = Provider.of<HabitManager>(context).habits[widget.index];
     double progress = habit.completionsToday / habit.requiredCompletions;
     bool completed = habit.completionsToday == habit.requiredCompletions;
     editHabit() {

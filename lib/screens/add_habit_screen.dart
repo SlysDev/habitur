@@ -186,8 +186,6 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                 .addHabit(newHabit, context);
                             Database db = Database();
                             Provider.of<HabitManager>(context, listen: false)
-                                .sortHabits();
-                            Provider.of<HabitManager>(context, listen: false)
                                 .updateHabits();
                             Provider.of<AddHabitScreenProvider>(context,
                                     listen: false)
