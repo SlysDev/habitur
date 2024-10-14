@@ -105,8 +105,7 @@ class HabitManager extends ChangeNotifier {
 
           for (int i = 0; i <= daysDifference; i++) {
             // Get the current day being checked
-            DateTime currentDay =
-                element.daysCompleted.last.subtract(Duration(days: i));
+            DateTime currentDay = DateTime.now().subtract(Duration(days: i));
 
             // Get the day of the week as a string (e.g., "Monday", "Tuesday", etc.)
             String dayOfWeek = DateFormat('EEEE').format(currentDay);
