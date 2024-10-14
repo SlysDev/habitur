@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:habitur/components/custom_snack_bar.dart';
 import 'package:habitur/components/habit_difficulty_popup.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
@@ -225,6 +226,9 @@ class _HabitCardState extends State<HabitCard> {
                               setState(() {
                                 _controller.play();
                               });
+                            } else {
+                              showCustomSnackBar(context,
+                                  "You've already completed this habit", kRed);
                             }
                           },
                           onLongPress: () async {

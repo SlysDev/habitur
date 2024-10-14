@@ -3,17 +3,18 @@ import 'package:habitur/constants.dart';
 
 class ErrorTile extends StatelessWidget {
   String errorText;
-  ErrorTile({required this.errorText});
+  Color color;
+  ErrorTile({required this.errorText, this.color = kRed});
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: Icon(
         Icons.error,
-        color: Colors.red,
+        color: color,
       ),
       title: Text(
         errorText,
-        style: kErrorTextStyle,
+        style: kErrorTextStyle.copyWith(color: color),
       ),
     );
   }

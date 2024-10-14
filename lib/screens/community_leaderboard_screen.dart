@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:habitur/components/custom_snack_bar.dart';
 import 'package:habitur/components/habit_stats_card.dart';
 import 'package:habitur/components/inactive_elevated_button.dart';
 import 'package:habitur/components/loading_overlay_wrapper.dart';
@@ -16,6 +17,7 @@ import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/providers/loading_state_provider.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart'; // Import your LeaderboardCard
 
@@ -55,6 +57,8 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
                   context, challenge, 1); // Increment full completions
         }
       } else {
+        showCustomSnackBar(
+            context, "You've already completed this challenge!", kRed);
         return;
       }
       await Provider.of<CommunityChallengeManager>(context, listen: false)
