@@ -54,6 +54,8 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
               .updateParticipantFullCompletions(
                   context, challenge, 1); // Increment full completions
         }
+      } else {
+        return;
       }
       await Provider.of<CommunityChallengeManager>(context, listen: false)
           .updateChallenges(context);

@@ -33,7 +33,7 @@ class SettingsLocalStorage extends ChangeNotifier {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
   }
 

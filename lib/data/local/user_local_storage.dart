@@ -19,7 +19,7 @@ class UserLocalStorage extends ChangeNotifier {
         _userBox = await Hive.openBox('user');
       }
     } catch (e, s) {
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
   }
 
@@ -46,7 +46,7 @@ class UserLocalStorage extends ChangeNotifier {
       await _userBox.put('currentUser', currentUser);
       await _userBox.put('lastUpdated', DateTime.now());
     } catch (e, s) {
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
   }
 
@@ -54,7 +54,7 @@ class UserLocalStorage extends ChangeNotifier {
     try {
       await Hive.deleteBoxFromDisk('user');
     } catch (e, s) {
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
   }
 
@@ -124,7 +124,7 @@ class UserLocalStorage extends ChangeNotifier {
       debugPrint('unsuccessful stat update');
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
     notifyListeners();
   }
@@ -145,7 +145,7 @@ class UserLocalStorage extends ChangeNotifier {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
     notifyListeners();
   }

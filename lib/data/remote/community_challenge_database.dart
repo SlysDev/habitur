@@ -94,7 +94,7 @@ class CommunityChallengeDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -151,7 +151,7 @@ class CommunityChallengeDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -170,7 +170,7 @@ class CommunityChallengeDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -196,7 +196,7 @@ class CommunityChallengeDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -222,7 +222,7 @@ class CommunityChallengeDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }

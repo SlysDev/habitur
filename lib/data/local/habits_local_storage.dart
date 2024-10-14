@@ -24,7 +24,7 @@ class HabitsLocalStorage extends ChangeNotifier {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
   }
 
@@ -41,7 +41,7 @@ class HabitsLocalStorage extends ChangeNotifier {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
   }
 
@@ -75,7 +75,7 @@ class HabitsLocalStorage extends ChangeNotifier {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
       return [];
     }
   }
@@ -92,7 +92,7 @@ class HabitsLocalStorage extends ChangeNotifier {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
   }
 
@@ -105,7 +105,7 @@ class HabitsLocalStorage extends ChangeNotifier {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
     Provider.of<HabitManager>(context, listen: false).resetHabits(context);
     debugPrint('data loaded:');
@@ -150,7 +150,7 @@ class HabitsLocalStorage extends ChangeNotifier {
       uploadAllHabits(allHabits, context);
     } catch (e, s) {
       debugPrint(e.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
     }
   }
 

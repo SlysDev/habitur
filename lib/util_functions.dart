@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 
 // error handling
-showErrorSnackbar(BuildContext context, e, s) {
+showDebugErrorSnackbar(BuildContext context, e, s) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       duration: Duration(seconds: 5),

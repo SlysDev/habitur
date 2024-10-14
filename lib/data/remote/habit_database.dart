@@ -83,7 +83,7 @@ class HabitDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showErrorSnackbar(context, e, s);
+      showDebugErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
@@ -127,7 +127,7 @@ class HabitDatabase {
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
-        showErrorSnackbar(context, e, s);
+        showDebugErrorSnackbar(context, e, s);
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -197,7 +197,7 @@ class HabitDatabase {
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
-        showErrorSnackbar(context, e, s);
+        showDebugErrorSnackbar(context, e, s);
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -222,7 +222,7 @@ class HabitDatabase {
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
-        showErrorSnackbar(context, e, s);
+        showDebugErrorSnackbar(context, e, s);
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -249,7 +249,7 @@ class HabitDatabase {
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
-        showErrorSnackbar(context, e, s);
+        showDebugErrorSnackbar(context, e, s);
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -276,7 +276,7 @@ class HabitDatabase {
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
-        showErrorSnackbar(context, e, s);
+        showDebugErrorSnackbar(context, e, s);
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
@@ -315,7 +315,7 @@ class HabitDatabase {
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
-        showErrorSnackbar(context, e, s);
+        showDebugErrorSnackbar(context, e, s);
       }
     }
   }
@@ -342,7 +342,7 @@ class HabitDatabase {
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
-        showErrorSnackbar(context, e, s);
+        showDebugErrorSnackbar(context, e, s);
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
