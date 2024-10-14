@@ -135,18 +135,10 @@ class CommunityChallengeManager extends ChangeNotifier {
             user: user,
             lastSeen: DateTime.now(),
             currentCompletions: delta > 0 ? delta : 0,
-            fullCompletionCount: delta > 0 ? delta : 0));
+            fullCompletionCount: 0));
 
     participantData.fullCompletionCount += delta;
-    if (delta > 0 &&
-        participantData.currentCompletions ==
-            challenge.habit.requiredCompletions) {
-      // User just completed the habit, increment current completions as well
-      participantData.currentCompletions++;
-    }
   }
-
-// ///
 
   void incrementParticipantCompletions(
       BuildContext context, CommunityChallenge challenge) {
