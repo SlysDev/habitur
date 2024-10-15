@@ -86,7 +86,7 @@ class HabitManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> resetDailyHabits(context) async {
+  Future<void> resetDailyHabits(BuildContext context) async {
     NotificationScheduler notificationScheduler = NotificationScheduler();
 
     for (int i = 0; i < _habits.length; i++) {
@@ -96,43 +96,52 @@ class HabitManager extends ChangeNotifier {
       if (element.resetPeriod == 'Daily') {
         // If element.daysCompleted is not empty
         if (element.daysCompleted.isNotEmpty) {
-          int counter = 0;
+          DateTime lastCompletionDate = element.daysCompleted.last;
+          DateTime today = DateTime.now();
 
-          // Get the difference in days between the last completion date and today
-          int daysDifference = element.daysCompleted.last
-              .difference(DateTime.now())
-              .inDays
-              .abs();
+          // Normalize both dates to midnight for comparison
+          DateTime lastCompletionNormalized = DateTime(lastCompletionDate.year,
+              lastCompletionDate.month, lastCompletionDate.day);
+          DateTime todayNormalized =
+              DateTime(today.year, today.month, today.day);
 
-          for (int i = 0; i <= daysDifference; i++) {
-            // Get the current day being checked
-            DateTime currentDay = DateTime.now().subtract(Duration(days: i));
+          // Calculate the number of days between the last completion and today
+          int daysDifference =
+              todayNormalized.difference(lastCompletionNormalized).inDays;
 
-            // Get the day of the week as a string (e.g., "Monday", "Tuesday", etc.)
-            String dayOfWeek = DateFormat('EEEE').format(currentDay);
+          // Check for off days
+          if (daysDifference > 0) {
+            int counter = 0;
 
-            // Check if this day is a required date of completion for the habit
-            if (element.requiredDatesOfCompletion.contains(dayOfWeek)) {
-              counter++;
+            for (int i = 1; i <= daysDifference; i++) {
+              // Get the current day being checked
+              DateTime currentDay = todayNormalized.subtract(Duration(days: i));
+              // Get the day of the week as a string (e.g., "Monday", "Tuesday", etc.)
+              String dayOfWeek = DateFormat('EEEE').format(currentDay);
+
+              // Check if this day is a required date of completion for the habit
+              if (element.requiredDatesOfCompletion.contains(dayOfWeek)) {
+                counter++;
+              }
             }
-          }
 
-          debugPrint("${element.title} days not completed: $counter");
-          counter -= 1; // for loop includes today; so subtract one from counter
-          // Reset habit completions if today is a new day and it requires completion
-          if (counter >= 1) {
-            habitStatsHandler
-                .resetHabitCompletions(); // Allows user to complete the habit again
-            if (element.smartNotifsEnabled) {
-              await notificationScheduler
-                  .scheduleDayHabitReminderTrack(element);
+            debugPrint("${element.title} days not completed: $counter");
+
+            // Reset habit completions if today is a new day and it requires completion
+            if (counter >= 1) {
+              habitStatsHandler
+                  .resetHabitCompletions(); // Allows user to complete the habit again
+              if (element.smartNotifsEnabled) {
+                await notificationScheduler
+                    .scheduleDayHabitReminderTrack(element);
+              }
             }
-          }
 
-          // Reset the streak only if more than one required day has passed without completion
-          if (counter > 1) {
-            element.streak = 0;
-            habitStatsHandler.fillInMissingDays(context);
+            // Reset the streak only if more than one required day has passed without completion
+            if (counter > 1) {
+              element.streak = 0;
+              habitStatsHandler.fillInMissingDays(context);
+            }
           }
         }
       }
