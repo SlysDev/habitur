@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/components/custom_snack_bar.dart';
 import 'package:habitur/components/habit_difficulty_popup.dart';
@@ -56,7 +57,9 @@ class _HabitCardState extends State<HabitCard> {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
-      showDebugErrorSnackbar(context, e, s);
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        showDebugErrorSnackbar(context, e, s);
+      });
     }
     HabitStatsHandler habitStatsHandler = HabitStatsHandler(habit);
     Database db = Database();

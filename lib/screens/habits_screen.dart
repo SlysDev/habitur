@@ -28,16 +28,16 @@ class HabitsScreen extends StatefulWidget {
 }
 
 class _HabitsScreenState extends State<HabitsScreen> {
-  Future<void> loadData(BuildContext context) async {
+  Future<void> loadHabits(BuildContext context) async {
     DataManager dataManager = DataManager();
+    Provider.of<HabitManager>(context, listen: false).resetHabits(context);
     await dataManager.loadHabitsData(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Provider.of<HabitManager>(context, listen: false)
-          .resetHabits(context),
+      future: loadHabits(context),
       builder: (context, snapshot) => Scaffold(
         body: SafeArea(
           child: Padding(
@@ -92,7 +92,7 @@ class _HabitsScreenState extends State<HabitsScreen> {
                 //       }
                 //     }),
                 HabitCardList(
-                  onRefresh: () => loadData(context),
+                  onRefresh: () => loadHabits(context),
                 ),
                 SizedBox(
                   height: 20,
