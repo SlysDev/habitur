@@ -30,7 +30,7 @@ class CommunityHabitList extends StatelessWidget {
             color: kBackgroundColor,
             onRefresh: () async {
               await onRefresh();
-              communityChallengeManager.clearDuplicateChallenges();
+              communityChallengeManager.removeDuplicateChallenges();
             },
             child: ListView.builder(
                 itemBuilder: (context, index) {

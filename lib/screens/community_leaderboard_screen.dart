@@ -44,13 +44,13 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
         currentHabit.completionsToday / currentHabit.requiredCompletions;
     Future<void> completeChallenge() async {
       if (currentHabit.completionsToday != currentHabit.requiredCompletions) {
-        await habitStatsHandler.incrementCompletion(context);
         Provider.of<CommunityChallengeManager>(context, listen: false)
             .updateParticipantCurrentCompletions(
                 context, challenge, 1); // Increment current completions
+        await habitStatsHandler.incrementCompletion(context);
         bool completed =
             Provider.of<CommunityChallengeManager>(context, listen: false)
-                .checkFullCompletion(context, challenge);
+                .handleFullCompletion(context, challenge);
         if (completed) {
           Provider.of<CommunityChallengeManager>(context, listen: false)
               .updateParticipantFullCompletions(
@@ -62,7 +62,7 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
         return;
       }
       await Provider.of<CommunityChallengeManager>(context, listen: false)
-          .updateChallenges(context);
+          .uploadChallengesToDatabase(context);
     }
 
     Future<void> decrementChallenge() async {
@@ -79,7 +79,7 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
       }
       await habitStatsHandler.decrementCompletion(context);
       await Provider.of<CommunityChallengeManager>(context, listen: false)
-          .updateChallenges(context);
+          .uploadChallengesToDatabase(context);
     }
 
     void setLoading(bool value) {

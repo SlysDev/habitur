@@ -82,7 +82,7 @@ class CommunityChallengeDatabase {
       Provider.of<CommunityChallengeManager>(context, listen: false)
           .resetMonthlyChallenges(context, currentUser);
       Provider.of<CommunityChallengeManager>(context, listen: false)
-          .updateChallenges(context);
+          .uploadChallengesToDatabase(context);
       debugPrint('Community challenges loaded');
       debugPrint(Provider.of<CommunityChallengeManager>(context, listen: false)
           .challenges

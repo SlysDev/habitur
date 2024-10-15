@@ -31,33 +31,27 @@ class CommunityChallengeManager extends ChangeNotifier {
         ))
   ];
 
-  UnmodifiableListView<CommunityChallenge> get challenges {
-    return UnmodifiableListView(_challenges);
-  }
+  UnmodifiableListView<CommunityChallenge> get challenges =>
+      UnmodifiableListView(_challenges);
 
-  CommunityChallenge getChallenge(int index) {
-    return _challenges[index];
-  }
+  CommunityChallenge getChallenge(int index) => _challenges[index];
 
   void setChallenges(List<CommunityChallenge> challenges) {
     _challenges = challenges;
     notifyListeners();
   }
 
-  // admin methods
-
+  // Admin Methods
   void addChallenge(CommunityChallenge communityChallenge) {
-    for (CommunityChallenge challenge in _challenges) {
-      if (challenge.id == communityChallenge.id) {
-        return;
-      }
+    if (_challenges.any((challenge) => challenge.id == communityChallenge.id)) {
+      return;
     }
     _challenges.add(communityChallenge);
     notifyListeners();
   }
 
-  void editChallenge(int index, CommunityChallenge newData) {
-    _challenges[index] = newData;
+  void editChallenge(int index, CommunityChallenge updatedChallenge) {
+    _challenges[index] = updatedChallenge;
     notifyListeners();
   }
 
@@ -66,111 +60,81 @@ class CommunityChallengeManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateChallenges(context) async {
+  Future<void> uploadChallengesToDatabase(BuildContext context) async {
     Database db = Database();
     await db.communityChallengeDatabase.uploadCommunityChallenges(context);
     debugPrint('Challenges updated');
     notifyListeners();
   }
 
-  void clearDuplicateChallenges() {
-    for (int i = 0; i < _challenges.length; i++) {
-      for (int j = i + 1; j < _challenges.length; j++) {
-        if (_challenges[i].id == _challenges[j].id) {
-          _challenges.removeAt(j);
-          j--;
-        }
-      }
+  void removeDuplicateChallenges() {
+    final uniqueChallenges = _challenges.toSet().toList();
+    if (_challenges.length != uniqueChallenges.length) {
+      _challenges = uniqueChallenges;
+      notifyListeners();
     }
   }
 
-  // participant methods
-
-  ParticipantData getUserParticipantData(
+  // Participant Methods
+  ParticipantData getOrCreateParticipantData(
       BuildContext context, CommunityChallenge challenge, UserModel user) {
-    ParticipantData participantData;
     try {
-      participantData = challenge.participants
-          .firstWhere((element) => element.user.uid == user.uid);
-    } catch (e) {
-      participantData = ParticipantData(
+      return challenge.participants
+          .firstWhere((participant) => participant.user.uid == user.uid);
+    } catch (_) {
+      final newParticipantData = ParticipantData(
           user: user, lastSeen: DateTime.now(), fullCompletionCount: 0);
-      addParticipantData(context, challenge, participantData);
+      _addParticipantData(context, challenge, newParticipantData);
+      return newParticipantData;
     }
-    return participantData;
   }
 
   void updateParticipantCurrentCompletions(
       BuildContext context, CommunityChallenge challenge, int delta) {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
-    dynamic participantData;
-    try {
-      participantData = challenge.participants
-          .firstWhere((element) => element.user.uid == user.uid);
-    } catch (e) {
-      participantData = null;
-    }
 
-    if (participantData != null) {
+    // Use a default ParticipantData if user not found
+    final participantData =
+        getOrCreateParticipantData(context, challenge, user);
+    // Update current completions
+    if (participantData.currentCompletions != null) {
       participantData.currentCompletions += delta;
     } else {
       challenge.addParticipant(ParticipantData(
-          user: user,
-          lastSeen: DateTime.now(),
-          currentCompletions: delta > 0 ? delta : 0,
-          fullCompletionCount: 0));
-      // Handle case where user is not yet a participant (add them?)
-      debugPrint('User not found in participantDataList');
+        user: user,
+        lastSeen: DateTime.now(),
+        currentCompletions: delta > 0 ? delta : 0,
+        fullCompletionCount: 0,
+      ));
+      debugPrint(
+          'User not found in participantDataList, added new participant data.');
     }
   }
 
   void updateParticipantFullCompletions(
       BuildContext context, CommunityChallenge challenge, int delta) {
-    UserModel user =
+    final user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
-    ParticipantData participantData = challenge.participants.firstWhere(
-        (element) => element.user.uid == user.uid,
-        orElse: () => ParticipantData(
-            user: user,
-            lastSeen: DateTime.now(),
-            currentCompletions: delta > 0 ? delta : 0,
-            fullCompletionCount: 0));
-
-    participantData.fullCompletionCount += delta;
+    final participant = getOrCreateParticipantData(context, challenge, user);
+    participant.fullCompletionCount += delta;
   }
 
-  void incrementParticipantCompletions(
+  bool handleFullCompletion(
       BuildContext context, CommunityChallenge challenge) {
-    addParticipantData(
+    if (challenge.habit.isCompleted) {
+      challenge.currentFullCompletions++;
+      _addParticipantData(
         context,
         challenge,
         ParticipantData(
-            user: Provider.of<UserLocalStorage>(context, listen: false)
-                .currentUser,
-            fullCompletionCount: 1,
-            lastSeen: DateTime.now(),
-            currentCompletions: challenge.habit.completionsToday));
-  }
-
-  void decrementParticipantCompletions(
-      BuildContext context, CommunityChallenge challenge) {
-    decrementParticipantData(
-        challenge, Provider.of<UserLocalStorage>(context).currentUser);
-  }
-
-  bool checkFullCompletion(BuildContext context, CommunityChallenge challenge) {
-    if (challenge.habit.isCompleted == true) {
-      challenge.currentFullCompletions++;
-      addParticipantData(
-          context,
-          challenge,
-          ParticipantData(
-              user: Provider.of<UserLocalStorage>(context, listen: false)
-                  .currentUser,
-              lastSeen: DateTime.now(),
-              fullCompletionCount: 1));
-      debugPrint('updated');
+          user:
+              Provider.of<UserLocalStorage>(context, listen: false).currentUser,
+          lastSeen: DateTime.now(),
+          fullCompletionCount: 1,
+        ),
+      );
+      debugPrint('Full completion updated');
       return true;
     }
     return false;
@@ -179,124 +143,85 @@ class CommunityChallengeManager extends ChangeNotifier {
   void decrementFullCompletion(
       CommunityChallenge challenge, BuildContext context) {
     challenge.currentFullCompletions--;
-    decrementParticipantData(challenge,
+    _decrementParticipantData(context, challenge,
         Provider.of<UserLocalStorage>(context, listen: false).currentUser);
   }
 
-  void addParticipantData(BuildContext context, CommunityChallenge challenge,
+  void _addParticipantData(BuildContext context, CommunityChallenge challenge,
       ParticipantData newParticipantData) {
-    if (challenge.participants
-        .where((element) => element.user.uid == newParticipantData.user.uid)
-        .isEmpty) {
+    final existingParticipant =
+        getOrCreateParticipantData(context, challenge, newParticipantData.user);
+
+    if (existingParticipant == null) {
       challenge.addParticipant(newParticipantData);
-    } else {
-      ParticipantData currentParticipantData = challenge.participants
-          .firstWhere(
-              (element) => element.user.uid == newParticipantData.user.uid);
-      int tempCompletions = currentParticipantData.currentCompletions;
-      int tempFullCompletions = currentParticipantData.fullCompletionCount;
-      currentParticipantData = newParticipantData;
-      currentParticipantData.currentCompletions += tempCompletions;
-      currentParticipantData.fullCompletionCount += tempFullCompletions;
-      // Carries over all user data (so usernames, bios, etc. update) but increments completions
     }
   }
 
-  void decrementParticipantData(CommunityChallenge challenge, UserModel user) {
-    ParticipantData participantData = challenge.participants
-        .firstWhere((element) => element.user.uid == user.uid);
+  void _decrementParticipantData(
+      BuildContext context, CommunityChallenge challenge, UserModel user) {
+    final participant = getOrCreateParticipantData(context, challenge, user);
 
-    if (challenge.participants
-        .where((element) => element.user.uid == user.uid)
-        .isNotEmpty) {
-      if (participantData.fullCompletionCount == 0 &&
-          challenge.habit.completionsToday == 0) {
-        challenge.participants
-            .removeWhere((element) => element.user.uid == user.uid);
-      } else {
-        participantData.currentCompletions--;
-        participantData.fullCompletionCount--;
+    if (participant != null) {
+      participant.currentCompletions =
+          max(0, participant.currentCompletions - 1);
+      participant.fullCompletionCount =
+          max(0, participant.fullCompletionCount - 1);
+
+      if (participant.currentCompletions == 0 &&
+          participant.fullCompletionCount == 0) {
+        challenge.participants.removeWhere((p) => p.user.uid == user.uid);
       }
     } else {
-      if (participantData.currentCompletions > 0) {
-        participantData.currentCompletions--;
-      }
       debugPrint('User not found in participantDataList');
     }
   }
 
-  void resetParticipantCurrentCompletions(
-      CommunityChallenge challenge, UserModel user) {
-    ParticipantData participantData = challenge.participants
-        .firstWhere((element) => element.user.uid == user.uid);
-    if (challenge.participants
-        .where((element) => element.user.uid == user.uid)
-        .isNotEmpty) {
-      participantData.currentCompletions = 0;
+  void resetParticipantCompletions(
+      BuildContext context, CommunityChallenge challenge, UserModel user) {
+    final participant = getOrCreateParticipantData(context, challenge, user);
+    participant.currentCompletions = 0;
+  }
+
+  void resetChallengesByPeriod(
+      BuildContext context, UserModel user, String period) {
+    for (var challenge in _challenges) {
+      final participant = getOrCreateParticipantData(context, challenge, user);
+      final habitHandler = HabitStatsHandler(challenge.habit);
+
+      if (challenge.habit.resetPeriod == period) {
+        final periodDateFormatter = _getDateFormatForPeriod(period);
+
+        if (periodDateFormatter.format(participant.lastSeen) !=
+            periodDateFormatter.format(DateTime.now())) {
+          habitHandler.resetHabitCompletions();
+          resetParticipantCompletions(context, challenge, user);
+          participant.lastSeen = DateTime.now();
+        }
+      }
     }
+    notifyListeners();
   }
 
   void resetDailyChallenges(BuildContext context, UserModel user) {
-    for (int i = 0; i < _challenges.length; i++) {
-      CommunityChallenge element = _challenges[i];
-      ParticipantData participantData =
-          getUserParticipantData(context, element, user);
-      HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
-      if (element.habit.resetPeriod == 'Daily') {
-        // If the task was not created today, make it incomplete
-        if (DateFormat('d').format(participantData.lastSeen) !=
-            DateFormat('d').format(DateTime.now())) {
-          habitStatsHandler.resetHabitCompletions();
-          resetParticipantCurrentCompletions(element, user);
-          participantData.lastSeen = DateTime.now();
-        }
-      } else {
-        return;
-      }
-    }
-    notifyListeners();
+    resetChallengesByPeriod(context, user, 'Daily');
   }
 
   void resetWeeklyChallenges(BuildContext context, UserModel user) {
-    for (int i = 0; i < _challenges.length; i++) {
-      CommunityChallenge element = _challenges[i];
-      ParticipantData participantData =
-          getUserParticipantData(context, element, user);
-      HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
-      if (element.habit.resetPeriod == 'Weekly') {
-        // If its monday but its not the same day as when the habit was last seen, reset
-        if (DateFormat('d').format(participantData.lastSeen) == 'Monday' &&
-            DateFormat('d').format(DateTime.now()) !=
-                DateFormat('d').format(participantData.lastSeen)) {
-          habitStatsHandler.resetHabitCompletions();
-          resetParticipantCurrentCompletions(element, user);
-          participantData.lastSeen = DateTime.now();
-        }
-      } else {
-        return;
-      }
-    }
-    notifyListeners();
+    resetChallengesByPeriod(context, user, 'Weekly');
   }
 
   void resetMonthlyChallenges(BuildContext context, UserModel user) {
-    for (int i = 0; i < _challenges.length; i++) {
-      CommunityChallenge element = _challenges[i];
-      ParticipantData participantData =
-          getUserParticipantData(context, element, user);
-      HabitStatsHandler habitStatsHandler = HabitStatsHandler(element.habit);
-      if (element.habit.resetPeriod == 'Monthly') {
-        // If the task was not created this month, make it incomplete
-        if (DateFormat('m').format(participantData.lastSeen) !=
-            DateFormat('m').format(DateTime.now())) {
-          habitStatsHandler.resetHabitCompletions();
-          resetParticipantCurrentCompletions(element, user);
-          participantData.lastSeen = DateTime.now();
-        }
-      } else {
-        return;
-      }
+    resetChallengesByPeriod(context, user, 'Monthly');
+  }
+
+  DateFormat _getDateFormatForPeriod(String period) {
+    switch (period) {
+      case 'Weekly':
+        return DateFormat('EEEE'); // Full weekday name, like 'Monday'
+      case 'Monthly':
+        return DateFormat('M'); // Month as a number
+      default:
+        return DateFormat('d'); // Day of the month
     }
-    notifyListeners();
   }
 }

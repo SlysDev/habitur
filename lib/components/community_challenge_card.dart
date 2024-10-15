@@ -42,7 +42,7 @@ class CommunityChallengeCard extends StatelessWidget {
             .updateParticipantCurrentCompletions(
                 context, challenge, 1); // Increment current completions
         Provider.of<CommunityChallengeManager>(context, listen: false)
-            .checkFullCompletion(context, challenge);
+            .handleFullCompletion(context, challenge);
         if (challenge.currentFullCompletions ==
             challenge.requiredFullCompletions) {
           Provider.of<CommunityChallengeManager>(context, listen: false)
@@ -50,7 +50,7 @@ class CommunityChallengeCard extends StatelessWidget {
                   context, challenge, 1); // Increment full completions
         }
         Provider.of<CommunityChallengeManager>(context, listen: false)
-            .updateChallenges(context);
+            .uploadChallengesToDatabase(context);
       }
     }
 
@@ -68,7 +68,7 @@ class CommunityChallengeCard extends StatelessWidget {
       }
       habitStatsHandler.decrementCompletion(context);
       Provider.of<CommunityChallengeManager>(context, listen: false)
-          .updateChallenges(context);
+          .uploadChallengesToDatabase(context);
     }
 
     return isAdmin
