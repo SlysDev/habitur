@@ -194,9 +194,6 @@ class HabitStatsHandler {
   }
 
   void resetHabitCompletions() {
-    if (!habit.isCompleted) {
-      habit.streak = 0;
-    }
     habit.completionsToday = 0;
     if (habit.streak > habit.highestStreak) {
       habit.highestStreak = habit.streak;
