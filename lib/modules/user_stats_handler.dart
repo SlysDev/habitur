@@ -91,10 +91,6 @@ class UserStatsHandler {
 
     // Notify the display manager to update
     recordAverageConfidenceLevel(context);
-    debugPrint('Date: ' +
-        user.stats.last.date.toString() +
-        " Completions: " +
-        user.stats.last.completions.toString());
     await db.statsDatabase.uploadStatistics(context);
   }
 

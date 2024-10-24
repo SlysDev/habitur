@@ -6,8 +6,10 @@ import 'package:habitur/components/primary_button.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/data_manager.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
+import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
 import 'package:habitur/providers/login_registration_state.dart';
+import 'package:habitur/screens/welcome_screen.dart';
 import 'package:provider/provider.dart';
 import '../components/filled_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -28,9 +30,20 @@ class DeleteAcccountLoginScreen extends StatelessWidget {
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               const Flexible(child: kHabiturLogo),
               const Text(
-                'Please login again to delete your account',
+                'Relogin',
                 textAlign: TextAlign.center,
                 style: kTitleTextStyle,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  'Re-authenticate to start the account deletion process',
+                  textAlign: TextAlign.center,
+                  style: kMainDescription.copyWith(color: kDarkGray),
+                ),
               ),
               const SizedBox(
                 height: 40,
@@ -86,7 +99,7 @@ class DeleteAcccountLoginScreen extends StatelessWidget {
                           builder: (context) => CustomAlertDialog(
                             title: 'Warning',
                             content: Text(
-                                'Are you sure you want to log in? All of your data will be overwritten.'),
+                                'Are you sure? All of your data will be lost'),
                             actions: [
                               AsideButton(
                                   onPressed: () {
@@ -111,27 +124,22 @@ class DeleteAcccountLoginScreen extends StatelessWidget {
                                 listen: false)
                             .setLoading(true);
                         try {
-                          debugPrint(email);
-                          debugPrint(password);
-                          final newUser =
-                              await _auth.signInWithEmailAndPassword(
-                                  email: email, password: password);
-                          DataManager data = DataManager();
-                          await data.loadData(context);
-                          await Provider.of<UserLocalStorage>(context,
+                          Database db = Database();
+                          Provider.of<LoadingStateProvider>(context,
                                   listen: false)
-                              .saveData(context);
-                          await Provider.of<HabitsLocalStorage>(context,
+                              .setLoading(true);
+                          late final _auth = FirebaseAuth.instance;
+                          await db.userDatabase.deleteUser(context);
+                          await _auth.currentUser!.delete();
+                          Provider.of<LoadingStateProvider>(context,
                                   listen: false)
-                              .uploadAllHabits(
-                                  Provider.of<HabitManager>(context,
-                                          listen: false)
-                                      .habits,
-                                  context);
-                          // getting data from DB and overriding LS
-                          if (newUser != null) {
-                            Navigator.popAndPushNamed(context, 'home_screen');
-                          }
+                              .setLoading(false);
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => WelcomeScreen()),
+                              (route) => false);
+                          Navigator.popAndPushNamed(context, 'welcome_screen');
                         } catch (e, s) {
                           debugPrint(e.toString());
                           debugPrint(s.toString());

@@ -651,7 +651,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 context,
                                                 listen: false)
                                             .updateSettings();
-                                        db.settingsDatabase
+                                        await db.settingsDatabase
                                             .populateDefaultSettingsData(
                                                 context);
                                         if (db.userDatabase.isLoggedIn) {
@@ -659,6 +659,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               .clearHabits(context);
                                           await db.statsDatabase
                                               .clearStatistics(context);
+                                          await db.communityChallengeDatabase
+                                              .clearUserParticipantData(
+                                                  Provider.of<UserLocalStorage>(
+                                                          context,
+                                                          listen: false)
+                                                      .currentUser
+                                                      .uid);
                                         }
                                         Provider.of<LoadingStateProvider>(
                                                 context,
@@ -733,6 +740,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               context, 'welcome_screen');
                                         } catch (e) {
                                           debugPrint(e.toString());
+                                          Provider.of<LoadingStateProvider>(
+                                                  context,
+                                                  listen: false)
+                                              .setLoading(false);
                                           Navigator.push(
                                               context,
                                               MaterialPageRoute(

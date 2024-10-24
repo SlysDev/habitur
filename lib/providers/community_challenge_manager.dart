@@ -76,16 +76,13 @@ class CommunityChallengeManager extends ChangeNotifier {
   }
 
   // Participant Methods
-  ParticipantData getOrCreateParticipantData(
+  ParticipantData? getParticipantData(
       BuildContext context, CommunityChallenge challenge, UserModel user) {
     try {
       return challenge.participants
           .firstWhere((participant) => participant.user.uid == user.uid);
     } catch (_) {
-      final newParticipantData = ParticipantData(
-          user: user, lastSeen: DateTime.now(), fullCompletionCount: 0);
-      _addParticipantData(context, challenge, newParticipantData);
-      return newParticipantData;
+      return null;
     }
   }
 
@@ -95,11 +92,10 @@ class CommunityChallengeManager extends ChangeNotifier {
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
 
     // Use a default ParticipantData if user not found
-    final participantData =
-        getOrCreateParticipantData(context, challenge, user);
+    final participantData = getParticipantData(context, challenge, user);
     // Update current completions
-    if (participantData.currentCompletions != null) {
-      participantData.currentCompletions += delta;
+    if (participantData?.currentCompletions != null) {
+      participantData?.currentCompletions += delta;
     } else {
       challenge.addParticipant(ParticipantData(
         user: user,
@@ -116,8 +112,8 @@ class CommunityChallengeManager extends ChangeNotifier {
       BuildContext context, CommunityChallenge challenge, int delta) {
     final user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
-    final participant = getOrCreateParticipantData(context, challenge, user);
-    participant.fullCompletionCount += delta;
+    final participant = getParticipantData(context, challenge, user);
+    participant?.fullCompletionCount += delta;
   }
 
   bool handleFullCompletion(
@@ -150,7 +146,7 @@ class CommunityChallengeManager extends ChangeNotifier {
   void _addParticipantData(BuildContext context, CommunityChallenge challenge,
       ParticipantData newParticipantData) {
     final existingParticipant =
-        getOrCreateParticipantData(context, challenge, newParticipantData.user);
+        getParticipantData(context, challenge, newParticipantData.user);
 
     if (existingParticipant == null) {
       challenge.addParticipant(newParticipantData);
@@ -159,7 +155,7 @@ class CommunityChallengeManager extends ChangeNotifier {
 
   void _decrementParticipantData(
       BuildContext context, CommunityChallenge challenge, UserModel user) {
-    final participant = getOrCreateParticipantData(context, challenge, user);
+    final participant = getParticipantData(context, challenge, user);
 
     if (participant != null) {
       participant.currentCompletions =
@@ -178,14 +174,17 @@ class CommunityChallengeManager extends ChangeNotifier {
 
   void resetParticipantCompletions(
       BuildContext context, CommunityChallenge challenge, UserModel user) {
-    final participant = getOrCreateParticipantData(context, challenge, user);
-    participant.currentCompletions = 0;
+    final participant = getParticipantData(context, challenge, user);
+    participant?.currentCompletions = 0;
   }
 
   void resetChallengesByPeriod(
       BuildContext context, UserModel user, String period) {
     for (var challenge in _challenges) {
-      final participant = getOrCreateParticipantData(context, challenge, user);
+      final participant = getParticipantData(context, challenge, user);
+      if (participant == null) {
+        continue;
+      }
       final habitHandler = HabitStatsHandler(challenge.habit);
 
       if (challenge.habit.resetPeriod == period) {
@@ -212,6 +211,13 @@ class CommunityChallengeManager extends ChangeNotifier {
 
   void resetMonthlyChallenges(BuildContext context, UserModel user) {
     resetChallengesByPeriod(context, user, 'Monthly');
+  }
+
+  void clearUserParticipantData(String uid) {
+    for (CommunityChallenge challenge in _challenges) {
+      challenge.participants
+          .removeWhere((participant) => participant.user.uid == uid);
+    }
   }
 
   DateFormat _getDateFormatForPeriod(String period) {

@@ -157,7 +157,8 @@ class CommunityChallengeDatabase {
     }
   }
 
-  void addCommunityChallenge(Map<String, dynamic> newChallenge, context) async {
+  Future<void> addCommunityChallenge(
+      Map<String, dynamic> newChallenge, context) async {
     try {
       CollectionReference communityChallengesRef =
           _firestore.collection('community-challenges');
@@ -176,7 +177,7 @@ class CommunityChallengeDatabase {
     }
   }
 
-  void removeCommunityChallenge(int id, context) async {
+  Future<void> removeCommunityChallenge(int id, context) async {
     try {
       debugPrint("Removing community challenge with id: " + id.toString());
       CollectionReference communityChallengesRef =
@@ -202,7 +203,7 @@ class CommunityChallengeDatabase {
     }
   }
 
-  void editCommunityChallenge(
+  Future<void> editCommunityChallenge(
       int id, Map<String, dynamic> newChallenge, context) async {
     try {
       CollectionReference communityChallengesRef =
@@ -225,6 +226,30 @@ class CommunityChallengeDatabase {
       showDebugErrorSnackbar(context, e, s);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
+    }
+  }
+
+  Future<void> clearUserParticipantData(String uid) async {
+    debugPrint('clearing user participant data');
+    try {
+      CollectionReference communityChallengesRef =
+          _firestore.collection('community-challenges');
+      QuerySnapshot communityChallengesSnapshot =
+          await communityChallengesRef.get();
+      for (var doc in communityChallengesSnapshot.docs) {
+        doc.reference.update({
+          'participantDataList': FieldValue.arrayRemove([
+            {
+              'user': {
+                'uid': uid,
+              },
+            }
+          ]),
+        });
+      }
+    } catch (e, s) {
+      debugPrint(e.toString());
+      debugPrint(s.toString());
     }
   }
 }
