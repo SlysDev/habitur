@@ -49,7 +49,7 @@ class UserDatabase {
     }
   }
 
-  Future<UserModel?> getUserById(String uid) async {
+  Future<DocumentReference?> getUserDocById(String uid) async {
     try {
       CollectionReference users = _firestore.collection('users');
       QuerySnapshot usersFound = await users.where('uid', isEqualTo: uid).get();
@@ -57,25 +57,36 @@ class UserDatabase {
       if (usersFound.docs.isNotEmpty) {
         if (usersFound.docs.length > 1) {
           // Log error for monitoring purposes, but don’t break the app.
-          print("Error: Multiple users found with the same UID ($uid).");
+          debugPrint("Error: Multiple users found with the same UID ($uid).");
           // Optionally report this to a monitoring tool like Firebase Crashlytics
           // FirebaseCrashlytics.instance.recordError(Exception('Duplicate users found for UID'), StackTrace.current);
         }
-
-        // Return the first user found to continue normal app flow.
-        return DataConverter()
-            .queryDocumentSnapshotToUserModel(usersFound.docs.first);
+        return usersFound
+            .docs.first.reference; // Return the first DocumentSnapshot found
       }
 
       // Handle case where no user was found (user might have been deleted)
-      print("Error: User not found for UID ($uid).");
+      debugPrint("Error: User not found for UID ($uid).");
       return null; // Return null to handle this gracefully in the UI
     } catch (e, s) {
       // Catch any other unexpected errors and log them
-      print("Error: Failed to fetch user for UID ($uid): $e $s");
+      debugPrint("Error: Failed to fetch user document for UID ($uid): $e $s");
       // Optionally, log this to Firebase Crashlytics or another error logging service
       return null; // Return null to ensure the app continues to function
     }
+  }
+
+  Future<UserModel?> getUserModelById(String uid) async {
+    DocumentReference? userDoc = await getUserDocById(uid);
+
+    if (userDoc != null) {
+      // Convert QueryDocumentSnapshot to UserModel
+      DocumentSnapshot snapshot = await userDoc.get();
+      return DataConverter().documentSnapshotToUserModel(snapshot);
+    }
+
+    // If userDoc is null, handle accordingly (already logged in getUserDocById)
+    return null;
   }
 
   DocumentReference get userDoc {
@@ -203,6 +214,7 @@ class UserDatabase {
     if (isLoggedIn) {
       try {
 // Query for all documents matching the user ID
+
         final querySnapshot = await userCollection
             .where('uid', isEqualTo: userDoc.id) // or any unique identifier
             .get();

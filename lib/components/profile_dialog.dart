@@ -28,7 +28,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
   Future<void> _loadUserData() async {
     try {
       Database db = Database();
-      final user = await db.userDatabase.getUserById(widget.uid);
+      final user = await db.userDatabase.getUserModelById(widget.uid);
       setState(() {
         _userModel = user;
         _isLoading = false;

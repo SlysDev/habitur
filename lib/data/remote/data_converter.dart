@@ -145,4 +145,8 @@ class DataConverter {
   UserModel queryDocumentSnapshotToUserModel(QueryDocumentSnapshot snapshot) {
     return UserModel.fromMap(snapshot.data() as Map<String, dynamic>);
   }
+
+  UserModel documentSnapshotToUserModel(DocumentSnapshot snapshot) {
+    return UserModel.fromMap(snapshot.data() as Map<String, dynamic>);
+  }
 }
