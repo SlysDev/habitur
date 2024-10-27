@@ -145,7 +145,7 @@ class CommunityChallengeDatabase {
           }
         }
       }
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -165,7 +165,7 @@ class CommunityChallengeDatabase {
       await communityChallengesRef.add(newChallenge);
 
       loadCommunityChallenges(context);
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -191,7 +191,7 @@ class CommunityChallengeDatabase {
       }
 
       loadCommunityChallenges(context);
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -217,7 +217,7 @@ class CommunityChallengeDatabase {
       }
 
       loadCommunityChallenges(context);
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -230,26 +230,51 @@ class CommunityChallengeDatabase {
   }
 
   Future<void> clearUserParticipantData(String uid) async {
-    debugPrint('clearing user participant data');
+    debugPrint('Function call: clearUserParticipantData');
+    debugPrint('User ID to delete participant data for: $uid');
+
     try {
       CollectionReference communityChallengesRef =
           _firestore.collection('community-challenges');
+      debugPrint('Fetching community-challenges collection...');
+
       QuerySnapshot communityChallengesSnapshot =
           await communityChallengesRef.get();
+      debugPrint(
+          'Fetched community-challenges documents: ${communityChallengesSnapshot.docs.length} found');
+
       for (var doc in communityChallengesSnapshot.docs) {
-        doc.reference.update({
-          'participantDataList': FieldValue.arrayRemove([
-            {
-              'user': {
-                'uid': uid,
-              },
-            }
-          ]),
-        });
+        debugPrint('Processing document ID: ${doc.id}');
+        List participantDataList = doc.get('participantDataList');
+
+        debugPrint(
+            'Participant data list for document ${doc.id}: $participantDataList');
+        bool userFound = false;
+
+        for (var participant in participantDataList) {
+          if (participant['user']['uid'] == uid) {
+            debugPrint(
+                'User found in participant data. Participant data: $participant');
+            userFound = true;
+
+            await doc.reference.update({
+              'participantDataList': FieldValue.arrayRemove([participant])
+            });
+            debugPrint(
+                'Removed user participant data from document ID: ${doc.id}');
+          }
+        }
+
+        if (!userFound) {
+          debugPrint(
+              'User ID $uid not found in participant data for document ID: ${doc.id}');
+        }
       }
+
+      debugPrint('Completed clearing participant data for user ID: $uid');
     } catch (e, s) {
-      debugPrint(e.toString());
-      debugPrint(s.toString());
+      debugPrint('Error encountered: $e');
+      debugPrint('Stack trace: $s');
     }
   }
 }
