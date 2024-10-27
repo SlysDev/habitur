@@ -30,6 +30,7 @@ class CommunityChallengeManager extends ChangeNotifier {
           dateCreated: DateTime.now(),
         ))
   ];
+  // TODO: At some point remove the completions today tracking with the habits; maybe entire CC manager as well since you'll interact directly with the DB
 
   UnmodifiableListView<CommunityChallenge> get challenges =>
       UnmodifiableListView(_challenges);
@@ -86,6 +87,19 @@ class CommunityChallengeManager extends ChangeNotifier {
     }
   }
 
+  ParticipantData? getCurrentUserParticipantData(
+      context, CommunityChallenge challenge) {
+    ParticipantData? currentParticipant =
+        Provider.of<CommunityChallengeManager>(context, listen: false)
+            .getParticipantData(
+                context,
+                challenge,
+                Provider.of<UserLocalStorage>(context, listen: false)
+                    .currentUser);
+    return currentParticipant;
+  }
+  // TODO: Make commit saying that you're adding the above function and making sure that you're refing the particiapnt data when checking completions and stuff
+
   void updateParticipantCurrentCompletions(
       BuildContext context, CommunityChallenge challenge, int delta) {
     UserModel user =
@@ -118,7 +132,10 @@ class CommunityChallengeManager extends ChangeNotifier {
 
   bool handleFullCompletion(
       BuildContext context, CommunityChallenge challenge) {
-    if (challenge.habit.isCompleted) {
+    ParticipantData? currentParticiapnt =
+        getCurrentUserParticipantData(context, challenge);
+    if (currentParticiapnt?.currentCompletions ==
+        challenge.habit.requiredCompletions) {
       challenge.currentFullCompletions++;
       _addParticipantData(
         context,

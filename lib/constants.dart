@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:habitur/models/setting.dart';
+import 'package:habitur/models/time_model.dart';
 
 // Colors
 const kBackgroundColor = Color.fromRGBO(13, 22, 33, 1);
@@ -63,10 +65,27 @@ Map<int, Color> colorCodes = {
 
 MaterialColor kMaterialDarkBlueColor = MaterialColor(0xff01147f, colorCodes);
 
+// Logos
 const kHabiturLogo = Image(
   image: AssetImage('assets/images/logo.png'),
   width: 200,
 );
+
+// Settings
+
+List<Setting> kDefaultSettings = [
+  Setting(settingValue: true, settingName: 'Daily Reminders'),
+  Setting(settingValue: 3, settingName: 'Number of Reminders'),
+  Setting(
+      settingValue: const TimeModel(hour: 10, minute: 0),
+      settingName: '1st Reminder Time'),
+  Setting(
+      settingValue: const TimeModel(hour: 16, minute: 0),
+      settingName: '2nd Reminder Time'),
+  Setting(
+      settingValue: const TimeModel(hour: 22, minute: 0),
+      settingName: '3rd Reminder Time'),
+];
 
 InputDecoration kFilledTextFieldInputDecoration = InputDecoration(
   filled: true,

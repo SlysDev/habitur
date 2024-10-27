@@ -120,7 +120,7 @@ class HabitDatabase {
           }
         }
       }
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -190,7 +190,7 @@ class HabitDatabase {
             .toList(),
         'stats': dataConverter.dbStatPointsToMap(habit.stats),
       });
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -214,7 +214,7 @@ class HabitDatabase {
       for (var doc in docs) {
         await _updateHabitDoc(habit, doc);
       }
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
 
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
@@ -242,7 +242,7 @@ class HabitDatabase {
       for (var doc in docs) {
         await doc.reference.delete();
       }
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -335,7 +335,7 @@ class HabitDatabase {
           doc.reference.delete();
         }
       });
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

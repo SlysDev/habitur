@@ -36,11 +36,10 @@ class LoginScreen extends StatelessWidget {
                     const SizedBox(height: 20),
                     Container(
                       height: 100,
-                      child: Flexible(
-                        child: Container(
-                          margin: EdgeInsets.all(10),
-                          child: kHabiturLogo,
-                        ),
+                      child: Container(
+                        margin: EdgeInsets.all(10),
+                        child: kHabiturLogo,
+                        // TODO: Make the commit that this STOPS ERROR WITH FLEXIBLE IN CONSTRAINEDBOX
                       ),
                     ),
                     SizedBox(

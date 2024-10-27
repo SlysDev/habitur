@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/data/remote/data_converter.dart';
@@ -58,13 +59,15 @@ class SettingsDatabase {
       CollectionReference users = _firestore.collection('users');
       DocumentSnapshot userSnapshot =
           await users.doc(_auth.currentUser!.uid.toString()).get();
+      List<Setting> settings;
       try {
         userSnapshot.get('settings');
+        settings = dataConverter.dbListToSettings(userSnapshot.get('settings'));
       } catch (e, s) {
-        populateDefaultSettingsData(context);
+        settings = kDefaultSettings;
+        await populateDefaultSettingsData(context);
       }
-      List<Setting> settings =
-          dataConverter.dbListToSettings(userSnapshot.get('settings'));
+
       if (userSnapshot.exists) {
         Provider.of<UserLocalStorage>(context, listen: false)
             .updateUserProperty('settings', settings);
@@ -108,6 +111,7 @@ class SettingsDatabase {
   }
 
   Future<void> populateDefaultSettingsData(context) async {
+    // TODO: Write commit saying that you fixed settings overwriting user data
     try {
       UserDatabase userDatabase = UserDatabase();
       if (!userDatabase.isLoggedIn) {
@@ -116,21 +120,9 @@ class SettingsDatabase {
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());
-      List<Setting> defaultSettings = [
-        Setting(settingValue: true, settingName: 'Daily Reminders'),
-        Setting(settingValue: 3, settingName: 'Number of Reminders'),
-        Setting(
-            settingValue: TimeModel(hour: 10, minute: 0),
-            settingName: '1st Reminder Time'),
-        Setting(
-            settingValue: TimeModel(hour: 16, minute: 0),
-            settingName: '2nd Reminder Time'),
-        Setting(
-            settingValue: TimeModel(hour: 22, minute: 0),
-            settingName: '3rd Reminder Time'),
-      ];
       await userReference.set(
-        {'settings': dataConverter.dbSettingsToMap(defaultSettings)},
+        {'settings': dataConverter.dbSettingsToMap(kDefaultSettings)},
+        SetOptions(merge: true),
       );
     } catch (e, s) {
       debugPrint(e.toString());

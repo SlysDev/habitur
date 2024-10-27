@@ -66,7 +66,7 @@ class StatsDatabase {
       }, SetOptions(merge: true));
 
       debugPrint('stats uploaded');
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -110,7 +110,7 @@ class StatsDatabase {
           'resetPeriod': 0,
         }, SetOptions(merge: true));
       }
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {

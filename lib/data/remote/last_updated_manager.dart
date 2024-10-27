@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 class LastUpdatedManager {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+
   Future<DateTime?> get lastUpdated async {
     CollectionReference users = _firestore.collection('users');
     String uid = _auth.currentUser!.uid.toString();
@@ -21,23 +22,18 @@ class LastUpdatedManager {
     }
   }
 
-// Database functions
-
-  Future<void> syncLastUpdated(context) async {
+  // Database functions
+  Future<void> syncLastUpdated(BuildContext context, String uid) async {
     try {
       QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
       for (QueryDocumentSnapshot user in usersSnapshot.docs) {
         try {
           user.get('uid');
         } catch (e) {
-          continue;
-        } // handles users w/o uids
-        String uid = '';
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          uid = Provider.of<UserLocalStorage>(context, listen: false)
-              .currentUser
-              .uid;
-        });
+          continue; // skips users w/o uids
+        }
+
+        // Check if the user's uid matches
         if (user.get('uid') == uid) {
           await user.reference.set({
             'lastUpdated': DateTime.now(),

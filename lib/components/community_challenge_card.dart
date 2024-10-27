@@ -5,8 +5,10 @@ import 'package:habitur/components/emphasis_card.dart';
 import 'package:habitur/components/inactive_elevated_button.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
 import 'package:habitur/providers/database.dart';
@@ -31,10 +33,22 @@ class CommunityChallengeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     Habit currentHabit = challenge.habit;
     HabitStatsHandler habitStatsHandler = HabitStatsHandler(currentHabit);
+    ParticipantData? currentParticipant =
+        Provider.of<CommunityChallengeManager>(context, listen: false)
+            .getParticipantData(
+                context,
+                challenge,
+                Provider.of<UserLocalStorage>(context, listen: false)
+                    .currentUser);
     double totalProgress =
         challenge.currentFullCompletions / challenge.requiredFullCompletions;
-    double userProgress =
-        currentHabit.completionsToday / currentHabit.requiredCompletions;
+    double userProgress;
+    if (currentParticipant == null) {
+      userProgress = 0;
+    } else {
+      userProgress = currentParticipant.currentCompletions /
+          challenge.requiredFullCompletions;
+    }
     void completeChallenge() {
       if (currentHabit.completionsToday != currentHabit.requiredCompletions) {
         habitStatsHandler.incrementCompletion(context);

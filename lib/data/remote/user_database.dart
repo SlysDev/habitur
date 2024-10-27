@@ -195,7 +195,7 @@ class UserDatabase {
           }, SetOptions(merge: true));
         }
       }
-      await lastUpdatedManager.syncLastUpdated(context);
+      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -213,16 +213,13 @@ class UserDatabase {
     CollectionReference userCollection = _firestore.collection('users');
     if (isLoggedIn) {
       try {
-// Query for all documents matching the user ID
+        // Get the user doc to be deleted
+        DocumentReference? userDoc =
+            await getUserDocById(_auth.currentUser!.uid.toString());
+        // TODO: Make the commit that this deletes the entire user doc
 
-        final querySnapshot = await userCollection
-            .where('uid', isEqualTo: userDoc.id) // or any unique identifier
-            .get();
-
-        // Loop through all the matching documents and delete them (handles duplicates)
-        for (final doc in querySnapshot.docs) {
-          querySnapshot.docs.remove(doc);
-        }
+        // Delete the user doc
+        await userDoc!.delete();
       } catch (e, s) {
         debugPrint(e.toString());
         debugPrint(s.toString());

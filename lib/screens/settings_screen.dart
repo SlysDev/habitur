@@ -723,6 +723,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               .setLoading(true);
                                           late final _auth =
                                               FirebaseAuth.instance;
+                                          await db.communityChallengeDatabase
+                                              .clearUserParticipantData(
+                                                  _auth.currentUser!.uid);
                                           await db.userDatabase
                                               .deleteUser(context);
                                           await _auth.currentUser!.delete();
