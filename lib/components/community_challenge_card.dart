@@ -47,7 +47,7 @@ class CommunityChallengeCard extends StatelessWidget {
       userProgress = 0;
     } else {
       userProgress = currentParticipant.currentCompletions /
-          challenge.requiredFullCompletions;
+          challenge.habit.requiredCompletions;
     }
     void completeChallenge() {
       if (currentHabit.completionsToday != currentHabit.requiredCompletions) {
