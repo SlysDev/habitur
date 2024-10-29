@@ -33,12 +33,12 @@ class LoginScreen extends StatelessWidget {
                 child: ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: [
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 100),
                     Container(
                       height: 100,
                       child: Container(
                         margin: EdgeInsets.all(10),
-                        child: kHabiturLogo,
+                        child: Image.asset('assets/images/logo.png'),
                         // TODO: Make the commit that this STOPS ERROR WITH FLEXIBLE IN CONSTRAINEDBOX
                       ),
                     ),
@@ -85,14 +85,14 @@ class LoginScreen extends StatelessWidget {
                                 .loginSuccess
                             ? 0
                             : 1,
-                        child: Container(
+                        child: Center(
                           child: Text(
                             Provider.of<LoginRegistrationState>(context)
                                 .errorMessage,
                             style: kErrorTextStyle.copyWith(
                               color: kRed,
                               fontSize:
-                                  MediaQuery.of(context).size.height * 0.0275,
+                                  MediaQuery.of(context).size.width * 0.0375,
                             ),
                             textAlign: TextAlign.center,
                           ),

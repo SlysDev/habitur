@@ -28,7 +28,10 @@ class DeleteAcccountLoginScreen extends StatelessWidget {
           child: Scaffold(
             body:
                 Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              const Flexible(child: kHabiturLogo),
+              Container(
+                height: 100,
+                child: kHabiturLogo,
+              ),
               const Text(
                 'Relogin',
                 textAlign: TextAlign.center,
