@@ -108,7 +108,9 @@ class DataManager {
   Future<void> loadCommunityChallenges(BuildContext context,
       {bool forceDbLoad = false}) async {
     Database db = Database();
+    if (db.userDatabase.isLoggedIn) {
     await db.communityChallengeDatabase.loadCommunityChallenges(context);
+    }
   }
 
   Future<void> _resetHabits(BuildContext context) async {

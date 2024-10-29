@@ -19,6 +19,13 @@ class CommunityChallengeDatabase {
   LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
   Future<void> loadCommunityChallenges(context) async {
     try {
+      // Check if user is authenticated
+      if (_auth.currentUser == null) {
+        throw FirebaseAuthException(
+          code: 'user-not-logged-in',
+          message: 'User is not logged in',
+        );
+      }
       QuerySnapshot communityChallengesSnapshot =
           await _firestore.collection('community-challenges').get();
       List<CommunityChallenge> newChallenges = [];
