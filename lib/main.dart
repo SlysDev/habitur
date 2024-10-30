@@ -48,48 +48,63 @@ import 'package:path_provider/path_provider.dart' as path_provider;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
   if (kIsWeb) {
     await Hive.initFlutter();
   } else {
-    Directory directory =
-        await path_provider.getApplicationDocumentsDirectory();
+    Directory directory = await path_provider.getApplicationDocumentsDirectory();
     await Hive.initFlutter(directory.path);
   }
-  Hive.registerAdapter(HabitAdapter());
-  Hive.registerAdapter(StatPointAdapter());
-  Hive.registerAdapter(SettingAdapter());
-  Hive.registerAdapter(TimeModelAdapter());
-  Hive.registerAdapter(UserModelAdapter());
+
+  Hive
+    ..registerAdapter(HabitAdapter())
+    ..registerAdapter(StatPointAdapter())
+    ..registerAdapter(SettingAdapter())
+    ..registerAdapter(TimeModelAdapter())
+    ..registerAdapter(UserModelAdapter());
+
   await AwesomeNotifications().initialize(
-      // set the icon to null if you want to use the default app icon
-      null,
-      [
-        NotificationChannel(
-            channelGroupKey: 'basic_channel_group',
-            channelKey: 'basic_channel',
-            channelName: 'Basic notifications',
-            channelDescription: 'Notification channel for basic tests',
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white)
-      ],
-      // Channel groups are only visual and are not required
-      channelGroups: [
-        NotificationChannelGroup(
-            channelGroupKey: 'basic_channel_group',
-            channelGroupName: 'Basic group')
-      ],
-      debug: true);
-  AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-    if (!isAllowed) {
-      // This is just a basic example. For real apps, you must show some
-      // friendly dialog box before call the request method.
-      // This is very important to not harm the user experience
-      AwesomeNotifications().requestPermissionToSendNotifications();
-    }
-  });
+    null,
+    [
+      NotificationChannel(
+        channelGroupKey: 'basic_channel_group',
+        channelKey: 'basic_channel',
+        channelName: 'Basic notifications',
+        channelDescription: 'Notification channel for basic tests',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+      ),
+      NotificationChannel(
+        channelKey: 'habit_smart_notifications',
+        channelName: 'Habit Smart Notifications',
+        channelDescription: 'Notifications for smart habit reminders',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+      ),
+      NotificationChannel(
+        channelKey: 'repeat_notifications',
+        channelName: 'Repeat Notifications',
+        channelDescription: 'Notifications for repeating habits',
+        defaultColor: Color(0xFF9D50DD),
+        ledColor: Colors.white,
+        importance: NotificationImportance.High,
+      ),
+    ],
+    channelGroups: [
+      NotificationChannelGroup(
+        channelGroupKey: 'habit_notifications_group',
+        channelGroupName: 'Habit Notifications Group',
+      ),
+    ],
+    debug: true,
+  );
+
+  if (!await AwesomeNotifications().isNotificationAllowed()) {
+    AwesomeNotifications().requestPermissionToSendNotifications();
+  }
+
   runApp(Habitur());
 }
 

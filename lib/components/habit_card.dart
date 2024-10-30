@@ -80,19 +80,19 @@ class _HabitCardState extends State<HabitCard> {
             .updateHabit(Provider.of<HabitManager>(context, listen: false)
                 .habits[widget.index]);
         Provider.of<HabitManager>(context, listen: false).updateHabits();
-        NotificationScheduler notificationScheduler = NotificationScheduler();
-        notificationScheduler.cancelHabitSchedule(habit.id);
-        notificationScheduler.scheduleHabitReminderTrack(habit,
-            delay: Duration(
-                days: habit.resetPeriod == "Daily"
-                    ? 1
-                    : habit.resetPeriod == "Weekly"
-                        ? 7
-                        : 31)); // schedule notifs for next period
+      }
+      debugPrint('Habit completion status: ${habit.isCompleted}');
+      if (habit.isCompleted) {
+        debugPrint(
+            'Rescheduling smart notifications for habit: ${habit.title}');
+        await Provider.of<HabitManager>(context, listen: false)
+            .rescheduleSmartNotifications(habit);
+        debugPrint('Smart notifications rescheduled for habit: ${habit.title}');
       }
     }
 
     Future<void> decrementHabit() async {
+      bool habitWasOriginallyCompleted = habit.isCompleted;
       await habitStatsHandler.decrementCompletion(context);
       await db.habitDatabase.updateHabit(
           Provider.of<HabitManager>(context, listen: false)
@@ -102,6 +102,12 @@ class _HabitCardState extends State<HabitCard> {
           Provider.of<HabitManager>(context, listen: false)
               .habits[widget.index]);
       Provider.of<HabitManager>(context, listen: false).updateHabits();
+      if (habitWasOriginallyCompleted) {
+        debugPrint('Habit was originally completed. Rescheduling smart notifications for habit: ${habit.title}');
+        await Provider.of<HabitManager>(context, listen: false)
+        .rescheduleSmartNotifications(habit, backward: true);
+        debugPrint('Smart notifications rescheduled for habit: ${habit.title}');
+      }
     }
 
     void editHabit() {

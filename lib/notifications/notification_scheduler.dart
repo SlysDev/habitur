@@ -21,35 +21,41 @@ class NotificationScheduler {
     }
     DateTime now = DateTime.now();
     await notificationManager.scheduleNotification(
-        "Good morning!",
-        "Time to complete your habits––you have ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length} ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length == 1 ? "habit" : "habits"} due today.",
-        now.add(Duration(seconds: 25)),
-        1);
+        title: "Good morning!",
+        body: "Time to complete your habits––you have ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length} ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length == 1 ? "habit" : "habits"} due today.",
+        date: now.add(Duration(seconds: 25)),
+        id: 1,
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "Feeling motivated?",
-        "Time to crush your habits and raise those confidence levels!",
-        now.add(Duration(seconds: 50)),
-        2);
+        title: "Feeling motivated?",
+        body: "Time to crush your habits and raise those confidence levels!",
+        date: now.add(Duration(seconds: 50)),
+        id: 2,
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "It's getting late...",
-        "Time's running out––complete your habits now or risk breaking your streak!",
-        now.add(Duration(seconds: 75)),
-        3);
+        title: "It's getting late...",
+        body: "Time's running out––complete your habits now or risk breaking your streak!",
+        date: now.add(Duration(seconds: 75)),
+        id: 3,
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "You've lost your streak!",
-        "Complete your habits now to start up a new streak.",
-        now.add(Duration(seconds: 90)),
-        4);
+        title: "You've lost your streak!",
+        body: "Complete your habits now to start up a new streak.",
+        date: now.add(Duration(seconds: 90)),
+        id: 4,
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "It's been a while...",
-        "It's been five days since you've completed your habits. Give it a go!",
-        now.add(Duration(seconds: 105)),
-        5);
+        title: "It's been a while...",
+        body: "It's been five days since you've completed your habits. Give it a go!",
+        date: now.add(Duration(seconds: 105)),
+        id: 5,
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "Looks like you're taking a break",
-        "We'll stop sending notifications for now––you can always come back!",
-        now.add(Duration(seconds: 120)),
-        6);
+        title: "Looks like you're taking a break",
+        body: "We'll stop sending notifications for now––you can always come back!",
+        date: now.add(Duration(seconds: 120)),
+        id: 6,
+        channelKey: "habit_smart_notifications");
   }
 
   Future<void> scheduleDefaultTrack(context, int numberOfNotifs) async {
@@ -73,50 +79,56 @@ class NotificationScheduler {
     // getting notif times from settings
     DateTime now = DateTime.now();
     await notificationManager.scheduleNotification(
-        "Hey ${Provider.of<UserLocalStorage>(context, listen: false).currentUser.username}!",
-        "Time to complete your habits––you have ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length} ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length == 1 ? "habit" : "habits"} due today.",
-        now.copyWith(hour: firstNotifTime.hour, minute: firstNotifTime.minute),
-        1);
+        title: "Hey ${Provider.of<UserLocalStorage>(context, listen: false).currentUser.username}!",
+        body: "Time to complete your habits––you have ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length} ${Provider.of<HabitManager>(context, listen: false).getTodaysDueHabits().length == 1 ? "habit" : "habits"} due today.",
+        date: now.copyWith(hour: firstNotifTime.hour, minute: firstNotifTime.minute),
+        id: 1,
+        channelKey: "habit_smart_notifications");
     if (numberOfNotifs > 1) {
       await notificationManager.scheduleNotification(
-          "Feeling motivated?",
-          "Time to crush your habits and raise those confidence levels!",
-          now.copyWith(
+          title: "Feeling motivated?",
+          body: "Time to crush your habits and raise those confidence levels!",
+          date: now.copyWith(
               hour: secondNotifTime.hour, minute: secondNotifTime.minute),
-          2);
+          id: 2,
+          channelKey: "habit_smart_notifications");
       if (numberOfNotifs > 2) {
         await notificationManager.scheduleNotification(
-            "It's getting late...",
-            "Time's running out––complete your habits now or risk breaking your streak!",
-            now.copyWith(
+            title: "It's getting late...",
+            body: "Time's running out––complete your habits now or risk breaking your streak!",
+            date: now.copyWith(
                 hour: thirdNotifTime.hour, minute: thirdNotifTime.minute),
-            3);
+            id: 3,
+            channelKey: "habit_smart_notifications");
       }
     }
     await notificationManager.scheduleNotification(
-        "You've lost your streak!",
-        "Complete your habits now to start up a new streak.",
-        now.copyWith(
+        title: "You've lost your streak!",
+        body: "Complete your habits now to start up a new streak.",
+        date: now.copyWith(
             day: now.day + 1,
             hour: Random().nextInt(10) + 8,
             minute: Random().nextInt(59)),
-        4);
+        id: 4,
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "It's been a while...",
-        "It's been five days since you've completed your habits. Give it a go!",
-        now.copyWith(
+        title: "It's been a while...",
+        body: "It's been five days since you've completed your habits. Give it a go!",
+        date: now.copyWith(
             day: now.day + 5,
             hour: Random().nextInt(10) + 8,
             minute: Random().nextInt(59)),
-        5);
+        id: 5,
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "Looks like you're taking a break",
-        "We'll stop sending notifications for now––you can always come back!",
-        now.copyWith(
+        title: "Looks like you're taking a break",
+        body: "We'll stop sending notifications for now––you can always come back!",
+        date: now.copyWith(
             day: now.day + 10,
             hour: Random().nextInt(10) + 8,
             minute: Random().nextInt(59)),
-        6);
+        id: 6,
+        channelKey: "habit_smart_notifications");
   }
 
   Future<void> scheduleDayHabitReminderTrack(Habit habit,
@@ -124,39 +136,44 @@ class NotificationScheduler {
     DateTime scheduledTime = DateTime.now();
     TimeModel optimalTime =
         calculateOptimalNotificationTime(habit.daysCompleted);
-    scheduledTime.copyWith(
+    scheduledTime = scheduledTime.copyWith(
       hour: optimalTime.hour,
       minute: optimalTime.minute,
     );
     scheduledTime = scheduledTime.add(delay);
     // current day's round of notifs
     await notificationManager.scheduleNotification(
-        "Your habit \"${habit.title}\" is due!",
-        "You tend to complete this habit around this time––don't forget!",
-        scheduledTime,
-        int.parse("${habit.id}1"));
+        title: "Your habit \"${habit.title}\" is due!",
+        body: "You tend to complete this habit around this time––don't forget!",
+        date: scheduledTime,
+        id: int.parse("${habit.id}1"),
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "Don't forget ${habit.title}!",
-        "Time's running out! Complete it now or risk breaking your streak",
-        scheduledTime.add(Duration(hours: Random().nextInt(2) + 2)),
-        int.parse("${habit.id}2"));
+        title: "Don't forget ${habit.title}!",
+        body: "Time's running out! Complete it now or risk breaking your streak",
+        date: scheduledTime.add(Duration(hours: Random().nextInt(2) + 2)),
+        id: int.parse("${habit.id}2"),
+        channelKey: "habit_smart_notifications");
 
     // next day's notif
     await notificationManager.scheduleNotification(
-        "Uh oh...",
-        "Looks like you missed your ${habit.title} habit––try to start back a streak!",
-        scheduledTime.add(Duration(days: 1)),
-        int.parse("${habit.id}01"));
+        title: "Uh oh...",
+        body: "Looks like you missed your ${habit.title} habit––try to start back a streak!",
+        date: scheduledTime.add(Duration(days: 1)),
+        id: int.parse("${habit.id}01"),
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "It's been a while",
-        "It's been 5 days since you've completed ${habit.title}. Give it a go!",
-        scheduledTime.add(Duration(days: 5)),
-        int.parse("${habit.id}05"));
+        title: "It's been a while",
+        body: "It's been 5 days since you've completed ${habit.title}. Give it a go!",
+        date: scheduledTime.add(Duration(days: 5)),
+        id: int.parse("${habit.id}05"),
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "Looks like you're taking a break from ${habit.title}",
-        "We'll stop sending notifications for now––you can always come back!",
-        scheduledTime.add(Duration(days: 10)),
-        int.parse("${habit.id}010"));
+        title: "Looks like you're taking a break from ${habit.title}",
+        body: "We'll stop sending notifications for now––you can always come back!",
+        date: scheduledTime.add(Duration(days: 10)),
+        id: int.parse("${habit.id}010"),
+        channelKey: "habit_smart_notifications");
   }
 
   Future<void> scheduleWeekHabitReminderTrack(Habit habit,
@@ -174,15 +191,17 @@ class NotificationScheduler {
     );
     scheduledTime = scheduledTime.add(delay);
     await notificationManager.scheduleNotification(
-        "Your habit \"${habit.title}\" is due!",
-        "You tend to complete this habit around this time––don't forget!",
-        scheduledTime,
-        int.parse("${habit.id}1"));
+        title: "Your habit \"${habit.title}\" is due!",
+        body: "You tend to complete this habit around this time––don't forget!",
+        date: scheduledTime,
+        id: int.parse("${habit.id}1"),
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "Don't forget ${habit.title}!",
-        "Time's running out! Complete it now or risk breaking your streak",
-        scheduledTime.add(Duration(hours: Random().nextInt(daysUntilSunday))),
-        int.parse("${habit.id}2"));
+        title: "Don't forget ${habit.title}!",
+        body: "Time's running out! Complete it now or risk breaking your streak",
+        date: scheduledTime.add(Duration(hours: Random().nextInt(daysUntilSunday))),
+        id: int.parse("${habit.id}2"),
+        channelKey: "habit_smart_notifications");
   }
 
   Future<void> scheduleMonthHabitReminderTrack(Habit habit,
@@ -195,21 +214,23 @@ class NotificationScheduler {
     DateTime scheduledTime = DateTime.now();
     TimeModel optimalTime =
         calculateOptimalNotificationTime(habit.daysCompleted);
-    scheduledTime.copyWith(
+    scheduledTime = scheduledTime.copyWith(
       hour: optimalTime.hour,
       minute: optimalTime.minute,
     );
     scheduledTime = scheduledTime.add(delay);
     await notificationManager.scheduleNotification(
-        "Your habit \"${habit.title}\" is due!",
-        "You tend to complete this habit around this time––don't forget!",
-        scheduledTime,
-        int.parse("${habit.id}1"));
+        title: "Your habit \"${habit.title}\" is due!",
+        body: "You tend to complete this habit around this time––don't forget!",
+        date: scheduledTime,
+        id: int.parse("${habit.id}1"),
+        channelKey: "habit_smart_notifications");
     await notificationManager.scheduleNotification(
-        "Don't forget ${habit.title}!",
-        "Time's running out! Complete it now or risk breaking your streak",
-        scheduledTime.add(Duration(hours: Random().nextInt(daysUntilMonthEnd))),
-        int.parse("${habit.id}2"));
+        title: "Don't forget ${habit.title}!",
+        body: "Time's running out! Complete it now or risk breaking your streak",
+        date: scheduledTime.add(Duration(hours: Random().nextInt(daysUntilMonthEnd))),
+        id: int.parse("${habit.id}2"),
+        channelKey: "habit_smart_notifications");
   }
 
   Future<void> scheduleHabitReminderTrack(Habit habit,
@@ -224,18 +245,7 @@ class NotificationScheduler {
   }
 
   Future<void> cancelHabitSchedule(int habitID) async {
-    try {
-      notificationManager.cancelScheduledNotification(int.parse("{habit.id}1"));
-      notificationManager.cancelScheduledNotification(int.parse("{habit.id}2"));
-      notificationManager
-          .cancelScheduledNotification(int.parse("{habit.id}01"));
-      notificationManager
-          .cancelScheduledNotification(int.parse("{habit.id}05"));
-      notificationManager
-          .cancelScheduledNotification(int.parse("{habit.id}010"));
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+      await notificationManager.cancelScheduledNotificationsByHabitId(habitID);
   }
 
   TimeModel calculateOptimalNotificationTime(List<DateTime> completionTimes) {

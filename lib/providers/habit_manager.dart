@@ -328,6 +328,40 @@ class HabitManager extends ChangeNotifier {
     }
   }
 
+  Future<void> rescheduleSmartNotifications(Habit habit,
+      {bool backward = false}) async {
+    debugPrint("Rescheduling smart notifications for habit: ${habit.title}");
+
+    NotificationManager notificationManager = NotificationManager();
+    await notificationManager.cancelScheduledNotificationsByHabitId(habit.id);
+    debugPrint("Cancelled existing notifications for habit: ${habit.title}");
+
+    NotificationScheduler notificationScheduler = NotificationScheduler();
+    if (habit.smartNotifsEnabled) {
+      debugPrint("Smart notifications are enabled for habit: ${habit.title}");
+      Duration delay;
+      if (habit.resetPeriod == 'Daily') {
+        delay = backward ? Duration(days: -1) : Duration(days: 1);
+        await notificationScheduler.scheduleDayHabitReminderTrack(habit,
+            delay: delay);
+        debugPrint("Scheduled daily reminder for habit: ${habit.title}");
+      } else if (habit.resetPeriod == 'Weekly') {
+        delay = backward ? Duration(days: -7) : Duration(days: 7);
+        await notificationScheduler.scheduleWeekHabitReminderTrack(habit,
+            delay: delay);
+        debugPrint("Scheduled weekly reminder for habit: ${habit.title}");
+      } else if (habit.resetPeriod == 'Monthly') {
+        delay = backward ? Duration(days: -30) : Duration(days: 30);
+        await notificationScheduler.scheduleMonthHabitReminderTrack(habit,
+            delay: delay);
+        debugPrint("Scheduled monthly reminder for habit: ${habit.title}");
+      } else {
+        debugPrint(
+            "Smart notifications are not enabled for habit: ${habit.title}");
+      }
+    }
+  }
+
   List<Habit> getTodaysDueHabits() {
     List<Habit> todaysHabits = [];
     for (int i = 0; i < _habits.length; i++) {
