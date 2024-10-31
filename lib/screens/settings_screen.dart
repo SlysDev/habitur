@@ -47,11 +47,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late TextEditingController usernameController;
   late TextEditingController emailController;
   late TextEditingController bioController;
+  String email = '';
+  String bio = '';
+  String username = '';
 
   @override
   void initState() {
     super.initState();
-    final user = Provider.of<UserLocalStorage>(context, listen: false).currentUser;
+    final user =
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     usernameController = TextEditingController(text: user.username);
     emailController = TextEditingController(text: user.email);
     bioController = TextEditingController(text: user.bio);
@@ -71,10 +75,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SettingsLocalStorage settingsData =
         Provider.of<SettingsLocalStorage>(context, listen: false);
     Database db = Database();
-    String email = Provider.of<UserLocalStorage>(context).currentUser.email;
-    String bio = Provider.of<UserLocalStorage>(context).currentUser.bio;
-    String username =
-        Provider.of<UserLocalStorage>(context).currentUser.username;
+    if (username.isEmpty) {
+      username = Provider.of<UserLocalStorage>(context, listen: false).currentUser.username;
+    }
+    if (email.isEmpty) {
+      email = Provider.of<UserLocalStorage>(context, listen: false).currentUser.email;
+    }
+    if (bio.isEmpty) {
+      bio = Provider.of<UserLocalStorage>(context, listen: false).currentUser.bio;
+    }
     return LoadingOverlayWrapper(
       child: Scaffold(
         body: FutureBuilder(
@@ -296,44 +305,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   .isConnected
                               ? SizedBox(height: 25)
                               : Container(),
-                            Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SettingRow(
-                              title: 'Username',
-                              controller: usernameController,
-                              enabled: Provider.of<NetworkStateProvider>(context).isConnected,
-                              hintText: 'Username',
-                              onChanged: (value) {
-                                setState(() {
-                                username = value;
-                                });
-                              },
+                                title: 'Username',
+                                controller: usernameController,
+                                enabled:
+                                    Provider.of<NetworkStateProvider>(context)
+                                        .isConnected,
+                                hintText: 'Username',
+                                onChanged: (value) {
+                                  setState(() {
+                                    username = value;
+                                  });
+                                },
                               ),
                               SizedBox(height: 16.0),
                               SettingRow(
-                              title: 'Email',
-                              controller: emailController,
-                              enabled: Provider.of<NetworkStateProvider>(context).isConnected,
-                              hintText: 'Email',
-                              onChanged: (value) {
-                                setState(() {
-                                email = value;
-                                });
-                              },
+                                title: 'Email',
+                                controller: emailController,
+                                enabled:
+                                    Provider.of<NetworkStateProvider>(context)
+                                        .isConnected,
+                                hintText: 'Email',
+                                onChanged: (value) {
+                                  setState(() {
+                                    email = value;
+                                  });
+                                },
                               ),
                               SizedBox(height: 16.0),
                               SettingRow(
-                              title: 'Bio',
-                              controller: bioController,
-                              multiline: true,
-                              enabled: Provider.of<NetworkStateProvider>(context).isConnected,
-                              hintText: 'Enter bio here...',
-                              onChanged: (value) {
-                                setState(() {
-                                bio = value;
-                                });
-                              },
+                                title: 'Bio',
+                                controller: bioController,
+                                multiline: true,
+                                enabled:
+                                    Provider.of<NetworkStateProvider>(context)
+                                        .isConnected,
+                                hintText: 'Enter bio here...',
+                                onChanged: (value) {
+                                  setState(() {
+                                    bio = value;
+                                  });
+                                },
                               ),
                             ],
                           ),
@@ -412,6 +427,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ? PrimaryButton(
                                   text: 'Update Profile',
                                   onPressed: () async {
+                                    debugPrint('Current Username: $username');
+                                    debugPrint('Current Email: $email');
+                                    debugPrint('Current Bio: $bio');
                                     Provider.of<LoadingStateProvider>(context,
                                             listen: false)
                                         .setLoading(true);
@@ -856,7 +874,8 @@ class SettingRow extends StatelessWidget {
   final bool multiline;
   final void Function(String) onChanged;
 
-  const SettingRow({super.key, 
+  const SettingRow({
+    super.key,
     required this.title,
     required this.controller,
     required this.enabled,
