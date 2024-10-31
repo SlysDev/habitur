@@ -44,6 +44,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool hasUpdatedProfile = false;
   bool hasFailed = false;
 
+  late TextEditingController usernameController;
+  late TextEditingController emailController;
+  late TextEditingController bioController;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = Provider.of<UserLocalStorage>(context, listen: false).currentUser;
+    usernameController = TextEditingController(text: user.username);
+    emailController = TextEditingController(text: user.email);
+    bioController = TextEditingController(text: user.bio);
+  }
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    emailController.dispose();
+    bioController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -275,57 +296,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   .isConnected
                               ? SizedBox(height: 25)
                               : Container(),
-                          Column(
+                            Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SettingRow(
-                                title: 'Username',
-                                initialValue:
-                                    Provider.of<UserLocalStorage>(context)
-                                        .currentUser
-                                        .username,
-                                enabled:
-                                    Provider.of<NetworkStateProvider>(context)
-                                        .isConnected,
-                                onChanged: (newValue) {
-                                  // Handle username change
-                                },
-                                hintText: 'Username',
+                              title: 'Username',
+                              controller: usernameController,
+                              enabled: Provider.of<NetworkStateProvider>(context).isConnected,
+                              hintText: 'Username',
+                              onChanged: (value) {
+                                setState(() {
+                                username = value;
+                                });
+                              },
                               ),
-                              SizedBox(
-                                  height:
-                                      16.0), // Add some spacing between rows
+                              SizedBox(height: 16.0),
                               SettingRow(
-                                title: 'Email',
-                                initialValue:
-                                    Provider.of<UserLocalStorage>(context)
-                                        .currentUser
-                                        .email,
-                                enabled:
-                                    Provider.of<NetworkStateProvider>(context)
-                                        .isConnected,
-                                onChanged: (newValue) {
-                                  // Handle email change
-                                },
-                                hintText: 'Email',
+                              title: 'Email',
+                              controller: emailController,
+                              enabled: Provider.of<NetworkStateProvider>(context).isConnected,
+                              hintText: 'Email',
+                              onChanged: (value) {
+                                setState(() {
+                                email = value;
+                                });
+                              },
                               ),
-                              SizedBox(
-                                  height:
-                                      16.0), // Add some spacing between rows
+                              SizedBox(height: 16.0),
                               SettingRow(
-                                title: 'Bio',
-                                multiline: true,
-                                initialValue:
-                                    Provider.of<UserLocalStorage>(context)
-                                        .currentUser
-                                        .bio,
-                                enabled:
-                                    Provider.of<NetworkStateProvider>(context)
-                                        .isConnected,
-                                onChanged: (newValue) {
-                                  bio = newValue;
-                                },
-                                hintText: 'Enter bio here...',
+                              title: 'Bio',
+                              controller: bioController,
+                              multiline: true,
+                              enabled: Provider.of<NetworkStateProvider>(context).isConnected,
+                              hintText: 'Enter bio here...',
+                              onChanged: (value) {
+                                setState(() {
+                                bio = value;
+                                });
+                              },
                               ),
                             ],
                           ),
@@ -842,19 +850,19 @@ class TimeSettingsListTile extends StatelessWidget {
 
 class SettingRow extends StatelessWidget {
   final String title;
-  final String initialValue;
+  final TextEditingController controller;
   final bool enabled;
-  final void Function(String) onChanged;
   final String hintText;
-  final bool multiline; // New flag for multiline support
+  final bool multiline;
+  final void Function(String) onChanged;
 
-  const SettingRow({
+  const SettingRow({super.key, 
     required this.title,
-    required this.initialValue,
+    required this.controller,
     required this.enabled,
-    required this.onChanged,
     required this.hintText,
-    this.multiline = false, // Default to false
+    required this.onChanged,
+    this.multiline = false,
   });
 
   @override
@@ -869,13 +877,13 @@ class SettingRow extends StatelessWidget {
               ? MultilineTextField(
                   enabled: enabled,
                   hintText: hintText,
-                  initialValue: initialValue,
+                  controller: controller,
                   onChanged: onChanged,
                 )
               : FilledTextField(
                   enabled: enabled,
                   hintText: hintText,
-                  initialValue: initialValue,
+                  controller: controller,
                   onChanged: onChanged,
                 ),
         ),
