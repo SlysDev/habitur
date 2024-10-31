@@ -127,9 +127,6 @@ class HabitManager extends ChangeNotifier {
 
             debugPrint("${element.title} days not completed: $counter");
 
-            if (element.title == "Cold Shower") {
-              debugPrint("Cold Shower days not completed: $counter");
-            }
             // Reset habit completions if today is a new day and it requires completion
             if (counter >= 1) {
               habitStatsHandler
