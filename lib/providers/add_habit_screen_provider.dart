@@ -19,11 +19,11 @@ class AddHabitScreenProvider extends ChangeNotifier {
         'Saturday',
         'Sunday'
       ],
-      requiredCompletions: 1);
+      targetGoal: 1);
 
   // TextEditingController for habit title
   TextEditingController titleController = TextEditingController();
-  TextEditingController requiredCompletionsController = TextEditingController();
+  TextEditingController targetGoalController = TextEditingController();
 
   Habit get habit => _habit;
 
@@ -53,10 +53,10 @@ class AddHabitScreenProvider extends ChangeNotifier {
           'Saturday',
           'Sunday'
         ],
-        requiredCompletions: 1);
+        targetGoal: 1);
 
     titleController.clear();
-    requiredCompletionsController.clear();
+    targetGoalController.clear();
 
     notifyListeners();
   }
@@ -65,7 +65,7 @@ class AddHabitScreenProvider extends ChangeNotifier {
   @override
   void dispose() {
     titleController.dispose();
-    requiredCompletionsController.dispose();
+    targetGoalController.dispose();
     super.dispose();
   }
 }

@@ -51,12 +51,11 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
     if (currentParticipant == null) {
       userProgress = 0;
     } else {
-      userProgress = currentParticipant.currentCompletions /
-          currentHabit.requiredCompletions;
+      userProgress =
+          currentParticipant.currentCompletions / currentHabit.targetGoal;
     }
     Future<void> completeChallenge() async {
-      if (currentParticipant?.currentCompletions !=
-          currentHabit.requiredCompletions) {
+      if (currentParticipant?.currentCompletions != currentHabit.targetGoal) {
         Provider.of<CommunityChallengeManager>(context, listen: false)
             .updateParticipantCurrentCompletions(
                 context, challenge, 1); // Increment current completions

@@ -74,15 +74,13 @@ class HabitOverviewScreen extends StatelessWidget {
                         SingleStatCard(
                           statText: habit.stats.length < 7
                               ? (statsCalculator.calculateConsistencyFactor(
-                                              habit.stats,
-                                              habit.requiredCompletions,
+                                              habit.stats, habit.targetGoal,
                                               period: habit.stats.length) *
                                           100)
                                       .toStringAsFixed(0) +
                                   '%'
                               : (statsCalculator.calculateConsistencyFactor(
-                                              habit.stats,
-                                              habit.requiredCompletions) *
+                                              habit.stats, habit.targetGoal) *
                                           100)
                                       .toStringAsFixed(0) +
                                   '%',

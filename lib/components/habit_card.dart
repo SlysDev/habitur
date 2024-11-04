@@ -63,10 +63,10 @@ class _HabitCardState extends State<HabitCard> {
     }
     HabitStatsHandler habitStatsHandler = HabitStatsHandler(habit);
     Database db = Database();
-    double progress = habit.completionsToday / habit.requiredCompletions;
-    bool completed = habit.completionsToday == habit.requiredCompletions;
+    double progress = habit.currentProgress / habit.targetGoal;
+    bool completed = habit.currentProgress == habit.targetGoal;
     Future<void> completeHabit(double recordedDifficulty) async {
-      if (habit.completionsToday != habit.requiredCompletions) {
+      if (habit.currentProgress != habit.targetGoal) {
         await habitStatsHandler.incrementCompletion(context,
             recordedDifficulty: recordedDifficulty);
         if (Provider.of<NetworkStateProvider>(context, listen: false)
@@ -103,9 +103,10 @@ class _HabitCardState extends State<HabitCard> {
               .habits[widget.index]);
       Provider.of<HabitManager>(context, listen: false).updateHabits();
       if (habitWasOriginallyCompleted) {
-        debugPrint('Habit was originally completed. Rescheduling smart notifications for habit: ${habit.title}');
+        debugPrint(
+            'Habit was originally completed. Rescheduling smart notifications for habit: ${habit.title}');
         await Provider.of<HabitManager>(context, listen: false)
-        .rescheduleSmartNotifications(habit, backward: true);
+            .rescheduleSmartNotifications(habit, backward: true);
         debugPrint('Smart notifications rescheduled for habit: ${habit.title}');
       }
     }

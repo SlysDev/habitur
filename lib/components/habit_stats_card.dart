@@ -41,14 +41,12 @@ class HabitStatsCard extends StatelessWidget {
                     shrinkWrap: true,
                     childAspectRatio: 1.7,
                     children: [
-                      _buildStat(
-                          "Completions", habit.totalCompletions.toString()),
+                      _buildStat("Completions", habit.totalProgress.toString()),
                       _buildStat("Streak 🔥", habit.streak.toString()),
                       _buildStat(
                           "Consistency",
                           (statsCalculator.calculateConsistencyFactor(
-                                          habit.stats,
-                                          habit.requiredCompletions) *
+                                          habit.stats, habit.targetGoal) *
                                       100)
                                   .toStringAsFixed(0) +
                               "%"),

@@ -32,9 +32,9 @@ class HabitStatsHandler {
     }
     await Provider.of<HabitManager>(context, listen: false)
         .resetHabits(context);
-    habit.completionsToday++;
-    habit.totalCompletions++;
-    if (habit.completionsToday == habit.requiredCompletions) {
+    habit.currentProgress++;
+    habit.totalProgress++;
+    if (habit.currentProgress == habit.targetGoal) {
       habit.streak++;
       if (habit.streak > habit.highestStreak) {
         habit.highestStreak = habit.streak;
@@ -58,8 +58,8 @@ class HabitStatsHandler {
       habit.stats[currentDayIndex].completions++;
       habit.stats[currentDayIndex].streak = habit.streak;
       habit.stats[currentDayIndex].consistencyFactor =
-          HabitStatsCalculator(habit).calculateConsistencyFactor(
-              habit.stats, habit.requiredCompletions);
+          HabitStatsCalculator(habit)
+              .calculateConsistencyFactor(habit.stats, habit.targetGoal);
       habit.stats[currentDayIndex].difficultyRating = recordedDifficulty;
       habit.stats[currentDayIndex].slopeCompletions =
           HabitStatsCalculator(habit)
@@ -82,7 +82,7 @@ class HabitStatsHandler {
         completions: 1,
         streak: habit.streak,
         consistencyFactor: HabitStatsCalculator(habit)
-            .calculateConsistencyFactor(habit.stats, habit.requiredCompletions),
+            .calculateConsistencyFactor(habit.stats, habit.targetGoal),
         difficultyRating: recordedDifficulty,
         slopeCompletions: HabitStatsCalculator(habit)
             .calculateStatSlope('completions', habit.stats),
@@ -111,12 +111,12 @@ class HabitStatsHandler {
 
   Future<void> decrementCompletion(context) async {
     UserStatsHandler userStatsHandler = UserStatsHandler();
-    if (habit.completionsToday == 0) {
+    if (habit.currentProgress == 0) {
       return;
     }
 
     // Check if decrementing completion would change habit completion status
-    if (habit.completionsToday == habit.requiredCompletions) {
+    if (habit.currentProgress == habit.targetGoal) {
       userStatsHandler.recordAverageConfidenceLevel(context);
 
       if (habit.daysCompleted.isNotEmpty) {
@@ -133,8 +133,8 @@ class HabitStatsHandler {
     if (habit.streak > 0) {
       habit.streak--;
     }
-    habit.completionsToday--;
-    habit.totalCompletions--;
+    habit.currentProgress--;
+    habit.totalProgress--;
 
     if (habit.isCommunityHabit) {
       await db.statsDatabase.uploadStatistics(context);
@@ -144,7 +144,7 @@ class HabitStatsHandler {
     fillInMissingDays(context);
     sortHabitStats();
 
-    if (habit.completionsToday == 0) {
+    if (habit.currentProgress == 0) {
       habit.stats.removeLast();
     } else {
       // Find the StatPoint entry for the current day
@@ -165,8 +165,8 @@ class HabitStatsHandler {
         }
 
         habit.stats[currentDayIndex].consistencyFactor =
-            HabitStatsCalculator(habit).calculateConsistencyFactor(
-                habit.stats, habit.requiredCompletions);
+            HabitStatsCalculator(habit)
+                .calculateConsistencyFactor(habit.stats, habit.targetGoal);
         habit.stats[currentDayIndex].difficultyRating = 0;
         habit.stats[currentDayIndex].slopeCompletions =
             HabitStatsCalculator(habit)
@@ -194,7 +194,7 @@ class HabitStatsHandler {
   }
 
   void resetHabitCompletions() {
-    habit.completionsToday = 0;
+    habit.currentProgress = 0;
     if (habit.streak > habit.highestStreak) {
       habit.highestStreak = habit.streak;
     }
@@ -221,7 +221,7 @@ class HabitStatsHandler {
         confidenceLevel: HabitStatsCalculator(habit).calculateConfidenceLevel(),
         streak: habit.streak,
         consistencyFactor: HabitStatsCalculator(habit)
-            .calculateConsistencyFactor(habit.stats, habit.requiredCompletions),
+            .calculateConsistencyFactor(habit.stats, habit.targetGoal),
         difficultyRating: newDifficulty,
         slopeCompletions: HabitStatsCalculator(habit)
             .calculateStatSlope('completions', habit.stats),
@@ -286,8 +286,8 @@ class HabitStatsHandler {
           streak: isOffDay ? 0 : 1,
           consistencyFactor: isOffDay
               ? habit.stats.last.consistencyFactor
-              : HabitStatsCalculator(habit).calculateConsistencyFactor(
-                  habit.stats, habit.requiredCompletions),
+              : HabitStatsCalculator(habit)
+                  .calculateConsistencyFactor(habit.stats, habit.targetGoal),
           difficultyRating: isOffDay
               ? habit.stats.last.difficultyRating
               : HabitStatsCalculator(habit).calculateAverageValueForStat(

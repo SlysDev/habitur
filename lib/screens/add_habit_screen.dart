@@ -150,11 +150,10 @@ class _AddHabitScreenState extends State<AddHabitScreen> {
                                       width: 100,
                                       child: FilledTextField(
                                           controller: addHabitProvider
-                                              .requiredCompletionsController,
+                                              .targetGoalController,
                                           onChanged: (value) {
                                             setHabit(newHabit.copyWith(
-                                              requiredCompletions:
-                                                  int.parse(value),
+                                              targetGoal: int.parse(value),
                                             ));
                                           },
                                           hintText: '#'),

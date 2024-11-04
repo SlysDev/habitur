@@ -120,14 +120,14 @@ class HabitsLocalStorage extends ChangeNotifier {
   Future<void> clearStats(context) async {
     for (Habit habit in getHabitData(context)) {
       Habit clearedHabit = habit;
-      clearedHabit.completionsToday = 0;
+      clearedHabit.currentProgress = 0;
       clearedHabit.streak = 0;
       clearedHabit.lastSeen = DateTime.now();
       clearedHabit.daysCompleted = [];
       clearedHabit.stats = [];
       clearedHabit.confidenceLevel = 0;
       clearedHabit.highestStreak = 0;
-      clearedHabit.totalCompletions = 0;
+      clearedHabit.totalProgress = 0;
 
       updateHabit(clearedHabit);
     }
@@ -161,7 +161,7 @@ class HabitsLocalStorage extends ChangeNotifier {
     for (Habit habit in getHabitData(context)) {
       debugPrint(habit.title);
       output += " ${habit.title}:\n";
-      output += " -> Completions: ${habit.completionsToday}\n";
+      output += " -> Completions: ${habit.currentProgress}\n";
       output += " -> Streak: ${habit.streak}\n";
       output += " -> Last seen: ${habit.lastSeen}\n";
       output += " -> Days Completed: ${habit.daysCompleted}\n";

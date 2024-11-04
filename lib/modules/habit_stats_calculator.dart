@@ -20,7 +20,7 @@ class HabitStatsCalculator extends StatsCalculator {
   double calculateConfidenceLevel() {
     double baseConfidence = 1;
     double consistencyFactor =
-        calculateConsistencyFactor(habit.stats, habit.requiredCompletions);
+        calculateConsistencyFactor(habit.stats, habit.targetGoal);
     double successStreakBonus = 1.0;
     double difficultyWeight = calculateDifficultyWeight(
         habit.stats); // Initialize to 1 if stats is empty
@@ -47,7 +47,7 @@ class HabitStatsCalculator extends StatsCalculator {
 
     double slopeCorrection = 0.0; // corrects for high required completions
     if (statisticName == 'completions') {
-      slopeCorrection = habit.requiredCompletions.toDouble();
+      slopeCorrection = habit.targetGoal.toDouble();
     }
 
     if (stats.length < period) {

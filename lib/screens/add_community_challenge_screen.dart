@@ -22,7 +22,7 @@ class AddCommunityChallengeScreen extends StatefulWidget {
     'participantDataList': [],
     'habit': {
       'title': '',
-      'requiredCompletions': 0,
+      'targetGoal': 0,
       'resetPeriod': 'Daily',
       'id': Random().nextInt(100000),
       'dateCreated': DateTime.now()
@@ -110,8 +110,7 @@ class _AddCommunityChallengeScreenState
               FilledTextField(
                 hintText: '##',
                 onChanged: (value) {
-                  widget.newChallenge['habit']['requiredCompletions'] =
-                      int.parse(value);
+                  widget.newChallenge['habit']['targetGoal'] = int.parse(value);
                 },
               ),
               Text(

@@ -24,12 +24,12 @@ class HabitAdapter extends TypeAdapter<Habit> {
       lastSeen: fields[10] as DateTime,
       streak: fields[2] as int,
       highestStreak: fields[6] as int,
-      completionsToday: fields[4] as int,
-      totalCompletions: fields[5] as int,
+      currentProgress: fields[4] as int,
+      totalProgress: fields[5] as int,
       confidenceLevel: fields[9] as double,
       requiredDatesOfCompletion: (fields[13] as List).cast<String>(),
       smartNotifsEnabled: fields[15] as bool,
-      requiredCompletions: fields[3] as int,
+      targetGoal: fields[3] as int,
     )
       ..proficiencyRating = fields[1] as int
       ..daysCompleted = (fields[12] as List).cast<DateTime>()
@@ -47,11 +47,11 @@ class HabitAdapter extends TypeAdapter<Habit> {
       ..writeByte(2)
       ..write(obj.streak)
       ..writeByte(3)
-      ..write(obj.requiredCompletions)
+      ..write(obj.targetGoal)
       ..writeByte(4)
-      ..write(obj.completionsToday)
+      ..write(obj.currentProgress)
       ..writeByte(5)
-      ..write(obj.totalCompletions)
+      ..write(obj.totalProgress)
       ..writeByte(6)
       ..write(obj.highestStreak)
       ..writeByte(7)

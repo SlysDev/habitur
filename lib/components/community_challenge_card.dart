@@ -46,11 +46,11 @@ class CommunityChallengeCard extends StatelessWidget {
     if (currentParticipant == null) {
       userProgress = 0;
     } else {
-      userProgress = currentParticipant.currentCompletions /
-          challenge.habit.requiredCompletions;
+      userProgress =
+          currentParticipant.currentCompletions / challenge.habit.targetGoal;
     }
     void completeChallenge() {
-      if (currentHabit.completionsToday != currentHabit.requiredCompletions) {
+      if (currentHabit.currentProgress != currentHabit.targetGoal) {
         habitStatsHandler.incrementCompletion(context);
         Provider.of<CommunityChallengeManager>(context, listen: false)
             .updateParticipantCurrentCompletions(

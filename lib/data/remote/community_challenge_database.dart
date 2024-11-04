@@ -40,7 +40,7 @@ class CommunityChallengeDatabase {
           currentFullCompletions: doc.get("currentFullCompletions"),
           habit: Habit(
             title: doc.get("habit")["title"],
-            requiredCompletions: doc.get("habit")["requiredCompletions"],
+            targetGoal: doc.get("habit")["targetGoal"],
             lastSeen: DateTime.now(),
             isCommunityHabit: true,
             id: doc.get("habit")["id"],
@@ -71,7 +71,7 @@ class CommunityChallengeDatabase {
         loadedChallenge.loadParticipants(participantList);
         for (ParticipantData participant in loadedChallenge.participants) {
           if (participant.user.uid == _auth.currentUser!.uid.toString()) {
-            loadedChallenge.habit.completionsToday =
+            loadedChallenge.habit.currentProgress =
                 participant.currentCompletions;
             break;
           }
@@ -143,7 +143,7 @@ class CommunityChallengeDatabase {
                   : [],
               'habit': {
                 'title': challenge.habit.title,
-                'requiredCompletions': challenge.habit.requiredCompletions,
+                'targetGoal': challenge.habit.targetGoal,
                 'resetPeriod': challenge.habit.resetPeriod,
                 'id': challenge.habit.id,
                 'dateCreated': challenge.habit.dateCreated

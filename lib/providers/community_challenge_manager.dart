@@ -22,8 +22,8 @@ class CommunityChallengeManager extends ChangeNotifier {
         endDate: DateTime.now(),
         habit: Habit(
           title: "Test",
-          completionsToday: 0,
-          requiredCompletions: 4,
+          currentProgress: 0,
+          targetGoal: 4,
           id: Random().nextInt(100000),
           lastSeen: DateTime.now(),
           resetPeriod: "Daily",
@@ -134,8 +134,7 @@ class CommunityChallengeManager extends ChangeNotifier {
       BuildContext context, CommunityChallenge challenge) {
     ParticipantData? currentParticiapnt =
         getCurrentUserParticipantData(context, challenge);
-    if (currentParticiapnt?.currentCompletions ==
-        challenge.habit.requiredCompletions) {
+    if (currentParticiapnt?.currentCompletions == challenge.habit.targetGoal) {
       challenge.currentFullCompletions++;
       _addParticipantData(
         context,

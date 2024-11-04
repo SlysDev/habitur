@@ -180,11 +180,10 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                                   Container(
                                     width: 100,
                                     child: FilledTextField(
-                                        initialValue: selectedHabit
-                                            .requiredCompletions
-                                            .toString(),
+                                        initialValue:
+                                            selectedHabit.targetGoal.toString(),
                                         onChanged: (value) {
-                                          selectedHabit.requiredCompletions =
+                                          selectedHabit.targetGoal =
                                               int.parse(value);
                                         },
                                         hintText: '#'),
@@ -492,8 +491,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                             selectedHabit.title = selectedHabit.title;
                             selectedHabit.resetPeriod =
                                 selectedHabit.resetPeriod;
-                            selectedHabit.requiredCompletions =
-                                selectedHabit.requiredCompletions;
+                            selectedHabit.targetGoal = selectedHabit.targetGoal;
                             selectedHabit.requiredDatesOfCompletion =
                                 selectedHabit.requiredDatesOfCompletion;
                             habitManager.editHabit(

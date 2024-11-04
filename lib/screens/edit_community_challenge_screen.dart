@@ -31,7 +31,7 @@ class _EditCommunityChallengeScreenState
       'requiredFullCompletions': widget.challenge.requiredFullCompletions,
       'habit': {
         'title': widget.challenge.habit.title,
-        'requiredCompletions': widget.challenge.habit.requiredCompletions,
+        'targetGoal': widget.challenge.habit.targetGoal,
         'resetPeriod': widget.challenge.habit.resetPeriod,
         'dateCreated': widget.challenge.habit.dateCreated,
       },
@@ -130,14 +130,13 @@ class _EditCommunityChallengeScreenState
               textAlign: TextAlign.center,
             ),
             FilledTextField(
-              hintText: widget.challenge.habit.requiredCompletions.toString(),
+              hintText: widget.challenge.habit.targetGoal.toString(),
               onChanged: (value) {
                 if (value == '') {
-                  modifiedChallenge['habit']['requiredCompletions'] =
-                      widget.challenge.habit.requiredCompletions;
+                  modifiedChallenge['habit']['targetGoal'] =
+                      widget.challenge.habit.targetGoal;
                 } else {
-                  modifiedChallenge['habit']['requiredCompletions'] =
-                      int.parse(value);
+                  modifiedChallenge['habit']['targetGoal'] = int.parse(value);
                 }
               },
             ),

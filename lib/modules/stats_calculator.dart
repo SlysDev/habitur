@@ -61,17 +61,16 @@ class StatsCalculator {
   double calculateAverageCompletionsPerWeek(List<StatPoint> stats) {
     if (stats.isEmpty) return 0.0;
     int totalWeeks = (stats.length / 7).ceil(); // Assuming 7 days in a week
-    int totalCompletions = 0;
+    int totalProgress = 0;
     for (StatPoint statPoint in stats) {
-      totalCompletions += statPoint.completions;
+      totalProgress += statPoint.completions;
     }
-    return totalCompletions / totalWeeks;
+    return totalProgress / totalWeeks;
   }
 
   String formatAverage(double value) => value.toStringAsFixed(1);
 
-  double calculateConsistencyFactor(
-      List<StatPoint> stats, int requiredCompletions,
+  double calculateConsistencyFactor(List<StatPoint> stats, int targetGoal,
       {int period = 7}) {
     if (stats.isEmpty || period <= 0) {
       return 1;
@@ -89,7 +88,7 @@ class StatsCalculator {
     for (int i = 0; i < period; i++) {
       if (i < stats.length) {
         weightedCompletionsSum +=
-            (stats[i].completions / requiredCompletions).floor() * weights[i];
+            (stats[i].completions / targetGoal).floor() * weights[i];
         totalWeight += weights[i];
       }
     }
@@ -134,7 +133,7 @@ class StatsCalculator {
   //       break;
   //     }
   //     StatPoint statPoint = habit.stats[i];
-  //     if (statPoint.completions == habit.requiredCompletions) {
+  //     if (statPoint.completions == habit.targetGoal) {
   //       completedDays++;
   //     }
   //     i--;

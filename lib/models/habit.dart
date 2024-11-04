@@ -14,11 +14,11 @@ class Habit {
   @HiveField(2)
   int streak;
   @HiveField(3)
-  int requiredCompletions;
+  int targetGoal;
   @HiveField(4)
-  int completionsToday;
+  int currentProgress;
   @HiveField(5)
-  int totalCompletions;
+  int totalProgress;
   @HiveField(6)
   int highestStreak;
   @HiveField(7)
@@ -38,13 +38,12 @@ class Habit {
   List<DateTime> daysCompleted = [];
   @HiveField(13)
   List<String> requiredDatesOfCompletion = [];
-  @HiveField(14)
   List<StatPoint> stats = [];
   @HiveField(15)
   bool smartNotifsEnabled;
 
   bool get isCompleted {
-    return completionsToday == requiredCompletions;
+    return currentProgress == targetGoal;
   }
 
   double get completionRate {
@@ -63,9 +62,9 @@ class Habit {
     String? title,
     int? proficiencyRating,
     int? streak,
-    int? requiredCompletions,
-    int? completionsToday,
-    int? totalCompletions,
+    int? targetGoal,
+    int? currentProgress,
+    int? totalProgress,
     int? highestStreak,
     String? resetPeriod,
     DateTime? dateCreated,
@@ -87,14 +86,14 @@ class Habit {
       lastSeen: lastSeen ?? this.lastSeen,
       streak: streak ?? this.streak,
       highestStreak: highestStreak ?? this.highestStreak,
-      completionsToday: completionsToday ?? this.completionsToday,
-      totalCompletions: totalCompletions ?? this.totalCompletions,
+      currentProgress: currentProgress ?? this.currentProgress,
+      totalProgress: totalProgress ?? this.totalProgress,
       confidenceLevel: confidenceLevel ?? this.confidenceLevel,
       requiredDatesOfCompletion:
           requiredDatesOfCompletion ?? this.requiredDatesOfCompletion,
       isCommunityHabit: isCommunityHabit ?? this.isCommunityHabit,
       smartNotifsEnabled: smartNotifsEnabled ?? this.smartNotifsEnabled,
-      requiredCompletions: requiredCompletions ?? this.requiredCompletions,
+      targetGoal: targetGoal ?? this.targetGoal,
     )
       ..color = color ?? this.color
       ..daysCompleted = daysCompleted ?? this.daysCompleted
@@ -109,11 +108,11 @@ class Habit {
       required this.lastSeen,
       this.streak = 0,
       this.highestStreak = 0,
-      this.completionsToday = 0,
-      this.totalCompletions = 0,
+      this.currentProgress = 0,
+      this.totalProgress = 0,
       this.confidenceLevel = 0,
       this.requiredDatesOfCompletion = const [],
       this.isCommunityHabit = false,
       this.smartNotifsEnabled = false,
-      this.requiredCompletions = 1});
+      this.targetGoal = 1});
 }

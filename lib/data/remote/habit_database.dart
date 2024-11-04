@@ -52,16 +52,16 @@ class HabitDatabase {
           resetPeriod: habit.get('resetPeriod'),
           // Converts timestamp to DateTime
           dateCreated: habit.get('dateCreated').toDate(),
-          completionsToday: habit.get('completionsToday'),
+          currentProgress: habit.get('currentProgress'),
           id: habit.get('id'),
           lastSeen: habit.get('lastSeen').toDate(),
           smartNotifsEnabled: habit.get('smartNotifsEnabled') ?? false,
-          totalCompletions: habit.get('totalCompletions'),
+          totalProgress: habit.get('totalProgress'),
           streak: habit.get('streak'),
           highestStreak: habit.get('highestStreak'),
           confidenceLevel: habit.get('confidenceLevel').toDouble(),
           // Converts timestamp to DateTime
-          requiredCompletions: habit.get('requiredCompletions'),
+          targetGoal: habit.get('targetGoal'),
           requiredDatesOfCompletion: requiredDatesOfCompletionFormatted,
         );
         loadedHabit.stats =
@@ -137,7 +137,7 @@ class HabitDatabase {
   Future<void> _updateHabitDoc(Habit habit, DocumentSnapshot doc) async {
     await doc.reference.update({
       'title': habit.title,
-      'completionsToday': habit.completionsToday,
+      'currentProgress': habit.currentProgress,
       'dateCreated': habit.dateCreated,
       'resetPeriod': habit.resetPeriod,
       'id': habit.id,
@@ -145,8 +145,8 @@ class HabitDatabase {
       'confidenceLevel': habit.confidenceLevel,
       'highestStreak': habit.highestStreak,
       'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
-      'requiredCompletions': habit.requiredCompletions,
-      'totalCompletions': habit.totalCompletions,
+      'targetGoal': habit.targetGoal,
+      'totalProgress': habit.totalProgress,
       'lastSeen': habit.lastSeen,
       'smartNotifsEnabled': habit.smartNotifsEnabled,
       'daysCompleted': habit.daysCompleted
@@ -171,7 +171,7 @@ class HabitDatabase {
       var habitsCollectionRef = userReference.collection('habits');
       await habitsCollectionRef.add({
         'title': habit.title,
-        'completionsToday': habit.completionsToday,
+        'currentProgress': habit.currentProgress,
         'dateCreated': habit.dateCreated,
         'resetPeriod': habit.resetPeriod,
         'id': habit.id,
@@ -179,8 +179,8 @@ class HabitDatabase {
         'confidenceLevel': habit.confidenceLevel,
         'highestStreak': habit.highestStreak,
         'requiredDatesOfCompletion': habit.requiredDatesOfCompletion,
-        'requiredCompletions': habit.requiredCompletions,
-        'totalCompletions': habit.totalCompletions,
+        'targetGoal': habit.targetGoal,
+        'totalProgress': habit.totalProgress,
         'lastSeen': habit.lastSeen,
         'smartNotifsEnabled': habit.smartNotifsEnabled,
         'daysCompleted': habit.daysCompleted

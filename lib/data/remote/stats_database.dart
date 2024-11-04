@@ -98,11 +98,11 @@ class StatsDatabase {
 
       for (var doc in habitsCollectionSnapshot.docs) {
         doc.reference.set({
-          'completionsToday': 0,
+          'currentProgress': 0,
           'streak': 0,
           'confidenceLevel': 0,
           'highestStreak': 0,
-          'totalCompletions': 0,
+          'totalProgress': 0,
           'dateCreated': DateTime.now(),
           'daysCompleted': [],
           'stats': {},

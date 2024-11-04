@@ -40,8 +40,6 @@ class LastUpdatedManager {
           }, SetOptions(merge: true));
         }
       }
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          true;
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
