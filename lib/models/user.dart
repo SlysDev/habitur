@@ -72,4 +72,10 @@ class UserModel {
           <StatPoint>[],
     );
   }
+  // build a toString method that outputs a nice object representation of this class; make sure it includes the brackets and \n's where applicable
+
+  @override
+  String toString() {
+    return 'UserModel(username: $username, bio: $bio, email: $email, uid: $uid, profilePicture: $profilePicture, userLevel: $userLevel, userXP: $userXP, isAdmin: $isAdmin, stats: $stats)';
+  }
 }
