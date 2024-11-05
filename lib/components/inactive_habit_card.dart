@@ -16,7 +16,6 @@ import 'package:habitur/screens/habit_overview_screen.dart';
 import 'package:provider/provider.dart';
 import '../constants.dart';
 import './rounded_progress_bar.dart';
-import 'package:confetti/confetti.dart';
 
 class InactiveHabitCard extends StatefulWidget {
   Color color = Colors.white.withOpacity(0.04);
@@ -31,23 +30,10 @@ class InactiveHabitCard extends StatefulWidget {
 class _InactiveHabitCardState extends State<InactiveHabitCard> {
   Color completeButtonColor = Colors.green;
   bool isLoading = false;
-  late ConfettiController _controller;
   void setLoading(bool value) {
     setState(() {
       isLoading = value;
     });
-  }
-
-  @override
-  void initState() {
-    _controller = ConfettiController(duration: const Duration(seconds: 1));
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -123,7 +109,7 @@ class _InactiveHabitCardState extends State<InactiveHabitCard> {
                     decoration: BoxDecoration(
                       color: !completed
                           ? widget.color
-                          : widget.color.withOpacity(0.5),
+                          : widget.color.withOpacity(0.02),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -145,7 +131,12 @@ class _InactiveHabitCardState extends State<InactiveHabitCard> {
                                 const SizedBox(
                                   height: 15,
                                 ),
-                                RoundedProgressBar(progress: progress),
+                                RoundedProgressBar(
+                                  progress: progress,
+                                  color: completed
+                                      ? Colors.white.withOpacity(0.5)
+                                      : Colors.white,
+                                ),
                               ],
                             ),
                           ),
@@ -171,19 +162,6 @@ class _InactiveHabitCardState extends State<InactiveHabitCard> {
                     ),
                   ),
                 ],
-              ),
-            ),
-          ),
-          Container(
-            height: 128,
-            child: Align(
-              alignment: Alignment.center,
-              child: ConfettiWidget(
-                emissionFrequency: 0,
-                minBlastForce: 10,
-                numberOfParticles: 10,
-                blastDirectionality: BlastDirectionality.explosive,
-                confettiController: _controller,
               ),
             ),
           ),
