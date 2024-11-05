@@ -659,9 +659,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 context,
                                                 listen: false)
                                             .setLoading(true);
-                                        Provider.of<HabitManager>(context,
-                                                listen: false)
-                                            .deleteAllHabits(context);
                                         await Provider.of<HabitsLocalStorage>(
                                                 context,
                                                 listen: false)
@@ -669,6 +666,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         Provider.of<UserLocalStorage>(context,
                                                 listen: false)
                                             .clearStats();
+                                        Provider.of<HabitManager>(context,
+                                                listen: false)
+                                            .deleteAllHabits(context);
                                         await Provider.of<SettingsLocalStorage>(
                                                 context,
                                                 listen: false)

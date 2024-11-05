@@ -35,10 +35,15 @@ class HabitsLocalStorage extends ChangeNotifier {
     return _habitsBox.get('lastUpdated');
   }
 
-  Future<void> deleteData(context) async {
+  Future<void> deleteData(BuildContext context) async {
     try {
+      if (Hive.isBoxOpen('habits')) {
+        await Hive.box('habits').close();
+      }
       await Hive.deleteBoxFromDisk('habits');
-    } catch (e, s) {
+      debugPrint('Habits box deleted successfully.');
+    } catch (e, s){
+      debugPrint('function "deleteData" failed');
       debugPrint(e.toString());
       debugPrint(s.toString());
       showDebugErrorSnackbar(context, e, s);
