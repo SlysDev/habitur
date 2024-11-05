@@ -117,8 +117,12 @@ class UserLocalStorage extends ChangeNotifier {
 
   void updateUserStat(String statName, dynamic newValue, context) {
     final user = _userBox.get('currentUser');
+    debugPrint(
+        'updating stat $statName to $newValue for user ${user.toString()}');
     try {
       user.stats.last.updateStatByName(statName, newValue);
+      debugPrint(
+          'just updated stat $statName to ${user.stats.last.getStatByName(statName)}');
       _userBox.put('currentUser', user);
     } catch (e, s) {
       debugPrint('unsuccessful stat update');

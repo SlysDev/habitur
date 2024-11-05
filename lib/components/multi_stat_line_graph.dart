@@ -41,6 +41,9 @@ class _MultiStatLineGraphState extends State<MultiStatLineGraph> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("Selected stat: $displayedStat");
+    debugPrint(
+        "Mapped stat name: ${displayedStat == 'Confidence level' ? 'confidenceLevel' : displayedStat == 'Difficulty' ? 'difficultyRating' : displayedStat == 'Consistency' ? 'consistencyFactor' : 'completions'}");
     return Container(
       padding: EdgeInsets.all(5),
       child: Column(

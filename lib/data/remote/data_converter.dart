@@ -49,6 +49,7 @@ class DataConverter {
             confidenceLevel: element['confidenceLevel'] != null
                 ? element['confidenceLevel'].toDouble()
                 : 0,
+            consistencyFactor: (element['consistencyFactor'] ?? 0).toDouble(),
             streak: element['streak'] ?? 0,
             difficultyRating: (element['difficultyRating'] ?? 0).toDouble(),
             slopeCompletions: (element['slopeCompletions'] ?? 0).toDouble(),
@@ -118,6 +119,7 @@ class DataConverter {
               'completions': statPoint.completions,
               'confidenceLevel': statPoint.confidenceLevel,
               'streak': statPoint.streak,
+              'consistencyFactor': statPoint.consistencyFactor,
               'difficultyRating': statPoint.difficultyRating,
               'slopeCompletions': statPoint.slopeCompletions,
               'slopeConfidenceLevel': statPoint.slopeConfidenceLevel,

@@ -65,7 +65,6 @@ class StatsCalculator {
       // Avoid division by zero (consider handling very small start values)
       return 0.0;
     }
-    debugPrint("startValue: $startValue, endValue: $endValue");
 
     return ((endValue - startValue) / startValue) * 100.0;
   }

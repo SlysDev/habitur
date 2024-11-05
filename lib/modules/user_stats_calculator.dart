@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/modules/stats_calculator.dart';
 
@@ -17,6 +18,7 @@ class UserStatsCalculator extends StatsCalculator {
         // make commit showing that you're now calculating the true average for all days
       }
     }
+    debugPrint('sum: $sum; length: ${habits.length}');
     return sum / habits.length;
   }
 
