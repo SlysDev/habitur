@@ -134,12 +134,14 @@ class UserLocalStorage extends ChangeNotifier {
     try {
       final updatedUser = UserModel(
         username: user.username,
+        bio: user.bio,
         email: user.email,
         userLevel: user.userLevel,
         userXP: user.userXP,
         uid: user.uid,
         stats: [...user.stats, newStat],
         profilePicture: user.profilePicture,
+        isAdmin: user.isAdmin,
       );
       currentUser = updatedUser;
     } catch (e, s) {
