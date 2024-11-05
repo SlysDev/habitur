@@ -17,9 +17,17 @@ class StatsCalculator {
   double calculateAverageValueForStat(
       String statisticName, List<StatPoint> stats,
       {int period = 7}) {
+    debugPrint("Average calculation for stat: $statisticName \n \n");
     if (stats.isEmpty || period <= 0) {
       return 0.0; // Handle empty data or invalid period
     }
+
+    if (stats.length < period) {
+      period = stats.length; // Limit period to available data
+    }
+
+    debugPrint("Using period: $period");
+    debugPrint("Stats length: ${stats.length}");
 
     double sum = 0.0;
     for (int i = stats.length - period; i < stats.length; i++) {
@@ -27,9 +35,13 @@ class StatsCalculator {
         double statisticValue =
             getStatisticValue(stats[i], statisticName).toDouble();
         sum += statisticValue;
+        debugPrint("Adding value: $statisticValue at index: $i");
       }
     }
-    return sum / period;
+    double average = sum / period;
+    debugPrint("Calculated average: $average");
+    debugPrint("\n \n");
+    return average;
   }
 
   double calculatePercentChangeForStat(
