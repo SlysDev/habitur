@@ -35,6 +35,12 @@ class UserModel {
   @HiveField(8)
   List<StatPoint> stats;
 
+  @HiveField(9)
+  List<String> friends;
+
+  @HiveField(10)
+  List<String> friendRequests;
+
   int get levelUpRequirement {
     return 100 * pow(1.5, userLevel).ceil();
   }
@@ -49,6 +55,8 @@ class UserModel {
     required this.userXP,
     this.stats = const <StatPoint>[],
     this.isAdmin = false,
+    this.friends = const [],
+    this.friendRequests = const [],
   });
 
   // Factory method to create a UserModel from a Map
@@ -70,12 +78,13 @@ class UserModel {
               ?.map((stat) => StatPoint.fromMap(stat as Map<String, dynamic>))
               .toList() ??
           <StatPoint>[],
+      friends: List<String>.from(map['friends'] ?? []),
+      friendRequests: List<String>.from(map['friendRequests'] ?? []),
     );
   }
-  // build a toString method that outputs a nice object representation of this class; make sure it includes the brackets and \n's where applicable
 
   @override
   String toString() {
-    return 'UserModel(username: $username, bio: $bio, email: $email, uid: $uid, profilePicture: $profilePicture, userLevel: $userLevel, userXP: $userXP, isAdmin: $isAdmin, stats: $stats)';
+    return 'UserModel(username: $username, bio: $bio, email: $email, uid: $uid, profilePicture: $profilePicture, userLevel: $userLevel, userXP: $userXP, isAdmin: $isAdmin, stats: $stats, friends: $friends, friendRequests: $friendRequests)';
   }
 }
