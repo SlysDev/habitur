@@ -21,17 +21,21 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       bio: fields[1] as String,
       email: fields[2] as String,
       uid: fields[3] as String,
+      profilePicture: fields[4] as AssetImage,
       userLevel: fields[5] as int,
       userXP: fields[6] as int,
       stats: (fields[8] as List).cast<StatPoint>(),
       isAdmin: fields[7] as bool,
+      friends: (fields[9] as List).cast<String>(),
+      receivedFriendRequests: (fields[10] as List).cast<FriendRequest>(),
+      sentFriendRequests: (fields[11] as List).cast<FriendRequest>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.username)
       ..writeByte(1)
@@ -40,6 +44,8 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..write(obj.email)
       ..writeByte(3)
       ..write(obj.uid)
+      ..writeByte(4)
+      ..write(obj.profilePicture)
       ..writeByte(5)
       ..write(obj.userLevel)
       ..writeByte(6)
@@ -47,7 +53,13 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(7)
       ..write(obj.isAdmin)
       ..writeByte(8)
-      ..write(obj.stats);
+      ..write(obj.stats)
+      ..writeByte(9)
+      ..write(obj.friends)
+      ..writeByte(10)
+      ..write(obj.receivedFriendRequests)
+      ..writeByte(11)
+      ..write(obj.sentFriendRequests);
   }
 
   @override
