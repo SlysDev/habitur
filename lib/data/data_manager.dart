@@ -9,7 +9,9 @@ import 'package:provider/provider.dart';
 
 class DataManager {
   Future<void> loadData(context, {bool forceDbLoad = false}) async {
-    await initLocalStorage(context);
+    if (!forceDbLoad) {
+      await initLocalStorage(context);
+    }
     await loadUserData(context, forceDbLoad: forceDbLoad);
     await loadHabitsData(context, forceDbLoad: forceDbLoad);
     await loadSettingsData(context, forceDbLoad: forceDbLoad);
@@ -37,8 +39,13 @@ class DataManager {
         await db.userDatabase.loadUserData(context);
       } else {
         debugPrint('Loading user data from Local Storage');
-        await Provider.of<UserLocalStorage>(context, listen: false)
-            .loadData(context);
+        try {
+          await Provider.of<UserLocalStorage>(context, listen: false)
+              .loadData(context);
+        } catch (e) {
+          debugPrint('LS data load failed; trying from DB');
+          await db.userDatabase.loadUserData(context);
+        }
       }
     } else {
       debugPrint('User not logged in, loading from Local Storage');
@@ -109,7 +116,7 @@ class DataManager {
       {bool forceDbLoad = false}) async {
     Database db = Database();
     if (db.userDatabase.isLoggedIn) {
-    await db.communityChallengeDatabase.loadCommunityChallenges(context);
+      await db.communityChallengeDatabase.loadCommunityChallenges(context);
     }
   }
 

@@ -21,28 +21,27 @@ class UserModel {
   @HiveField(3)
   String uid;
 
-  @HiveField(4)
   AssetImage profilePicture;
 
-  @HiveField(5)
+  @HiveField(4)
   int userLevel;
 
-  @HiveField(6)
+  @HiveField(5)
   int userXP;
 
-  @HiveField(7)
+  @HiveField(6)
   bool isAdmin;
 
-  @HiveField(8)
+  @HiveField(7)
   List<StatPoint> stats;
 
-  @HiveField(9)
+  @HiveField(8)
   List<String> friends;
 
-  @HiveField(10)
+  @HiveField(9)
   List<FriendRequest> receivedFriendRequests;
 
-  @HiveField(11)
+  @HiveField(10)
   List<FriendRequest> sentFriendRequests;
 
   int get levelUpRequirement {
