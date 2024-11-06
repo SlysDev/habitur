@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:habitur/models/friend_request.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:hive/hive.dart';
 
@@ -39,7 +40,10 @@ class UserModel {
   List<String> friends;
 
   @HiveField(10)
-  List<String> friendRequests;
+  List<FriendRequest> receivedFriendRequests;
+
+  @HiveField(11)
+  List<FriendRequest> sentFriendRequests;
 
   int get levelUpRequirement {
     return 100 * pow(1.5, userLevel).ceil();
@@ -56,7 +60,8 @@ class UserModel {
     this.stats = const <StatPoint>[],
     this.isAdmin = false,
     this.friends = const [],
-    this.friendRequests = const [],
+    this.receivedFriendRequests = const [],
+    this.sentFriendRequests = const [],
   });
 
   // Factory method to create a UserModel from a Map
@@ -79,12 +84,19 @@ class UserModel {
               .toList() ??
           <StatPoint>[],
       friends: List<String>.from(map['friends'] ?? []),
-      friendRequests: List<String>.from(map['friendRequests'] ?? []),
+      receivedFriendRequests: (map['receivedFriendRequests'] as List<dynamic>?)
+              ?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>))
+              .toList() ??
+          [],
+      sentFriendRequests: (map['sentFriendRequests'] as List<dynamic>?)
+              ?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 
   @override
   String toString() {
-    return 'UserModel(username: $username, bio: $bio, email: $email, uid: $uid, profilePicture: $profilePicture, userLevel: $userLevel, userXP: $userXP, isAdmin: $isAdmin, stats: $stats, friends: $friends, friendRequests: $friendRequests)';
+    return 'UserModel(username: $username, bio: $bio, email: $email, uid: $uid, profilePicture: $profilePicture, userLevel: $userLevel, userXP: $userXP, isAdmin: $isAdmin, stats: $stats, friends: $friends, receivedFriendRequests: $receivedFriendRequests, sentFriendRequests: $sentFriendRequests)';
   }
 }
