@@ -185,7 +185,7 @@ class HomeScreen extends StatelessWidget {
               child: Text('Add'),
               onPressed: () async {
                 await Provider.of<FriendsManager>(context, listen: false)
-                    .sendFriendRequest(_controller.text, context);
+                    .sendFriendRequestByEmail(_controller.text, context);
                 Navigator.of(context).pop();
               },
             ),
