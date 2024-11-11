@@ -40,6 +40,33 @@ class FriendsDatabase {
     }
   }
 
+  Future<void> sendFriendRequestByEmail(
+      String email, BuildContext context) async {
+    try {
+      CollectionReference users = _firestore.collection('users');
+      QuerySnapshot usersFound =
+          await users.where('email', isEqualTo: email).get();
+
+      if (usersFound.docs.isEmpty) {
+        showErrorDialog(context, 'No user found with this email.');
+        return;
+      }
+
+      if (usersFound.docs.length > 1) {
+        showErrorDialog(context, 'Multiple users found with this email.');
+        return;
+      }
+
+      String recipientUid = usersFound.docs.first.get('uid');
+      await sendFriendRequest(recipientUid, context);
+    } catch (e, s) {
+      debugPrint(e.toString());
+      showDebugErrorSnackbar(context, e, s);
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
+    }
+  }
+
   Future<void> acceptFriendRequest(
       FriendRequest friendRequest, BuildContext context) async {
     try {
