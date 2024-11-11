@@ -14,6 +14,7 @@ import 'package:habitur/models/user.dart';
 import 'package:habitur/notifications/notification_controller.dart';
 import 'package:habitur/providers/add_habit_screen_provider.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
+import 'package:habitur/providers/friends_manager.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/admin-screen.dart';
 import 'package:habitur/screens/community_leaderboard_screen.dart';
@@ -49,11 +50,12 @@ import 'package:path_provider/path_provider.dart' as path_provider;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
+
   if (kIsWeb) {
     await Hive.initFlutter();
   } else {
-    Directory directory = await path_provider.getApplicationDocumentsDirectory();
+    Directory directory =
+        await path_provider.getApplicationDocumentsDirectory();
     await Hive.initFlutter(directory.path);
   }
 
@@ -171,6 +173,10 @@ class _HabiturState extends State<Habitur> {
               bodyMedium: TextStyle(color: Colors.white),
             ),
             primaryColor: kPrimaryColor,
+            expansionTileTheme: ExpansionTileThemeData(
+              expandedAlignment: Alignment.centerLeft,
+              iconColor: Colors.white,
+            ),
             elevatedButtonTheme: ElevatedButtonThemeData(
               style: ButtonStyle(
                   textStyle: MaterialStateProperty.all(kCtaBtnStyle),

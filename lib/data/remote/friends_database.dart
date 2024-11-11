@@ -11,8 +11,7 @@ class FriendsDatabase {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
-  Future<void> sendFriendRequest(
-      String recipientUid, BuildContext context) async {
+  Future<void> sendFriendRequest(String recipientUid, BuildContext context) async {
     try {
       DocumentReference? recipientDoc = await getUserDocById(recipientUid);
       if (recipientDoc != null) {
@@ -23,8 +22,7 @@ class FriendsDatabase {
         );
 
         await recipientDoc.update({
-          'receivedFriendRequests':
-              FieldValue.arrayUnion([friendRequest.toMap()])
+          'receivedFriendRequests': FieldValue.arrayUnion([friendRequest.toMap()])
         });
 
         DocumentReference currentUserDoc = userDoc;
@@ -35,17 +33,14 @@ class FriendsDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       showDebugErrorSnackbar(context, e, s);
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          false;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = false;
     }
   }
 
-  Future<void> sendFriendRequestByEmail(
-      String email, BuildContext context) async {
+  Future<void> sendFriendRequestByEmail(String email, BuildContext context) async {
     try {
       CollectionReference users = _firestore.collection('users');
-      QuerySnapshot usersFound =
-          await users.where('email', isEqualTo: email).get();
+      QuerySnapshot usersFound = await users.where('email', isEqualTo: email).get();
 
       if (usersFound.docs.isEmpty) {
         showErrorDialog(context, 'No user found with this email.');
@@ -62,8 +57,7 @@ class FriendsDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       showDebugErrorSnackbar(context, e, s);
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          false;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = false;
     }
   }
 
@@ -149,6 +143,28 @@ class FriendsDatabase {
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
     }
+  }
+
+  Stream<List<String>> getFriendsStream() {
+    return userDoc.snapshots().map((snapshot) {
+      return List<String>.from(snapshot.get('friends'));
+    });
+  }
+
+  Stream<List<FriendRequest>> getReceivedFriendRequestsStream() {
+    return userDoc.snapshots().map((snapshot) {
+      return (snapshot.get('receivedFriendRequests') as List<dynamic>?)
+              ?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>))
+              .toList() ?? [];
+    });
+  }
+
+  Stream<List<FriendRequest>> getSentFriendRequestsStream() {
+    return userDoc.snapshots().map((snapshot) {
+      return (snapshot.get('sentFriendRequests') as List<dynamic>?)
+              ?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>))
+              .toList() ?? [];
+    });
   }
 
   Future<DocumentReference?> getUserDocById(String uid) async {

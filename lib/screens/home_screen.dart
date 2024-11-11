@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/community-habit-list.dart';
+import 'package:habitur/components/custom_alert_dialog.dart';
 import 'package:habitur/components/days_of_week_widget.dart';
+import 'package:habitur/components/filled_text_field.dart';
 import 'package:habitur/components/habit_card_list.dart';
 import 'package:habitur/components/navbar.dart';
 import 'package:habitur/data/data_manager.dart';
@@ -102,6 +104,8 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             ExpansionTile(
+              initiallyExpanded: true,
+              backgroundColor: kFadedBlue,
               shape: RoundedRectangleBorder(
                 side: BorderSide(color: Colors.transparent),
               ),
@@ -111,6 +115,7 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             ExpansionTile(
+              backgroundColor: kFadedBlue,
               shape: RoundedRectangleBorder(
                 side: BorderSide(color: Colors.transparent),
               ),
@@ -120,6 +125,7 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             ExpansionTile(
+              backgroundColor: kFadedBlue,
               shape: RoundedRectangleBorder(
                 side: BorderSide(color: Colors.transparent),
               ),
@@ -168,26 +174,33 @@ class HomeScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add Friend'),
-          content: TextField(
+        return CustomAlertDialog(
+          title: 'Add Friend',
+          content: FilledTextField(
             controller: _controller,
-            decoration: InputDecoration(hintText: 'Enter friend\'s UID'),
+            onChanged: (newValue) {},
+            hintText: 'Enter account email',
           ),
           actions: <Widget>[
-            TextButton(
-              child: Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            Container(
+              margin: EdgeInsets.only(right: 5),
+              child: AsideButton(
+                text: 'Cancel',
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
-            TextButton(
-              child: Text('Add'),
-              onPressed: () async {
-                await Provider.of<FriendsManager>(context, listen: false)
-                    .sendFriendRequestByEmail(_controller.text, context);
-                Navigator.of(context).pop();
-              },
+            Container(
+              margin: EdgeInsets.only(left: 5),
+              child: AsideButton(
+                text: 'Add',
+                onPressed: () async {
+                  await Provider.of<FriendsManager>(context, listen: false)
+                      .sendFriendRequestByEmail(_controller.text, context);
+                  Navigator.of(context).pop();
+                },
+              ),
             ),
           ],
         );
