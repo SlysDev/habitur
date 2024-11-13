@@ -14,10 +14,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:habitur/providers/loading_state_provider.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 
+import '../util_functions.dart';
+
 class LoginScreen extends StatelessWidget {
   late final _auth = FirebaseAuth.instance;
-  late String email;
-  late String password;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -53,137 +55,116 @@ class LoginScreen extends StatelessWidget {
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.04),
                     FilledTextField(
+                      controller: emailController,
                       hintText: 'Enter your email',
-                      onChanged: (newValue) {
-                        email = newValue;
-                      },
                     ),
                     const SizedBox(height: 20),
                     FilledTextField(
+                      controller: passwordController,
                       obscureText: true,
                       hintText: 'Enter your password',
-                      onChanged: (newValue) {
-                        password = newValue;
-                      },
                     ),
                     const SizedBox(height: 40),
-                    AnimatedContainer(
-                      padding: EdgeInsets.all(
-                          Provider.of<LoginRegistrationState>(context)
-                                  .loginSuccess
-                              ? 0
-                              : 15),
-                      duration: const Duration(milliseconds: 700),
-                      curve: Curves.fastOutSlowIn,
-                      height: Provider.of<LoginRegistrationState>(context)
-                              .loginSuccess
-                          ? 0
-                          : 50,
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 1200),
-                        opacity: Provider.of<LoginRegistrationState>(context)
-                                .loginSuccess
-                            ? 0
-                            : 1,
-                        child: Center(
-                          child: Text(
-                            Provider.of<LoginRegistrationState>(context)
-                                .errorMessage,
-                            style: kErrorTextStyle.copyWith(
-                              color: kLightRedAccent,
-                              fontSize:
-                                  MediaQuery.of(context).size.width * 0.0375,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ),
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 80),
                       child: PrimaryButton(
                         text: 'Login',
                         onPressed: () async {
-                          dynamic result;
-                          if (Provider.of<HabitsLocalStorage>(context,
-                                  listen: false)
-                              .getHabitData(context)
-                              .isNotEmpty) {
-                            result = await showDialog(
-                              context: context,
-                              builder: (context) => CustomAlertDialog(
-                                title: 'Warning',
-                                content: Text(
-                                    'Are you sure you want to log in? All of your data will be overwritten.'),
-                                actions: [
-                                  AsideButton(
-                                    onPressed: () {
-                                      Navigator.pop(context, true);
-                                    },
-                                    text: 'Yes',
-                                  ),
-                                  const SizedBox(width: 10),
-                                  AsideButton(
-                                    onPressed: () {
-                                      Navigator.pop(context, false);
-                                    },
-                                    text: 'No',
-                                  ),
-                                ],
-                              ),
+                          try {
+                            Provider.of<LoadingStateProvider>(context, listen: false).setLoading(true);
+                            
+                            // First try to sign in to validate credentials
+                            final UserCredential newUser = await _auth.signInWithEmailAndPassword(
+                              email: emailController.text,
+                              password: passwordController.text
                             );
-                          } else {
-                            result = true;
-                          }
-                          result ??= false;
-                          if (result) {
-                            Provider.of<LoadingStateProvider>(context,
-                                    listen: false)
-                                .setLoading(true);
-                            try {
-                              final newUser =
-                                  await _auth.signInWithEmailAndPassword(
-                                      email: email, password: password);
+                        
+                            // If we get here, credentials are valid
+                            bool shouldProceed = true;
+                        
+                            // Check if we need to show the warning dialog
+                            if (Provider.of<HabitsLocalStorage>(context, listen: false)
+                                .getHabitData(context)
+                                .isNotEmpty) {
+                              
+                              final result = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => CustomAlertDialog(
+                                  title: 'Warning',
+                                  content: Text(
+                                    'Are you sure you want to log in? All of your data will be overwritten.'
+                                  ),
+                                  actions: [
+                                    AsideButton(
+                                      onPressed: () {
+                                        Navigator.pop(context, true); // Yes
+                                      },
+                                      text: 'Yes',
+                                    ),
+                                    const SizedBox(width: 10),
+                                    AsideButton(
+                                      onPressed: () {
+                                        Navigator.pop(context, false); // No
+                                      },
+                                      text: 'No',
+                                    ),
+                                  ],
+                                ),
+                              );
+                              
+                              shouldProceed = result ?? false;
+                            }
+                        
+                            if (shouldProceed) {
+                              // Proceed with data loading
                               DataManager data = DataManager();
                               await data.loadData(context, forceDbLoad: true);
-                              await Provider.of<UserLocalStorage>(context,
-                                      listen: false)
+                              await Provider.of<UserLocalStorage>(context, listen: false)
                                   .saveData(context);
+                                  
                               if (newUser.user?.displayName == null) {
                                 await _auth.currentUser?.updateDisplayName(
-                                    Provider.of<UserLocalStorage>(context,
-                                            listen: false)
-                                        .currentUser
-                                        .username);
+                                  Provider.of<UserLocalStorage>(context, listen: false)
+                                      .currentUser
+                                      .username
+                                );
                               }
-                              await Provider.of<HabitsLocalStorage>(context,
-                                      listen: false)
+                              
+                              await Provider.of<HabitsLocalStorage>(context, listen: false)
                                   .uploadAllHabits(
-                                      Provider.of<HabitManager>(context,
-                                              listen: false)
-                                          .habits,
-                                      context);
-                              if (newUser != null) {
-                                Provider.of<LoadingStateProvider>(context,
-                                        listen: false)
-                                    .setLoading(false);
-                                Navigator.popAndPushNamed(
-                                    context, 'home_screen');
-                              }
-                            } catch (e, s) {
-                              String errorMessage = handleLoginError(e);
-                              Provider.of<LoadingStateProvider>(context,
-                                      listen: false)
+                                    Provider.of<HabitManager>(context, listen: false).habits,
+                                    context
+                                  );
+                        
+                              Provider.of<LoadingStateProvider>(context, listen: false)
                                   .setLoading(false);
-                              Provider.of<LoginRegistrationState>(context,
-                                      listen: false)
-                                  .loginFail(errorMessage);
-                              Future.delayed(Duration(milliseconds: 2500), () {
-                                Provider.of<LoginRegistrationState>(context,
-                                        listen: false)
-                                    .setLoginSuccess(true);
-                              });
+                              Navigator.popAndPushNamed(context, 'home_screen');
+                            } else {
+                              // User selected "No" - sign out and clean up
+                              await _auth.signOut();
+                              Provider.of<LoadingStateProvider>(context, listen: false)
+                                  .setLoading(false);
                             }
+                        
+                          } catch (e) {
+                            debugPrint(e.toString());
+                            String errorMessage = handleLoginError(e);
+                            showErrorDialog(
+                              context, 
+                              errorMessage,
+                              duration: Duration(seconds: 2)
+                            );
+                            
+                            Provider.of<LoadingStateProvider>(context, listen: false)
+                                .setLoading(false);
+                                
+                            Provider.of<LoginRegistrationState>(context, listen: false)
+                                .loginFail(errorMessage);
+                                
+                            Future.delayed(Duration(milliseconds: 2500), () {
+                              Provider.of<LoginRegistrationState>(context, listen: false)
+                                  .setLoginSuccess(true);
+                            });
                           }
                         },
                       ),

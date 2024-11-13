@@ -9,20 +9,19 @@ import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:provider/provider.dart';
+import '../../modules/auth_service.dart';
+
+import '../../models/friend_request.dart';
 
 class UserDatabase {
-  final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  Future<void> userSetup(
-      String username, String email, String bio, context) async {
+  final AuthService _authService = AuthService();
+
+  Future<void> userSetup(String username, String email, String bio, context,
+      {withRethrow = false}) async {
     try {
       CollectionReference users = _firestore.collection('users');
-      QuerySnapshot accountsWithSameEmail =
-          await users.where('email', isEqualTo: email).get();
-      if (accountsWithSameEmail.docs.isNotEmpty) {
-        throw Exception('An account with this email already exists');
-      }
-      String uid = _auth.currentUser!.uid.toString();
+      String uid = _authService.currentUser!.uid.toString();
       DocumentReference userDoc = users.doc(uid); // create a new doc w/ uid.
       userDoc.set({
         'username': username,
@@ -33,12 +32,18 @@ class UserDatabase {
         'userLevel': 1,
         'userXP': 0,
         'isAdmin': false,
+        'friends': [],
+        'receivedFriendRequests': [],
+        'sentFriendRequests': [],
         'lastUpdated': DateTime.now()
       });
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
       return;
     } catch (e, s) {
+      if (withRethrow) {
+        rethrow;
+      }
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
@@ -49,6 +54,46 @@ class UserDatabase {
     }
   }
 
+  Future<void> registerUser(String username, String email, String password,
+      String bio, BuildContext context,
+      {withRethrow = false}) async {
+    UserCredential? newUser;
+    try {
+      // Create user with email and password
+      newUser =
+          await _authService.registerWithEmailAndPassword(email, password);
+      // Setup user in Firestore; check for dupe emails/usernames
+      CollectionReference users = _firestore.collection('users');
+
+      // Check if the username is already taken
+      QuerySnapshot accountsWithSameUsername =
+          await users.where('username', isEqualTo: username).get();
+      if (accountsWithSameUsername.docs.isNotEmpty) {
+        throw Exception('Username is already taken');
+      }
+
+      QuerySnapshot accountsWithSameEmail =
+          await users.where('email', isEqualTo: email).get();
+      if (accountsWithSameEmail.docs.isNotEmpty) {
+        throw Exception('An account with this email already exists');
+      }
+
+      if (newUser.user != null) {
+        // Update display name
+        await _authService.updateDisplayName(username);
+        // Setup user in Firestore
+        await userSetup(username, email, bio, context, withRethrow: true);
+      }
+    } catch (e) {
+      if (newUser?.user != null) {
+        await newUser?.user!.delete();
+      }
+      if (withRethrow) {
+        rethrow;
+      }
+    }
+  }
+
   Future<DocumentReference?> getUserDocById(String uid) async {
     try {
       CollectionReference users = _firestore.collection('users');
@@ -56,23 +101,16 @@ class UserDatabase {
 
       if (usersFound.docs.isNotEmpty) {
         if (usersFound.docs.length > 1) {
-          // Log error for monitoring purposes, but don’t break the app.
           debugPrint("Error: Multiple users found with the same UID ($uid).");
-          // Optionally report this to a monitoring tool like Firebase Crashlytics
-          // FirebaseCrashlytics.instance.recordError(Exception('Duplicate users found for UID'), StackTrace.current);
         }
-        return usersFound
-            .docs.first.reference; // Return the first DocumentSnapshot found
+        return usersFound.docs.first.reference;
       }
 
-      // Handle case where no user was found (user might have been deleted)
       debugPrint("Error: User not found for UID ($uid).");
-      return null; // Return null to handle this gracefully in the UI
+      return null;
     } catch (e, s) {
-      // Catch any other unexpected errors and log them
       debugPrint("Error: Failed to fetch user document for UID ($uid): $e $s");
-      // Optionally, log this to Firebase Crashlytics or another error logging service
-      return null; // Return null to ensure the app continues to function
+      return null;
     }
   }
 
@@ -80,63 +118,74 @@ class UserDatabase {
     DocumentReference? userDoc = await getUserDocById(uid);
 
     if (userDoc != null) {
-      // Convert QueryDocumentSnapshot to UserModel
       DocumentSnapshot snapshot = await userDoc.get();
       return DataConverter().documentSnapshotToUserModel(snapshot);
     }
 
-    // If userDoc is null, handle accordingly (already logged in getUserDocById)
     return null;
   }
 
   DocumentReference get userDoc {
     CollectionReference users = _firestore.collection('users');
-    String uid = _auth.currentUser!.uid.toString();
+    String uid = _authService.currentUser!.uid.toString();
     DocumentReference userDoc = users.doc(uid);
     return userDoc;
   }
 
   Future<DocumentSnapshot> get userData async {
     CollectionReference users = _firestore.collection('users');
-    String uid = _auth.currentUser!.uid.toString();
+    String uid = _authService.currentUser!.uid.toString();
     DocumentReference userDoc = users.doc(uid);
     DocumentSnapshot userSnapshot = await userDoc.get();
     return userSnapshot;
   }
 
   get currentUser {
-    return _auth.currentUser;
+    return _authService.currentUser;
   }
 
   bool get isLoggedIn {
-    return _auth.currentUser != null;
+    return _authService.isLoggedIn;
   }
 
   Future<void> loadUserData(context) async {
-    // throw Error(); // just mocking an error
     try {
       if (!isLoggedIn) {
         throw Exception('User is not logged in');
       }
       QuerySnapshot usersSnapshot = await _firestore.collection('users').get();
-      String uid = _auth.currentUser!.uid.toString();
+      String uid = _authService.currentUser!.uid.toString();
       for (var user in usersSnapshot.docs) {
         try {
           user.get('uid');
         } catch (e) {
           continue;
-        } // handles users w/o uids
+        }
         if (user.get('uid') == uid) {
           debugPrint('loading user...');
           Provider.of<UserLocalStorage>(context, listen: false).currentUser =
               UserModel(
-                  username: user.get('username'),
-                  bio: user.get('bio'),
-                  email: user.get('email'),
-                  uid: user.get('uid'),
-                  userLevel: user.get('userLevel'),
-                  userXP: user.get('userXP'),
-                  isAdmin: user.get('isAdmin'));
+            username: user.get('username'),
+            bio: user.get('bio'),
+            email: user.get('email'),
+            uid: user.get('uid'),
+            userLevel: user.get('userLevel'),
+            userXP: user.get('userXP'),
+            isAdmin: user.get('isAdmin'),
+            friends: List<String>.from(user.get('friends') ?? []),
+            receivedFriendRequests:
+                (user.get('receivedFriendRequests') as List<dynamic>?)
+                        ?.map((req) =>
+                            FriendRequest.fromMap(req as Map<String, dynamic>))
+                        .toList() ??
+                    [],
+            sentFriendRequests:
+                (user.get('sentFriendRequests') as List<dynamic>?)
+                        ?.map((req) =>
+                            FriendRequest.fromMap(req as Map<String, dynamic>))
+                        .toList() ??
+                    [],
+          );
           Provider.of<UserLocalStorage>(context, listen: false)
               .notifyListeners();
         }
@@ -156,7 +205,6 @@ class UserDatabase {
 
   Future<void> uploadUserData(context) async {
     LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
-    // throw Error();
     try {
       if (!isLoggedIn) {
         throw Exception('User is not logged in');
@@ -167,7 +215,7 @@ class UserDatabase {
           user.get('uid');
         } catch (e) {
           continue;
-        } // handles users w/o uids
+        }
         if (user.get('uid') ==
             Provider.of<UserLocalStorage>(context, listen: false)
                 .currentUser
@@ -191,11 +239,27 @@ class UserDatabase {
             'isAdmin': Provider.of<UserLocalStorage>(context, listen: false)
                 .currentUser
                 .isAdmin,
+            'friends': Provider.of<UserLocalStorage>(context, listen: false)
+                .currentUser
+                .friends,
+            'receivedFriendRequests':
+                Provider.of<UserLocalStorage>(context, listen: false)
+                    .currentUser
+                    .receivedFriendRequests
+                    .map((req) => req.toMap())
+                    .toList(),
+            'sentFriendRequests':
+                Provider.of<UserLocalStorage>(context, listen: false)
+                    .currentUser
+                    .sentFriendRequests
+                    .map((req) => req.toMap())
+                    .toList(),
             'lastUpdated': DateTime.now(),
           }, SetOptions(merge: true));
         }
       }
-      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
+      await lastUpdatedManager.syncLastUpdated(
+          context, _authService.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
     } catch (e, s) {
@@ -213,12 +277,8 @@ class UserDatabase {
     CollectionReference userCollection = _firestore.collection('users');
     if (isLoggedIn) {
       try {
-        // Get the user doc to be deleted
         DocumentReference? userDoc =
-            await getUserDocById(_auth.currentUser!.uid.toString());
-        // TODO: Make the commit that this deletes the entire user doc
-
-        // Delete the user doc
+            await getUserDocById(_authService.currentUser!.uid.toString());
         await userDoc!.delete();
       } catch (e, s) {
         debugPrint(e.toString());
