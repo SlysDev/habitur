@@ -14,7 +14,7 @@ showDebugErrorSnackbar(BuildContext context, e, s) {
   );
 }
 
-showErrorDialog(BuildContext context, String errorText) {
+showErrorDialog(BuildContext context, String errorText, {Duration duration = const Duration(seconds: 1)}) {
   showDialog(
     barrierColor: Colors.transparent,
     barrierDismissible: false,
@@ -36,7 +36,7 @@ showErrorDialog(BuildContext context, String errorText) {
       );
     },
   );
-  Future.delayed(Duration(seconds: 1), () {
+  Future.delayed(duration, () {
     Navigator.pop(context);
   });
 }

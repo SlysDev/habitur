@@ -4,7 +4,11 @@ import 'package:habitur/constants.dart';
 class ErrorTile extends StatelessWidget {
   String errorText;
   Color color;
-  ErrorTile({required this.errorText, this.color = kLightRedAccent});
+  double fontSize;
+  ErrorTile(
+      {required this.errorText,
+      this.color = kLightRedAccent,
+      this.fontSize = 18});
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -14,7 +18,7 @@ class ErrorTile extends StatelessWidget {
       ),
       title: Text(
         errorText,
-        style: kErrorTextStyle.copyWith(color: color),
+        style: kErrorTextStyle.copyWith(color: color, fontSize: fontSize),
       ),
     );
   }
