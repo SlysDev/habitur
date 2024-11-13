@@ -18,7 +18,10 @@ class WelcomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            kHabiturLogo,
+            Container(width: 100, child: kHabiturLogo),
+            SizedBox(
+              height: 20,
+            ),
             Text(
               'Habitur',
               style: kTitleTextStyle.copyWith(fontSize: 64),
