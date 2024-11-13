@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import '../constants.dart'; // Ensure this has your constants like kFadedBlue
 
 class MultilineTextField extends StatelessWidget {
-  final void Function(String) onChanged;
-  final String hintText;
+  final void Function(String)? onChanged;
+  final String? hintText;
   final String initialValue;
   final bool enabled;
   final TextEditingController? controller;
 
   MultilineTextField({
-    required this.onChanged,
-    required this.hintText,
+    this.onChanged,
+    this.hintText,
     this.enabled = true,
     this.initialValue = '',
     this.controller,

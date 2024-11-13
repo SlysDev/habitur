@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import '../constants.dart';
 
 class FilledTextField extends StatelessWidget {
-  final void Function(String) onChanged;
-  final String hintText;
+  final void Function(String)? onChanged;
+  final String? hintText;
   final bool obscureText;
   final String initialValue;
   final bool enabled;
   dynamic controller;
   FilledTextField(
-      {required this.onChanged,
-      required this.hintText,
+      {this.onChanged,
+      this.hintText,
       this.enabled = true,
       this.initialValue = '',
       this.controller,
