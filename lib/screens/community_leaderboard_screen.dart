@@ -69,8 +69,8 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
                   context, challenge, 1); // Increment full completions
         }
       } else {
-        showCustomSnackBar(
-            context, "You've already completed this challenge!", kRed);
+        showCustomSnackBar(context, "You've already completed this challenge!",
+            kLightRedAccent);
         return;
       }
       await Provider.of<CommunityChallengeManager>(context, listen: false)

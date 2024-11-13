@@ -13,7 +13,7 @@ class NetworkIndicator extends StatelessWidget {
       duration: Duration(milliseconds: 800),
       curve: Curves.easeInOutSine,
       child: AnimatedOpacity(
-        child: Icon(Icons.wifi_off, color: kRed, size: 30),
+        child: Icon(Icons.wifi_off, color: kLightRedAccent, size: 30),
         opacity: Provider.of<NetworkStateProvider>(context).isConnected ? 0 : 1,
         duration: Duration(milliseconds: 800),
         curve: Curves.easeInOutSine,

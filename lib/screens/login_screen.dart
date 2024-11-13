@@ -90,7 +90,7 @@ class LoginScreen extends StatelessWidget {
                             Provider.of<LoginRegistrationState>(context)
                                 .errorMessage,
                             style: kErrorTextStyle.copyWith(
-                              color: kRed,
+                              color: kLightRedAccent,
                               fontSize:
                                   MediaQuery.of(context).size.width * 0.0375,
                             ),

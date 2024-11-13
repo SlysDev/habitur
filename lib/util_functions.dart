@@ -25,7 +25,7 @@ showErrorDialog(BuildContext context, String errorText) {
         children: [
           AlertDialog(
             alignment: Alignment.bottomCenter,
-            backgroundColor: kRed.withOpacity(0.8),
+            backgroundColor: kLightRedAccent.withOpacity(0.8),
             content: ErrorTile(
               errorText: errorText,
               color: Colors.white,

@@ -76,13 +76,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Provider.of<SettingsLocalStorage>(context, listen: false);
     Database db = Database();
     if (username.isEmpty) {
-      username = Provider.of<UserLocalStorage>(context, listen: false).currentUser.username;
+      username = Provider.of<UserLocalStorage>(context, listen: false)
+          .currentUser
+          .username;
     }
     if (email.isEmpty) {
-      email = Provider.of<UserLocalStorage>(context, listen: false).currentUser.email;
+      email = Provider.of<UserLocalStorage>(context, listen: false)
+          .currentUser
+          .email;
     }
     if (bio.isEmpty) {
-      bio = Provider.of<UserLocalStorage>(context, listen: false).currentUser.bio;
+      bio =
+          Provider.of<UserLocalStorage>(context, listen: false).currentUser.bio;
     }
     return LoadingOverlayWrapper(
       child: Scaffold(
@@ -715,7 +720,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               StaticCard(
                                 padding: 12,
                                 opacity: 0.2,
-                                color: kRed,
+                                color: kLightRedAccent,
                                 child: AsideButton(
                                     text: 'Delete Account',
                                     onPressed: () async {

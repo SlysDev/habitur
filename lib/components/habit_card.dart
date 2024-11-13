@@ -168,7 +168,7 @@ class _HabitCardState extends State<HabitCard> {
                       await deleteHabit();
                       setLoading(false);
                     },
-                    backgroundColor: kRed,
+                    backgroundColor: kLightRedAccent,
                     icon: Icons.delete,
                     borderRadius: BorderRadius.circular(20),
                     label: 'Delete',
@@ -237,8 +237,10 @@ class _HabitCardState extends State<HabitCard> {
                                 _controller.play();
                               });
                             } else {
-                              showCustomSnackBar(context,
-                                  "You've already completed this habit", kRed);
+                              showCustomSnackBar(
+                                  context,
+                                  "You've already completed this habit",
+                                  kLightRedAccent);
                             }
                           },
                           onLongPress: () async {

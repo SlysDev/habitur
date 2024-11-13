@@ -84,7 +84,7 @@ class _InactiveHabitCardState extends State<InactiveHabitCard> {
                       await deleteHabit();
                       setLoading(false);
                     },
-                    backgroundColor: kRed,
+                    backgroundColor: kLightRedAccent,
                     icon: Icons.delete,
                     borderRadius: BorderRadius.circular(20),
                     label: 'Delete',

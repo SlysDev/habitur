@@ -127,7 +127,7 @@ class RegisterScreen extends StatelessWidget {
                         Provider.of<LoginRegistrationState>(context)
                             .errorMessage,
                         style: kErrorTextStyle.copyWith(
-                          color: kRed,
+                          color: kLightRedAccent,
                           fontSize: MediaQuery.of(context).size.height * 0.0275,
                         ),
                         textAlign: TextAlign.center,
