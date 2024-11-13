@@ -20,12 +20,16 @@ class FriendRequest {
   @HiveField(4)
   DateTime? dateAccepted;
 
+  @HiveField(5)
+  bool isDeclined;
+
   FriendRequest({
     required this.senderUid,
     required this.recipientUid,
     required this.dateSent,
     this.isAccepted = false,
     this.dateAccepted,
+    this.isDeclined = false,
   });
 
   factory FriendRequest.fromMap(Map<String, dynamic> map) {
@@ -37,6 +41,7 @@ class FriendRequest {
       dateAccepted: map['dateAccepted'] != null
           ? (map['dateAccepted'] as Timestamp).toDate()
           : null,
+      isDeclined: map['isDeclined'] ?? false,
     );
   }
 
@@ -47,6 +52,27 @@ class FriendRequest {
       'dateSent': dateSent,
       'isAccepted': isAccepted,
       'dateAccepted': dateAccepted,
+      'isDeclined': isDeclined,
     };
+  }
+
+  Map<String, dynamic> toFirebaseMap() {
+    Map<String, dynamic> map = toMap();
+    map['dateSent'] = Timestamp.fromDate(map['dateSent']);
+    if (map['dateAccepted'] != null) {
+      map['dateAccepted'] = Timestamp.fromDate(map['dateAccepted']);
+    }
+    return map;
+  }
+
+  bool equals(Map<String, dynamic> other) {
+    return senderUid == other['senderUid'] &&
+        recipientUid == other['recipientUid'] &&
+        dateSent == (other['dateSent'] as Timestamp).toDate() &&
+        isAccepted == other['isAccepted'] &&
+        dateAccepted == (other['dateAccepted'] != null
+            ? (other['dateAccepted'] as Timestamp).toDate()
+            : null) &&
+        isDeclined == other['isDeclined'];
   }
 }

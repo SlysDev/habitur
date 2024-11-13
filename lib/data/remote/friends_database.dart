@@ -11,7 +11,8 @@ class FriendsDatabase {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
 
-  Future<void> sendFriendRequest(String recipientUid, BuildContext context) async {
+  Future<void> sendFriendRequest(
+      String recipientUid, BuildContext context) async {
     try {
       DocumentReference? recipientDoc = await getUserDocById(recipientUid);
       if (recipientDoc != null) {
@@ -22,7 +23,8 @@ class FriendsDatabase {
         );
 
         await recipientDoc.update({
-          'receivedFriendRequests': FieldValue.arrayUnion([friendRequest.toMap()])
+          'receivedFriendRequests':
+              FieldValue.arrayUnion([friendRequest.toMap()])
         });
 
         DocumentReference currentUserDoc = userDoc;
@@ -33,14 +35,17 @@ class FriendsDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       showDebugErrorSnackbar(context, e, s);
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = false;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
     }
   }
 
-  Future<void> sendFriendRequestByEmail(String email, BuildContext context) async {
+  Future<void> sendFriendRequestByEmail(
+      String email, BuildContext context) async {
     try {
       CollectionReference users = _firestore.collection('users');
-      QuerySnapshot usersFound = await users.where('email', isEqualTo: email).get();
+      QuerySnapshot usersFound =
+          await users.where('email', isEqualTo: email).get();
 
       if (usersFound.docs.isEmpty) {
         showErrorDialog(context, 'No user found with this email.');
@@ -57,7 +62,8 @@ class FriendsDatabase {
     } catch (e, s) {
       debugPrint(e.toString());
       showDebugErrorSnackbar(context, e, s);
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = false;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
     }
   }
 
@@ -69,18 +75,29 @@ class FriendsDatabase {
           await getUserDocById(friendRequest.senderUid);
 
       if (senderDoc != null) {
+        // Remove the existing friend request from both users
         await currentUserDoc.update({
-          'friends': FieldValue.arrayUnion([friendRequest.senderUid]),
           'receivedFriendRequests':
-              FieldValue.arrayRemove([friendRequest.toMap()])
+              FieldValue.arrayRemove([friendRequest.toFirebaseMap()])
         });
 
+        await senderDoc.update({
+          'sentFriendRequests': FieldValue.arrayRemove([friendRequest.toFirebaseMap()])
+        });
+
+        // Update the friend request with the acceptance details
         friendRequest.isAccepted = true;
         friendRequest.dateAccepted = DateTime.now();
 
+        // Add the updated friend request to both users
+        await currentUserDoc.update({
+          'friends': FieldValue.arrayUnion([friendRequest.senderUid]),
+          'receivedFriendRequests':
+              FieldValue.arrayUnion([friendRequest.toMap()])
+        });
+
         await senderDoc.update({
           'friends': FieldValue.arrayUnion([_auth.currentUser!.uid]),
-          'sentFriendRequests': FieldValue.arrayRemove([friendRequest.toMap()]),
           'sentFriendRequests': FieldValue.arrayUnion([friendRequest.toMap()])
         });
       }
@@ -96,17 +113,32 @@ class FriendsDatabase {
       FriendRequest friendRequest, BuildContext context) async {
     try {
       DocumentReference currentUserDoc = userDoc;
-      await currentUserDoc.update({
-        'receivedFriendRequests':
-            FieldValue.arrayRemove([friendRequest.toMap()])
-      });
+      List<dynamic> receivedRequests =
+          (await currentUserDoc.get()).get('receivedFriendRequests');
+      for (var request in receivedRequests) {
+        if (friendRequest.equals(request)) {
+          await currentUserDoc.update({
+            'receivedFriendRequests':
+                FieldValue.arrayRemove([request])
+          });
+          break;
+        }
+      }
 
       DocumentReference? senderDoc =
           await getUserDocById(friendRequest.senderUid);
       if (senderDoc != null) {
-        await senderDoc.update({
-          'sentFriendRequests': FieldValue.arrayRemove([friendRequest.toMap()])
-        });
+        List<dynamic> sentRequests =
+            (await senderDoc.get()).get('sentFriendRequests');
+        for (var request in sentRequests) {
+          if (friendRequest.equals(request)) {
+            await senderDoc.update({
+              'sentFriendRequests':
+                  FieldValue.arrayRemove([request])
+            });
+            break;
+          }
+        }
       }
     } catch (e, s) {
       debugPrint(e.toString());
@@ -155,7 +187,8 @@ class FriendsDatabase {
     return userDoc.snapshots().map((snapshot) {
       return (snapshot.get('receivedFriendRequests') as List<dynamic>?)
               ?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>))
-              .toList() ?? [];
+              .toList() ??
+          [];
     });
   }
 
@@ -163,7 +196,8 @@ class FriendsDatabase {
     return userDoc.snapshots().map((snapshot) {
       return (snapshot.get('sentFriendRequests') as List<dynamic>?)
               ?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>))
-              .toList() ?? [];
+              .toList() ??
+          [];
     });
   }
 
