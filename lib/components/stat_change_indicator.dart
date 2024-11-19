@@ -1,35 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:habitur/components/static_card.dart';
-import 'package:habitur/models/stat_point.dart';
-import 'package:habitur/modules/stats_calculator.dart';
 
 class StatChangeIndicator extends StatelessWidget {
-  final String statName;
-  final List<StatPoint> stats;
+  final double oldValue;
+  final double newValue;
 
-  StatChangeIndicator({required this.statName, required this.stats, super.key});
+  const StatChangeIndicator({
+    Key? key,
+    required this.oldValue,
+    required this.newValue,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    StatsCalculator statsCalculator = StatsCalculator();
-    double valueChange = statsCalculator.calculateStatChange(stats, statName);
-    String changeSymbol = valueChange > 0 ? '↑' : '↓';
-    changeSymbol = valueChange == 0 ? '–' : changeSymbol;
-    Color changeColor = valueChange > 0 ? Colors.green : Colors.red;
-    changeColor = valueChange == 0 ? Colors.white60 : changeColor;
+    if (oldValue == newValue) {
+      return Row(
+        children: [
+          Icon(Icons.remove, color: Colors.grey, size: 16),
+          SizedBox(width: 4),
+          Text('No change', style: TextStyle(color: Colors.grey, fontSize: 12)),
+        ],
+      );
+    }
 
-    return StaticCard(
-      padding: MediaQuery.of(context).size.width * 0.05,
-      color: changeColor,
-      opacity: 0.2,
-      child: Text(
-        '${valueChange.toStringAsFixed(2)} $changeSymbol',
-        style: TextStyle(
-          color: changeColor,
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
+    final isIncrease = newValue > oldValue;
+    
+    // Handle case where old value is 0
+    final percentChange = oldValue == 0 
+        ? null  // Don't show percentage for 0 to non-0 transitions
+        : ((newValue - oldValue) / oldValue * 100).abs();
+    
+    final changeText = percentChange == null 
+        ? 'New!' 
+        : '${percentChange.toStringAsFixed(1)}%';
+
+    return Row(
+      children: [
+        Icon(
+          isIncrease ? Icons.arrow_upward : Icons.arrow_downward,
+          color: isIncrease ? Colors.greenAccent : Colors.redAccent,
+          size: 16,
         ),
-      ),
+        SizedBox(width: 4),
+        Text(
+          changeText,
+          style: TextStyle(
+            color: isIncrease ? Colors.greenAccent : Colors.redAccent,
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 }
