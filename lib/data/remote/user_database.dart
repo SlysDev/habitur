@@ -179,28 +179,80 @@ class UserDatabase {
         }
         if (user.get('uid') == uid) {
           debugPrint('loading user...');
+          String username = '';
+          String bio = '';
+          String email = '';
+          String uid = '';
+          int userLevel = 1;
+          int userXP = 0;
+          bool isAdmin = false;
+          List<String> friends = [];
+          List<FriendRequest> receivedFriendRequests = [];
+          List<FriendRequest> sentFriendRequests = [];
+
+          try {
+            username = user.get('username') ?? '';
+          } catch (e) {
+            username = '';
+          }
+          try {
+            bio = user.get('bio') ?? '';
+          } catch (e) {
+            bio = '';
+          }
+          try {
+            email = user.get('email') ?? '';
+          } catch (e) {
+            email = '';
+          }
+          try {
+            uid = user.get('uid') ?? '';
+          } catch (e) {
+            uid = '';
+          }
+          try {
+            userLevel = user.get('userLevel') ?? 1;
+          } catch (e) {
+            userLevel = 1;
+          }
+          try {
+            userXP = user.get('userXP') ?? 0;
+          } catch (e) {
+            userXP = 0;
+          }
+          try {
+            isAdmin = user.get('isAdmin') ?? false;
+          } catch (e) {
+            isAdmin = false;
+          }
+          try {
+            friends = List<String>.from(user.get('friends') ?? []);
+          } catch (e) {
+            friends = [];
+          }
+          try {
+            receivedFriendRequests = (user.get('receivedFriendRequests') as List<dynamic>?)?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>)).toList() ?? [];
+          } catch (e) {
+            receivedFriendRequests = [];
+          }
+          try {
+            sentFriendRequests = (user.get('sentFriendRequests') as List<dynamic>?)?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>)).toList() ?? [];
+          } catch (e) {
+            sentFriendRequests = [];
+          }
+
           Provider.of<UserLocalStorage>(context, listen: false).currentUser =
               UserModel(
-            username: user.get('username'),
-            bio: user.get('bio'),
-            email: user.get('email'),
-            uid: user.get('uid'),
-            userLevel: user.get('userLevel'),
-            userXP: user.get('userXP'),
-            isAdmin: user.get('isAdmin'),
-            friends: List<String>.from(user.get('friends') ?? []),
-            receivedFriendRequests:
-                (user.get('receivedFriendRequests') as List<dynamic>?)
-                        ?.map((req) =>
-                            FriendRequest.fromMap(req as Map<String, dynamic>))
-                        .toList() ??
-                    [],
-            sentFriendRequests:
-                (user.get('sentFriendRequests') as List<dynamic>?)
-                        ?.map((req) =>
-                            FriendRequest.fromMap(req as Map<String, dynamic>))
-                        .toList() ??
-                    [],
+            username: username,
+            bio: bio,
+            email: email,
+            uid: uid,
+            userLevel: userLevel,
+            userXP: userXP,
+            isAdmin: isAdmin,
+            friends: friends,
+            receivedFriendRequests: receivedFriendRequests,
+            sentFriendRequests: sentFriendRequests,
           );
           Provider.of<UserLocalStorage>(context, listen: false)
               .notifyListeners();

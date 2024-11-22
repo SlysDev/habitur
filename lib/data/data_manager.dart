@@ -9,15 +9,52 @@ import 'package:provider/provider.dart';
 
 class DataManager {
   Future<void> loadData(context, {bool forceDbLoad = false}) async {
-    if (!forceDbLoad) {
+    debugPrint('\n=== Starting loadData() ===');
+    debugPrint('forceDbLoad: $forceDbLoad');
+    
+    try {
+      if (forceDbLoad) {
+        debugPrint('Clearing local storage...');
+        await clearLocalStorage(context);
+        debugPrint('Local storage cleared');
+      }
+      
+      debugPrint('Initializing storage...');
       await initLocalStorage(context);
+      debugPrint('Storage initialized');
+      
+      debugPrint('Loading user data...');
+      await loadUserData(context, forceDbLoad: forceDbLoad);
+      debugPrint('User data loaded');
+      
+      debugPrint('Loading habits data...');
+      await loadHabitsData(context, forceDbLoad: forceDbLoad);
+      debugPrint('Habits data loaded');
+      
+      debugPrint('Loading settings data...');
+      await loadSettingsData(context, forceDbLoad: forceDbLoad);
+      debugPrint('Settings data loaded');
+      
+      debugPrint('Loading stats data...');
+      await loadStatsData(context, forceDbLoad: forceDbLoad);
+      debugPrint('Stats data loaded');
+      
+      debugPrint('Loading community challenges...');
+      await loadCommunityChallenges(context, forceDbLoad: forceDbLoad);
+      debugPrint('Community challenges loaded');
+      
+      debugPrint('Resetting habits...');
+      await _resetHabits(context);
+      debugPrint('Habits reset');
+      
+      debugPrint('=== Data loading complete ===\n');
+    } catch (e, stackTrace) {
+      debugPrint('\n!!! Error in loadData() !!!');
+      debugPrint('Error: $e');
+      debugPrint('Stack trace: $stackTrace');
+      debugPrint('========================\n');
+      rethrow;
     }
-    await loadUserData(context, forceDbLoad: forceDbLoad);
-    await loadHabitsData(context, forceDbLoad: forceDbLoad);
-    await loadSettingsData(context, forceDbLoad: forceDbLoad);
-    await loadStatsData(context, forceDbLoad: forceDbLoad);
-    await loadCommunityChallenges(context, forceDbLoad: forceDbLoad);
-    await _resetHabits(context);
   }
 
   Future<void> initLocalStorage(context) async {
@@ -25,6 +62,13 @@ class DataManager {
     await Provider.of<SettingsLocalStorage>(context, listen: false)
         .init(context);
     await Provider.of<HabitsLocalStorage>(context, listen: false).init(context);
+  }
+
+  Future<void> clearLocalStorage(context) async {
+    debugPrint('Clearing all local storage...');
+    await Provider.of<UserLocalStorage>(context, listen: false).clearData();
+    await Provider.of<HabitsLocalStorage>(context, listen: false).clearData();
+    await Provider.of<SettingsLocalStorage>(context, listen: false).clearData();
   }
 
   Future<void> loadUserData(BuildContext context,
@@ -49,6 +93,8 @@ class DataManager {
       }
     } else {
       debugPrint('User not logged in, loading from Local Storage');
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
       await Provider.of<UserLocalStorage>(context, listen: false)
           .loadData(context);
     }
@@ -59,19 +105,22 @@ class DataManager {
     Database db = Database();
     final habitsLocalStorage =
         Provider.of<HabitsLocalStorage>(context, listen: false);
+        final HabitManager habitManager = Provider.of<HabitManager>(context, listen: false);
 
     if (db.userDatabase.isLoggedIn) {
       if (await _shouldLoadFromDb(
           habitsLocalStorage.lastUpdated, forceDbLoad, context)) {
         debugPrint('Loading habits from DB');
-        await db.habitDatabase.loadHabits(context);
+        await habitManager.loadHabitsFromDB(context);
       } else {
         debugPrint('Loading habits from Local Storage');
-        await habitsLocalStorage.loadData(context);
+        await habitManager.loadHabitsFromLocalStorage(context);
       }
     } else {
       debugPrint('User not logged in, loading habits from Local Storage');
-      await habitsLocalStorage.loadData(context);
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
+        await habitManager.loadHabitsFromLocalStorage(context);
     }
   }
 
@@ -92,6 +141,8 @@ class DataManager {
       }
     } else {
       debugPrint('User not logged in, loading stats from Local Storage');
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
+          false;
       await Provider.of<UserLocalStorage>(context, listen: false)
           .loadData(context);
     }
@@ -134,6 +185,6 @@ class DataManager {
           false;
       return false;
     }
-    return dbLastUpdated.isAfter(localLastUpdated) || forceDbLoad;
+    return forceDbLoad || dbLastUpdated.isAfter(localLastUpdated);
   }
 }

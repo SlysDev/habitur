@@ -51,7 +51,7 @@ class UserModel extends HiveObject {
   List<HabitVisibility> habitVisibilitySettings;
 
   @HiveField(13)
-  PrivacySettings? privacySettings;
+  PrivacySettings privacySettings;
 
   int get levelUpRequirement {
     return 100 * pow(1.5, userLevel).ceil();
@@ -71,12 +71,13 @@ class UserModel extends HiveObject {
     List<FriendRequest>? receivedFriendRequests,
     List<FriendRequest>? sentFriendRequests,
     List<HabitVisibility>? habitVisibilitySettings,
-    this.privacySettings,
+    PrivacySettings? privacySettings,
   })  : this.stats = stats ?? [],
         this.friends = friends ?? [],
         this.receivedFriendRequests = receivedFriendRequests ?? [],
         this.sentFriendRequests = sentFriendRequests ?? [],
-        this.habitVisibilitySettings = habitVisibilitySettings ?? [];
+        this.habitVisibilitySettings = habitVisibilitySettings ?? [],
+        this.privacySettings = privacySettings ?? PrivacySettings();
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     debugPrint('UserModel.fromMap: Converting map to UserModel');
@@ -126,7 +127,7 @@ class UserModel extends HiveObject {
           : null,
       privacySettings: map['privacySettings'] != null
           ? PrivacySettings.fromMap(map['privacySettings'])
-          : null,
+          : PrivacySettings(),
     );
   }
 
@@ -145,12 +146,45 @@ class UserModel extends HiveObject {
       'sentFriendRequests': sentFriendRequests?.map((x) => x.toMap()).toList(),
       'profilePicture': profilePicture,
       'habitVisibilitySettings': habitVisibilitySettings?.map((x) => x.toMap()).toList(),
-      'privacySettings': privacySettings?.toMap(),
+      'privacySettings': privacySettings.toMap(),
     };
   }
 
   @override
   String toString() {
     return 'UserModel(username: $username, bio: $bio, email: $email, uid: $uid, profilePicture: $profilePicture, userLevel: $userLevel, userXP: $userXP, isAdmin: $isAdmin, stats: $stats, friends: $friends, receivedFriendRequests: $receivedFriendRequests, sentFriendRequests: $sentFriendRequests, habitVisibilitySettings: $habitVisibilitySettings, privacySettings: $privacySettings)';
+  }
+  UserModel copyWith({
+    String? username,
+    String? bio,
+    String? email,
+    String? uid,
+    int? userLevel,
+    int? userXP,
+    bool? isAdmin,
+    List<StatPoint>? stats,
+    List<String>? friends,
+    List<FriendRequest>? receivedFriendRequests,
+    List<FriendRequest>? sentFriendRequests,
+    String? profilePicture,
+    List<HabitVisibility>? habitVisibilitySettings,
+    PrivacySettings? privacySettings,
+  }) {
+    return UserModel(
+      username: username ?? this.username,
+      bio: bio ?? this.bio,
+      email: email ?? this.email,
+      uid: uid ?? this.uid,
+      userLevel: userLevel ?? this.userLevel,
+      userXP: userXP ?? this.userXP,
+      isAdmin: isAdmin ?? this.isAdmin,
+      stats: stats ?? this.stats,
+      friends: friends ?? this.friends,
+      receivedFriendRequests: receivedFriendRequests ?? this.receivedFriendRequests,
+      sentFriendRequests: sentFriendRequests ?? this.sentFriendRequests,
+      profilePicture: profilePicture ?? this.profilePicture,
+      habitVisibilitySettings: habitVisibilitySettings ?? this.habitVisibilitySettings,
+      privacySettings: privacySettings ?? this.privacySettings,
+    );
   }
 }

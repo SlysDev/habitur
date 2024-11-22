@@ -5,7 +5,6 @@ import 'package:habitur/models/user.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../models/privacy_settings.dart'; // added import
 
@@ -14,33 +13,59 @@ class UserLocalStorage extends ChangeNotifier {
 
   Future<void> init(context) async {
     try {
-      if (Hive.isBoxOpen('user')) {
-        debugPrint('userBox is open');
-        _userBox = Hive.box('user');
-      } else {
-        debugPrint('userBox must be newly opened');
+      if (!Hive.isBoxOpen('user')) {
+        debugPrint('Opening user box...');
         _userBox = await Hive.openBox('user');
+        
+        debugPrint('\n=== USER BOX INITIAL STATE ===');
+        debugPrint('Box opened: ${_userBox.isOpen}');
+        debugPrint('Box name: ${_userBox.name}');
+        debugPrint('Box length: ${_userBox.length}');
+        debugPrint('Box keys: ${_userBox.keys.toList()}');
+        
+        debugPrint('\nRaw values:');
+        for (var key in _userBox.keys) {
+          var value = _userBox.get(key);
+          debugPrint('Key: $key, Type: ${value.runtimeType}, Value: $value');
+        }
+        debugPrint('===============================\n');
       }
     } catch (e, s) {
+      debugPrint('Error initializing user box: $e');
+      debugPrint(s.toString());
       showDebugErrorSnackbar(context, e, s);
     }
   }
 
   Future<void> loadData(context) async {
-    await init(context); // may need, may not
+    await init(context);
+    debugPrint('\n=== USER BOX DEBUG INFO ===');
+    if (_userBox == null) {
+      debugPrint('userBox is null!');
+    } else {
+      debugPrint('Box name: ${_userBox.name}');
+      debugPrint('Box length: ${_userBox.length}');
+      debugPrint('Box keys: ${_userBox.keys.toList()}');
+      
+      final user = _userBox.get('currentUser');
+      if (user == null) {
+        debugPrint('No current user found');
+      } else {
+        debugPrint('\nCurrent User Info:');
+        debugPrint('Username: ${user.username}');
+        debugPrint('Email: ${user.email}');
+        debugPrint('UID: ${user.uid}');
+        debugPrint('Privacy Settings: ${user.privacySettings?.toMap()}');
+      }
+
+      final lastUpdate = _userBox.get('lastUpdated');
+      debugPrint('\nLast Updated: $lastUpdate');
+    }
+    debugPrint('===========================\n');
+
     if (_userBox.get('currentUser') == null) {
       debugPrint('filling in default user data...');
       await populateDefaultUserData();
-    }
-    if (FirebaseAuth.instance.currentUser != null) {
-      debugPrint('auth has something');
-      updateUserProperty('uid', FirebaseAuth.instance.currentUser!.uid);
-      updateUserProperty(
-          'username', FirebaseAuth.instance.currentUser!.displayName);
-      // TODO: fix error here; firebase auth is returning null for username
-      debugPrint(
-          'username is ${FirebaseAuth.instance.currentUser!.displayName}');
-      updateUserProperty('email', FirebaseAuth.instance.currentUser!.email);
     }
   }
 
@@ -62,20 +87,85 @@ class UserLocalStorage extends ChangeNotifier {
   }
 
   Future<void> populateDefaultUserData() async {
-    currentUser = UserModel(
-      username: 'Guest',
-      bio: '',
-      email: 'N/A',
-      userLevel: 1,
-      userXP: 0,
-      uid: 'N/A',
-      profilePicture: 'assets/images/default-profile.png',
-    );
-    await _userBox.put('lastUpdated', DateTime.now());
+    debugPrint('\n=== Populating Default User Data ===');
+    try {
+      if (_userBox == null) {
+        throw Exception('Cannot populate default data: _userBox is null');
+      }
+
+      currentUser = UserModel(
+        username: 'Guest',
+        bio: '',
+        email: 'N/A',
+        userLevel: 1,
+        userXP: 0,
+        uid: 'N/A',
+        profilePicture: 'assets/images/default-profile.png',
+        privacySettings: PrivacySettings(),
+        habitVisibilitySettings: [],
+        stats: [], // Initialize empty stats list
+        friends: [], // Initialize empty friends list
+        receivedFriendRequests: [], // Initialize empty received requests
+        sentFriendRequests: [], // Initialize empty sent requests
+        isAdmin: false, // Set default admin status
+      );
+
+      debugPrint('Created default UserModel:');
+      debugPrint('Username: ${currentUser.username}');
+      debugPrint('UID: ${currentUser.uid}');
+      debugPrint('Privacy Settings: ${currentUser.privacySettings}');
+      debugPrint('Friend Requests: ${currentUser.receivedFriendRequests.length} received, ${currentUser.sentFriendRequests.length} sent');
+
+      await _userBox.put('currentUser', currentUser);
+      await _userBox.put('lastUpdated', DateTime.now());
+      debugPrint('Default data saved to box');
+    } catch (e, stackTrace) {
+      debugPrint('Error populating default user data: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
+    debugPrint('=== Default User Data Populated ===\n');
   }
 
-  get currentUser {
-    return _userBox.get('currentUser');
+  UserModel get currentUser {
+    if (_userBox == null) {
+      return UserModel(
+        username: 'Guest',
+        bio: '',
+        email: '',
+        uid: 'N/A',
+        userLevel: 1,
+        userXP: 0,
+        isAdmin: false,
+        stats: [],
+        friends: [],
+        receivedFriendRequests: [],
+        sentFriendRequests: [],
+        profilePicture: 'assets/images/default-profile.png',
+        habitVisibilitySettings: [],
+        privacySettings: PrivacySettings(),
+      );
+    }
+    final user = _userBox.get('currentUser');
+    if (user == null) {
+      return UserModel(
+        username: 'Guest',
+        bio: '',
+        email: '',
+        uid: 'N/A',
+        userLevel: 1,
+        userXP: 0,
+        isAdmin: false,
+        stats: [],
+        friends: [],
+        receivedFriendRequests: [],
+        sentFriendRequests: [],
+        profilePicture: 'assets/images/default-profile.png',
+        habitVisibilitySettings: [],
+        privacySettings: PrivacySettings(),
+      );
+    }
+    return user;
   }
 
   set currentUser(value) {
@@ -89,6 +179,9 @@ class UserLocalStorage extends ChangeNotifier {
   }
 
   DateTime get lastUpdated {
+    if (_userBox == null) {
+      return DateTime.now();  // Return current time if box isn't initialized
+    }
     if (_userBox.get('lastUpdated') == null) {
       _userBox.put('lastUpdated', DateTime.now());
     }
@@ -109,10 +202,19 @@ class UserLocalStorage extends ChangeNotifier {
         profilePicture: propertyName == "profilePicture"
             ? newValue
             : currentUser.profilePicture,
+        privacySettings: propertyName == "privacySettings" 
+            ? newValue 
+            : currentUser.privacySettings,
+        friends: currentUser.friends,
+        habitVisibilitySettings: currentUser.habitVisibilitySettings,
       );
+      
+      debugPrint('Updating local user property: $propertyName');
+      debugPrint('New value: $newValue');
+      
       currentUser = updatedUser;
     } catch (e, s) {
-      debugPrint(e.toString());
+      debugPrint('Error updating user property locally: $e');
       debugPrint(s.toString());
     }
     notifyListeners();
@@ -268,16 +370,25 @@ class UserLocalStorage extends ChangeNotifier {
       user.privacySettings = newSettings;
       await _userBox.put('currentUser', user);
       notifyListeners();
-
-      // Update Firestore
-      try {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .update({'privacySettings': newSettings.toMap()});
-      } catch (e) {
-        print('Error updating privacy settings in Firestore: $e');
-      }
     }
+  }
+
+  Future<void> clearData() async {
+    debugPrint('\n=== Clearing User Data ===');
+    try {
+      if (_userBox != null) {
+        await _userBox.clear();
+        debugPrint('User box cleared');
+        await populateDefaultUserData();
+        debugPrint('Default user data populated');
+      } else {
+        debugPrint('Warning: _userBox is null during clearData()');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error clearing user data: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
+    debugPrint('=== User Data Cleared ===\n');
   }
 }
