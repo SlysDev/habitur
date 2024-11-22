@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 
 part 'friend_request.g.dart';
 
-@HiveType(typeId: 5)
+@HiveType(typeId: 8)
 class FriendRequest {
   @HiveField(0)
   String senderUid;

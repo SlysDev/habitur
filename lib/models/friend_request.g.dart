@@ -8,7 +8,7 @@ part of 'friend_request.dart';
 
 class FriendRequestAdapter extends TypeAdapter<FriendRequest> {
   @override
-  final int typeId = 5;
+  final int typeId = 8;
 
   @override
   FriendRequest read(BinaryReader reader) {
@@ -22,13 +22,14 @@ class FriendRequestAdapter extends TypeAdapter<FriendRequest> {
       dateSent: fields[2] as DateTime,
       isAccepted: fields[3] as bool,
       dateAccepted: fields[4] as DateTime?,
+      isDeclined: fields[5] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, FriendRequest obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.senderUid)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class FriendRequestAdapter extends TypeAdapter<FriendRequest> {
       ..writeByte(3)
       ..write(obj.isAccepted)
       ..writeByte(4)
-      ..write(obj.dateAccepted);
+      ..write(obj.dateAccepted)
+      ..writeByte(5)
+      ..write(obj.isDeclined);
   }
 
   @override
