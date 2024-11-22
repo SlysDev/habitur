@@ -65,11 +65,13 @@ class Comment {
 
 class Reaction {
   final String userId;
+  final String username;
   final ReactionType type;
   final DateTime timestamp;
 
   Reaction({
     required this.userId,
+    required this.username,
     required this.type,
     DateTime? timestamp,
   }) : this.timestamp = timestamp ?? DateTime.now();
@@ -77,21 +79,34 @@ class Reaction {
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
+      'username': username,
       'type': type.toString().split('.').last,
       'timestamp': timestamp,
     };
   }
 
   factory Reaction.fromMap(Map<String, dynamic> map) {
+    var timestamp = map['timestamp'];
+    DateTime parsedTimestamp;
+    
+    if (timestamp is Timestamp) {
+      parsedTimestamp = timestamp.toDate();
+    } else if (timestamp is String) {
+      parsedTimestamp = DateTime.parse(timestamp);
+    } else if (timestamp is DateTime) {
+      parsedTimestamp = timestamp;
+    } else {
+      parsedTimestamp = DateTime.now();
+    }
+
     return Reaction(
       userId: map['userId'] as String,
+      username: map['username'] as String? ?? 'Unknown User',
       type: ReactionType.values.firstWhere(
         (e) => e.toString().split('.').last == map['type'],
         orElse: () => ReactionType.like,
       ),
-      timestamp: map['timestamp'] is Timestamp
-          ? (map['timestamp'] as Timestamp).toDate()
-          : (map['timestamp'] as DateTime? ?? DateTime.now()),
+      timestamp: parsedTimestamp,
     );
   }
 }
@@ -156,7 +171,6 @@ class ActivityEvent {
               entry.value.map((r) => r.toMap()).toList(),
       },
       'likeCount': likeCount,
-      'visibleTo': [userId],
     };
   }
 

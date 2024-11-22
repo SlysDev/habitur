@@ -40,14 +40,23 @@ class ActivityProvider with ChangeNotifier {
     final UserModel? user = userStorage.currentUser;
     if (user == null) return Stream.value([]);
 
-    return _activityDb.getActivitiesStream(user.uid).map((snapshot) {
+    // Get activities where the current user is in the visibleTo array
+    // This includes both their own activities and their friends' activities
+    return _activityDb.getActivitiesStream(user.uid, user.friends).map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
         data['id'] = doc.id;
         data['currentUserId'] = user.uid;
         return ActivityEvent.fromMap(data);
       }).where((activity) {
+        // Only show activities from friends
+        if (!user.friends.contains(activity.userId) && activity.userId != user.uid) {
+          return false;
+        }
+        
+        // Check privacy settings for the activity
         if (activity.userId == user.uid) {
+          // For own activities, check user's privacy settings
           if (user.privacySettings == null ||
               !user.privacySettings!.shareActivities) return false;
           switch (activity.type) {
@@ -73,7 +82,8 @@ class ActivityProvider with ChangeNotifier {
       if (user == null) return;
 
       _activities.clear();
-      final snapshot = await _activityDb.loadInitialActivities(user.uid);
+      final snapshot = await _activityDb.loadInitialActivities(
+          user.uid, user.friends);
 
       if (snapshot.docs.isEmpty) {
         _hasMore = false;
@@ -103,8 +113,8 @@ class ActivityProvider with ChangeNotifier {
       final user = userStorage.currentUser;
       if (user == null) return;
 
-      final snapshot =
-          await _activityDb.loadMoreActivities(user.uid, _lastDocument!);
+      final snapshot = await _activityDb.loadMoreActivities(
+          user.uid, user.friends, _lastDocument!);
 
       if (snapshot.docs.isEmpty) {
         _hasMore = false;
@@ -128,30 +138,44 @@ class ActivityProvider with ChangeNotifier {
   }
 
   Future<void> createActivity(ActivityEvent activity) async {
-    final user = userStorage.currentUser;
-    if (user == null) return;
+    debugPrint('-------------------- Running createActivity() with activity: ${activity.toString()}');
+    final UserModel user = userStorage.currentUser;
 
-    if (user.privacySettings == null || !user.privacySettings!.shareActivities) return;
+    if (user.privacySettings == null || !user.privacySettings!.shareActivities) {
+      debugPrint('Not creating activity because activities are not shared');
+      return;
+    }
 
     switch (activity.type) {
       case ActivityType.habitCompletion:
-        if (!user.privacySettings!.shareHabitCompletions) return;
+        if (!user.privacySettings!.shareHabitCompletions) {
+          debugPrint('Not creating habit completion activity because habit completions are not shared');
+          return;
+        }
         break;
       case ActivityType.streakMilestone:
-        if (!user.privacySettings!.shareStreakMilestones) return;
+        if (!user.privacySettings!.shareStreakMilestones) {
+          debugPrint('Not creating streak milestone activity because streak milestones are not shared');
+          return;
+        }
         break;
       case ActivityType.newHabit:
-        if (!user.privacySettings?.shareNewHabits ?? false) return;
+        if (!user.privacySettings!.shareNewHabits) {
+          debugPrint('Not creating new habit activity because new habits are not shared');
+          return;
+        }
         break;
     }
 
-    if (!user.privacySettings?.shareProfilePicture ?? false) {
+    if (user.privacySettings == null || !user.privacySettings!.shareProfilePicture) {
       activity = activity.copyWith(profilePicture: null);
+      debugPrint('Not sharing profile picture in activity');
     }
 
     try {
       final docRef = await _activityDb.createActivity(activity);
       final newActivity = activity.copyWith(id: docRef.id);
+      debugPrint('Created activity with id: ${docRef.id}');
       _activities.insert(0, newActivity);
       _sortActivities();
       notifyListeners();
@@ -246,45 +270,82 @@ class ActivityProvider with ChangeNotifier {
 
   Future<void> toggleReaction(String activityId, ReactionType type) async {
     try {
-      final userId = userStorage.currentUser?.id;
-      if (userId == null) return;
+      final user = userStorage.currentUser;
+      if (user == null) return;
 
-      final activityIndex = _activities.indexWhere((a) => a.id == activityId);
-      if (activityIndex == -1) return;
-
-      final activity = _activities[activityIndex];
-      final reactions =
-          Map<ReactionType, List<Reaction>>.from(activity.reactions);
-
-      // Remove any existing reaction from this user
-      if (activity.userReaction != null) {
-        reactions[activity.userReaction]
-            ?.removeWhere((r) => r.userId == userId);
+      final activityRef = _activityDb.collection.doc(activityId);
+      final activityDoc = await activityRef.get();
+      
+      if (!activityDoc.exists) {
+        _logger.warning('Activity $activityId not found');
+        return;
       }
 
-      // Add new reaction if it's different from the existing one
-      if (activity.userReaction != type) {
-        if (!reactions.containsKey(type)) {
-          reactions[type] = [];
-        }
-        reactions[type]!.add(Reaction(userId: userId, type: type));
-      }
+      final data = activityDoc.data() as Map<String, dynamic>;
+      final reactions = (data['reactions'] as Map?)?.map(
+            (key, value) => MapEntry(
+              key.toString(),
+              (value as List).map((r) => (r as Map<String, dynamic>)).toList(),
+            ),
+          ) ??
+          {};
 
-      // Update local state
-      _activities[activityIndex] = activity.copyWith(
-        reactions: reactions,
-        userReaction: activity.userReaction != type ? type : null,
+      // Convert ReactionType to string for Firestore
+      final reactionKey = type.toString().split('.').last;
+      final currentReactions = (reactions[reactionKey] ?? []) as List;
+
+      // Check if user has already reacted
+      final userReactionIndex = currentReactions.indexWhere(
+        (r) => r['userId'] == user.uid,
       );
-      notifyListeners();
+
+      if (userReactionIndex >= 0) {
+        // Remove reaction
+        currentReactions.removeAt(userReactionIndex);
+      } else {
+        // Add reaction
+        currentReactions.add({
+          'userId': user.uid,
+          'username': user.username,
+          'type': reactionKey,
+          'timestamp': DateTime.now().toIso8601String(),
+        });
+      }
 
       // Update Firestore
-      await _activityDb.updateActivity(
-        activityId,
-        {'reactions': activity.reactions},
-      );
-    } catch (e, stackTrace) {
-      _logger.severe('Error toggling reaction', e, stackTrace);
-      rethrow;
+      await activityRef.update({
+        'reactions.$reactionKey': currentReactions,
+      });
+
+      // Update local state
+      final activityIndex = _activities.indexWhere((a) => a.id == activityId);
+      if (activityIndex >= 0) {
+        final activity = _activities[activityIndex];
+        final updatedReactions = Map<ReactionType, List<Reaction>>.from(activity.reactions);
+        
+        if (currentReactions.isEmpty) {
+          updatedReactions.remove(type);
+        } else {
+          updatedReactions[type] = currentReactions
+              .map((r) => Reaction(
+                    userId: r['userId'],
+                    username: r['username'],
+                    type: type,
+                    timestamp: DateTime.parse(r['timestamp'] as String),
+                  ))
+              .toList();
+        }
+
+        _activities[activityIndex] = activity.copyWith(
+          reactions: updatedReactions,
+          userReaction: userReactionIndex >= 0 ? null : type,
+        );
+        
+        notifyListeners();
+      }
+    } catch (e, stack) {
+      _logger.severe('Error toggling reaction: $e');
+      _logger.severe('Stack trace: $stack');
     }
   }
 
