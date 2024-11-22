@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:habitur/providers/friends_manager.dart';
+import 'package:habitur/modules/friends_manager.dart';
 import 'package:habitur/data/remote/user_database.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
