@@ -6,15 +6,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/data/local/auth_local_storage.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
+import 'package:habitur/models/friend_request.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_visibility.dart';
+import 'package:habitur/models/privacy_settings.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/notifications/notification_controller.dart';
+import 'package:habitur/providers/activity_provider.dart';
 import 'package:habitur/providers/add_habit_screen_provider.dart';
 import 'package:habitur/providers/community_challenge_manager.dart';
-import 'package:habitur/providers/friends_manager.dart';
+import 'package:habitur/modules/friends_manager.dart';
 import 'package:habitur/providers/network_state_provider.dart';
 import 'package:habitur/screens/admin-screen.dart';
 import 'package:habitur/screens/community_leaderboard_screen.dart';
@@ -64,6 +68,10 @@ void main() async {
     ..registerAdapter(StatPointAdapter())
     ..registerAdapter(SettingAdapter())
     ..registerAdapter(TimeModelAdapter())
+    ..registerAdapter(HabitVisibilityAdapter())
+    ..registerAdapter(PrivacySettingsAdapter())
+    ..registerAdapter(SharingScopeAdapter())
+    ..registerAdapter(FriendRequestAdapter())
     ..registerAdapter(UserModelAdapter());
 
   await AwesomeNotifications().initialize(
@@ -106,6 +114,9 @@ void main() async {
   if (!await AwesomeNotifications().isNotificationAllowed()) {
     AwesomeNotifications().requestPermissionToSendNotifications();
   }
+
+  // Open HabitVisibility box
+  await Hive.openBox('habit_visibility');
 
   runApp(Habitur());
 }
@@ -163,6 +174,11 @@ class _HabiturState extends State<Habitur> {
               create: (context) => AddHabitScreenProvider()),
           ChangeNotifierProvider<CommunityChallengeManager>(
               create: (context) => CommunityChallengeManager()),
+          ChangeNotifierProvider<ActivityProvider>(
+            create: (context) => ActivityProvider(
+              Provider.of<UserLocalStorage>(context, listen: false)
+            ),
+          ),
         ],
         child: MaterialApp(
           debugShowCheckedModeBanner: false,

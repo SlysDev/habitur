@@ -1,0 +1,48 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isFriend(userId) {
+      return userId in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.friends;
+    }
+
+    // User collection rules
+    match /users/{userId} {
+      allow read: if isSignedIn() && (isOwner(userId) || isFriend(userId));
+      allow write: if isSignedIn() && isOwner(userId);
+    }
+
+    // Activities collection rules
+    match /activities/{activityId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid in resource.data.visibleTo
+      );
+      allow create: if isSignedIn() && (
+        request.auth.uid == request.resource.data.userId
+      );
+      allow update, delete: if isSignedIn() && (
+        request.auth.uid == resource.data.userId
+      );
+    }
+
+    // Habits collection rules
+    match /habits/{habitId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid == resource.data.userId ||
+        request.auth.uid in resource.data.visibleTo
+      );
+      allow write: if isSignedIn() && (
+        request.auth.uid == request.resource.data.userId
+      );
+    }
+  }
+}

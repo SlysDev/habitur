@@ -1,25 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/components/aside_button.dart';
-import 'package:habitur/components/community-habit-list.dart';
 import 'package:habitur/components/custom_alert_dialog.dart';
-import 'package:habitur/components/days_of_week_widget.dart';
 import 'package:habitur/components/filled_text_field.dart';
-import 'package:habitur/components/habit_card_list.dart';
+import 'package:habitur/components/friends_list.dart';
+import 'package:habitur/components/home_greeting_header.dart';
 import 'package:habitur/components/navbar.dart';
+import 'package:habitur/components/profile_drawer.dart';
+import 'package:habitur/components/received_friend_requests_list.dart';
+import 'package:habitur/components/sent_friend_requests_list.dart';
+import 'package:habitur/components/social_feed.dart';
+import 'package:habitur/components/user_avatar.dart';
 import 'package:habitur/data/data_manager.dart';
-import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
-import 'package:habitur/providers/database.dart';
-import 'package:habitur/data/local/settings_local_storage.dart';
-import 'package:habitur/providers/network_state_provider.dart';
+import 'package:habitur/modules/friends_manager.dart';
 import 'package:provider/provider.dart';
-import '../components/home_greeting_header.dart';
-import 'package:habitur/constants.dart';
-import '../components/friends_list.dart';
-import '../components/received_friend_requests_list.dart';
-import '../components/sent_friend_requests_list.dart';
 import 'settings_screen.dart';
-import 'package:habitur/providers/friends_manager.dart';
+import 'package:habitur/constants.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -40,112 +36,7 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      endDrawer: Drawer(
-        backgroundColor: kBackgroundColor,
-        child: Column(
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: kFadedBlue,
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 20,
-                    left: 20,
-                    child: CircleAvatar(
-                      backgroundImage: user.profilePicture,
-                      radius: 40,
-                      backgroundColor: kDarkPrimaryColor.withOpacity(0.2),
-                    ),
-                  ),
-                  Positioned(
-                    top: 25,
-                    left: 125,
-                    right: 20,
-                    child: Text(
-                      user.username,
-                      style: kHeadingTextStyle.copyWith(
-                        color: Colors.white,
-                        fontSize: 24,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 65,
-                    left: 125,
-                    right: 20,
-                    child: Text(
-                      user.bio.isEmpty ? 'No bio available.' : user.bio,
-                      style: kMainDescription.copyWith(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 50,
-                    right: 0,
-                    child: IconButton(
-                      icon: Icon(Icons.edit, color: Colors.white),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SettingsScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ExpansionTile(
-              initiallyExpanded: true,
-              backgroundColor: kFadedBlue,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.transparent),
-              ),
-              title: Text('Friends'),
-              children: <Widget>[
-                FriendsList(),
-              ],
-            ),
-            ExpansionTile(
-              backgroundColor: kFadedBlue,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.transparent),
-              ),
-              title: Text('Received Friend Requests'),
-              children: <Widget>[
-                ReceivedFriendRequestsList(),
-              ],
-            ),
-            ExpansionTile(
-              backgroundColor: kFadedBlue,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.transparent),
-              ),
-              title: Text('Sent Friend Requests'),
-              children: <Widget>[
-                SentFriendRequestsList(),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  _showAddFriendDialog(context);
-                },
-                child: Text('Add Friend'),
-              ),
-            ),
-          ],
-        ),
-      ),
+      endDrawer: ProfileDrawer(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -154,10 +45,14 @@ class HomeScreen extends StatelessWidget {
             children: [
               HomeGreetingHeader(),
               SizedBox(height: 20),
-              CommunityHabitList(onRefresh: () async {
-                DataManager dataManager = DataManager();
-                await dataManager.loadData(context);
-              }),
+              Expanded(
+                child: SocialFeed(
+                  onRefresh: () async {
+                    DataManager dataManager = DataManager();
+                    await dataManager.loadData(context);
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -170,6 +65,7 @@ class HomeScreen extends StatelessWidget {
 
   void _showAddFriendDialog(BuildContext context) {
     final TextEditingController _controller = TextEditingController();
+    final FriendsManager friendsManager = FriendsManager();
 
     showDialog(
       context: context,
@@ -196,8 +92,8 @@ class HomeScreen extends StatelessWidget {
               child: AsideButton(
                 text: 'Add',
                 onPressed: () async {
-                  await Provider.of<FriendsManager>(context, listen: false)
-                      .sendFriendRequestByEmail(_controller.text, context);
+                  await friendsManager.sendFriendRequestByUsername(
+                      _controller.text, context);
                   Navigator.of(context).pop();
                 },
               ),
@@ -206,5 +102,9 @@ class HomeScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _showProfileDialog(BuildContext context) {
+    // TODO: implement profile dialog
   }
 }

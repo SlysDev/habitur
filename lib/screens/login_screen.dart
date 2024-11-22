@@ -119,8 +119,6 @@ class LoginScreen extends StatelessWidget {
                               // Proceed with data loading
                               DataManager data = DataManager();
                               await data.loadData(context, forceDbLoad: true);
-                              await Provider.of<UserLocalStorage>(context, listen: false)
-                                  .saveData(context);
                                   
                               if (newUser.user?.displayName == null) {
                                 await _auth.currentUser?.updateDisplayName(

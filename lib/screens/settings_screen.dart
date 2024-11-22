@@ -16,6 +16,8 @@ import 'package:habitur/components/static_card.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/models/habit_visibility.dart';
+import 'package:habitur/models/privacy_settings.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/notifications/notification_manager.dart';
@@ -30,6 +32,8 @@ import 'package:habitur/screens/splash_screen.dart';
 import 'package:habitur/screens/welcome_screen.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
 import 'package:provider/provider.dart';
+
+import '../models/habit.dart';
 
 class SettingsScreen extends StatefulWidget {
   SettingsScreen({Key? key}) : super(key: key);
@@ -67,6 +71,415 @@ class _SettingsScreenState extends State<SettingsScreen> {
     emailController.dispose();
     bioController.dispose();
     super.dispose();
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Center(
+      child: Text(
+        title,
+        style: kHeadingTextStyle,
+      ),
+    );
+  }
+
+  Widget _buildPrivacySection() {
+    final userStorage = Provider.of<UserLocalStorage>(context);
+    final user = userStorage.currentUser;
+    final habitManager = Provider.of<HabitManager>(context);
+    final Database db = Database();
+    if (user == null) return Container();
+
+    void updatePrivacySettings(PrivacySettings newSettings) {
+      db.settingsDatabase.updatePrivacySettings(context, newSettings);
+    }
+
+    return Card(
+      color: kFadedBlue.withOpacity(0.15),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: kPrimaryColor.withOpacity(0.1), width: 1),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.privacy_tip_rounded, color: kPrimaryColor, size: 28),
+                SizedBox(width: 12),
+                Text('Privacy Settings',
+                    style: kHeadingTextStyle.copyWith(fontSize: 24)),
+              ],
+            ),
+            SizedBox(height: 25),
+
+            // Stats & Habits Sharing Scope
+            _buildSectionHeader('Sharing Scope', Icons.group_rounded),
+            SizedBox(height: 15),
+            Container(
+              decoration: BoxDecoration(
+                color: kDarkGray.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kPrimaryColor.withOpacity(0.1)),
+              ),
+              child: Column(
+                children: [
+                  _buildScopeDropdown(
+                    title: 'Stats Visibility',
+                    subtitle: 'Who can see your habit statistics',
+                    value: user.privacySettings?.statsScope ??
+                        SharingScope.friends,
+                    onChanged: (newValue) {
+                      if (newValue != null) {
+                        final newSettings = user.privacySettings?.copyWith(
+                              statsScope: newValue,
+                            ) ??
+                            PrivacySettings(statsScope: newValue);
+                        updatePrivacySettings(newSettings);
+                      }
+                    },
+                  ),
+                  Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: kPrimaryColor.withOpacity(0.1)),
+                  _buildScopeDropdown(
+                    title: 'Habits Visibility',
+                    subtitle: 'Who can see your habits',
+                    value: user.privacySettings?.habitsScope ??
+                        SharingScope.friends,
+                    onChanged: (newValue) {
+                      if (newValue != null) {
+                        final newSettings = user.privacySettings?.copyWith(
+                              habitsScope: newValue,
+                            ) ??
+                            PrivacySettings(habitsScope: newValue);
+                        updatePrivacySettings(newSettings);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 30),
+
+            // Activity Sharing
+            _buildSectionHeader(
+                'Activity Sharing', Icons.local_activity_rounded),
+            SizedBox(height: 15),
+            Container(
+              decoration: BoxDecoration(
+                color: kDarkGray.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kPrimaryColor.withOpacity(0.1)),
+              ),
+              child: Column(
+                children: [
+                  _buildSwitch(
+                    title: 'Share Activities',
+                    subtitle: 'Allow friends to see your habit activities',
+                    value: user.privacySettings?.shareActivities ?? true,
+                    onChanged: (value) {
+                      final newSettings = user.privacySettings?.copyWith(
+                            shareActivities: value,
+                          ) ??
+                          PrivacySettings(shareActivities: value);
+                      updatePrivacySettings(newSettings);
+                    },
+                  ),
+                  _buildDivider(),
+                  _buildSwitch(
+                    title: 'Share Habit Completions',
+                    subtitle: 'Show when you complete habits',
+                    value: user.privacySettings?.shareHabitCompletions ?? true,
+                    onChanged: (value) {
+                      final newSettings = user.privacySettings?.copyWith(
+                            shareHabitCompletions: value,
+                          ) ??
+                          PrivacySettings(shareHabitCompletions: value);
+                      updatePrivacySettings(newSettings);
+                    },
+                  ),
+                  _buildDivider(),
+                  _buildSwitch(
+                    title: 'Share Streak Milestones',
+                    subtitle: 'Show when you reach streak milestones',
+                    value: user.privacySettings?.shareStreakMilestones ?? true,
+                    onChanged: (value) {
+                      final newSettings = user.privacySettings?.copyWith(
+                            shareStreakMilestones: value,
+                          ) ??
+                          PrivacySettings(shareStreakMilestones: value);
+                      updatePrivacySettings(newSettings);
+                    },
+                  ),
+                  _buildDivider(),
+                  _buildSwitch(
+                    title: 'Share New Habits',
+                    subtitle: 'Show when you create new habits',
+                    value: user.privacySettings?.shareNewHabits ?? true,
+                    onChanged: (value) {
+                      final newSettings = user.privacySettings?.copyWith(
+                            shareNewHabits: value,
+                          ) ??
+                          PrivacySettings(shareNewHabits: value);
+                      updatePrivacySettings(newSettings);
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 30),
+
+            // Stats Sharing
+            _buildSectionHeader('Stats Sharing', Icons.bar_chart_rounded),
+            SizedBox(height: 15),
+            Container(
+              decoration: BoxDecoration(
+                color: kDarkGray.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kPrimaryColor.withOpacity(0.1)),
+              ),
+              child: Column(
+                children: [
+                  _buildSwitch(
+                    title: 'Share Confidence Level',
+                    subtitle: 'Show your habit confidence metrics',
+                    value: user.privacySettings?.shareConfidenceLevel ?? true,
+                    onChanged: (value) {
+                      final newSettings = user.privacySettings?.copyWith(
+                            shareConfidenceLevel: value,
+                          ) ??
+                          PrivacySettings(shareConfidenceLevel: value);
+                      updatePrivacySettings(newSettings);
+                    },
+                  ),
+                  _buildDivider(),
+                  _buildSwitch(
+                    title: 'Share Consistency Factor',
+                    subtitle: 'Show your habit consistency metrics',
+                    value: user.privacySettings?.shareConsistencyFactor ?? true,
+                    onChanged: (value) {
+                      final newSettings = user.privacySettings?.copyWith(
+                            shareConsistencyFactor: value,
+                          ) ??
+                          PrivacySettings(shareConsistencyFactor: value);
+                      updatePrivacySettings(newSettings);
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: 30),
+
+            // Profile Sharing
+            _buildSectionHeader('Profile Sharing', Icons.person_rounded),
+            SizedBox(height: 15),
+            Container(
+              decoration: BoxDecoration(
+                color: kDarkGray.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: kPrimaryColor.withOpacity(0.1)),
+              ),
+              child: _buildSwitch(
+                title: 'Share Profile Picture',
+                subtitle: 'Show your profile picture in activities',
+                value: user.privacySettings?.shareProfilePicture ?? true,
+                onChanged: (value) {
+                  final newSettings = user.privacySettings?.copyWith(
+                        shareProfilePicture: value,
+                      ) ??
+                      PrivacySettings(shareProfilePicture: value);
+                  updatePrivacySettings(newSettings);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, color: kPrimaryColor, size: 20),
+        SizedBox(width: 8),
+        Text(
+          title,
+          style: TextStyle(
+            color: kPrimaryColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDivider() {
+    return Divider(
+      height: 1,
+      thickness: 1,
+      color: kPrimaryColor.withOpacity(0.1),
+    );
+  }
+
+  Widget _buildSwitch({
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SwitchListTile.adaptive(
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          color: kGray,
+          fontSize: 13,
+        ),
+      ),
+      value: value,
+      onChanged: onChanged,
+      activeColor: kPrimaryColor,
+      inactiveTrackColor: kDarkGray,
+    );
+  }
+
+  Widget _buildScopeDropdown({
+    required String title,
+    required String subtitle,
+    required SharingScope value,
+    required ValueChanged<SharingScope?> onChanged,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: kGray,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: kDarkGray.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: kPrimaryColor.withOpacity(0.2)),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<SharingScope>(
+                value: value,
+                items: SharingScope.values.map((scope) {
+                  return DropdownMenuItem(
+                    value: scope,
+                    child: Text(
+                      scope.toString().split('.').last,
+                      style: TextStyle(
+                        color: kPrimaryColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: onChanged,
+                icon: Icon(Icons.arrow_drop_down, color: kPrimaryColor),
+                dropdownColor: kDarkGray,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHabitVisibilityTile({
+    required Habit habit,
+    required ValueChanged<bool?> onChanged,
+  }) {
+    return _buildAdaptiveCheckbox(
+      title: habit.title,
+      value: habit.isVisible ?? true,
+      onChanged: onChanged,
+    );
+  }
+
+  Widget _buildAdaptiveCheckbox({
+    required String title,
+    required bool value,
+    required ValueChanged<bool?> onChanged,
+  }) {
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            CupertinoSwitch(
+              value: value,
+              onChanged: onChanged,
+              activeColor: kPrimaryColor,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return CheckboxListTile(
+      title: Text(
+        title,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+        ),
+      ),
+      value: value,
+      onChanged: onChanged,
+      activeColor: kPrimaryColor,
+      checkColor: Colors.white,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    );
   }
 
   @override
@@ -112,20 +525,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 margin: EdgeInsets.symmetric(horizontal: 20),
                 child: ListView(
                   children: [
-                    Center(
-                      child: Text(
-                        'Reminders',
-                        style: kHeadingTextStyle,
-                      ),
-                    ),
+                    _buildSectionTitle('Reminders'),
                     SizedBox(height: gap),
                     StaticCard(
                       child: Provider.of<HabitManager>(context).habits.isEmpty
-                          ? Center(
-                              child: Text(
-                                "You don't have any habits yet!",
-                                style: kMainDescription.copyWith(
-                                    color: Colors.white),
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 24, horizontal: 16),
+                              child: Column(
+                                children: [
+                                  Icon(
+                                    Icons.notifications_active_outlined,
+                                    color: kPrimaryColor.withOpacity(0.5),
+                                    size: 28,
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    'No habits to remind you about',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Create your first habit to set up reminders',
+                                    style: TextStyle(
+                                      color: kGray,
+                                      fontSize: 14,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                               ),
                             )
                           : Column(
@@ -135,11 +567,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       bottom: dailyReminders.settingValue
                                           ? gap
                                           : 0),
-                                  child: SwitchListTile(
-                                    activeColor: Colors.white,
-                                    activeTrackColor: kLightPrimaryColor,
-                                    inactiveTrackColor: kFadedBlue,
-                                    inactiveThumbColor: Colors.white,
+                                  child: SwitchListTile.adaptive(
+                                    activeColor: kPrimaryColor,
+                                    inactiveTrackColor: kDarkGray,
                                     visualDensity:
                                         VisualDensity.adaptivePlatformDensity,
                                     value: settingsData
@@ -153,9 +583,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           color: Colors.white),
                                     ),
                                     onChanged: (newValue) async {
-                                      Provider.of<LoadingStateProvider>(context,
-                                              listen: false)
-                                          .setLoading(true);
                                       NotificationManager notificationManager =
                                           NotificationManager();
                                       await settingsData.updateSetting(
@@ -180,9 +607,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                 settingsData.numberOfReminders
                                                     .settingValue);
                                       }
-                                      Provider.of<LoadingStateProvider>(context,
-                                              listen: false)
-                                          .setLoading(false);
                                     },
                                   ),
                                 ),
@@ -197,10 +621,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           ),
                                           trailing: DropdownButton(
                                               onChanged: (value) async {
-                                                Provider.of<LoadingStateProvider>(
-                                                        context,
-                                                        listen: false)
-                                                    .setLoading(true);
                                                 NotificationManager
                                                     notificationManager =
                                                     NotificationManager();
@@ -227,10 +647,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                         settingsData
                                                             .numberOfReminders
                                                             .settingValue);
-                                                Provider.of<LoadingStateProvider>(
-                                                        context,
-                                                        listen: false)
-                                                    .setLoading(false);
                                               },
                                               value: numReminders.settingValue,
                                               items: [
@@ -289,12 +705,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                     ),
                     SizedBox(height: 40),
-                    Center(
-                      child: Text(
-                        'Profile',
-                        style: kHeadingTextStyle,
-                      ),
-                    ),
+                    _buildSectionTitle('Profile'),
                     SizedBox(height: gap),
                     StaticCard(
                       child: Column(
@@ -802,9 +1213,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(
-                      height: 30,
-                    )
+                    SizedBox(height: gap * 2),
+                    _buildSectionTitle('Privacy Settings'),
+                    SizedBox(height: gap),
+                    _buildPrivacySection(),
+                    SizedBox(height: gap * 2),
                   ],
                 ),
               ),
