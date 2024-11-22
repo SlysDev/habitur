@@ -95,34 +95,50 @@ class UserDatabase {
   }
 
   Future<DocumentReference?> getUserDocById(String uid) async {
+    debugPrint('UserDatabase: Fetching user document for uid: $uid');
     try {
       CollectionReference users = _firestore.collection('users');
+      debugPrint('UserDatabase: Querying Firestore for user...');
       QuerySnapshot usersFound = await users.where('uid', isEqualTo: uid).get();
+      debugPrint('UserDatabase: Query results - ${usersFound.docs.length} documents found');
 
-      if (usersFound.docs.isNotEmpty) {
-        if (usersFound.docs.length > 1) {
-          debugPrint("Error: Multiple users found with the same UID ($uid).");
-        }
-        return usersFound.docs.first.reference;
+      if (usersFound.docs.isEmpty) {
+        debugPrint('UserDatabase: No user found with uid: $uid');
+        return null;
       }
 
-      debugPrint("Error: User not found for UID ($uid).");
-      return null;
-    } catch (e, s) {
-      debugPrint("Error: Failed to fetch user document for UID ($uid): $e $s");
+      String docId = usersFound.docs[0].id;
+      debugPrint('UserDatabase: Found user document with ID: $docId');
+      return users.doc(docId);
+    } catch (e) {
+      debugPrint('UserDatabase: Error fetching user document: $e');
       return null;
     }
   }
 
   Future<UserModel?> getUserModelById(String uid) async {
-    DocumentReference? userDoc = await getUserDocById(uid);
+    debugPrint('UserDatabase: Getting user model for uid: $uid');
+    try {
+      DocumentReference? userDoc = await getUserDocById(uid);
+      if (userDoc == null) {
+        debugPrint('UserDatabase: No user document found');
+        return null;
+      }
 
-    if (userDoc != null) {
-      DocumentSnapshot snapshot = await userDoc.get();
-      return DataConverter().documentSnapshotToUserModel(snapshot);
+      debugPrint('UserDatabase: Fetching user document data...');
+      DocumentSnapshot doc = await userDoc.get();
+      if (!doc.exists) {
+        debugPrint('UserDatabase: Document exists but has no data');
+        return null;
+      }
+
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      debugPrint('UserDatabase: Successfully retrieved user data: $data');
+      return DataConverter().documentSnapshotToUserModel(doc);
+    } catch (e) {
+      debugPrint('UserDatabase: Error getting user model: $e');
+      return null;
     }
-
-    return null;
   }
 
   DocumentReference get userDoc {
@@ -203,7 +219,7 @@ class UserDatabase {
     }
   }
 
-  Future<void> uploadUserData(context) async {
+  Future<void> uploadUserData(BuildContext context) async {
     LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
     try {
       if (!isLoggedIn) {

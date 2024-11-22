@@ -1,6 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:habitur/components/error_tile.dart';
+import 'package:habitur/components/status_card.dart';
 import 'package:habitur/constants.dart';
+
+String generateUniqueId() {
+  return Random()
+      .nextInt(1000000000)
+      .toString(); // generate a random number between 0 and 1000000000
+}
 
 // error handling
 showDebugErrorSnackbar(BuildContext context, e, s) {
@@ -19,7 +28,13 @@ showErrorDialog(BuildContext context, String errorText, {Duration duration = con
     barrierColor: Colors.transparent,
     barrierDismissible: false,
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
+      Future.delayed(duration, () {
+        if (dialogContext.mounted) {
+          Navigator.of(dialogContext).pop();
+        }
+      });
+      
       return Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -36,9 +51,101 @@ showErrorDialog(BuildContext context, String errorText, {Duration duration = con
       );
     },
   );
-  Future.delayed(duration, () {
-    Navigator.pop(context);
-  });
+}
+
+showSuccessDialog(BuildContext context, String successText, {Duration duration = const Duration(seconds: 1)}) {
+  showDialog(
+    barrierColor: Colors.transparent,
+    barrierDismissible: false,
+    context: context,
+    builder: (dialogContext) {
+      Future.delayed(duration, () {
+        if (dialogContext.mounted) {
+          Navigator.of(dialogContext).pop();
+        }
+      });
+      
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          AlertDialog(
+            alignment: Alignment.bottomCenter,
+            backgroundColor: kLightGreenAccent.withOpacity(0.8),
+            content: ErrorTile(
+              errorText: successText,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(height: 60),
+        ],
+      );
+    },
+  );
+}
+
+// Status card overlay
+OverlayEntry? _currentOverlay;
+
+void _removeCurrentOverlay() {
+  _currentOverlay?.remove();
+  _currentOverlay = null;
+}
+
+void _showStatusCard(BuildContext context, String message, StatusType status) {
+  _removeCurrentOverlay();
+
+  final overlay = OverlayEntry(
+    builder: (context) => Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: StatusCard(
+        message: message,
+        status: status,
+        onDismiss: _removeCurrentOverlay,
+      ),
+    ),
+  );
+
+  _currentOverlay = overlay;
+  Overlay.of(context).insert(overlay);
+}
+
+// Convenience functions for showing success/error status cards
+void showSuccess(BuildContext context, String message) {
+  _showStatusCard(context, message, StatusType.success);
+}
+
+void showError(BuildContext context, String message) {
+  _showStatusCard(context, message, StatusType.error);
+}
+
+Future<T> showStatusOverlay<T>(
+  BuildContext context,
+  String loadingMessage,
+  Future<T> Function() operation, {
+  String? successMessage,
+}) async {
+  _showStatusCard(context, loadingMessage, StatusType.loading);
+
+  try {
+    final result = await operation();
+    _removeCurrentOverlay();
+    if (context.mounted) {
+      _showStatusCard(
+        context,
+        successMessage ?? 'Operation completed successfully',
+        StatusType.success,
+      );
+    }
+    return result;
+  } catch (e) {
+    _removeCurrentOverlay();
+    if (context.mounted) {
+      _showStatusCard(context, e.toString(), StatusType.error);
+    }
+    rethrow;
+  }
 }
 
 // UI transitions

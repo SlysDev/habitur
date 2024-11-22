@@ -23,18 +23,21 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       uid: fields[3] as String,
       userLevel: fields[4] as int,
       userXP: fields[5] as int,
-      stats: (fields[7] as List).cast<StatPoint>(),
       isAdmin: fields[6] as bool,
-      friends: (fields[8] as List).cast<String>(),
-      receivedFriendRequests: (fields[9] as List).cast<FriendRequest>(),
-      sentFriendRequests: (fields[10] as List).cast<FriendRequest>(),
+      profilePicture: fields[11] as String?,
+      stats: (fields[7] as List?)?.cast<StatPoint>(),
+      friends: (fields[8] as List?)?.cast<String>(),
+      receivedFriendRequests: (fields[9] as List?)?.cast<FriendRequest>(),
+      sentFriendRequests: (fields[10] as List?)?.cast<FriendRequest>(),
+      habitVisibilitySettings: (fields[12] as List?)?.cast<HabitVisibility>(),
+      privacySettings: fields[13] as PrivacySettings?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.username)
       ..writeByte(1)
@@ -56,7 +59,13 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(9)
       ..write(obj.receivedFriendRequests)
       ..writeByte(10)
-      ..write(obj.sentFriendRequests);
+      ..write(obj.sentFriendRequests)
+      ..writeByte(11)
+      ..write(obj.profilePicture)
+      ..writeByte(12)
+      ..write(obj.habitVisibilitySettings)
+      ..writeByte(13)
+      ..write(obj.privacySettings);
   }
 
   @override

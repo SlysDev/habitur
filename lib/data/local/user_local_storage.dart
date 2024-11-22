@@ -5,6 +5,9 @@ import 'package:habitur/models/user.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../../models/privacy_settings.dart'; // added import
 
 class UserLocalStorage extends ChangeNotifier {
   dynamic _userBox;
@@ -66,7 +69,7 @@ class UserLocalStorage extends ChangeNotifier {
       userLevel: 1,
       userXP: 0,
       uid: 'N/A',
-      profilePicture: const AssetImage('assets/images/default-profile.png'),
+      profilePicture: 'assets/images/default-profile.png',
     );
     await _userBox.put('lastUpdated', DateTime.now());
   }
@@ -111,6 +114,54 @@ class UserLocalStorage extends ChangeNotifier {
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
+    }
+    notifyListeners();
+  }
+
+  void updateStatByName(String statName, dynamic newValue, context) {
+    if (currentUser.stats == null || currentUser.stats!.isEmpty) {
+      addNewStat(context);
+    }
+    
+    try {
+      currentUser.stats!.last.updateStatByName(statName, newValue);
+      debugPrint(
+          'just updated stat $statName to ${currentUser.stats!.last.getStatByName(statName)}');
+    } catch (e, s) {
+      debugPrint(e.toString());
+      debugPrint(s.toString());
+      showDebugErrorSnackbar(context, e, s);
+    }
+    notifyListeners();
+  }
+
+  void addNewStat(context) {
+    try {
+      StatPoint newStat = StatPoint(
+        date: DateTime.now(),
+        confidenceLevel: 0,
+        completions: 0,
+        streak: 0,
+      );
+      currentUser = UserModel(
+        username: currentUser.username,
+        bio: currentUser.bio,
+        email: currentUser.email,
+        uid: currentUser.uid,
+        userLevel: currentUser.userLevel,
+        userXP: currentUser.userXP,
+        isAdmin: currentUser.isAdmin,
+        stats: [...(currentUser.stats ?? []), newStat],
+        profilePicture: currentUser.profilePicture,
+        friends: currentUser.friends,
+        receivedFriendRequests: currentUser.receivedFriendRequests,
+        sentFriendRequests: currentUser.sentFriendRequests,
+        habitVisibilitySettings: currentUser.habitVisibilitySettings,
+      );
+    } catch (e, s) {
+      debugPrint(e.toString());
+      debugPrint(s.toString());
+      showDebugErrorSnackbar(context, e, s);
     }
     notifyListeners();
   }
@@ -209,5 +260,24 @@ class UserLocalStorage extends ChangeNotifier {
     }
     updateUserProperty('userLevel', currentUser.userLevel - 1);
     updateUserProperty('userXP', currentUser.levelUpRequirement);
+  }
+
+  Future<void> updatePrivacySettings(PrivacySettings newSettings) async {
+    final user = currentUser;
+    if (user != null) {
+      user.privacySettings = newSettings;
+      await _userBox.put('currentUser', user);
+      notifyListeners();
+
+      // Update Firestore
+      try {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({'privacySettings': newSettings.toMap()});
+      } catch (e) {
+        print('Error updating privacy settings in Firestore: $e');
+      }
+    }
   }
 }
