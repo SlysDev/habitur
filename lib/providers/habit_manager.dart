@@ -1,13 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
+import 'package:habitur/data/local/user_local_storage.dart';
+import 'package:habitur/models/activity_event.dart';
 import 'package:habitur/modules/habit_stats_handler.dart';
 import 'package:habitur/notifications/notification_manager.dart';
 import 'package:habitur/notifications/notification_scheduler.dart';
 import 'package:habitur/data/local/settings_local_storage.dart';
+import 'package:habitur/providers/activity_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/habit.dart';
+import '../models/privacy_settings.dart';
 import 'database.dart';
 import 'dart:collection';
 
@@ -20,8 +24,19 @@ class HabitManager extends ChangeNotifier {
     weekDay = DateFormat('EEEE').format(DateTime.now());
   }
 
-  UnmodifiableListView<Habit> get habits {
-    return UnmodifiableListView(_habits);
+  List<Habit> get habits => _habits;
+
+  List<Habit> getVisibleHabits(BuildContext context) {
+    final user = Provider.of<UserLocalStorage>(context, listen: false).currentUser;
+    if (user == null) return [];
+    
+    // If sharing scope is none, return empty list
+    if (user.privacySettings?.habitsScope == SharingScope.none) {
+      return [];
+    }
+
+    // If sharing scope is friends or everyone, return visible habits
+    return _habits.where((habit) => habit.isVisible ?? true).toList();
   }
 
   Future<void> addHabit(Habit habit, context) async {
@@ -44,6 +59,26 @@ class HabitManager extends ChangeNotifier {
       await notificationScheduler.scheduleDefaultTrack(
           context, numberOfReminders);
     }
+
+    // Create activity for new habit
+    final user =
+        Provider.of<UserLocalStorage>(context, listen: false).currentUser;
+    final activityProvider =
+        Provider.of<ActivityProvider>(context, listen: false);
+
+    final activity = ActivityEvent(
+      userId: user.uid,
+      username: user.username,
+      type: ActivityType.newHabit,
+      habitId: habit.id.toString(),
+      habitTitle: habit.title,
+      metadata: {
+        'frequency': habit.resetPeriod,
+        'targetGoal': habit.targetGoal,
+      },
+    );
+    await activityProvider.createActivity(activity);
+
     notifyListeners();
   }
 
@@ -80,6 +115,14 @@ class HabitManager extends ChangeNotifier {
   void editHabit(int index, Habit newData) {
     _habits[index] = newData;
     notifyListeners();
+  }
+
+  Future<void> updateHabit(Habit habit) async {
+    final index = _habits.indexWhere((h) => h.id == habit.id);
+    if (index != -1) {
+      _habits[index] = habit;
+      notifyListeners();
+    }
   }
 
   void updateHabits() {
@@ -404,5 +447,22 @@ class HabitManager extends ChangeNotifier {
         .deleteData(context);
     await db.habitDatabase.clearHabits(context);
     notifyListeners();
+  }
+
+  Future<void> loadHabitsFromDB(BuildContext context, {String? userID}) async {
+    List<Habit> habitList = await _db.habitDatabase.loadHabits(context, userID: userID);
+    loadHabits(habitList);
+    await resetDailyHabits(context);
+    await resetWeeklyHabits(context);
+    await resetMonthlyHabits(context);
+    await Provider.of<HabitsLocalStorage>(context, listen: false)
+        .uploadAllHabits(habitList, context);
+  }
+
+  Future<void> loadHabitsFromLocalStorage(BuildContext context) async {
+    final habits = Provider.of<HabitsLocalStorage>(context, listen: false)
+        .getHabitData(context);
+    loadHabits(habits);
+    await _db.habitDatabase.uploadHabits(context);
   }
 }
