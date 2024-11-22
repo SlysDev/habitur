@@ -18,7 +18,7 @@ class HabitDatabase {
   final _firestore = FirebaseFirestore.instance;
   LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
   DataConverter dataConverter = DataConverter();
-  Future<void> loadHabits(context) async {
+  Future<List<Habit>> loadHabits(context, {String? userID}) async {
     try {
       await clearDuplicateHabits(context);
       UserDatabase userDatabase = UserDatabase();
@@ -27,7 +27,7 @@ class HabitDatabase {
       }
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
-          users.doc(_auth.currentUser!.uid.toString());
+          users.doc(userID ?? _auth.currentUser!.uid.toString());
       CollectionReference habitsReference = userReference.collection('habits');
       QuerySnapshot habitsSnapshot = await habitsReference.get();
 
@@ -69,27 +69,18 @@ class HabitDatabase {
         loadedHabit.daysCompleted = daysCompletedFormatted;
         habitList.add(loadedHabit);
       }
-      Provider.of<HabitManager>(context, listen: false).loadHabits(habitList);
-      await Provider.of<HabitManager>(context, listen: false)
-          .resetDailyHabits(context);
-      await Provider.of<HabitManager>(context, listen: false)
-          .resetWeeklyHabits(context);
-      await Provider.of<HabitManager>(context, listen: false)
-          .resetMonthlyHabits(context);
-      await Provider.of<HabitsLocalStorage>(context, listen: false)
-          .uploadAllHabits(habitList, context);
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          true;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = true;
+      return habitList;
     } catch (e, s) {
       debugPrint(e.toString());
       debugPrint(s.toString());
       showDebugErrorSnackbar(context, e, s);
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          false;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = false;
+      return [];
     }
   }
 
-  Future<void> uploadHabits(context) async {
+  Future<void> uploadHabits(context, {String? userID}) async {
     try {
       UserDatabase userDatabase = UserDatabase();
       if (!userDatabase.isLoggedIn) {
@@ -97,7 +88,7 @@ class HabitDatabase {
       }
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
-          users.doc(_auth.currentUser!.uid.toString());
+          users.doc(userID ?? _auth.currentUser!.uid.toString());
 
       var habitsCollectionRef = userReference.collection('habits');
       var habitsCollectionSnapshot =
