@@ -77,6 +77,7 @@ class SentFriendRequestsList extends StatelessWidget {
                         ),
                         title: Text(
                           recipient.username,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Text('Sent $relativeDate'),
                         trailing: request.isAccepted || request.isDeclined

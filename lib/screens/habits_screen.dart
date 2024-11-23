@@ -5,6 +5,7 @@ import 'package:habitur/components/aside_button.dart';
 import 'package:habitur/components/days_of_week_widget.dart';
 import 'package:habitur/components/loading_overlay_wrapper.dart';
 import 'package:habitur/components/navbar.dart';
+import 'package:habitur/components/profile_drawer.dart';
 import 'package:habitur/data/data_manager.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/models/habit.dart';
@@ -40,6 +41,21 @@ class _HabitsScreenState extends State<HabitsScreen> {
     return FutureBuilder(
       future: loadHabits(context),
       builder: (context, snapshot) => Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          actions: [
+            Builder(
+              builder: (context) => IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+              ),
+            ),
+          ],
+        ),
+        endDrawer: const ProfileDrawer(),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),

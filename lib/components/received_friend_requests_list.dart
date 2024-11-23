@@ -50,14 +50,14 @@ class ReceivedFriendRequestsList extends StatelessWidget {
                 String relativeDate = timeago.format(request.dateSent);
 
                 return Container(
-              decoration: BoxDecoration(
-                  color: kFadedBlue.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: kFadedBlue.withOpacity(0.6),
-                  width: 1,
-                ),
-              ),
+                  decoration: BoxDecoration(
+                    color: kFadedBlue.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: kFadedBlue.withOpacity(0.6),
+                      width: 1,
+                    ),
+                  ),
                   margin: EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,14 +67,19 @@ class ReceivedFriendRequestsList extends StatelessWidget {
                           username: sender.username,
                           size: 40.0,
                         ),
-                        title: Text(sender.username, style: TextStyle(fontSize: 16)),
+                        title: Text(
+                          sender.username,
+                          style: TextStyle(fontSize: 16),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                         trailing: request.isAccepted
                             ? Icon(Icons.check_circle, color: Colors.green)
                             : Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: Icon(Icons.check, color: Colors.green),
+                                    icon:
+                                        Icon(Icons.check, color: Colors.green),
                                     onPressed: () async {
                                       await friendsManager.acceptFriendRequest(
                                           request, context);
@@ -91,8 +96,10 @@ class ReceivedFriendRequestsList extends StatelessWidget {
                               ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(top: 4.0, bottom: 8.0, left: 64.0),
-                        child: Text('Sent $relativeDate', style: TextStyle(fontSize: 14)),
+                        padding: const EdgeInsets.only(
+                            top: 4.0, bottom: 8.0, left: 64.0),
+                        child: Text('Sent $relativeDate',
+                            style: TextStyle(fontSize: 14)),
                       ),
                     ],
                   ),
