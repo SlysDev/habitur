@@ -6,10 +6,12 @@ import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/data_point.dart';
 import 'package:habitur/models/stat_point.dart';
+import 'package:habitur/models/activity_event.dart';
 import 'package:habitur/modules/habit_stats_calculator.dart';
 import 'package:habitur/modules/user_stats_handler.dart';
 import 'package:habitur/providers/database.dart';
 import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/activity_provider.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +42,34 @@ class HabitStatsHandler {
         habit.highestStreak = habit.streak;
       }
       habit.daysCompleted.add(DateTime.now());
+      
+      // Create activity event for habit completion
+      final user = Provider.of<UserLocalStorage>(context, listen: false).currentUser;
+      final activityProvider = Provider.of<ActivityProvider>(context, listen: false);
+      
+      // Create completion activity
+      final activity = ActivityEvent(
+        userId: user.uid,
+        username: user.username,
+        type: ActivityType.habitCompletion,
+        habitId: habit.id.toString(),
+        habitTitle: habit.title,
+        metadata: {'difficulty': recordedDifficulty},
+      );
+      await activityProvider.createActivity(activity);
+      
+      // If it's a streak milestone (e.g., 7, 30, 100 days), create another activity
+      if (habit.streak == 7 || habit.streak == 30 || habit.streak == 100) {
+        final streakActivity = ActivityEvent(
+          userId: user.uid,
+          username: user.username,
+          type: ActivityType.streakMilestone,
+          habitId: habit.id.toString(),
+          habitTitle: habit.title,
+          metadata: {'streakDays': habit.streak},
+        );
+        await activityProvider.createActivity(streakActivity);
+      }
     }
     fillInMissingDays(context);
     sortHabitStats();
