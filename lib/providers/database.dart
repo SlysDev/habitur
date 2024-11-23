@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/data/local/habits_local_storage.dart';
 import 'package:habitur/data/remote/community_challenge_database.dart';
 import 'package:habitur/data/remote/data_converter.dart';
+import 'package:habitur/data/remote/friends_database.dart';
 import 'package:habitur/data/remote/habit_database.dart';
 import 'package:habitur/data/remote/last_updated_manager.dart';
 import 'package:habitur/data/remote/settings_database.dart';
@@ -31,6 +32,7 @@ class Database {
       CommunityChallengeDatabase();
   StatsDatabase statsDatabase = StatsDatabase();
   SettingsDatabase settingsDatabase = SettingsDatabase();
+  FriendsDatabase friendsDatabase = FriendsDatabase();
   DataConverter dataConverter = DataConverter();
   LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
   // Helper Functions
