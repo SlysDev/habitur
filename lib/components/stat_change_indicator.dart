@@ -17,7 +17,7 @@ class StatChangeIndicator extends StatelessWidget {
         children: [
           Icon(Icons.remove, color: Colors.grey, size: 16),
           SizedBox(width: 4),
-          Text('No change', style: TextStyle(color: Colors.grey, fontSize: 12)),
+          Text('', style: TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       );
     }

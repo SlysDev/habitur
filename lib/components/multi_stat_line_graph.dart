@@ -62,6 +62,7 @@ class _MultiStatLineGraphState extends State<MultiStatLineGraph> {
           Flexible(
             fit: FlexFit.loose,
             child: LineGraph(
+              title: displayedStat,
               data: widget.data,
               width: widget.width,
               height: widget.height,
@@ -72,7 +73,6 @@ class _MultiStatLineGraphState extends State<MultiStatLineGraph> {
                       : displayedStat == 'Consistency'
                           ? 'consistencyFactor'
                           : 'completions',
-              showDots: widget.showDots,
               showChangeIndicator: widget.showChangeIndicator,
               showStatTitle: widget.showStatTitle,
             ),

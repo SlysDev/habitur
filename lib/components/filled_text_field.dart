@@ -7,14 +7,22 @@ class FilledTextField extends StatelessWidget {
   final bool obscureText;
   final String initialValue;
   final bool enabled;
-  dynamic controller;
-  FilledTextField(
-      {this.onChanged,
-      this.hintText,
-      this.enabled = true,
-      this.initialValue = '',
-      this.controller,
-      this.obscureText = false});
+  final IconData? prefixIcon;
+  final TextAlign textAlign;
+  final TextEditingController? controller;
+
+  const FilledTextField({
+    Key? key,
+    this.onChanged,
+    this.hintText,
+    this.enabled = true,
+    this.initialValue = '',
+    this.controller,
+    this.obscureText = false,
+    this.prefixIcon,
+    this.textAlign = TextAlign.start,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return TextField(
@@ -23,16 +31,24 @@ class FilledTextField extends StatelessWidget {
       cursorColor: Colors.white,
       onChanged: onChanged,
       cursorOpacityAnimates: true,
-      controller: controller ??
-          (initialValue != null
-              ? TextEditingController(text: initialValue)
-              : TextEditingController()),
-      textAlign: TextAlign.center,
+      controller: controller ?? TextEditingController(text: initialValue),
+      textAlign: textAlign,
       style: TextStyle(
-          color: enabled ? Colors.white : Colors.red.withOpacity(0.7)),
+        color: enabled ? Colors.white : Colors.red.withOpacity(0.7),
+      ),
       decoration: kFilledTextFieldInputDecoration.copyWith(
         hintText: hintText,
         fillColor: enabled ? kFadedBlue : Colors.red.withOpacity(0.1),
+        prefixIcon: prefixIcon != null
+            ? Icon(
+                prefixIcon,
+                color: enabled ? Colors.white70 : Colors.red.withOpacity(0.7),
+              )
+            : null,
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: prefixIcon != null ? 8 : 16,
+          vertical: 16,
+        ),
       ),
     );
   }

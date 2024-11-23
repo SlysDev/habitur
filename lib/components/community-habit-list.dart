@@ -22,33 +22,23 @@ class CommunityHabitList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<CommunityChallengeManager>(
         builder: (context, communityChallengeManager, child) {
-      return Expanded(
-        child: SizedBox(
-          width: double.infinity,
-          child: RefreshIndicator(
-            backgroundColor: kPrimaryColor,
-            color: kBackgroundColor,
-            onRefresh: () async {
-              await onRefresh();
-              communityChallengeManager.removeDuplicateChallenges();
-            },
-            child: ListView.builder(
-                itemBuilder: (context, index) {
-                  CommunityChallenge currentChallenge =
-                      communityChallengeManager.challenges[index];
-                  return Column(
-                    children: [
-                      CommunityChallengeCard(
-                        isAdmin: isAdmin,
-                        challenge: currentChallenge,
-                      ),
-                      SizedBox(height: 20),
-                    ],
-                  );
-                },
-                itemCount: communityChallengeManager.challenges.length),
-          ),
-        ),
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: communityChallengeManager.challenges.length,
+        itemBuilder: (context, index) {
+          CommunityChallenge currentChallenge =
+              communityChallengeManager.challenges[index];
+          return Column(
+            children: [
+              CommunityChallengeCard(
+                isAdmin: isAdmin,
+                challenge: currentChallenge,
+              ),
+              SizedBox(height: 20),
+            ],
+          );
+        },
       );
     });
   }

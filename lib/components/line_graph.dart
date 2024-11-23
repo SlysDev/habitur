@@ -65,11 +65,6 @@ class LineGraph extends StatelessWidget {
 
     // Handle single data point
     if (data.length == 1) {
-      final spot = FlSpot(
-        data[0].date.millisecondsSinceEpoch.toDouble(),
-        data[0].getStatByName(statName).toDouble(),
-      );
-
       return Container(
         width: width,
         child: Card(
@@ -92,29 +87,30 @@ class LineGraph extends StatelessWidget {
                 ],
                 SizedBox(
                   height: height,
-                  width: width,
-                  child: LineChart(
-                    LineChartData(
-                      gridData: FlGridData(show: false),
-                      titlesData: FlTitlesData(show: false),
-                      borderData: FlBorderData(
-                        show: true,
-                        border: Border.all(color: kGray.withOpacity(0.3)),
-                      ),
-                      minX: spot.x - 86400000, // One day before
-                      maxX: spot.x + 86400000, // One day after
-                      minY: 0,
-                      maxY: max(1, spot.y * 1.2), // At least 1, or 20% above the value
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: [spot],
-                          color: color,
-                          barWidth: 3,
-                          isStrokeCapRound: true,
-                          dotData: FlDotData(show: true),
-                          belowBarData: BarAreaData(
-                            show: true,
-                            color: color.withOpacity(0.1),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.show_chart_rounded,
+                          color: color.withOpacity(0.5),
+                          size: 48,
+                        ),
+                        SizedBox(height: 16),
+                        Text(
+                          'More data points needed',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Keep tracking to see your progress graph',
+                          style: TextStyle(
+                            color: kGray,
+                            fontSize: 14,
                           ),
                         ),
                       ],
