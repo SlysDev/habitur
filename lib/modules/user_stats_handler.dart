@@ -9,6 +9,103 @@ import 'package:provider/provider.dart';
 
 class UserStatsHandler {
   Database db = Database();
+
+  bool isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+        date1.month == date2.month &&
+        date1.day == date2.day;
+  }
+
+  void updateCompletions(UserModel user, context, {double amount = 1.0}) {
+    if (user.stats == null) return;
+    
+    int currentDayIndex = user.stats!.indexWhere(
+        (stat) => isSameDay(stat.date, DateTime.now()));
+
+    if (currentDayIndex != -1) {
+      Provider.of<UserLocalStorage>(context, listen: false).updateStatByName(
+          'completions', user.stats![currentDayIndex].completions + amount, context);
+    }
+  }
+
+  void undoCompletion(UserModel user, context, {double? amount}) {
+    if (user.stats == null) return;
+    
+    int currentDayIndex = user.stats!.indexWhere((stat) =>
+        isSameDay(stat.date, DateTime.now()));
+
+    if (currentDayIndex != -1) {
+      int currentCompletions = user.stats![currentDayIndex].completions;
+      if (currentCompletions > 0) {
+        // If amount is null, undo the last recorded amount or default to 1
+        double amountToUndo = amount ?? 1.0;
+        // Don't let completions go below 0
+        double newCompletions = (currentCompletions - amountToUndo).clamp(0.0, double.infinity);
+        
+        Provider.of<UserLocalStorage>(context, listen: false).updateStatByName(
+            'completions',
+            newCompletions,
+            context);
+      }
+    }
+  }
+
+  void updateConfidenceLevel(UserModel user, double newConfidenceLevel, context) {
+    if (user.stats == null) return;
+    
+    int currentDayIndex = user.stats!.indexWhere(
+        (stat) => isSameDay(stat.date, DateTime.now()));
+
+    if (currentDayIndex == -1) {
+      if (user.stats!.isEmpty) {
+        Provider.of<UserLocalStorage>(context, listen: false)
+            .addNewStat(context);
+        currentDayIndex = 0;
+      } else {
+        StatPoint newEntry = user.stats!.last;
+        newEntry.date = DateTime.now();
+        Provider.of<UserLocalStorage>(context, listen: false)
+            .addNewStat(context);
+        currentDayIndex = user.stats!.length - 1;
+      }
+    }
+    user.stats![currentDayIndex].confidenceLevel = newConfidenceLevel;
+  }
+
+  List<StatPoint> getStatsForDateRange(UserModel user, DateTime startDate,
+      DateTime endDate) {
+    if (user.stats == null || user.stats!.isEmpty) {
+      return [];
+    }
+
+    DateTime firstDate = user.stats!.first.date;
+    List<StatPoint> statsInRange = [];
+
+    for (DateTime date = startDate;
+        date.isBefore(endDate.add(Duration(days: 1)));
+        date = date.add(Duration(days: 1))) {
+      if (user.stats!.indexWhere((dataPoint) =>
+              isSameDay(dataPoint.date, date)) !=
+          -1) {
+        statsInRange.add(user.stats!
+            .firstWhere((dataPoint) => isSameDay(dataPoint.date, date)));
+      } else if (date.isAfter(firstDate)) {
+        statsInRange.add(StatPoint(
+          date: date,
+          confidenceLevel: 0,
+          completions: 0,
+          streak: 0,
+        ));
+      }
+    }
+    return statsInRange;
+  }
+
+  List<StatPoint> getStats(UserModel user) {
+    if (user.stats == null) return [];
+    return user.stats!.map((stat) => stat).toList(); // make a copy
+  }
+
   Future<void> logHabitCompletion(BuildContext context) async {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
@@ -22,7 +119,7 @@ class UserStatsHandler {
     await db.userDatabase.uploadUserData(context);
 
     // Check if there's an entry for the current day
-    int currentDayIndex = user.stats.indexWhere(
+    int currentDayIndex = getStats(user).indexWhere(
       (stat) =>
           stat.date.year == DateTime.now().year &&
           stat.date.month == DateTime.now().month &&
@@ -35,7 +132,7 @@ class UserStatsHandler {
       Provider.of<UserLocalStorage>(context, listen: false)
           .updateUserStat('date', DateTime.now(), context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'completions', user.stats[currentDayIndex].completions + 1, context);
+          'completions', getStats(user)[currentDayIndex].completions + 1, context);
       Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
           'confidenceLevel',
           userStatsCalculator.calculateStatAverage('confidenceLevel'),
@@ -101,7 +198,7 @@ class UserStatsHandler {
         Provider.of<HabitManager>(context, listen: false).habits);
     fillInMissingDays(context);
 
-    int currentDayIndex = user.stats.indexWhere((stat) =>
+    int currentDayIndex = getStats(user).indexWhere((stat) =>
         stat.date.year == DateTime.now().year &&
         stat.date.month == DateTime.now().month &&
         stat.date.day == DateTime.now().day);
@@ -109,10 +206,10 @@ class UserStatsHandler {
     if (currentDayIndex != -1) {
       debugPrint('updating current day');
       // Decrement completion count if it's positive
-      if (user.stats[currentDayIndex].completions > 0) {
+      if (getStats(user)[currentDayIndex].completions > 0) {
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'completions',
-            user.stats[currentDayIndex].completions - 1,
+            getStats(user)[currentDayIndex].completions - 1,
             context);
         Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
             'confidenceLevel',
@@ -157,14 +254,14 @@ class UserStatsHandler {
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     UserStatsCalculator calc = UserStatsCalculator(
         Provider.of<HabitManager>(context, listen: false).habits);
-    int currentDayIndex = user.stats.indexWhere(
+    int currentDayIndex = getStats(user).indexWhere(
       (stat) =>
           stat.date.year == DateTime.now().year &&
           stat.date.month == DateTime.now().month &&
           stat.date.day == DateTime.now().day,
     );
     // If the two dates are more than a minute apart
-    if (user.stats.isEmpty) {
+    if (getStats(user).isEmpty) {
       Provider.of<UserLocalStorage>(context, listen: false).addUserStatPoint(
           context,
           StatPoint(
@@ -173,13 +270,13 @@ class UserStatsHandler {
               confidenceLevel: 1,
               streak: 0));
     } else if (currentDayIndex == -1) {
-      StatPoint newEntry = user.stats.last;
+      StatPoint newEntry = getStats(user).last;
       newEntry.date = DateTime.now();
       newEntry.confidenceLevel = calc.calculateStatAverage('confidenceLevel');
       Provider.of<UserLocalStorage>(context, listen: false)
           .addUserStatPoint(context, newEntry);
     } else {
-      user.stats[currentDayIndex].confidenceLevel =
+      getStats(user)[currentDayIndex].confidenceLevel =
           calc.calculateStatAverage('confidenceLevel');
     }
   }
@@ -191,10 +288,10 @@ class UserStatsHandler {
     UserStatsCalculator statsCalculator = UserStatsCalculator(
         Provider.of<HabitManager>(context, listen: false).habits);
     // Create a DateTime object for the start date of the habit
-    if (user.stats.isEmpty) {
+    if (getStats(user).isEmpty) {
       return;
     }
-    DateTime startDate = user.stats.first.date;
+    DateTime startDate = getStats(user).first.date;
 
     // Iterate through each day from the start date to the current date
     for (DateTime day =
@@ -203,7 +300,7 @@ class UserStatsHandler {
             DateTime.now().year, DateTime.now().month, DateTime.now().day));
         day = day.add(Duration(days: 1))) {
       // Check if a StatPoint already exists for the current day
-      if (user.stats.indexWhere((dataPoint) =>
+      if (getStats(user).indexWhere((dataPoint) =>
               DateTime(dataPoint.date.year, dataPoint.date.month,
                   dataPoint.date.day) ==
               day) ==
@@ -238,7 +335,7 @@ class UserStatsHandler {
     UserModel user =
         Provider.of<UserLocalStorage>(context, listen: false).currentUser;
     List<StatPoint> userStats =
-        user.stats.map((stat) => stat).toList(); // make a copy
+        getStats(user).map((stat) => stat).toList(); // make a copy
     userStats.sort((a, b) => a.date.compareTo(b.date));
     Provider.of<UserLocalStorage>(context, listen: false)
         .updateUserProperty('stats', userStats);

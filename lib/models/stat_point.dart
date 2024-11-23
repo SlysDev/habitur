@@ -1,4 +1,5 @@
 // Import necessary libraries
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 part 'stat_point.g.dart';
@@ -125,17 +126,39 @@ class StatPoint {
 
   // for converting from Firestore Map to StatPoint
   factory StatPoint.fromMap(Map<String, dynamic> data) {
-    return StatPoint(
-      date: data['date'].toDate(), // Assuming the date is stored as a string
-      completions: data['completions'] ?? 0,
-      confidenceLevel: (data['confidenceLevel'] ?? 0).toDouble(),
-      streak: data['streak'] ?? 0,
-      consistencyFactor: (data['consistencyFactor'] ?? 0.0).toDouble(),
-      difficultyRating: (data['difficultyRating'] ?? 0.0).toDouble(),
-      slopeCompletions: (data['slopeCompletions'] ?? 0.0).toDouble(),
-      slopeConfidenceLevel: (data['slopeConfidenceLevel'] ?? 0.0).toDouble(),
-      slopeConsistency: (data['slopeConsistency'] ?? 0.0).toDouble(),
-      slopeDifficultyRating: (data['slopeDifficultyRating'] ?? 0.0).toDouble(),
-    );
+    debugPrint('StatPoint.fromMap: Converting data to StatPoint: $data');
+    try {
+      final statPoint = StatPoint(
+        date: data['date'].toDate(),
+        completions: data['completions'] ?? 0,
+        confidenceLevel: (data['confidenceLevel'] ?? 0.0).toDouble(),
+        streak: data['streak'] ?? 0,
+        consistencyFactor: (data['slopeConsistency'] ?? 0.0).toDouble(), // Using slopeConsistency as consistencyFactor
+        difficultyRating: (data['difficultyRating'] ?? 0.0).toDouble(),
+        slopeCompletions: (data['slopeCompletions'] ?? 0.0).toDouble(),
+        slopeConfidenceLevel: (data['slopeConfidenceLevel'] ?? 0.0).toDouble(),
+        slopeConsistency: (data['slopeConsistency'] ?? 0.0).toDouble(),
+        slopeDifficultyRating: (data['slopeDifficultyRating'] ?? 0.0).toDouble(),
+      );
+      debugPrint('StatPoint.fromMap: Successfully converted to StatPoint');
+      return statPoint;
+    } catch (e) {
+      debugPrint('StatPoint.fromMap: Error converting data: $e');
+      rethrow;
+    }
+  }
+  toMap() {
+    return {
+      'date': date,
+      'completions': completions,
+      'confidenceLevel': confidenceLevel,
+      'streak': streak,
+      'consistencyFactor': consistencyFactor,
+      'difficultyRating': difficultyRating,
+      'slopeCompletions': slopeCompletions,
+      'slopeConfidenceLevel': slopeConfidenceLevel,
+      'slopeConsistency': slopeConsistency,
+      'slopeDifficultyRating': slopeDifficultyRating,
+    };
   }
 }

@@ -10,11 +10,23 @@ class SettingsLocalStorage extends ChangeNotifier {
   dynamic _settingsBox;
 
   Setting get dailyReminders {
-    return getSettingByName('Daily Reminders')!;
+    var setting = getSettingByName('Daily Reminders');
+    if (setting == null) {
+      debugPrint('Daily Reminders setting not found, populating defaults...');
+      populateDefaultSettingsData();
+      setting = getSettingByName('Daily Reminders');
+    }
+    return setting!;
   }
 
   Setting get numberOfReminders {
-    return getSettingByName('Number of Reminders')!;
+    var setting = getSettingByName('Number of Reminders');
+    if (setting == null) {
+      debugPrint('Number of Reminders setting not found, populating defaults...');
+      populateDefaultSettingsData();
+      setting = getSettingByName('Number of Reminders');
+    }
+    return setting!;
   }
 
   Future<void> init(context) async {
@@ -97,6 +109,30 @@ class SettingsLocalStorage extends ChangeNotifier {
     setting.settingValue = newSettingValue;
     _settingsBox.put(settingName, setting);
     await syncLastUpdated();
+  }
+
+  Future<void> clearData() async {
+    debugPrint('\n=== Clearing Settings Data ===');
+    try {
+      if (_settingsBox != null && _settingsBox.isOpen) {
+        debugPrint('Clearing settings box data...');
+        await _settingsBox.clear();
+        debugPrint('Settings box cleared');
+        
+        debugPrint('Populating default settings...');
+        await populateDefaultSettingsData();
+        debugPrint('Default settings populated');
+        
+        notifyListeners();
+      } else {
+        debugPrint('Warning: _settingsBox is null or not open during clearData()');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error clearing settings data: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow;
+    }
+    debugPrint('=== Settings Data Cleared ===\n');
   }
 
   void updateSettings() {

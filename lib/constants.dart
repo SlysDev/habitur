@@ -47,7 +47,14 @@ const kCtaBtnStyle = TextStyle(
 );
 
 const TextStyle kMainDescription = TextStyle(
-  fontSize: 18,
+  fontSize: 16,
+  fontWeight: FontWeight.normal,
+);
+
+const TextStyle kSubDescription = TextStyle(
+  fontSize: 14,
+  fontWeight: FontWeight.w300,
+  color: kGray,
 );
 
 Map<int, Color> colorCodes = {

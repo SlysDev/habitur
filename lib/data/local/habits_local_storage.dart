@@ -9,30 +9,44 @@ import 'package:provider/provider.dart';
 import '../../models/habit.dart';
 
 class HabitsLocalStorage extends ChangeNotifier {
-  dynamic _habitsBox;
+  Box<dynamic>? _habitsBox;
 
   Future<void> init(context) async {
     try {
-      debugPrint('are we initing?');
-      if (Hive.isBoxOpen('habits')) {
-        debugPrint('habitsBox is open');
-        _habitsBox = Hive.box('habits');
-      } else {
-        debugPrint('habitsBox must be newly opened');
+      if (!Hive.isBoxOpen('habits')) {
+        debugPrint('Opening habits box...');
         _habitsBox = await Hive.openBox('habits');
+        
+        debugPrint('\n=== HABITS BOX INITIAL STATE ===');
+        debugPrint('Box opened: ${_habitsBox?.isOpen}');
+        debugPrint('Box name: ${_habitsBox?.name}');
+        debugPrint('Box length: ${_habitsBox?.length}');
+        debugPrint('Box keys: ${_habitsBox?.keys.toList()}');
+        
+        if (_habitsBox != null) {
+          debugPrint('\nRaw values:');
+          for (var key in _habitsBox!.keys) {
+            var value = _habitsBox!.get(key);
+            debugPrint('Key: $key, Type: ${value.runtimeType}, Value: $value');
+          }
+        }
+        debugPrint('===============================\n');
       }
     } catch (e, s) {
-      debugPrint(e.toString());
+      debugPrint('Error initializing habits box: $e');
       debugPrint(s.toString());
       showDebugErrorSnackbar(context, e, s);
     }
   }
 
   get lastUpdated {
-    if (_habitsBox.get('lastUpdated') == null) {
-      _habitsBox.put('lastUpdated', DateTime.now());
+    if (_habitsBox == null) {
+      return DateTime.now();
     }
-    return _habitsBox.get('lastUpdated');
+    if (_habitsBox!.get('lastUpdated') == null) {
+      _habitsBox!.put('lastUpdated', DateTime.now());
+    }
+    return _habitsBox!.get('lastUpdated');
   }
 
   Future<void> deleteData(BuildContext context) async {
@@ -42,7 +56,7 @@ class HabitsLocalStorage extends ChangeNotifier {
       }
       await Hive.deleteBoxFromDisk('habits');
       debugPrint('Habits box deleted successfully.');
-    } catch (e, s){
+    } catch (e, s) {
       debugPrint('function "deleteData" failed');
       debugPrint(e.toString());
       debugPrint(s.toString());
@@ -51,21 +65,21 @@ class HabitsLocalStorage extends ChangeNotifier {
   }
 
   Future<void> syncLastUpdated() async {
-    await _habitsBox.put('lastUpdated', DateTime.now());
+    await _habitsBox!.put('lastUpdated', DateTime.now());
   }
 
   Future<void> addHabit(Habit habit) async {
-    await _habitsBox.put(habit.id, habit);
+    await _habitsBox!.put(habit.id, habit);
     await syncLastUpdated();
   }
 
   Future<void> updateHabit(Habit habit) async {
-    await _habitsBox.put(habit.id, habit);
+    await _habitsBox!.put(habit.id, habit);
     await syncLastUpdated();
   }
 
   Future<void> deleteHabit(Habit habit) async {
-    await _habitsBox.delete(habit.id);
+    await _habitsBox!.delete(habit.id);
     await syncLastUpdated();
   }
 
@@ -75,51 +89,33 @@ class HabitsLocalStorage extends ChangeNotifier {
         debugPrint('habitsBox is null');
         return [];
       }
-      List<dynamic> allValues = _habitsBox.values.toList();
+
+      debugPrint('\n=== HABITS BOX DEBUG INFO ===');
+      debugPrint('Box name: ${_habitsBox!.name}');
+      debugPrint('Box length: ${_habitsBox!.length}');
+      debugPrint('Box keys: ${_habitsBox!.keys.toList()}');
+      
+      // Print each habit's basic info
+      _habitsBox!.values.whereType<Habit>().forEach((habit) {
+        debugPrint('\nHabit: ${habit.title}');
+        debugPrint('ID: ${habit.id}');
+        debugPrint('isVisible: ${habit.isVisible}');
+        debugPrint('smartNotifsEnabled: ${habit.smartNotifsEnabled}');
+      });
+      debugPrint('===========================\n');
+
+      List<dynamic> allValues = _habitsBox!.values.toList();
       return allValues.whereType<Habit>().toList();
     } catch (e, s) {
-      debugPrint(e.toString());
+      debugPrint('Error in getHabitData: ${e.toString()}');
       debugPrint(s.toString());
       showDebugErrorSnackbar(context, e, s);
       return [];
     }
   }
 
-  Future<void> uploadAllHabits(List<Habit> habits, context) async {
-    try {
-      if (_habitsBox == null) {
-        await init(context);
-      }
-      for (Habit habit in habits) {
-        await _habitsBox.put(habit.id, habit);
-      }
-      _habitsBox.put('lastUpdated', DateTime.now());
-    } catch (e, s) {
-      debugPrint(e.toString());
-      debugPrint(s.toString());
-      showDebugErrorSnackbar(context, e, s);
-    }
-  }
-
-  Future<void> loadData(context) async {
-    await init(context);
-    try {
-      await clearDuplicateHabits(context);
-      Provider.of<HabitManager>(context, listen: false)
-          .loadHabits(getHabitData(context));
-    } catch (e, s) {
-      debugPrint(e.toString());
-      debugPrint(s.toString());
-      showDebugErrorSnackbar(context, e, s);
-    }
-    Provider.of<HabitManager>(context, listen: false).resetHabits(context);
-    debugPrint('data loaded:');
-    debugPrint(getHabitData(context).length.toString());
-    debugPrint(stringifyHabitData(context));
-  }
-
   Habit? getHabitById(int id) {
-    return _habitsBox.get(id);
+    return _habitsBox!.get(id);
   }
 
   Future<void> clearStats(context) async {
@@ -173,5 +169,46 @@ class HabitsLocalStorage extends ChangeNotifier {
     }
     output += "----------------------------------\n";
     return output;
+  }
+
+  Future<void> uploadAllHabits(List<Habit> habits, context) async {
+    try {
+      if (_habitsBox == null) {
+        await init(context);
+      }
+      for (Habit habit in habits) {
+        await _habitsBox!.put(habit.id, habit);
+      }
+      _habitsBox!.put('lastUpdated', DateTime.now());
+    } catch (e, s) {
+      debugPrint(e.toString());
+      debugPrint(s.toString());
+      showDebugErrorSnackbar(context, e, s);
+    }
+  }
+
+  Future<void> loadData(context) async {
+    await init(context);
+    try {
+      await clearDuplicateHabits(context);
+      Provider.of<HabitManager>(context, listen: false)
+          .loadHabits(getHabitData(context));
+    } catch (e, s) {
+      debugPrint(e.toString());
+      debugPrint(s.toString());
+      showDebugErrorSnackbar(context, e, s);
+    }
+    Provider.of<HabitManager>(context, listen: false).resetHabits(context);
+    debugPrint('data loaded:');
+    debugPrint(getHabitData(context).length.toString());
+    debugPrint(stringifyHabitData(context));
+  }
+
+  Future<void> clearData() async {
+    if (_habitsBox != null && _habitsBox!.isOpen) {
+      debugPrint('Clearing habits box data...');
+      await _habitsBox!.clear();
+      notifyListeners();
+    }
   }
 }
