@@ -216,7 +216,9 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
                               await showStatusOverlay(
                                   context,
                                   'Completing challenge',
-                                  () => completeChallenge());
+                                  () => completeChallenge(),
+                                  successMessage:
+                                      'Challenge completed successfully!');
                             }
                           },
                           child: Text(
