@@ -66,29 +66,45 @@ class _HabitCardState extends State<HabitCard> {
     double progress = habit.currentProgress / habit.targetGoal;
     bool completed = habit.currentProgress == habit.targetGoal;
     Future<void> completeHabit(double recordedDifficulty) async {
-      if (habit.currentProgress != habit.targetGoal) {
-        await habitStatsHandler.incrementCompletion(context,
-            recordedDifficulty: recordedDifficulty);
-        if (Provider.of<NetworkStateProvider>(context, listen: false)
-            .isConnected) {
-          await db.habitDatabase.updateHabit(
-              Provider.of<HabitManager>(context, listen: false)
-                  .habits[widget.index],
-              context);
-        }
-        await Provider.of<HabitsLocalStorage>(context, listen: false)
-            .updateHabit(Provider.of<HabitManager>(context, listen: false)
-                .habits[widget.index]);
-        Provider.of<HabitManager>(context, listen: false).updateHabits();
+      if (habit.currentProgress == habit.targetGoal) return;
+      
+      final habitManager = Provider.of<HabitManager>(context, listen: false);
+      final habitsStorage = Provider.of<HabitsLocalStorage>(context, listen: false);
+      final networkState = Provider.of<NetworkStateProvider>(context, listen: false);
+      
+      final stopwatch = Stopwatch()..start();
+      
+      // Track stats update
+      final statsStart = stopwatch.elapsedMilliseconds;
+      await habitStatsHandler.incrementCompletion(context, recordedDifficulty: recordedDifficulty);
+      debugPrint('Stats update took: ${stopwatch.elapsedMilliseconds - statsStart}ms');
+      
+      // Track local storage update
+      final localStart = stopwatch.elapsedMilliseconds;
+      await habitsStorage.updateHabit(habitManager.habits[widget.index]);
+      debugPrint('Local storage update took: ${stopwatch.elapsedMilliseconds - localStart}ms');
+      
+      // Track remote update if connected
+      if (networkState.isConnected) {
+        final remoteStart = stopwatch.elapsedMilliseconds;
+        await db.habitDatabase.updateHabit(habitManager.habits[widget.index], context);
+        debugPrint('Remote update took: ${stopwatch.elapsedMilliseconds - remoteStart}ms');
       }
-      debugPrint('Habit completion status: ${habit.isCompleted}');
+      
+      // Track UI update
+      final uiStart = stopwatch.elapsedMilliseconds;
+      habitManager.updateHabits();
+      debugPrint('UI update took: ${stopwatch.elapsedMilliseconds - uiStart}ms');
+      
+      // Track notifications update if needed
       if (habit.isCompleted) {
-        debugPrint(
-            'Rescheduling smart notifications for habit: ${habit.title}');
-        await Provider.of<HabitManager>(context, listen: false)
-            .rescheduleSmartNotifications(habit);
-        debugPrint('Smart notifications rescheduled for habit: ${habit.title}');
+        final notifStart = stopwatch.elapsedMilliseconds;
+        await habitManager.rescheduleSmartNotifications(habit);
+        debugPrint('Notifications update took: ${stopwatch.elapsedMilliseconds - notifStart}ms');
       }
+      
+      debugPrint('Total habit completion took: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.stop();
     }
 
     Future<void> decrementHabit() async {

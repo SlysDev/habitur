@@ -391,4 +391,58 @@ class UserLocalStorage extends ChangeNotifier {
     }
     debugPrint('=== User Data Cleared ===\n');
   }
+
+  Future<void> updateUserStats(Map<String, dynamic> updates, BuildContext context) async {
+    final stopwatch = Stopwatch()..start();
+    try {
+      if (currentUser.stats == null || currentUser.stats!.isEmpty) return;
+
+      // Find current day index
+      final now = updates['date'] as DateTime? ?? DateTime.now();
+      final currentDayIndex = currentUser.stats!.indexWhere((stat) =>
+          stat.date.year == now.year &&
+          stat.date.month == now.month &&
+          stat.date.day == now.day);
+
+      if (currentDayIndex == -1) return;
+
+      // Apply all updates in a single batch
+      updates.forEach((key, value) {
+        switch (key) {
+          case 'completions':
+            currentUser.stats![currentDayIndex].completions = value as int;
+            break;
+          case 'confidenceLevel':
+            currentUser.stats![currentDayIndex].confidenceLevel = value as double;
+            break;
+          case 'streak':
+            currentUser.stats![currentDayIndex].streak = value as int;
+            break;
+          case 'consistencyFactor':
+            currentUser.stats![currentDayIndex].consistencyFactor = value as double;
+            break;
+          case 'difficultyRating':
+            currentUser.stats![currentDayIndex].difficultyRating = value as double;
+            break;
+          case 'slopeCompletions':
+            currentUser.stats![currentDayIndex].slopeCompletions = value as double;
+            break;
+          case 'slopeConsistency':
+            currentUser.stats![currentDayIndex].slopeConsistency = value as double;
+            break;
+          case 'slopeConfidenceLevel':
+            currentUser.stats![currentDayIndex].slopeConfidenceLevel = value as double;
+            break;
+          case 'slopeDifficultyRating':
+            currentUser.stats![currentDayIndex].slopeDifficultyRating = value as double;
+            break;
+        }
+      });
+
+      notifyListeners();
+      debugPrint('Batch user stats update took: ${stopwatch.elapsedMilliseconds}ms');
+    } finally {
+      stopwatch.stop();
+    }
+  }
 }

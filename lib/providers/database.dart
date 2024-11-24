@@ -26,28 +26,56 @@ final _auth = FirebaseAuth.instance;
 final _firestore = FirebaseFirestore.instance;
 
 class Database {
-  UserDatabase userDatabase = UserDatabase();
-  HabitDatabase habitDatabase = HabitDatabase();
-  CommunityChallengeDatabase communityChallengeDatabase =
-      CommunityChallengeDatabase();
-  StatsDatabase statsDatabase = StatsDatabase();
-  SettingsDatabase settingsDatabase = SettingsDatabase();
-  FriendsDatabase friendsDatabase = FriendsDatabase();
-  DataConverter dataConverter = DataConverter();
-  LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
-  // Helper Functions
-  Future<void> loadData(context) async {
-    await userDatabase.loadUserData(context);
-    await habitDatabase.loadHabits(context);
-    await statsDatabase.loadStatistics(context);
-    await settingsDatabase.loadData(context);
-    await communityChallengeDatabase.loadCommunityChallenges(context);
+  static Database? _instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final UserDatabase userDatabase = UserDatabase();
+  final StatsDatabase statsDatabase = StatsDatabase();
+  final HabitDatabase habitDatabase = HabitDatabase();
+  final CommunityChallengeDatabase communityChallengeDatabase = CommunityChallengeDatabase();
+  final SettingsDatabase settingsDatabase = SettingsDatabase();
+  final FriendsDatabase friendsDatabase = FriendsDatabase();
+  final DataConverter dataConverter = DataConverter();
+  final LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
+
+  Database._();
+
+  factory Database() {
+    _instance ??= Database._();
+    return _instance!;
   }
 
-  void uploadData(context) async {
-    userDatabase.uploadUserData(context);
-    habitDatabase.uploadHabits(context);
-    statsDatabase.uploadStatistics(context);
-    communityChallengeDatabase.uploadCommunityChallenges(context);
+  void _initializeFirestore() {
+    // Enable Firestore persistence
+    FirebaseFirestore.instance.settings = Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
+  }
+
+  // Helper Functions
+  Future<void> loadData(context) async {
+    final futures = await Future.wait([
+      userDatabase.loadUserData(context),
+      habitDatabase.loadHabits(context),
+      statsDatabase.loadStatistics(context),
+      settingsDatabase.loadData(context),
+      communityChallengeDatabase.loadCommunityChallenges(context),
+    ]);
+  }
+
+  Future<void> uploadData(context) async {
+    // Start all uploads in parallel
+    await Future.wait([
+      userDatabase.uploadUserData(context),
+      habitDatabase.uploadHabits(context),
+      statsDatabase.uploadStatistics(context),
+      communityChallengeDatabase.uploadCommunityChallenges(context),
+    ]);
+  }
+
+  void dispose() {
+    // Clean up any resources if needed
+    _instance = null;
   }
 }

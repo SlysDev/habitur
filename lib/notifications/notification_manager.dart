@@ -65,19 +65,22 @@ class NotificationManager {
 
   Future<void> cancelNotificationsByChannel(String channelKey) async {
     try {
-      // Retrieve all scheduled notifications
-      List<NotificationModel> scheduledNotifications =
-          await AwesomeNotifications().listScheduledNotifications();
-
-      // Iterate through the notifications and cancel those that match the channel key
-      for (NotificationModel notification in scheduledNotifications) {
-        if (notification.content?.channelKey == channelKey) {
-          await AwesomeNotifications()
-              .cancelSchedule(notification.content!.id!);
-        }
+      // Get all notifications once
+      final scheduledNotifications = await AwesomeNotifications().listScheduledNotifications();
+      
+      // Filter notifications by channel and extract IDs
+      final notificationIds = scheduledNotifications
+          .where((notification) => notification.content?.channelKey == channelKey)
+          .map((notification) => notification.content!.id!)
+          .toList();
+      
+      // Cancel all matching notifications in one batch
+      if (notificationIds.isNotEmpty) {
+        await Future.wait(
+          notificationIds.map((id) => AwesomeNotifications().cancelSchedule(id))
+        );
       }
     } catch (e) {
-      // Print the error if something goes wrong
       debugPrint('Error cancelling notifications for channel $channelKey: $e');
     }
   }
@@ -89,23 +92,24 @@ class NotificationManager {
   /// Cancels all scheduled notifications associated with a specific habit ID.
   Future<void> cancelScheduledNotificationsByHabitId(int habitId) async {
     try {
-      // Retrieve all scheduled notifications
-      List<NotificationModel> scheduledNotifications =
-          await AwesomeNotifications().listScheduledNotifications();
-
-      // Iterate through the notifications and cancel those that match the habit ID
-      for (NotificationModel notification in scheduledNotifications) {
-        if (notification.content?.id
-                .toString()
-                .startsWith(habitId.toString()) ??
-            false) {
-          await AwesomeNotifications()
-              .cancelSchedule(notification.content!.id!);
-        }
+      // Get all notifications once
+      final scheduledNotifications = await AwesomeNotifications().listScheduledNotifications();
+      
+      // Filter notifications by habit ID and extract IDs
+      final notificationIds = scheduledNotifications
+          .where((notification) => 
+              notification.content?.id.toString().startsWith(habitId.toString()) ?? false)
+          .map((notification) => notification.content!.id!)
+          .toList();
+      
+      // Cancel all matching notifications in one batch
+      if (notificationIds.isNotEmpty) {
+        await Future.wait(
+          notificationIds.map((id) => AwesomeNotifications().cancelSchedule(id))
+        );
       }
     } catch (e) {
-      // Print the error if something goes wrong
-      debugPrint('Error cancelling notifications for habit ID $habitId: $e');
+      debugPrint('Error cancelling notifications for habit $habitId: $e');
     }
   }
 

@@ -23,7 +23,7 @@ class SplashScreen extends StatelessWidget {
     return GestureDetector(
       child: AnimatedSplashScreen.withScreenFunction(
         curve: Curves.ease,
-        duration: 1000,
+        duration: 600,
         splash: 'assets/images/logo.png',
         backgroundColor: kBackgroundColor,
         splashIconSize: 150,

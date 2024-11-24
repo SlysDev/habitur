@@ -14,74 +14,100 @@ class StatsDatabase {
   final _firestore = FirebaseFirestore.instance;
   LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
   DataConverter dataConverter = DataConverter();
+
   Future<void> loadStatistics(context) async {
     try {
-      CollectionReference users = _firestore.collection('users');
-      DocumentSnapshot userSnapshot =
-          await users.doc(_auth.currentUser!.uid.toString()).get();
-      if (userSnapshot.exists) {
-        Provider.of<UserLocalStorage>(context, listen: false)
-            .updateUserProperty(
-                'stats',
-                dataConverter.dbListToStatPoints(
-                    userSnapshot.get('stats')['statPoints']));
-        ;
+      debugPrint('Starting stats database load');
+      final stopwatch = Stopwatch()..start();
+      
+      final uid = _auth.currentUser!.uid.toString();
+      final userStorage = Provider.of<UserLocalStorage>(context, listen: false);
+      
+      // Single document read
+      final userDoc = await _firestore.collection('users').doc(uid).get();
+      
+      if (userDoc.exists) {
+        debugPrint('User doc exists');
+        final loadStart = stopwatch.elapsedMilliseconds;
+        final stats = dataConverter.dbListToStatPoints(userDoc.get('stats')['statPoints']);
+        debugPrint('Stats conversion took: ${stopwatch.elapsedMilliseconds - loadStart}ms');
+        
+        final updateStart = stopwatch.elapsedMilliseconds;
+        userStorage.updateUserProperty('stats', stats);
+        debugPrint('Stats update took: ${stopwatch.elapsedMilliseconds - updateStart}ms');
+        
+        debugPrint('Stats loaded');
       } else {
         debugPrint('User doc does not exist.');
       }
 
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          true;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = true;
     } catch (e, s) {
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
         showDebugErrorSnackbar(context, e, s);
       }
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          false;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = false;
     }
   }
 
   Future<void> uploadStatistics(context) async {
+    final stopwatch = Stopwatch()..start();
     try {
-      CollectionReference users = _firestore.collection('users');
-      DocumentReference userReference =
-          users.doc(_auth.currentUser!.uid.toString());
+      debugPrint('Starting stats database upload');
+      
+      final userStorage = Provider.of<UserLocalStorage>(context, listen: false);
+      final user = userStorage.currentUser;
+      final uid = _auth.currentUser!.uid.toString();
+      
+      final prepStart = stopwatch.elapsedMilliseconds;
 
-      await userReference.set({
-        'habiturRating': Provider.of<UserLocalStorage>(context, listen: false)
-            .currentUser
-            .userXP,
-      }, SetOptions(merge: true));
+      // Pre-calculate stats conversion
+      final convertStart = stopwatch.elapsedMilliseconds;
+      final convertedStats = dataConverter.dbStatPointsToMap(user.stats);
+      debugPrint('Stats conversion took: ${stopwatch.elapsedMilliseconds - convertStart}ms');
 
-      await userReference.set({
+      // Combine all updates into a single operation
+      final updateData = {
+        'habiturRating': user.userXP,
         'stats': {
-          // Converting confidenceStats into an array of normal objects
-          'statPoints': dataConverter.dbStatPointsToMap(
-              Provider.of<UserLocalStorage>(context, listen: false)
-                  .currentUser
-                  .stats),
-        }
-      }, SetOptions(merge: true));
+          'statPoints': convertedStats,
+        },
+        'lastUpdated': FieldValue.serverTimestamp(),
+      };
 
+      // Single batch write
+      final batch = _firestore.batch();
+      final userRef = _firestore.collection('users').doc(uid);
+      batch.set(userRef, updateData, SetOptions(merge: true));
+      
+      debugPrint('Stats batch preparation took: ${stopwatch.elapsedMilliseconds - prepStart}ms');
+
+      final commitStart = stopwatch.elapsedMilliseconds;
+      await batch.commit();
+      debugPrint('Stats batch commit took: ${stopwatch.elapsedMilliseconds - commitStart}ms');
+      
+      debugPrint('Total stats upload took: ${stopwatch.elapsedMilliseconds}ms');
       debugPrint('stats uploaded');
-      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          true;
+      
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = true;
     } catch (e, s) {
       debugPrint(e.toString());
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
         showDebugErrorSnackbar(context, e, s);
       }
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          false;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = false;
+    } finally {
+      stopwatch.stop();
     }
   }
 
   Future<void> clearStatistics(context) async {
+    final stopwatch = Stopwatch()..start();
     try {
+      debugPrint('Starting stats database clear');
       CollectionReference users = _firestore.collection('users');
       DocumentReference userReference =
           users.doc(_auth.currentUser!.uid.toString());
@@ -96,6 +122,7 @@ class StatsDatabase {
         }
       }, SetOptions(merge: true));
 
+      final prepStart = stopwatch.elapsedMilliseconds;
       for (var doc in habitsCollectionSnapshot.docs) {
         doc.reference.set({
           'currentProgress': 0,
@@ -110,6 +137,12 @@ class StatsDatabase {
           'resetPeriod': 0,
         }, SetOptions(merge: true));
       }
+      debugPrint('Stats batch preparation took: ${stopwatch.elapsedMilliseconds - prepStart}ms');
+
+      final commitStart = stopwatch.elapsedMilliseconds;
+      debugPrint('Stats batch commit took: ${stopwatch.elapsedMilliseconds - commitStart}ms');
+      
+      debugPrint('Total stats clear took: ${stopwatch.elapsedMilliseconds}ms');
       await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
@@ -121,6 +154,8 @@ class StatsDatabase {
       }
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           false;
+    } finally {
+      stopwatch.stop();
     }
   }
 }

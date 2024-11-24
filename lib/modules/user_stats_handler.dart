@@ -107,88 +107,100 @@ class UserStatsHandler {
   }
 
   Future<void> logHabitCompletion(BuildContext context) async {
-    UserModel user =
-        Provider.of<UserLocalStorage>(context, listen: false).currentUser;
-    UserStatsCalculator userStatsCalculator = UserStatsCalculator(
-        Provider.of<HabitManager>(context, listen: false).habits);
-    fillInMissingDays(context);
-    sortStats(context);
-    Provider.of<UserLocalStorage>(context, listen: false).addHabiturRating();
-    await Provider.of<UserLocalStorage>(context, listen: false)
-        .saveData(context);
-    await db.userDatabase.uploadUserData(context);
+    final stopwatch = Stopwatch()..start();
+    try {
+      final userStorage = Provider.of<UserLocalStorage>(context, listen: false);
+      final habitManager = Provider.of<HabitManager>(context, listen: false);
+      final user = userStorage.currentUser;
+      final userStatsCalculator = UserStatsCalculator(habitManager.habits);
+      final now = DateTime.now();
+      
+      // Pre-calculate all stats values immediately to parallelize with other operations
+      final statsStart = stopwatch.elapsedMilliseconds;
+      final Map<String, dynamic> statsUpdates = {
+        'date': now,
+        'confidenceLevel': userStatsCalculator.calculateStatAverage('confidenceLevel'),
+        'streak': userStatsCalculator.calculateStatAverage('streak').toInt(),
+        'consistencyFactor': userStatsCalculator.calculateStatAverage('consistencyFactor'),
+        'difficultyRating': userStatsCalculator.calculateStatAverage('difficultyRating'),
+        'slopeCompletions': userStatsCalculator.calculateOverallSlope('completions'),
+        'slopeConsistency': userStatsCalculator.calculateOverallSlope('consistencyFactor'),
+        'slopeConfidenceLevel': userStatsCalculator.calculateOverallSlope('confidenceLevel'),
+        'slopeDifficultyRating': userStatsCalculator.calculateOverallSlope('difficultyRating'),
+      };
+      debugPrint('Stats calculation took: ${stopwatch.elapsedMilliseconds - statsStart}ms');
 
-    // Check if there's an entry for the current day
-    int currentDayIndex = getStats(user).indexWhere(
-      (stat) =>
-          stat.date.year == DateTime.now().year &&
-          stat.date.month == DateTime.now().month &&
-          stat.date.day == DateTime.now().day,
-    );
+      // Do all local updates
+      final localStart = stopwatch.elapsedMilliseconds;
+      final stats = getStats(user);
+      
+      // Optimize date comparison by checking only once
+      bool needsNewPoint = true;
+      int currentDayIndex = -1;
+      
+      for (int i = 0; i < stats.length; i++) {
+        final stat = stats[i];
+        if (stat.date.year == now.year && 
+            stat.date.month == now.month && 
+            stat.date.day == now.day) {
+          needsNewPoint = false;
+          currentDayIndex = i;
+          break;
+        }
+      }
+      
+      if (needsNewPoint) {
+        fillInMissingDays(context);
+        sortStats(context);
+      }
+      
+      // Update local stats and increment habitur rating in parallel
+      await Future.wait([
+        Future(() async {
+          if (currentDayIndex != -1) {
+            statsUpdates['completions'] = stats[currentDayIndex].completions + 1;
+            await userStorage.updateUserStats(statsUpdates, context);
+          } else {
+            final newEntry = StatPoint(
+              date: now,
+              completions: 1,
+              confidenceLevel: statsUpdates['confidenceLevel'],
+              streak: statsUpdates['streak'],
+              consistencyFactor: statsUpdates['consistencyFactor'],
+              difficultyRating: statsUpdates['difficultyRating'],
+              slopeCompletions: statsUpdates['slopeCompletions'],
+              slopeConsistency: statsUpdates['slopeConsistency'],
+              slopeConfidenceLevel: statsUpdates['slopeConfidenceLevel'],
+              slopeDifficultyRating: statsUpdates['slopeDifficultyRating'],
+            );
+            userStorage.addUserStatPoint(context, newEntry);
+          }
+        }),
+        Future(() => userStorage.addHabiturRating()),
+      ]);
+      
+      debugPrint('Local storage update took: ${stopwatch.elapsedMilliseconds - localStart}ms');
 
-    if (currentDayIndex != -1) {
-      // If there's an entry for the current day, update
-      debugPrint('updating current day');
-      Provider.of<UserLocalStorage>(context, listen: false)
-          .updateUserStat('date', DateTime.now(), context);
-      Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'completions', getStats(user)[currentDayIndex].completions + 1, context);
-      Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'confidenceLevel',
-          userStatsCalculator.calculateStatAverage('confidenceLevel'),
-          context);
-      Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'streak',
-          userStatsCalculator.calculateStatAverage('streak').toInt(),
-          context);
-      Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'consistencyFactor',
-          userStatsCalculator.calculateStatAverage('consistencyFactor'),
-          context);
-      Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'difficultyRating',
-          userStatsCalculator.calculateStatAverage('difficultyRating'),
-          context);
-      Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'slopeCompletions',
-          userStatsCalculator.calculateOverallSlope('completions'),
-          context);
-      Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'slopeConsistency',
-          userStatsCalculator.calculateOverallSlope('consistencyFactor'),
-          context);
-      Provider.of<UserLocalStorage>(context, listen: false).updateUserStat(
-          'slopeConfidenceLevel',
-          userStatsCalculator.calculateOverallSlope('confidenceLevel'),
-          context);
-    } else {
-      debugPrint('adding new day stat point');
-      StatPoint newEntry = StatPoint(
-        date: DateTime.now(),
-        completions: 1,
-        confidenceLevel:
-            userStatsCalculator.calculateStatAverage('confidenceLevel'),
-        streak: userStatsCalculator.calculateStatAverage('streak').toInt(),
-        consistencyFactor:
-            userStatsCalculator.calculateStatAverage('consistencyFactor'),
-        difficultyRating:
-            userStatsCalculator.calculateStatAverage('difficultyRating'),
-        slopeCompletions:
-            userStatsCalculator.calculateOverallSlope('completions'),
-        slopeConsistency:
-            userStatsCalculator.calculateOverallSlope('consistencyFactor'),
-        slopeConfidenceLevel:
-            userStatsCalculator.calculateOverallSlope('confidenceLevel'),
-        slopeDifficultyRating:
-            userStatsCalculator.calculateOverallSlope('difficultyRating'),
-      );
-      Provider.of<UserLocalStorage>(context, listen: false)
-          .addUserStatPoint(context, newEntry);
+      // Batch all remote updates
+      final remoteStart = stopwatch.elapsedMilliseconds;
+      await Future.wait([
+        // Save to local storage
+        userStorage.saveData(context),
+        
+        // Upload all data in parallel
+        Future(() async {
+          await Future.wait([
+            db.userDatabase.uploadUserData(context),
+            db.statsDatabase.uploadStatistics(context),
+          ]);
+        }),
+      ]);
+      debugPrint('Remote updates took: ${stopwatch.elapsedMilliseconds - remoteStart}ms');
+
+    } finally {
+      debugPrint('Total habit completion took: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.stop();
     }
-
-    // Notify the display manager to update
-    recordAverageConfidenceLevel(context);
-    await db.statsDatabase.uploadStatistics(context);
   }
 
   Future<void> unlogHabitCompletion(BuildContext context) async {

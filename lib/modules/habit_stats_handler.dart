@@ -18,125 +18,177 @@ import 'package:provider/provider.dart';
 import 'dart:math';
 
 class HabitStatsHandler {
-  Habit habit;
-  HabitStatsHandler(this.habit);
-  Database db = Database();
+  final Habit habit;
+  final Database db = Database();
+  late final HabitStatsCalculator _calculator;
 
-  Future<void> incrementCompletion(context,
-      {double recordedDifficulty = 5}) async {
-    UserStatsHandler userStatsHandler = UserStatsHandler();
-    if (Provider.of<UserLocalStorage>(context, listen: false)
-        .currentUser
-        .stats
-        .isEmpty) {
-      debugPrint('user stats hasn\'t been loaded in yet; doing it now');
-      await DataManager().loadStatsData(context);
-    }
-    await Provider.of<HabitManager>(context, listen: false)
-        .resetHabits(context);
-    habit.currentProgress++;
-    habit.totalProgress++;
-    if (habit.currentProgress == habit.targetGoal) {
-      habit.streak++;
-      if (habit.streak > habit.highestStreak) {
-        habit.highestStreak = habit.streak;
-      }
-      habit.daysCompleted.add(DateTime.now());
-      
-      // Create activity event for habit completion
-      final user = Provider.of<UserLocalStorage>(context, listen: false).currentUser;
+  HabitStatsHandler(this.habit) {
+    _calculator = HabitStatsCalculator(habit);
+  }
+
+  Future<void> incrementCompletion(context, {double recordedDifficulty = 5}) async {
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      final userStorage = Provider.of<UserLocalStorage>(context, listen: false);
+      final habitManager = Provider.of<HabitManager>(context, listen: false);
       final activityProvider = Provider.of<ActivityProvider>(context, listen: false);
-      
-      // Create completion activity
-      final activity = ActivityEvent(
-        userId: user.uid,
-        username: user.username,
-        type: ActivityType.habitCompletion,
-        habitId: habit.id.toString(),
-        habitTitle: habit.title,
-        metadata: {'difficulty': recordedDifficulty},
-      );
-      await activityProvider.createActivity(activity);
-      
-      // If it's a streak milestone (e.g., 7, 30, 100 days), create another activity
-      if (habit.streak == 7 || habit.streak == 30 || habit.streak == 100) {
-        final streakActivity = ActivityEvent(
-          userId: user.uid,
-          username: user.username,
-          type: ActivityType.streakMilestone,
-          habitId: habit.id.toString(),
-          habitTitle: habit.title,
-          metadata: {'streakDays': habit.streak},
+      final userStatsHandler = UserStatsHandler();
+      final now = DateTime.now();
+
+      debugPrint('Starting habit completion at: ${stopwatch.elapsedMilliseconds}ms');
+
+      // Batch all initialization operations
+      await Future.wait([
+        Future(() async {
+          if (userStorage.currentUser.stats.isEmpty) {
+            final loadStart = stopwatch.elapsedMilliseconds;
+            await DataManager().loadStatsData(context);
+            debugPrint('Stats loading took: ${stopwatch.elapsedMilliseconds - loadStart}ms');
+          }
+        }),
+        habitManager.resetHabits(context),
+      ]);
+
+      // Update local state
+      habit.currentProgress++;
+      habit.totalProgress++;
+
+      // Prepare all update operations
+      final List<Future> updateOperations = [];
+
+      // Handle completion if needed
+      if (habit.currentProgress == habit.targetGoal) {
+        final completionStart = stopwatch.elapsedMilliseconds;
+        
+        // Update local state
+        habit.streak++;
+        habit.highestStreak = max(habit.streak, habit.highestStreak);
+        habit.daysCompleted.add(now);
+
+        // Prepare activity events
+        final user = userStorage.currentUser;
+        final activities = [
+          ActivityEvent(
+            userId: user.uid,
+            username: user.username,
+            type: ActivityType.habitCompletion,
+            habitId: habit.id.toString(),
+            habitTitle: habit.title,
+            metadata: {'difficulty': recordedDifficulty},
+          ),
+        ];
+
+        if (habit.streak == 7 || habit.streak == 30 || habit.streak == 100) {
+          activities.add(ActivityEvent(
+            userId: user.uid,
+            username: user.username,
+            type: ActivityType.streakMilestone,
+            habitId: habit.id.toString(),
+            habitTitle: habit.title,
+            metadata: {'streakDays': habit.streak},
+          ));
+        }
+
+        // Add activity creation to update operations
+        updateOperations.addAll(
+          activities.map((activity) => activityProvider.createActivity(activity))
         );
-        await activityProvider.createActivity(streakActivity);
+
+        debugPrint('Completion preparation took: ${stopwatch.elapsedMilliseconds - completionStart}ms');
       }
+
+      // Prepare stats update
+      final statsStart = stopwatch.elapsedMilliseconds;
+      _updateStats(recordedDifficulty, context);
+      debugPrint('Local stats update took: ${stopwatch.elapsedMilliseconds - statsStart}ms');
+
+      // Add stats logging to update operations
+      updateOperations.add(userStatsHandler.logHabitCompletion(context));
+
+      // Execute all updates in parallel
+      final updateStart = stopwatch.elapsedMilliseconds;
+      await Future.wait(updateOperations);
+      debugPrint('Remote updates took: ${stopwatch.elapsedMilliseconds - updateStart}ms');
+
+    } finally {
+      debugPrint('Total habit completion took: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.stop();
     }
-    fillInMissingDays(context);
-    sortHabitStats();
-    // if (habit.isCommunityHabit) {
-    //   Provider.of<Database>(context, listen: false).uploadStatistics(context);
-    //   return;
-    // }
-    int currentDayIndex = habit.stats.indexWhere(
-      (dataPoint) =>
-          dataPoint.date.year == DateTime.now().year &&
-          dataPoint.date.month == DateTime.now().month &&
-          dataPoint.date.day == DateTime.now().day,
-    );
+  }
+
+  void _updateStats(double recordedDifficulty, BuildContext context) {
+    final now = DateTime.now();
+    
+    // Only fill and sort if needed (when creating new stat point)
+    bool needsNewPoint = !habit.stats.any((dataPoint) =>
+        dataPoint.date.year == now.year &&
+        dataPoint.date.month == now.month &&
+        dataPoint.date.day == now.day);
+        
+    if (needsNewPoint) {
+      fillInMissingDays(context);
+      sortHabitStats();
+    }
+
+    // Cache slope calculations
+    final slopes = _calculateAllSlopes();
+    
+    final currentDayIndex = habit.stats.indexWhere((dataPoint) =>
+        dataPoint.date.year == now.year &&
+        dataPoint.date.month == now.month &&
+        dataPoint.date.day == now.day);
+
     if (currentDayIndex != -1) {
-      // If there's an entry for the current day, update the completion count
-      habit.stats[currentDayIndex].completions++;
-      habit.stats[currentDayIndex].streak = habit.streak;
-      habit.stats[currentDayIndex].consistencyFactor =
-          HabitStatsCalculator(habit)
-              .calculateConsistencyFactor(habit.stats, habit.targetGoal);
-      habit.stats[currentDayIndex].difficultyRating = recordedDifficulty;
-      habit.stats[currentDayIndex].slopeCompletions =
-          HabitStatsCalculator(habit)
-              .calculateStatSlope('completions', habit.stats);
-      habit.stats[currentDayIndex].slopeConsistency =
-          HabitStatsCalculator(habit)
-              .calculateStatSlope('consistencyFactor', habit.stats);
-      habit.stats[currentDayIndex].slopeConfidenceLevel =
-          HabitStatsCalculator(habit)
-              .calculateStatSlope('confidenceLevel', habit.stats);
-      habit.stats[currentDayIndex].slopeDifficultyRating =
-          HabitStatsCalculator(habit)
-              .calculateStatSlope('difficultyRating', habit.stats);
-      habit.stats[currentDayIndex].confidenceLevel =
-          HabitStatsCalculator(habit).calculateConfidenceLevel();
+      _updateExistingStatPoint(currentDayIndex, recordedDifficulty, slopes);
     } else {
-      // If there's no entry for the current day, add a new entry
-      StatPoint newStatPoint = StatPoint(
-        date: DateTime.now(),
-        completions: 1,
-        streak: habit.streak,
-        consistencyFactor: HabitStatsCalculator(habit)
-            .calculateConsistencyFactor(habit.stats, habit.targetGoal),
-        difficultyRating: recordedDifficulty,
-        slopeCompletions: HabitStatsCalculator(habit)
-            .calculateStatSlope('completions', habit.stats),
-        slopeConsistency: HabitStatsCalculator(habit)
-            .calculateStatSlope('consistencyFactor', habit.stats),
-        slopeConfidenceLevel: HabitStatsCalculator(habit)
-            .calculateStatSlope('confidenceLevel', habit.stats),
-        slopeDifficultyRating: HabitStatsCalculator(habit)
-            .calculateStatSlope('difficultyRating', habit.stats),
-      );
-      habit.stats.add(newStatPoint);
-      habit.stats.last.confidenceLevel =
-          HabitStatsCalculator(habit).calculateConfidenceLevel();
+      _createNewStatPoint(recordedDifficulty, slopes);
     }
-    debugPrint('slope: ' +
-        HabitStatsCalculator(habit)
-            .calculateStatSlope('completions', habit.stats)
-            .toString());
-    debugPrint('setting confidence level: ' +
-        HabitStatsCalculator(habit).calculateConfidenceLevel().toString());
-    habit.confidenceLevel =
-        HabitStatsCalculator(habit).calculateConfidenceLevel();
-    // has to be static because the habit has been updated
-    await userStatsHandler.logHabitCompletion(context);
+
+    // Calculate confidence level once at the end
+    habit.confidenceLevel = _calculator.calculateConfidenceLevel();
+  }
+
+  Map<String, double> _calculateAllSlopes() {
+    return {
+      'completions': _calculator.calculateStatSlope('completions', habit.stats),
+      'consistencyFactor': _calculator.calculateStatSlope('consistencyFactor', habit.stats),
+      'confidenceLevel': _calculator.calculateStatSlope('confidenceLevel', habit.stats),
+      'difficultyRating': _calculator.calculateStatSlope('difficultyRating', habit.stats),
+    };
+  }
+
+  void _updateExistingStatPoint(int index, double recordedDifficulty, Map<String, double> slopes) {
+    final statPoint = habit.stats[index];
+    statPoint.completions++;
+    statPoint.streak = habit.streak;
+    statPoint.consistencyFactor = _calculator.calculateConsistencyFactor(habit.stats, habit.targetGoal);
+    statPoint.difficultyRating = recordedDifficulty;
+    
+    // Use cached slopes
+    statPoint.slopeCompletions = slopes['completions']!;
+    statPoint.slopeConsistency = slopes['consistencyFactor']!;
+    statPoint.slopeConfidenceLevel = slopes['confidenceLevel']!;
+    statPoint.slopeDifficultyRating = slopes['difficultyRating']!;
+    statPoint.confidenceLevel = _calculator.calculateConfidenceLevel();
+  }
+
+  void _createNewStatPoint(double recordedDifficulty, Map<String, double> slopes) {
+    final newStatPoint = StatPoint(
+      date: DateTime.now(),
+      completions: 1,
+      streak: habit.streak,
+      consistencyFactor: _calculator.calculateConsistencyFactor(habit.stats, habit.targetGoal),
+      difficultyRating: recordedDifficulty,
+      
+      // Use cached slopes
+      slopeCompletions: slopes['completions']!,
+      slopeConsistency: slopes['consistencyFactor']!,
+      slopeConfidenceLevel: slopes['confidenceLevel']!,
+      slopeDifficultyRating: slopes['difficultyRating']!,
+    );
+    newStatPoint.confidenceLevel = _calculator.calculateConfidenceLevel();
+    habit.stats.add(newStatPoint);
   }
 
   Future<void> decrementCompletion(context) async {
@@ -195,21 +247,16 @@ class HabitStatsHandler {
         }
 
         habit.stats[currentDayIndex].consistencyFactor =
-            HabitStatsCalculator(habit)
-                .calculateConsistencyFactor(habit.stats, habit.targetGoal);
+            _calculator.calculateConsistencyFactor(habit.stats, habit.targetGoal);
         habit.stats[currentDayIndex].difficultyRating = 0;
         habit.stats[currentDayIndex].slopeCompletions =
-            HabitStatsCalculator(habit)
-                .calculateStatSlope('completions', habit.stats);
+            _calculator.calculateStatSlope('completions', habit.stats);
         habit.stats[currentDayIndex].slopeConsistency =
-            HabitStatsCalculator(habit)
-                .calculateStatSlope('consistencyFactor', habit.stats);
+            _calculator.calculateStatSlope('consistencyFactor', habit.stats);
         habit.stats[currentDayIndex].slopeConfidenceLevel =
-            HabitStatsCalculator(habit)
-                .calculateStatSlope('confidenceLevel', habit.stats);
+            _calculator.calculateStatSlope('confidenceLevel', habit.stats);
         habit.stats[currentDayIndex].slopeDifficultyRating =
-            HabitStatsCalculator(habit)
-                .calculateStatSlope('difficultyRating', habit.stats);
+            _calculator.calculateStatSlope('difficultyRating', habit.stats);
       } else {
         // Shouldn't reach here ideally (log a message?)
         debugPrint(
@@ -217,7 +264,7 @@ class HabitStatsHandler {
       }
       // Update confidence level based on updated stats
       habit.confidenceLevel =
-          HabitStatsCalculator(habit).calculateConfidenceLevel();
+          _calculator.calculateConfidenceLevel();
     }
 
     await userStatsHandler.unlogHabitCompletion(context);
@@ -241,26 +288,20 @@ class HabitStatsHandler {
       // If there's an entry for the current day, update the completion count
       habit.stats[currentDayIndex].completions++;
       habit.stats[currentDayIndex].slopeDifficultyRating =
-          HabitStatsCalculator(habit)
-              .calculateStatSlope('difficultyRating', habit.stats);
+          _calculator.calculateStatSlope('difficultyRating', habit.stats);
     } else {
       // If there's no entry for the current day, add a new entry
       StatPoint newStatPoint = StatPoint(
         date: DateTime.now(),
         completions: 1,
-        confidenceLevel: HabitStatsCalculator(habit).calculateConfidenceLevel(),
+        confidenceLevel: _calculator.calculateConfidenceLevel(),
         streak: habit.streak,
-        consistencyFactor: HabitStatsCalculator(habit)
-            .calculateConsistencyFactor(habit.stats, habit.targetGoal),
+        consistencyFactor: _calculator.calculateConsistencyFactor(habit.stats, habit.targetGoal),
         difficultyRating: newDifficulty,
-        slopeCompletions: HabitStatsCalculator(habit)
-            .calculateStatSlope('completions', habit.stats),
-        slopeConsistency: HabitStatsCalculator(habit)
-            .calculateStatSlope('consistencyFactor', habit.stats),
-        slopeConfidenceLevel: HabitStatsCalculator(habit)
-            .calculateStatSlope('confidenceLevel', habit.stats),
-        slopeDifficultyRating: HabitStatsCalculator(habit)
-            .calculateStatSlope('difficultyRating', habit.stats),
+        slopeCompletions: _calculator.calculateStatSlope('completions', habit.stats),
+        slopeConsistency: _calculator.calculateStatSlope('consistencyFactor', habit.stats),
+        slopeConfidenceLevel: _calculator.calculateStatSlope('confidenceLevel', habit.stats),
+        slopeDifficultyRating: _calculator.calculateStatSlope('difficultyRating', habit.stats),
       );
       habit.stats.add(newStatPoint);
     }
@@ -312,32 +353,27 @@ class HabitStatsHandler {
           completions: isOffDay ? habit.stats.last.completions : 0,
           confidenceLevel: isOffDay
               ? habit.stats.last.confidenceLevel
-              : HabitStatsCalculator(habit).calculateConfidenceLevel(),
+              : _calculator.calculateConfidenceLevel(),
           streak: isOffDay ? 0 : 1,
           consistencyFactor: isOffDay
               ? habit.stats.last.consistencyFactor
-              : HabitStatsCalculator(habit)
-                  .calculateConsistencyFactor(habit.stats, habit.targetGoal),
+              : _calculator.calculateConsistencyFactor(habit.stats, habit.targetGoal),
           difficultyRating: isOffDay
               ? habit.stats.last.difficultyRating
-              : HabitStatsCalculator(habit).calculateAverageValueForStat(
+              : _calculator.calculateAverageValueForStat(
                   'difficultyRating', habit.stats),
           slopeCompletions: isOffDay
               ? habit.stats.last.slopeCompletions
-              : HabitStatsCalculator(habit)
-                  .calculateStatSlope('completions', habit.stats),
+              : _calculator.calculateStatSlope('completions', habit.stats),
           slopeConsistency: isOffDay
               ? habit.stats.last.slopeConsistency
-              : HabitStatsCalculator(habit)
-                  .calculateStatSlope('consistencyFactor', habit.stats),
+              : _calculator.calculateStatSlope('consistencyFactor', habit.stats),
           slopeConfidenceLevel: isOffDay
               ? habit.stats.last.slopeConfidenceLevel
-              : HabitStatsCalculator(habit)
-                  .calculateStatSlope('confidenceLevel', habit.stats),
+              : _calculator.calculateStatSlope('confidenceLevel', habit.stats),
           slopeDifficultyRating: isOffDay
               ? habit.stats.last.slopeDifficultyRating
-              : HabitStatsCalculator(habit)
-                  .calculateStatSlope('difficultyRating', habit.stats),
+              : _calculator.calculateStatSlope('difficultyRating', habit.stats),
         );
         habit.stats.add(newStatPoint);
       }

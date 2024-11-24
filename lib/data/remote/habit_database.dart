@@ -16,19 +16,33 @@ import 'package:provider/provider.dart';
 class HabitDatabase {
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
-  LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
-  DataConverter dataConverter = DataConverter();
+  late final CollectionReference _usersCollection;
+  late final DocumentReference _userDoc;
+  late final CollectionReference _habitsCollection;
+  final LastUpdatedManager lastUpdatedManager = LastUpdatedManager();
+  final DataConverter dataConverter = DataConverter();
+
+  HabitDatabase() {
+    _usersCollection = _firestore.collection('users');
+    _initializeCollections();
+  }
+
+  void _initializeCollections() {
+    if (_auth.currentUser != null) {
+      _userDoc = _usersCollection.doc(_auth.currentUser!.uid);
+      _habitsCollection = _userDoc.collection('habits');
+    }
+  }
+
+  bool get isInitialized => _auth.currentUser != null;
+
   Future<List<Habit>> loadHabits(context, {String? userID}) async {
     try {
       await clearDuplicateHabits(context);
-      UserDatabase userDatabase = UserDatabase();
-      if (!userDatabase.isLoggedIn) {
+      if (!isInitialized) {
         throw Exception('User is not logged in');
       }
-      CollectionReference users = _firestore.collection('users');
-      DocumentReference userReference =
-          users.doc(userID ?? _auth.currentUser!.uid.toString());
-      CollectionReference habitsReference = userReference.collection('habits');
+      CollectionReference habitsReference = _habitsCollection;
       QuerySnapshot habitsSnapshot = await habitsReference.get();
 
       // Get data from docs and convert map to List
@@ -82,17 +96,12 @@ class HabitDatabase {
 
   Future<void> uploadHabits(context, {String? userID}) async {
     try {
-      UserDatabase userDatabase = UserDatabase();
-      if (!userDatabase.isLoggedIn) {
+      if (!isInitialized) {
         throw Exception('User is not logged in');
       }
-      CollectionReference users = _firestore.collection('users');
-      DocumentReference userReference =
-          users.doc(userID ?? _auth.currentUser!.uid.toString());
-
-      var habitsCollectionRef = userReference.collection('habits');
+      var habitsCollectionRef = _habitsCollection;
       var habitsCollectionSnapshot =
-          await userReference.collection('habits').get();
+          await _habitsCollection.get();
 
       for (var habit
           in Provider.of<HabitManager>(context, listen: false).habits) {
@@ -151,15 +160,10 @@ class HabitDatabase {
 
   Future<void> addHabit(Habit habit, context) async {
     try {
-      UserDatabase userDatabase = UserDatabase();
-      if (!userDatabase.isLoggedIn) {
+      if (!isInitialized) {
         throw Exception('User is not logged in');
       }
-      CollectionReference users = _firestore.collection('users');
-      DocumentReference userReference =
-          users.doc(_auth.currentUser!.uid.toString());
-
-      var habitsCollectionRef = userReference.collection('habits');
+      var habitsCollectionRef = _habitsCollection;
       await habitsCollectionRef.add({
         'title': habit.title,
         'currentProgress': habit.currentProgress,
@@ -196,39 +200,64 @@ class HabitDatabase {
   }
 
   Future<void> updateHabit(Habit habit, context) async {
+    final stopwatch = Stopwatch()..start();
     try {
-      UserDatabase userDatabase = UserDatabase();
-      if (!userDatabase.isLoggedIn) {
+      if (!isInitialized) {
         throw Exception('User is not logged in');
       }
-      List<QueryDocumentSnapshot> docs = await getHabitByID(habit.id, context);
-      for (var doc in docs) {
-        await _updateHabitDoc(habit, doc);
-      }
-      await lastUpdatedManager.syncLastUpdated(context, _auth.currentUser!.uid);
-
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          true;
+      
+      // Track query time
+      final queryStart = stopwatch.elapsedMilliseconds;
+      final habitQuery = await _habitsCollection.where('id', isEqualTo: habit.id).limit(1).get();
+      debugPrint('DB Query took: ${stopwatch.elapsedMilliseconds - queryStart}ms');
+      
+      if (habitQuery.docs.isEmpty) return;
+      
+      final batch = _firestore.batch();
+      final habitDoc = habitQuery.docs.first;
+      
+      // Track batch preparation time
+      final batchStart = stopwatch.elapsedMilliseconds;
+      batch.update(habitDoc.reference, {
+        'currentProgress': habit.currentProgress,
+        'streak': habit.streak,
+        'confidenceLevel': habit.confidenceLevel,
+        'highestStreak': habit.highestStreak,
+        'totalProgress': habit.totalProgress,
+        'lastSeen': habit.lastSeen,
+        'daysCompleted': habit.daysCompleted.map((date) => {'date': date}).toList(),
+        'stats': dataConverter.dbStatPointsToMap(habit.stats),
+      });
+      
+      batch.update(_userDoc, {
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+      debugPrint('Batch preparation took: ${stopwatch.elapsedMilliseconds - batchStart}ms');
+      
+      // Track commit time
+      final commitStart = stopwatch.elapsedMilliseconds;
+      await batch.commit();
+      debugPrint('Batch commit took: ${stopwatch.elapsedMilliseconds - commitStart}ms');
+      
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = true;
+      debugPrint('Total database operation took: ${stopwatch.elapsedMilliseconds}ms');
     } catch (e, s) {
-      debugPrint(e.toString());
+      debugPrint('Database error after ${stopwatch.elapsedMilliseconds}ms: $e');
       if (!e.toString().contains('User is not logged in')) {
         debugPrint(s.toString());
         showDebugErrorSnackbar(context, e, s);
       }
-      Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
-          false;
+      Provider.of<NetworkStateProvider>(context, listen: false).isConnected = false;
+    } finally {
+      stopwatch.stop();
     }
   }
 
   Future<void> deleteHabit(context, int id) async {
     try {
-      UserDatabase userDatabase = UserDatabase();
-      if (!userDatabase.isLoggedIn) {
+      if (!isInitialized) {
         throw Exception('User is not logged in');
       }
-      CollectionReference users = _firestore.collection('users');
-      DocumentReference userReference =
-          users.doc(_auth.currentUser!.uid.toString());
       List<QueryDocumentSnapshot> docs = await getHabitByID(id, context);
       for (var doc in docs) {
         await doc.reference.delete();
@@ -249,17 +278,11 @@ class HabitDatabase {
 
   Future<List<QueryDocumentSnapshot>> getHabitByID(int id, context) async {
     try {
-      UserDatabase userDatabase = UserDatabase();
-      if (!userDatabase.isLoggedIn) {
+      if (!isInitialized) {
         throw Exception('User is not logged in');
       }
-      CollectionReference users = _firestore.collection('users');
-      DocumentReference userReference =
-          users.doc(_auth.currentUser!.uid.toString());
-      var habitsCollectionRef = userReference.collection('habits');
-
       QuerySnapshot foundHabit =
-          await habitsCollectionRef.where('id', isEqualTo: id).get();
+          await _habitsCollection.where('id', isEqualTo: id).get();
       Provider.of<NetworkStateProvider>(context, listen: false).isConnected =
           true;
       return foundHabit.docs;
@@ -278,15 +301,10 @@ class HabitDatabase {
   Future<void> clearDuplicateHabits(context) async {
     debugPrint('clearing duplicate habits');
     try {
-      UserDatabase userDatabase = UserDatabase();
-      if (!userDatabase.isLoggedIn) {
+      if (!isInitialized) {
         throw Exception('User is not logged in');
       }
-      CollectionReference users = _firestore.collection('users');
-      DocumentReference userReference =
-          users.doc(_auth.currentUser!.uid.toString());
-      var habitsCollectionRef = userReference.collection('habits');
-      QuerySnapshot foundHabits = await habitsCollectionRef.get();
+      QuerySnapshot foundHabits = await _habitsCollection.get();
 
       Set<int> uniqueHabitIds = {}; // To track unique habit IDs
 
@@ -296,7 +314,7 @@ class HabitDatabase {
         // If the habit ID is already in the set, it's a duplicate
         if (uniqueHabitIds.contains(habitId)) {
           // Delete the duplicate habit
-          await habitsCollectionRef.doc(doc.id).delete();
+          await _habitsCollection.doc(doc.id).delete();
         } else {
           // Add the habit ID to the set if it's unique
           uniqueHabitIds.add(habitId);
@@ -313,15 +331,10 @@ class HabitDatabase {
 
   Future<void> clearHabits(context) async {
     try {
-      UserDatabase userDatabase = UserDatabase();
-      if (!userDatabase.isLoggedIn) {
+      if (!isInitialized) {
         throw Exception('User is not logged in');
       }
-      CollectionReference users = _firestore.collection('users');
-      DocumentReference userReference =
-          users.doc(_auth.currentUser!.uid.toString());
-      var habitsCollectionRef = userReference.collection('habits');
-      await habitsCollectionRef.get().then((value) {
+      await _habitsCollection.get().then((value) {
         for (var doc in value.docs) {
           doc.reference.delete();
         }
