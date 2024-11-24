@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:habitur/components/line_graph.dart';
 import 'package:habitur/components/rounded_progress_bar.dart';
+import 'package:habitur/components/stat-chips/confidence_level_stat_chip.dart';
+import 'package:habitur/components/stat-chips/difficulty_rating_stat_chip.dart';
+import 'package:habitur/components/stat-chips/stat_chip.dart';
+import 'package:habitur/components/streak_stat_chip.dart';
 import 'package:habitur/components/user_avatar.dart';
+import 'package:habitur/components/visible_habit_list.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/data/local/user_local_storage.dart';
 import 'package:habitur/models/habit.dart';
@@ -191,6 +196,12 @@ class _ProfileDialogState extends State<ProfileDialog> {
 
     final confidenceLevel = StatsCalculator().calculateAverageValueForStat(
         'confidenceLevel', _userModel?.stats ?? []);
+    return StatChip(
+      icon: Icons.sentiment_satisfied_rounded,
+      label: confidenceLevel.toStringAsFixed(2),
+      color: kLightGreenAccent,
+      size: 1.8,
+    );
 
     return Container(
       width: 130,
@@ -220,101 +231,15 @@ class _ProfileDialogState extends State<ProfileDialog> {
   }
 
   Widget _buildHabitsTab() {
-    bool userHasChosenToShareHabits =
-        _userModel?.privacySettings?.habitsScope == SharingScope.everyone ||
-            (_userModel?.privacySettings?.habitsScope == SharingScope.friends &&
-                widget.isFriendProfile);
-    debugPrint(
-        'User has ${userHasChosenToShareHabits ? '' : 'not '}chosen to share their habits');
-    if (_userModel?.uid == AuthService().currentUser!.uid) {
-      final habitManager = Provider.of<HabitManager>(context);
-      final habits = habitManager.habits;
-      return _buildOwnHabitsList(habits);
-    }
-    if (userHasChosenToShareHabits) {
-      final Database db = Database();
+    if (_userModel == null) return Container();
 
-      return FutureBuilder(
-        future: db.habitDatabase.loadHabits(context, userID: widget.uid),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            debugPrint(snapshot.data?.toString());
-            if (snapshot.hasData) {
-              final List<Habit> friendHabits = snapshot.data as List<Habit>;
-              return _buildVisibleHabitsList(friendHabits);
-            } else {
-              return const Center(
-                child: Text(
-                  'No habits shared yet',
-                  style: TextStyle(color: kGray),
-                ),
-              );
-            }
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      );
-    } else {
-      final habitManager = Provider.of<HabitManager>(context);
-      final habits = habitManager.habits;
-      return const Center(
-        child: Text(
-          'No habits shared yet',
-          style: TextStyle(color: kGray),
-        ),
-      );
-    }
-  }
-
-  Widget _buildOwnHabitsList(List<Habit> habits) {
-    if (habits.isEmpty) {
-      return const Center(
-        child: Text(
-          'No habits yet',
-          style: TextStyle(color: kGray),
-        ),
-      );
-    }
-
-    return Column(
-      children: habits.map((habit) {
-        final isVisible = _userModel?.habitVisibilitySettings
-                ?.firstWhere(
-                  (s) => s.habitId == habit.id.toString(),
-                  orElse: () => HabitVisibility(habitId: habit.id.toString()),
-                )
-                .isVisible ??
-            false;
-
-        return MiniHabitCard(habit: habit);
-      }).toList(),
-    );
-  }
-
-  Widget _buildVisibleHabitsList(List<Habit> habits) {
-    final List<Habit> visibleHabits =
-        habits.where((habit) => habit.isVisible ?? false).toList();
-
-    if (visibleHabits.isEmpty) {
-      return const Center(
-        child: Text(
-          'No habits shared yet',
-          style: TextStyle(color: kGray),
-        ),
-      );
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: visibleHabits
-          .map((habit) => [
-                MiniHabitCard(habit: habit),
-                const SizedBox(height: 12), // Adjust height as needed
-              ])
-          .expand((x) => x)
-          .toList()
-        ..removeLast(), // Remove the last spacer
+    return VisibleHabitList(
+      userId: widget.uid,
+      isFriendProfile: widget.isFriendProfile,
+      habitsScope: _userModel?.privacySettings?.habitsScope,
+      habits: _userModel?.uid == AuthService().currentUser!.uid 
+        ? Provider.of<HabitManager>(context).habits 
+        : null,
     );
   }
 
@@ -558,24 +483,17 @@ class MiniHabitCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _buildStatChip(
-                    icon: Icons.local_fire_department,
-                    label: '${habit.streak}',
-                    color: kOrangeAccent,
-                  ),
+                  StreakStatChip(streak: habit.streak),
                   const SizedBox(width: 12),
-                  _buildStatChip(
-                    icon: Icons.sentiment_satisfied_rounded,
-                    label: '${habit.confidenceLevel.toStringAsFixed(2)}',
-                    color: kLightGreenAccent,
-                  ),
+                  ConfidenceLevelStatChip(
+                      confidenceLevel: double.parse(
+                          habit.confidenceLevel.toStringAsFixed(2))),
                   const SizedBox(width: 12),
-                  _buildStatChip(
-                    icon: Icons.warning,
-                    label:
-                        '${habit.stats.length > 0 ? habit.stats.last.difficultyRating.toStringAsFixed(2) : 0.00}',
-                    color: kLightRedAccent,
-                  ),
+                  DifficultyRatingStatChip(
+                      difficultyRating: habit.stats.length > 0
+                          ? double.parse(habit.stats.last.difficultyRating
+                              .toStringAsFixed(2))
+                          : 0.0),
                 ],
               ),
               const SizedBox(height: 12),
@@ -587,43 +505,6 @@ class MiniHabitCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatChip({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: color.withOpacity(0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 16,
-            color: color,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }
