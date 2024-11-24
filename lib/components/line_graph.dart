@@ -202,7 +202,7 @@ class LineGraph extends StatelessWidget {
                     gridData: FlGridData(
                       show: true,
                       drawVerticalLine: true,
-                      horizontalInterval: 0.2,
+                      horizontalInterval: niceInterval,
                       getDrawingHorizontalLine: (value) {
                         return FlLine(
                           color: kGray.withOpacity(0.3),
@@ -229,6 +229,10 @@ class LineGraph extends StatelessWidget {
                           showTitles: true,
                           getTitlesWidget: (value, meta) {
                             final date = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+                            // Only show dates that are at the interval points
+                            if ((value - spots.first.x) % dateInterval != 0) {
+                              return const SizedBox.shrink();
+                            }
                             return Padding(
                               padding: const EdgeInsets.only(top: 10.0),
                               child: Text(
@@ -241,7 +245,7 @@ class LineGraph extends StatelessWidget {
                               ),
                             );
                           },
-                          interval: (spots.last.x - spots.first.x) / 3,
+                          interval: dateInterval.toDouble(),
                           reservedSize: 30,
                         ),
                       ),
