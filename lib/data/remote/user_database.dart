@@ -100,7 +100,8 @@ class UserDatabase {
       CollectionReference users = _firestore.collection('users');
       debugPrint('UserDatabase: Querying Firestore for user...');
       QuerySnapshot usersFound = await users.where('uid', isEqualTo: uid).get();
-      debugPrint('UserDatabase: Query results - ${usersFound.docs.length} documents found');
+      debugPrint(
+          'UserDatabase: Query results - ${usersFound.docs.length} documents found');
 
       if (usersFound.docs.isEmpty) {
         debugPrint('UserDatabase: No user found with uid: $uid');
@@ -122,6 +123,7 @@ class UserDatabase {
       DocumentReference? userDoc = await getUserDocById(uid);
       if (userDoc == null) {
         debugPrint('UserDatabase: No user document found');
+        Future.error('No user document found');
         return null;
       }
 
@@ -129,6 +131,7 @@ class UserDatabase {
       DocumentSnapshot doc = await userDoc.get();
       if (!doc.exists) {
         debugPrint('UserDatabase: Document exists but has no data');
+        Future.error('Document exists but has no data');
         return null;
       }
 
@@ -137,6 +140,7 @@ class UserDatabase {
       return DataConverter().documentSnapshotToUserModel(doc);
     } catch (e) {
       debugPrint('UserDatabase: Error getting user model: $e');
+      Future.error('Error getting user model: $e');
       return null;
     }
   }
@@ -231,12 +235,22 @@ class UserDatabase {
             friends = [];
           }
           try {
-            receivedFriendRequests = (user.get('receivedFriendRequests') as List<dynamic>?)?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>)).toList() ?? [];
+            receivedFriendRequests =
+                (user.get('receivedFriendRequests') as List<dynamic>?)
+                        ?.map((req) =>
+                            FriendRequest.fromMap(req as Map<String, dynamic>))
+                        .toList() ??
+                    [];
           } catch (e) {
             receivedFriendRequests = [];
           }
           try {
-            sentFriendRequests = (user.get('sentFriendRequests') as List<dynamic>?)?.map((req) => FriendRequest.fromMap(req as Map<String, dynamic>)).toList() ?? [];
+            sentFriendRequests =
+                (user.get('sentFriendRequests') as List<dynamic>?)
+                        ?.map((req) =>
+                            FriendRequest.fromMap(req as Map<String, dynamic>))
+                        .toList() ??
+                    [];
           } catch (e) {
             sentFriendRequests = [];
           }

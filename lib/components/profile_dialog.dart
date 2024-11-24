@@ -42,8 +42,8 @@ class _ProfileDialogState extends State<ProfileDialog> {
 
   Future<void> _loadUserData() async {
     if (widget.uid == AuthService().currentUser!.uid) {
-      _userModel = Provider.of<UserLocalStorage>(context, listen: false)
-          .currentUser;
+      _userModel =
+          Provider.of<UserLocalStorage>(context, listen: false).currentUser;
       _isLoading = false;
       return;
     }
@@ -127,12 +127,12 @@ class _ProfileDialogState extends State<ProfileDialog> {
         children: [
           SizedBox(height: 20),
           UserAvatar(
-            username: _userModel!.username,
+            username: _userModel?.username ?? 'No username found',
             size: 80.0,
           ),
           SizedBox(height: 16),
           Text(
-            _userModel!.username,
+            _userModel?.username ?? 'No username found',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -226,7 +226,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
                 widget.isFriendProfile);
     debugPrint(
         'User has ${userHasChosenToShareHabits ? '' : 'not '}chosen to share their habits');
-        if (_userModel?.uid == AuthService().currentUser!.uid) {
+    if (_userModel?.uid == AuthService().currentUser!.uid) {
       final habitManager = Provider.of<HabitManager>(context);
       final habits = habitManager.habits;
       return _buildOwnHabitsList(habits);
@@ -278,19 +278,17 @@ class _ProfileDialogState extends State<ProfileDialog> {
     }
 
     return Column(
-      children: habits
-          .map((habit) {
-            final isVisible = _userModel?.habitVisibilitySettings
-                    ?.firstWhere(
-                      (s) => s.habitId == habit.id.toString(),
-                      orElse: () => HabitVisibility(habitId: habit.id.toString()),
-                    )
-                    .isVisible ??
-                false;
+      children: habits.map((habit) {
+        final isVisible = _userModel?.habitVisibilitySettings
+                ?.firstWhere(
+                  (s) => s.habitId == habit.id.toString(),
+                  orElse: () => HabitVisibility(habitId: habit.id.toString()),
+                )
+                .isVisible ??
+            false;
 
-            return MiniHabitCard(habit: habit);
-          })
-          .toList(),
+        return MiniHabitCard(habit: habit);
+      }).toList(),
     );
   }
 
@@ -325,7 +323,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
         _userModel?.privacySettings?.statsScope == SharingScope.everyone ||
             (_userModel?.privacySettings?.statsScope == SharingScope.friends &&
                 widget.isFriendProfile);
-    debugPrint('User model: ${_userModel!.toString()}');
+    debugPrint('User model: ${_userModel?.toString()}');
     debugPrint(
         'Profile dialog: User has ${userHasChosenToShareStats ? '' : 'not '}chosen to share their stats');
     if (_userModel?.stats?.isEmpty ?? true) {
@@ -338,7 +336,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
     }
 
     debugPrint(
-        'Building stats tab with ${_userModel!.stats!.length} stat points');
+        'Building stats tab with ${_userModel?.stats.length} stat points');
 
     try {
       return SingleChildScrollView(
@@ -346,14 +344,14 @@ class _ProfileDialogState extends State<ProfileDialog> {
         child: Column(
           children: [
             LineGraph(
-              data: _userModel!.stats,
+              data: _userModel?.stats ?? [],
               title: 'Confidence Level',
               statName: 'confidenceLevel',
               color: kLightGreenAccent,
             ),
             const SizedBox(height: 20),
             LineGraph(
-              data: _userModel!.stats,
+              data: _userModel?.stats ?? [],
               title: 'Consistency',
               statName: 'consistencyFactor',
               color: kPrimaryColor,
@@ -363,7 +361,7 @@ class _ProfileDialogState extends State<ProfileDialog> {
       );
     } on Exception catch (e) {
       debugPrint('Error building stats tab: $e');
-      debugPrint('User model: ${_userModel!.toString()}');
+      debugPrint('User model: ${_userModel?.toString()}');
       return Center(
         child: Text(
           'Error loading stats',
@@ -398,72 +396,118 @@ class _ProfileDialogState extends State<ProfileDialog> {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Profile Overview Section
-                    Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Column(
+                child: _userModel == null
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(height: 20),
-                          UserAvatar(
-                            username: _userModel!.username,
-                            size: 80.0,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            _userModel!.username,
-                            style: GoogleFonts.inter(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          SizedBox(height: 250),
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: kPrimaryColor.withOpacity(0.1),
                             ),
-                          ),
-                          if (_userModel?.bio?.isNotEmpty ?? false) ...[
-                            const SizedBox(height: 10),
-                            Text(
-                              _userModel!.bio!,
-                              style: kMainDescription.copyWith(
-                                fontWeight: FontWeight.w400,
-                                fontSize: 18,
-                                color: kGray,
-                              ),
-                              textAlign: TextAlign.center,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.person_off_outlined,
+                                  size: 64,
+                                  color: kPrimaryColor,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'User not found',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: kPrimaryColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'This user profile could not be found',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                          const SizedBox(height: 30),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildLevelProgressBar(),
-                              _buildConfidenceIndicator(),
-                            ],
                           ),
                         ],
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Profile Overview Section
+                          Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 20),
+                                UserAvatar(
+                                  username: _userModel?.username ??
+                                      'No username found',
+                                  size: 80.0,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  _userModel?.username ?? 'No username found',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                if (_userModel?.bio?.isNotEmpty ?? false) ...[
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    _userModel?.bio ?? 'No bio available',
+                                    style: kMainDescription.copyWith(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 18,
+                                      color: kGray,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                                const SizedBox(height: 30),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    _buildLevelProgressBar(),
+                                    _buildConfidenceIndicator(),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Habits Section
+                          if (_userModel?.privacySettings?.habitsScope !=
+                                  SharingScope.none ||
+                              !widget.isFriendProfile) ...[
+                            _buildSectionHeader('Habits'),
+                            _buildHabitsContent(),
+                          ],
+
+                          // Stats Section
+                          if (_userModel?.privacySettings?.statsScope !=
+                                  SharingScope.none ||
+                              !widget.isFriendProfile) ...[
+                            _buildSectionHeader('Stats'),
+                            _buildStatsContent(),
+                          ],
+
+                          const SizedBox(height: 30),
+                        ],
                       ),
-                    ),
-
-                    // Habits Section
-                    if (_userModel?.privacySettings?.habitsScope !=
-                            SharingScope.none ||
-                        !widget.isFriendProfile) ...[
-                      _buildSectionHeader('Habits'),
-                      _buildHabitsContent(),
-                    ],
-
-                    // Stats Section
-                    if (_userModel?.privacySettings?.statsScope !=
-                            SharingScope.none ||
-                        !widget.isFriendProfile) ...[
-                      _buildSectionHeader('Stats'),
-                      _buildStatsContent(),
-                    ],
-
-                    const SizedBox(height: 30),
-                  ],
-                ),
               ),
       ),
     );
@@ -528,7 +572,8 @@ class MiniHabitCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   _buildStatChip(
                     icon: Icons.warning,
-                    label: '${habit.stats.length > 0 ? habit.stats.last.difficultyRating.toStringAsFixed(2) : 0.00}',
+                    label:
+                        '${habit.stats.length > 0 ? habit.stats.last.difficultyRating.toStringAsFixed(2) : 0.00}',
                     color: kLightRedAccent,
                   ),
                 ],
