@@ -23,10 +23,10 @@ class ProfileDrawer extends StatelessWidget {
   void _showAddFriendDialog(BuildContext context) {
     final TextEditingController usernameController = TextEditingController();
     final FriendsManager friendsManager = FriendsManager();
-    
+
     // Store the navigator context
     final navigatorContext = context;
-    
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -58,12 +58,13 @@ class ProfileDrawer extends StatelessWidget {
 
                 try {
                   await friendsManager.sendFriendRequestByUsername(
-                    usernameController.text, 
-                    navigatorContext  // Use the navigator context instead
-                  );
+                      usernameController.text,
+                      navigatorContext // Use the navigator context instead
+                      );
                   Navigator.of(dialogContext).pop();
                   if (navigatorContext.mounted) {
-                    showSuccess(navigatorContext, 'Friend request sent successfully');
+                    showSuccess(
+                        navigatorContext, 'Friend request sent successfully');
                   }
                 } catch (e) {
                   if (navigatorContext.mounted) {
@@ -76,35 +77,6 @@ class ProfileDrawer extends StatelessWidget {
         );
       },
     );
-  }
-
-  Future<void> _testStatusCard(BuildContext context) async {
-    // Test immediate success
-    showSuccess(context, 'This is a success message');
-    
-    await Future.delayed(Duration(seconds: 2));
-    
-    // Test immediate error
-    showError(context, 'This is an error message');
-    
-    await Future.delayed(Duration(seconds: 2));
-    
-    // Test async operation with loading
-    try {
-      await showStatusOverlay(
-        context,
-        'Loading something...',
-        () async {
-          // Simulate some work
-          await Future.delayed(Duration(seconds: 2));
-          // Uncomment to test error handling:
-          // throw Exception('Test error message');
-        },
-        successMessage: 'Operation completed successfully!',
-      );
-    } catch (e) {
-      print('Error caught: $e');
-    }
   }
 
   @override
@@ -306,14 +278,6 @@ class ProfileDrawer extends StatelessWidget {
                       ),
                     ),
                     onTap: () => _showAddFriendDialog(context),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.bug_report, color: Colors.white),
-                    title: Text(
-                      'Test Status Card',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onTap: () => _testStatusCard(context),
                   ),
                 ],
               ),
