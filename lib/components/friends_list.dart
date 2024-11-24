@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:habitur/components/profile_dialog.dart';
+import 'package:habitur/components/stat-chips/confidence_level_stat_chip.dart';
+import 'package:habitur/components/stat-chips/stat_chip.dart';
+import 'package:habitur/components/user_avatar.dart';
+import 'package:habitur/constants.dart';
 import 'package:habitur/modules/friends_manager.dart';
 import 'package:habitur/data/remote/user_database.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -44,7 +48,24 @@ class FriendsList extends StatelessWidget {
                 }
                 UserModel friend = userSnapshot.data!;
                 return ListTile(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ProfileDialog(
+                          uid: friend.uid,
+                          isFriendProfile: true,
+                        );
+                      },
+                    );
+                  },
+                  leading: UserAvatar(username: friend.username),
                   title: Text(friend.username),
+                  trailing: StatChip(
+                    color: kPrimaryColor,
+                    label: friend.userLevel.toString(),
+                    icon: Icons.star,
+                  ),
                 );
               },
             );
@@ -54,3 +75,4 @@ class FriendsList extends StatelessWidget {
     );
   }
 }
+
