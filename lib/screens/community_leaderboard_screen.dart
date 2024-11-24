@@ -213,10 +213,10 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
                           onPressed: () async {
                             if (!(challenge.currentFullCompletions ==
                                 challenge.requiredFullCompletions)) {
-                              debugPrint('completed');
-                              setLoading(true);
-                              await completeChallenge();
-                              setLoading(false);
+                              await showStatusOverlay(
+                                  context,
+                                  'Completing challenge',
+                                  () => completeChallenge());
                             }
                           },
                           child: Text(

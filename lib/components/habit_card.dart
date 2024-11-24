@@ -230,7 +230,12 @@ class _HabitCardState extends State<HabitCard> {
                               await difficultyPopup(context, widget.index,
                                   (recordedDifficulty) async {
                                 setLoading(true);
-                                await completeHabit(recordedDifficulty);
+                                await showStatusOverlay(
+                                    context,
+                                    'Completing habit...',
+                                    () => completeHabit(recordedDifficulty),
+                                    successMessage:
+                                        'Habit completed. Well done!');
                                 setLoading(false);
                               });
                               setState(() {
@@ -246,7 +251,14 @@ class _HabitCardState extends State<HabitCard> {
                           onLongPress: () async {
                             setLoading(true);
                             try {
-                              await decrementHabit();
+                              setLoading(true);
+                              await showStatusOverlay(
+                                  context,
+                                  'Decrementing habit...',
+                                  () => decrementHabit(),
+                                  successMessage:
+                                      'Habit completion decremented');
+                              setLoading(false);
                             } catch (e, s) {
                               debugPrint(e.toString());
                               debugPrint(s.toString());

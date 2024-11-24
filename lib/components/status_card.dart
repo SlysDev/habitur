@@ -139,8 +139,8 @@ class _StatusCardState extends State<StatusCard>
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: _getColor().withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -172,7 +172,9 @@ class _StatusCardState extends State<StatusCard>
                           child: Text(
                             widget.message,
                             style: TextStyle(
-                              color: _getColor(),
+                              color: _getColor() == kDarkGray
+                                  ? Colors.white
+                                  : _getColor(),
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
