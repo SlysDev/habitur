@@ -1,0 +1,334 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:habitur/components/custom_snack_bar.dart';
+import 'package:habitur/components/habit_difficulty_popup.dart';
+import 'package:habitur/data/local/habits_local_storage.dart';
+import 'package:habitur/modules/habit_stats_handler.dart';
+import 'package:habitur/notifications/notification_scheduler.dart';
+import 'package:habitur/providers/database.dart';
+import 'package:habitur/providers/habit_manager.dart';
+import 'package:habitur/providers/network_state_provider.dart';
+import 'package:habitur/screens/edit_habit_screen.dart';
+import 'package:habitur/screens/habit_overview_screen.dart';
+import 'package:habitur/util_functions.dart';
+import 'package:provider/provider.dart';
+import '../constants.dart';
+import './rounded_progress_bar.dart';
+import 'package:confetti/confetti.dart';
+
+class HabitCard extends StatefulWidget {
+  Color color;
+  int index;
+
+  HabitCard({this.color = kFadedBlue, required this.index});
+
+  @override
+  State<HabitCard> createState() => _HabitCardState();
+}
+
+class _HabitCardState extends State<HabitCard> {
+  Color completeButtonColor = Colors.green;
+  bool isLoading = false;
+  late ConfettiController _controller;
+  void setLoading(bool value) {
+    setState(() {
+      isLoading = value;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = ConfettiController(duration: const Duration(seconds: 1));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    dynamic habit;
+    try {
+      habit = Provider.of<HabitManager>(context).habits[widget.index];
+    } catch (e, s) {
+      debugPrint(e.toString());
+      debugPrint(s.toString());
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        showDebugErrorSnackbar(context, e, s);
+      });
+    }
+    HabitStatsHandler habitStatsHandler = HabitStatsHandler(habit);
+    Database db = Database();
+    double progress = habit.currentProgress / habit.targetGoal;
+    bool completed = habit.currentProgress == habit.targetGoal;
+    Future<void> completeHabit(double recordedDifficulty) async {
+      if (habit.currentProgress == habit.targetGoal) return;
+
+      final habitManager = Provider.of<HabitManager>(context, listen: false);
+      final habitsStorage =
+          Provider.of<HabitsLocalStorage>(context, listen: false);
+      final networkState =
+          Provider.of<NetworkStateProvider>(context, listen: false);
+
+      final stopwatch = Stopwatch()..start();
+
+      // Track stats update
+      final statsStart = stopwatch.elapsedMilliseconds;
+      await habitStatsHandler.incrementCompletion(context,
+          recordedDifficulty: recordedDifficulty);
+      debugPrint(
+          'Stats update took: ${stopwatch.elapsedMilliseconds - statsStart}ms');
+
+      // Track local storage update
+      final localStart = stopwatch.elapsedMilliseconds;
+      await habitsStorage.updateHabit(habitManager.habits[widget.index]);
+      debugPrint(
+          'Local storage update took: ${stopwatch.elapsedMilliseconds - localStart}ms');
+
+      // Track remote update if connected
+      if (networkState.isConnected) {
+        final remoteStart = stopwatch.elapsedMilliseconds;
+        await db.habitDatabase
+            .updateHabit(habitManager.habits[widget.index], context);
+        debugPrint(
+            'Remote update took: ${stopwatch.elapsedMilliseconds - remoteStart}ms');
+      }
+
+      // Track UI update
+      final uiStart = stopwatch.elapsedMilliseconds;
+      habitManager.updateHabits();
+      debugPrint(
+          'UI update took: ${stopwatch.elapsedMilliseconds - uiStart}ms');
+
+      // Track notifications update if needed
+      if (habit.isCompleted) {
+        final notifStart = stopwatch.elapsedMilliseconds;
+        await habitManager.rescheduleSmartNotifications(habit);
+        debugPrint(
+            'Notifications update took: ${stopwatch.elapsedMilliseconds - notifStart}ms');
+      }
+
+      debugPrint(
+          'Total habit completion took: ${stopwatch.elapsedMilliseconds}ms');
+      stopwatch.stop();
+    }
+
+    Future<void> decrementHabit() async {
+      bool habitWasOriginallyCompleted = habit.isCompleted;
+      await habitStatsHandler.decrementCompletion(context);
+      await db.habitDatabase.updateHabit(
+          Provider.of<HabitManager>(context, listen: false)
+              .habits[widget.index],
+          context);
+      await Provider.of<HabitsLocalStorage>(context, listen: false).updateHabit(
+          Provider.of<HabitManager>(context, listen: false)
+              .habits[widget.index]);
+      Provider.of<HabitManager>(context, listen: false).updateHabits();
+      if (habitWasOriginallyCompleted) {
+        debugPrint(
+            'Habit was originally completed. Rescheduling smart notifications for habit: ${habit.title}');
+        await Provider.of<HabitManager>(context, listen: false)
+            .rescheduleSmartNotifications(habit, backward: true);
+        debugPrint('Smart notifications rescheduled for habit: ${habit.title}');
+      }
+    }
+
+    void editHabit() {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EditHabitScreen(
+                    habitIndex: widget.index,
+                  )));
+    }
+
+    Future<void> deleteHabit() async {
+      await Provider.of<HabitManager>(context, listen: false)
+          .deleteHabit(context, widget.index);
+      debugPrint(Provider.of<HabitsLocalStorage>(context, listen: false)
+          .stringifyHabitData(context));
+    }
+
+    Future<void> difficultyPopup(
+        BuildContext context, index, onDifficultySelected) async {
+      await showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => HabitDifficultyPopup(
+          habitIndex: index,
+          onDifficultySelected: onDifficultySelected,
+        ),
+      );
+    }
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.fastOutSlowIn,
+      opacity: isLoading ? 0.6 : 1,
+      child: Stack(
+        children: [
+          GestureDetector(
+            onLongPress: () {
+              habit.lastSeen = DateTime.now().subtract(const Duration(days: 1));
+            },
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HabitOverviewScreen(
+                            habit: habit,
+                          )));
+            },
+            child: Slidable(
+              startActionPane: ActionPane(
+                motion: const DrawerMotion(),
+                children: [
+                  SlidableAction(
+                    autoClose: true,
+                    onPressed: (context) async {
+                      setLoading(true);
+                      await deleteHabit();
+                      setLoading(false);
+                    },
+                    backgroundColor: kLightRedAccent,
+                    icon: Icons.delete,
+                    borderRadius: BorderRadius.circular(20),
+                    label: 'Delete',
+                  ),
+                  SlidableAction(
+                    onPressed: (context) async {
+                      editHabit();
+                    },
+                    backgroundColor: kDarkPrimaryColor,
+                    icon: Icons.edit,
+                    borderRadius: BorderRadius.circular(20),
+                    label: 'Edit',
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.ease,
+                    height: habit.title.length > 20
+                        ? 128.0 + (habit.title.length.toDouble() * 2.15)
+                        : 128,
+                    decoration: BoxDecoration(
+                      color: !completed
+                          ? widget.color
+                          : widget.color.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 25, vertical: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  isLoading ? '...' : habit.title,
+                                  style: kHeadingTextStyle.copyWith(
+                                      color: Colors.white),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                                isLoading
+                                    ? Container()
+                                    : RoundedProgressBar(progress: progress),
+                              ],
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            if (!completed) {
+                              await difficultyPopup(context, widget.index,
+                                  (recordedDifficulty) async {
+                                setLoading(true);
+                                await showStatusOverlay(
+                                    context,
+                                    'Completing habit...',
+                                    () => completeHabit(recordedDifficulty),
+                                    successMessage:
+                                        'Habit completed. Well done!');
+                                setLoading(false);
+                              });
+                              setState(() {
+                                _controller.play();
+                              });
+                            } else {
+                              showCustomSnackBar(
+                                  context,
+                                  "You've already completed this habit",
+                                  kLightRedAccent);
+                            }
+                          },
+                          onLongPress: () async {
+                            setLoading(true);
+                            try {
+                              setLoading(true);
+                              await showStatusOverlay(
+                                  context,
+                                  'Decrementing habit...',
+                                  () => decrementHabit(),
+                                  successMessage:
+                                      'Habit completion decremented');
+                              setLoading(false);
+                            } catch (e, s) {
+                              debugPrint(e.toString());
+                              debugPrint(s.toString());
+                            }
+                            setLoading(false);
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 600),
+                            curve: Curves.ease,
+                            width: 100,
+                            height: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.green.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Icon(
+                              Icons.check,
+                              size: 30,
+                              color: kLightGreenAccent,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            height: 128,
+            child: Align(
+              alignment: Alignment.center,
+              child: ConfettiWidget(
+                emissionFrequency: 0,
+                minBlastForce: 10,
+                numberOfParticles: 10,
+                blastDirectionality: BlastDirectionality.explosive,
+                confettiController: _controller,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

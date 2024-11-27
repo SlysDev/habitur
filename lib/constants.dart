@@ -77,19 +77,49 @@ Image kHabiturLogo = Image.asset('assets/images/logo.png');
 
 // Settings
 
-List<Setting> kDefaultSettings = [
-  Setting(settingValue: true, settingName: 'Daily Reminders'),
-  Setting(settingValue: 3, settingName: 'Number of Reminders'),
-  Setting(
+List<SettingModel> kDefaultSettings = [
+  SettingModel(settingValue: true, settingName: 'Daily Reminders'),
+  SettingModel(settingValue: 3, settingName: 'Number of Reminders'),
+  SettingModel(
       settingValue: const TimeModel(hour: 10, minute: 0),
       settingName: '1st Reminder Time'),
-  Setting(
+  SettingModel(
       settingValue: const TimeModel(hour: 16, minute: 0),
       settingName: '2nd Reminder Time'),
-  Setting(
+  SettingModel(
       settingValue: const TimeModel(hour: 22, minute: 0),
       settingName: '3rd Reminder Time'),
 ];
+
+const InputDecoration kTextFieldDecoration = InputDecoration(
+  hintStyle: TextStyle(color: kGray, fontSize: 16),
+  contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+  filled: true,
+  fillColor: Color(0xFF1E2938),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide.none,
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide(color: Color(0xFF2A3747), width: 1.0),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide(color: kPrimaryColor, width: 2.0),
+  ),
+  errorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide(color: Color(0xFFE57373), width: 1.0),
+  ),
+  focusedErrorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide(color: Color(0xFFEF5350), width: 2.0),
+  ),
+  isDense: true,
+  hintMaxLines: 1,
+  alignLabelWithHint: true,
+);
 
 InputDecoration kFilledTextFieldInputDecoration = InputDecoration(
   filled: true,

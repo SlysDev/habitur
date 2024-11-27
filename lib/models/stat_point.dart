@@ -133,12 +133,14 @@ class StatPoint {
         completions: data['completions'] ?? 0,
         confidenceLevel: (data['confidenceLevel'] ?? 0.0).toDouble(),
         streak: data['streak'] ?? 0,
-        consistencyFactor: (data['slopeConsistency'] ?? 0.0).toDouble(), // Using slopeConsistency as consistencyFactor
+        consistencyFactor: (data['slopeConsistency'] ?? 0.0)
+            .toDouble(), // Using slopeConsistency as consistencyFactor
         difficultyRating: (data['difficultyRating'] ?? 0.0).toDouble(),
         slopeCompletions: (data['slopeCompletions'] ?? 0.0).toDouble(),
         slopeConfidenceLevel: (data['slopeConfidenceLevel'] ?? 0.0).toDouble(),
         slopeConsistency: (data['slopeConsistency'] ?? 0.0).toDouble(),
-        slopeDifficultyRating: (data['slopeDifficultyRating'] ?? 0.0).toDouble(),
+        slopeDifficultyRating:
+            (data['slopeDifficultyRating'] ?? 0.0).toDouble(),
       );
       debugPrint('StatPoint.fromMap: Successfully converted to StatPoint');
       return statPoint;

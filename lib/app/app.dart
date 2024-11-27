@@ -1,0 +1,90 @@
+import 'package:habitur/services/notification_scheduling_service.dart';
+import 'package:habitur/services/stats/base_stats_service.dart';
+import 'package:habitur/services/stats/habit_stats_service.dart';
+import 'package:habitur/services/stats/user_stats_service.dart';
+import 'package:habitur/services/status_service.dart';
+import 'package:habitur/services/sync_service.dart';
+import 'package:habitur/ui/views/startup/startup_view.dart';
+import 'package:stacked/stacked.dart';
+import 'package:stacked/stacked_annotations.dart';
+import 'package:stacked_services/stacked_services.dart';
+
+// Services
+import '../services/activity_database_service.dart';
+import '../services/database_service.dart';
+import '../services/insight_generator_service.dart';
+import '../services/local_storage_service.dart';
+import '../services/habit_service.dart';
+import '../services/user_service.dart';
+import '../services/notification_service.dart';
+import '../services/data_service.dart';
+import '../services/auth_service.dart';
+import '../services/settings_service.dart';
+import '../services/community_service.dart';
+import '../services/network_service.dart';
+import '../services/activity_service.dart';
+import '../services/friends_service.dart';
+
+// Views
+import '../ui/views/admin/admin_view.dart';
+import '../ui/views/community_leaderboard/community_leaderboard_view.dart';
+import '../ui/views/habits/habits_view.dart';
+import '../ui/views/settings/settings_view.dart';
+import '../ui/views/welcome/welcome_view.dart';
+import '../ui/views/login/login_view.dart';
+import '../ui/views/register/register_view.dart';
+import '../ui/views/home/home_view.dart';
+import '../ui/views/statistics/statistics_view.dart';
+import '../ui/views/edit_habit/edit_habit_view.dart';
+import '../ui/views/habit_overview/habit_overview_view.dart';
+
+@StackedApp(
+  routes: [
+    MaterialRoute(page: StartupView, initial: true),
+    MaterialRoute(page: WelcomeView),
+    MaterialRoute(page: HomeView),
+    MaterialRoute(page: LoginView),
+    MaterialRoute(page: RegisterView),
+    MaterialRoute(page: StatisticsView),
+    MaterialRoute(page: SettingsView),
+    MaterialRoute(page: HabitsView),
+    MaterialRoute(page: EditHabitView),
+    MaterialRoute(page: CommunityLeaderboardView),
+    MaterialRoute(page: AdminView),
+    MaterialRoute(
+      page: HabitOverviewView,
+    ),
+  ],
+  dependencies: [
+    // Core Services
+    LazySingleton(classType: BottomSheetService),
+    LazySingleton(classType: NavigationService),
+    LazySingleton(classType: DialogService),
+    LazySingleton(classType: SnackbarService),
+
+    // Firebase Services
+    LazySingleton(classType: AuthService),
+
+    // App Services
+    LazySingleton(classType: ActivityService),
+    LazySingleton(classType: NetworkService),
+    LazySingleton(classType: ActivityDatabaseService),
+    LazySingleton(classType: InsightGeneratorService),
+    LazySingleton(classType: SettingsService),
+    LazySingleton(classType: CommunityService),
+    LazySingleton(classType: DatabaseService),
+    LazySingleton(classType: LocalStorageService),
+    LazySingleton(classType: HabitService),
+    LazySingleton(classType: UserService),
+    LazySingleton(classType: NotificationService),
+    LazySingleton(classType: DataService),
+    LazySingleton(classType: FriendsService),
+    LazySingleton(classType: NotificationSchedulingService),
+    LazySingleton(classType: StatusService),
+    LazySingleton(classType: SyncService),
+    LazySingleton(classType: BaseStatsService),
+    LazySingleton(classType: HabitStatsService),
+    LazySingleton(classType: UserStatsService),
+  ],
+)
+class App {}

@@ -1,9 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:habitur/components/error_tile.dart';
-import 'package:habitur/components/status_card.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/ui/widgets/error_tile.dart';
+import 'package:habitur/ui/widgets/status_card/status_card.dart';
+import 'package:habitur/ui/widgets/status_card/status_card_model.dart';
 
 String generateUniqueId() {
   return Random()
@@ -23,7 +24,8 @@ showDebugErrorSnackbar(BuildContext context, e, s) {
   );
 }
 
-showErrorDialog(BuildContext context, String errorText, {Duration duration = const Duration(seconds: 1)}) {
+showErrorDialog(BuildContext context, String errorText,
+    {Duration duration = const Duration(seconds: 1)}) {
   showDialog(
     barrierColor: Colors.transparent,
     barrierDismissible: false,
@@ -34,7 +36,7 @@ showErrorDialog(BuildContext context, String errorText, {Duration duration = con
           Navigator.of(dialogContext).pop();
         }
       });
-      
+
       return Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -53,7 +55,8 @@ showErrorDialog(BuildContext context, String errorText, {Duration duration = con
   );
 }
 
-showSuccessDialog(BuildContext context, String successText, {Duration duration = const Duration(seconds: 1)}) {
+showSuccessDialog(BuildContext context, String successText,
+    {Duration duration = const Duration(seconds: 1)}) {
   showDialog(
     barrierColor: Colors.transparent,
     barrierDismissible: false,
@@ -64,7 +67,7 @@ showSuccessDialog(BuildContext context, String successText, {Duration duration =
           Navigator.of(dialogContext).pop();
         }
       });
-      
+
       return Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

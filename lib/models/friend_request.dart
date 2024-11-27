@@ -70,9 +70,10 @@ class FriendRequest {
         recipientUid == other['recipientUid'] &&
         dateSent == (other['dateSent'] as Timestamp).toDate() &&
         isAccepted == other['isAccepted'] &&
-        dateAccepted == (other['dateAccepted'] != null
-            ? (other['dateAccepted'] as Timestamp).toDate()
-            : null) &&
+        dateAccepted ==
+            (other['dateAccepted'] != null
+                ? (other['dateAccepted'] as Timestamp).toDate()
+                : null) &&
         isDeclined == other['isDeclined'];
   }
 }

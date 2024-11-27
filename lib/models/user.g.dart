@@ -18,26 +18,29 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
     };
     return UserModel(
       username: fields[0] as String,
-      bio: fields[1] as String,
       email: fields[2] as String,
       uid: fields[3] as String,
+      bio: fields[1] as String,
       userLevel: fields[4] as int,
       userXP: fields[5] as int,
       isAdmin: fields[6] as bool,
+      stats: (fields[7] as List).cast<StatPoint>(),
+      friends: (fields[8] as List).cast<String>(),
+      receivedFriendRequests: (fields[9] as List).cast<FriendRequest>(),
+      sentFriendRequests: (fields[10] as List).cast<FriendRequest>(),
       profilePicture: fields[11] as String?,
-      stats: (fields[7] as List?)?.cast<StatPoint>(),
-      friends: (fields[8] as List?)?.cast<String>(),
-      receivedFriendRequests: (fields[9] as List?)?.cast<FriendRequest>(),
-      sentFriendRequests: (fields[10] as List?)?.cast<FriendRequest>(),
-      habitVisibilitySettings: (fields[12] as List?)?.cast<HabitVisibility>(),
-      privacySettings: fields[13] as PrivacySettings?,
+      habitVisibilitySettings: (fields[12] as List).cast<HabitVisibility>(),
+      isBlocked: fields[13] as bool,
+      blockedAt: fields[14] as DateTime?,
+      blockReason: fields[15] as String?,
+      privacySettings: fields[16] as PrivacySettings,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.username)
       ..writeByte(1)
@@ -65,6 +68,12 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(12)
       ..write(obj.habitVisibilitySettings)
       ..writeByte(13)
+      ..write(obj.isBlocked)
+      ..writeByte(14)
+      ..write(obj.blockedAt)
+      ..writeByte(15)
+      ..write(obj.blockReason)
+      ..writeByte(16)
       ..write(obj.privacySettings);
   }
 

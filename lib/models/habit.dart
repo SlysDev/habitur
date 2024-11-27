@@ -75,7 +75,7 @@ class Habit {
     this.requiredDatesOfCompletion = const [],
     this.isCommunityHabit = false,
     this.smartNotifsEnabled = false,
-    this.isVisible = true,  // Default to true for backward compatibility
+    this.isVisible = true, // Default to true for backward compatibility
     this.targetGoal = 1,
   }) {
     daysCompleted = [];
@@ -107,7 +107,7 @@ class Habit {
     return Habit(
       title: map['title'] as String? ?? '',
       dateCreated: (map['dateCreated'] as DateTime?) ?? DateTime.now(),
-      resetPeriod: map['resetPeriod'] as String? ?? 'daily',
+      resetPeriod: (map['resetPeriod'] as String?)?.toLowerCase() ?? 'daily',
       id: map['id'] as int? ?? 0,
       lastSeen: (map['lastSeen'] as DateTime?) ?? DateTime.now(),
       streak: map['streak'] as int? ?? 0,
@@ -115,10 +115,12 @@ class Habit {
       currentProgress: map['currentProgress'] as int? ?? 0,
       totalProgress: map['totalProgress'] as int? ?? 0,
       confidenceLevel: (map['confidenceLevel'] as num?)?.toDouble() ?? 0.0,
-      requiredDatesOfCompletion: (map['requiredDatesOfCompletion'] as List<String>?) ?? [],
+      requiredDatesOfCompletion:
+          (map['requiredDatesOfCompletion'] as List<String>?) ?? [],
       isCommunityHabit: map['isCommunityHabit'] as bool? ?? false,
       smartNotifsEnabled: map['smartNotifsEnabled'] as bool? ?? false,
-      isVisible: map['isVisible'] as bool? ?? true,  // Default to true for backward compatibility
+      isVisible: map['isVisible'] as bool? ??
+          true, // Default to true for backward compatibility
       targetGoal: map['targetGoal'] as int? ?? 1,
     );
   }
