@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/services/database_service.dart';
+import 'package:habitur/services/habit_service.dart';
+import 'package:habitur/services/local_storage_service.dart';
 import 'package:habitur/services/user_service.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import '../../../app/app.locator.dart';
@@ -21,17 +26,15 @@ class SettingsViewModel extends BaseViewModel {
   final _navigationService = locator<NavigationService>();
   final _dialogService = locator<DialogService>();
   final _userService = locator<UserService>();
-  final _statusService = locator<StatusService>();
+  final _localStorageService = locator<LocalStorageService>();
+  final _databaseService = locator<DatabaseService>();
 
-  late TextEditingController usernameController;
-  late TextEditingController emailController;
-  late TextEditingController bioController;
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController bioController = TextEditingController();
 
   bool _isEmailVerified = false;
   bool get isEmailVerified => _isEmailVerified;
-
-  bool _isDarkMode = false;
-  bool get isDarkMode => _isDarkMode;
 
   bool _notificationsEnabled = false;
   bool get notificationsEnabled => _notificationsEnabled;
@@ -43,11 +46,11 @@ class SettingsViewModel extends BaseViewModel {
   bool get isAdmin => _isAdmin;
 
   // Privacy settings
-  String _statsScope = 'friends';
-  String get statsScope => _statsScope;
+  SharingScope _statsScope = SharingScope.friends;
+  SharingScope get statsScope => _statsScope;
 
-  String _habitsScope = 'friends';
-  String get habitsScope => _habitsScope;
+  SharingScope _habitsScope = SharingScope.friends;
+  SharingScope get habitsScope => _habitsScope;
 
   bool _shareActivities = true;
   bool get shareActivities => _shareActivities;
@@ -86,26 +89,32 @@ class SettingsViewModel extends BaseViewModel {
       final settings = _settingsService.settings;
 
       // Load settings from the list
-      _isDarkMode = _getSetting('darkMode')?.settingValue as bool? ?? false;
       _notificationsEnabled =
           _getSetting('notifications')?.settingValue as bool? ?? false;
       _communityFeaturesEnabled =
           _getSetting('communityFeatures')?.settingValue as bool? ?? true;
 
-      _statsScope =
-          _getSetting('statsScope')?.settingValue as String? ?? 'friends';
+      _statsScope = _getSetting('statsScope')?.settingValue as SharingScope? ??
+          SharingScope.friends;
       _habitsScope =
-          _getSetting('habitsScope')?.settingValue as String? ?? 'friends';
-      _shareActivities =
-          _getSetting('shareActivities')?.settingValue as bool? ?? true;
-      _shareHabitCompletions =
-          _getSetting('shareHabitCompletions')?.settingValue as bool? ?? true;
-      _shareStreakMilestones =
-          _getSetting('shareStreakMilestones')?.settingValue as bool? ?? true;
-      _shareNewHabits =
-          _getSetting('shareNewHabits')?.settingValue as bool? ?? true;
-    } catch (e) {
-      await _dialogService.showDialog(
+          _getSetting('habitsScope')?.settingValue as SharingScope? ??
+              SharingScope.friends;
+      _shareActivities = stringToBool(
+          _getSetting('shareActivities')?.settingValue as String? ?? 'true');
+      _shareHabitCompletions = stringToBool(
+          _getSetting('shareHabitCompletions')?.settingValue as String? ??
+              'true');
+      _shareStreakMilestones = stringToBool(
+          _getSetting('shareStreakMilestones')?.settingValue as String? ??
+              'true');
+      _shareNewHabits = stringToBool(
+          _getSetting('shareNewHabits')?.settingValue as String? ?? 'true');
+    } catch (e, s) {
+      debugPrint('----------------- Failed to load settings:');
+      debugPrint(e.toString());
+      debugPrint(s.toString());
+      await _dialogService.showCustomDialog(
+        variant: DialogType.modern,
         title: 'Error',
         description: 'Failed to load settings: ${e.toString()}',
       );
@@ -150,8 +159,10 @@ class SettingsViewModel extends BaseViewModel {
           bio: bioController.text,
         ),
       );
-      await _dialogService.showDialog(
-        title: 'Success',
+      setBusy(false);
+      await _dialogService.showCustomDialog(
+        variant: DialogType.success,
+        title: 'Success!',
         description: 'Profile updated successfully.',
       );
     } catch (e) {
@@ -159,186 +170,54 @@ class SettingsViewModel extends BaseViewModel {
         title: 'Error',
         description: 'Failed to update profile: ${e.toString()}',
       );
-    } finally {
-      setBusy(false);
-    }
+    } finally {}
   }
 
-  Future<void> updateStatsScope(String? newValue) async {
-    if (newValue != null) {
-      setBusy(true);
-      try {
-        await _settingsService.updateSetting(
-          SettingModel(settingName: 'statsScope', settingValue: newValue),
-        );
-        _statsScope = newValue;
-        notifyListeners();
-      } catch (e) {
-        await _dialogService.showDialog(
-          title: 'Error',
-          description: 'Failed to update stats scope: ${e.toString()}',
-        );
-      } finally {
-        setBusy(false);
+  Future<void> updateSetting<T>(String settingName, T value) async {
+    setBusy(true);
+    try {
+      final setting = SettingModel(
+        settingName: settingName,
+        settingValue: value,
+      );
+
+      await _settingsService.updateSetting(setting);
+
+      // Update local state based on setting name
+      switch (settingName) {
+        case 'notifications':
+          _notificationsEnabled = value as bool;
+          if (_notificationsEnabled) {
+            await _notificationService.requestPermission();
+          }
+          break;
+        case 'communityFeatures':
+          _communityFeaturesEnabled = value as bool;
+          break;
+        case 'statsScope':
+          _statsScope = value as SharingScope;
+          break;
+        case 'habitsScope':
+          _habitsScope = value as SharingScope;
+          break;
+        case 'shareActivities':
+          _shareActivities = value as bool;
+          break;
+        case 'shareHabitCompletions':
+          _shareHabitCompletions = value as bool;
+          break;
+        case 'shareStreakMilestones':
+          _shareStreakMilestones = value as bool;
+          break;
+        case 'shareNewHabits':
+          _shareNewHabits = value as bool;
+          break;
       }
-    }
-  }
-
-  Future<void> updateHabitsScope(String? newValue) async {
-    if (newValue != null) {
-      setBusy(true);
-      try {
-        await _settingsService.updateSetting(
-          SettingModel(settingName: 'habitsScope', settingValue: newValue),
-        );
-        _habitsScope = newValue;
-        notifyListeners();
-      } catch (e) {
-        await _dialogService.showDialog(
-          title: 'Error',
-          description: 'Failed to update habits scope: ${e.toString()}',
-        );
-      } finally {
-        setBusy(false);
-      }
-    }
-  }
-
-  Future<void> updateShareActivities(bool value) async {
-    setBusy(true);
-    try {
-      await _settingsService.updateSetting(
-        SettingModel(settingName: 'shareActivities', settingValue: value),
-      );
-      _shareActivities = value;
-      notifyListeners();
+      rebuildUi();
     } catch (e) {
       await _dialogService.showDialog(
         title: 'Error',
-        description: 'Failed to update sharing settings: ${e.toString()}',
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  Future<void> updateShareHabitCompletions(bool value) async {
-    setBusy(true);
-    try {
-      await _settingsService.updateSetting(
-        SettingModel(settingName: 'shareHabitCompletions', settingValue: value),
-      );
-      _shareHabitCompletions = value;
-      notifyListeners();
-    } catch (e) {
-      await _dialogService.showDialog(
-        title: 'Error',
-        description: 'Failed to update sharing settings: ${e.toString()}',
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  Future<void> updateShareStreakMilestones(bool value) async {
-    setBusy(true);
-    try {
-      await _settingsService.updateSetting(
-        SettingModel(settingName: 'shareStreakMilestones', settingValue: value),
-      );
-      _shareStreakMilestones = value;
-      notifyListeners();
-    } catch (e) {
-      await _dialogService.showDialog(
-        title: 'Error',
-        description: 'Failed to update sharing settings: ${e.toString()}',
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  Future<void> updateShareNewHabits(bool value) async {
-    setBusy(true);
-    try {
-      await _settingsService.updateSetting(
-        SettingModel(settingName: 'shareNewHabits', settingValue: value),
-      );
-      _shareNewHabits = value;
-      notifyListeners();
-    } catch (e) {
-      await _dialogService.showDialog(
-        title: 'Error',
-        description: 'Failed to update sharing settings: ${e.toString()}',
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  Future<void> updateDarkMode(bool value) async {
-    setBusy(true);
-    try {
-      await _settingsService.updateSetting(
-        SettingModel(settingName: 'darkMode', settingValue: value),
-      );
-      _isDarkMode = value;
-      notifyListeners();
-    } catch (e) {
-      await _dialogService.showDialog(
-        title: 'Error',
-        description: 'Failed to update dark mode: ${e.toString()}',
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  Future<void> updateNotifications(bool value) async {
-    setBusy(true);
-    try {
-      if (value) {
-        await _notificationService.requestPermission();
-      }
-
-      await _settingsService.updateSetting(
-        SettingModel(settingName: 'notifications', settingValue: value),
-      );
-      _notificationsEnabled = value;
-
-      if (value) {
-        // Schedule notifications if they're being enabled
-        await _notificationSchedulingService.rescheduleNotifications(
-          _dialogService.navigatorKey!.currentContext!,
-        );
-      } else {
-        // Cancel all notifications if they're being disabled
-        await _notificationService.cancelAllScheduledNotifications();
-      }
-
-      notifyListeners();
-    } catch (e) {
-      await _dialogService.showDialog(
-        title: 'Error',
-        description: 'Failed to update notification settings: ${e.toString()}',
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  Future<void> updateCommunityFeatures(bool value) async {
-    setBusy(true);
-    try {
-      await _settingsService.updateSetting(
-        SettingModel(settingName: 'communityFeatures', settingValue: value),
-      );
-      _communityFeaturesEnabled = value;
-      notifyListeners();
-    } catch (e) {
-      await _dialogService.showDialog(
-        title: 'Error',
-        description: 'Failed to update community features: ${e.toString()}',
+        description: 'Failed to update setting: ${e.toString()}',
       );
     } finally {
       setBusy(false);
@@ -362,6 +241,32 @@ class SettingsViewModel extends BaseViewModel {
         await _dialogService.showDialog(
           title: 'Error',
           description: 'Failed to logout: ${e.toString()}',
+        );
+      } finally {
+        setBusy(false);
+      }
+    }
+  }
+
+  Future<void> clearData() async {
+    final response = await _dialogService.showConfirmationDialog(
+      title: 'Clear Data',
+      description: 'Are you sure you want to clear all data?',
+      confirmationTitle: 'Clear',
+      cancelTitle: 'Cancel',
+    );
+
+    if (response?.confirmed ?? false) {
+      setBusy(true);
+      try {
+        await _localStorageService.clearAllHiveData();
+        await _databaseService.clearUserData(_authService.currentUser!.uid);
+        await _settingsService.resetToDefaults();
+        await _navigationService.clearStackAndShow(Routes.startupView);
+      } catch (e) {
+        await _dialogService.showDialog(
+          title: 'Error',
+          description: 'Failed to clear data: ${e.toString()}',
         );
       } finally {
         setBusy(false);
