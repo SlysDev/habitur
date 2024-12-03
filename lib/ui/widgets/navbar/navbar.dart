@@ -39,7 +39,7 @@ class NavBar extends StackedView<NavBarModel> {
           _buildAddButton(viewModel),
           _buildNavItem(
             icon: Icons.bar_chart_rounded,
-            page: 'statistics',
+            page: 'stats',
             viewModel: viewModel,
           ),
           _buildNavItem(
@@ -78,9 +78,13 @@ class NavBar extends StackedView<NavBarModel> {
         style: ElevatedButton.styleFrom(
           backgroundColor: kPrimaryColor,
           shape: const CircleBorder(),
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(20),
         ),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 25,
+        ),
       ),
     );
   }

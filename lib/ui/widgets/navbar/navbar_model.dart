@@ -23,9 +23,9 @@ class NavBarModel extends BaseViewModel {
     switch (page.toLowerCase()) {
       case 'home':
         return 0;
-      case 'stats':
+      case 'habits':
         return 1;
-      case 'social':
+      case 'stats':
         return 2;
       case 'settings':
         return 3;
@@ -39,9 +39,9 @@ class NavBarModel extends BaseViewModel {
       case 0:
         return 'home';
       case 1:
-        return 'stats';
+        return 'habits';
       case 2:
-        return 'social';
+        return 'stats';
       case 3:
         return 'settings';
       default:
@@ -55,12 +55,13 @@ class NavBarModel extends BaseViewModel {
     switch (page.toLowerCase()) {
       case 'home':
         await _navigationService.navigateToHomeView();
+        // await _navigationService.navigateToHomeRevampView();
+        break;
+      case 'habits':
+        await _navigationService.navigateToHabitsView();
         break;
       case 'stats':
         await _navigationService.navigateToStatisticsView();
-        break;
-      case 'social':
-        await _navigationService.navigateToCommunityLeaderboardView();
         break;
       case 'settings':
         await _navigationService.navigateToSettingsView();
