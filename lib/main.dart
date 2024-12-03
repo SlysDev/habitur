@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:habitur/services/local_storage_service.dart';
+import 'package:habitur/ui/setup_snackbar_ui.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:logging/logging.dart';
@@ -34,6 +35,7 @@ Future<void> main() async {
   await setupLocator();
   setupDialogUi();
   setupBottomSheetUi();
+  setupSnackbarUi();
 
   final notificationService = locator<NotificationService>();
   await notificationService.initialize();
