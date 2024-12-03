@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/enums/snackbar_type.dart';
 import 'package:habitur/ui/widgets/error_tile.dart';
 import 'package:habitur/ui/widgets/status_card/status_card.dart';
 import 'package:habitur/ui/widgets/status_card/status_card_model.dart';
@@ -15,8 +16,30 @@ String generateUniqueId() {
       .toString(); // generate a random number between 0 and 1000000000
 }
 
+void showErrorSnackbar(String message) {
+  final _snackbarService = locator<SnackbarService>();
+  if (_snackbarService.isSnackbarOpen) {
+    _snackbarService.closeSnackbar();
+  }
+  _snackbarService.showCustomSnackBar(
+      message: message,
+      variant: SnackbarType.error,
+      duration: Duration(milliseconds: 1400));
+}
+
+void showSuccessSnackbar(String message) {
+  final _snackbarService = locator<SnackbarService>();
+  if (_snackbarService.isSnackbarOpen) {
+    _snackbarService.closeSnackbar();
+  }
+  _snackbarService.showCustomSnackBar(
+      message: message,
+      variant: SnackbarType.success,
+      duration: Duration(milliseconds: 1000));
+}
+
 // error handling
-showDebugErrorSnackbar(BuildContext context, e, s) {
+void showDebugErrorSnackbar(BuildContext context, e, s) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       duration: Duration(seconds: 5),
