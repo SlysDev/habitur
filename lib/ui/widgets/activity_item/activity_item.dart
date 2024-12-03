@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:stacked/stacked.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -16,13 +17,6 @@ class ActivityItem extends StatelessWidget {
   final _authService = locator<AuthService>();
 
   ActivityItem({required this.activity});
-
-  final Map<ReactionType, String> reactionIcons = {
-    ReactionType.like: '❤️',
-    ReactionType.celebrate: '🎉',
-    ReactionType.support: '💪',
-    ReactionType.inspire: '💡',
-  };
 
   String _getActivityMessage() {
     switch (activity.type) {
@@ -54,129 +48,226 @@ class ActivityItem extends StatelessWidget {
           ),
         ),
         margin: EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListTile(
-              contentPadding: EdgeInsets.all(16.0),
-              title: RichText(
-                text: TextSpan(
-                  style: DefaultTextStyle.of(context).style,
+        child: LoadingOverlay(
+          isLoading: model.isBusy,
+          borderRadius: 12,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.all(16.0),
+                title: RichText(
+                  text: TextSpan(
+                    style: DefaultTextStyle.of(context).style,
+                    children: [
+                      TextSpan(
+                        text: activity.username,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: kPrimaryColor,
+                        ),
+                      ),
+                      TextSpan(text: ' '),
+                      TextSpan(
+                        text: _getActivityMessage(),
+                        style: TextStyle(
+                          fontSize: 15,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextSpan(
-                      text: activity.username,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: kPrimaryColor,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        timeago.format(activity.timestamp),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: kDarkGray.withOpacity(0.7),
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                    TextSpan(text: ' '),
-                    TextSpan(
-                      text: _getActivityMessage(),
-                      style: TextStyle(
-                        fontSize: 15,
-                        height: 1.3,
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  if (!activity.hasLiked) {
+                                    await model.likeActivity(activity.id);
+                                  } else {
+                                    await model.unlikeActivity(activity.id);
+                                  }
+                                },
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 400),
+                                  curve: Curves.easeInOut,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: activity.hasLiked
+                                        ? Colors.red.withOpacity(0.1)
+                                        : kFadedBlue.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(
+                                      color: activity.hasLiked
+                                          ? Colors.red.withOpacity(0.2)
+                                          : kFadedBlue.withOpacity(0.4),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      AnimatedSwitcher(
+                                        duration: Duration(milliseconds: 400),
+                                        transitionBuilder: (child, animation) {
+                                          return FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          );
+                                        },
+                                        child: activity.hasLiked
+                                            ? Icon(
+                                                Icons.favorite,
+                                                size: 18,
+                                                color: Colors.red,
+                                                key: ValueKey('liked'),
+                                              )
+                                            : Icon(
+                                                Icons.favorite_border,
+                                                size: 18,
+                                                color: Colors.grey,
+                                                key: ValueKey('unliked'),
+                                              ),
+                                      ),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        activity.likeCount.toString(),
+                                        style: TextStyle(
+                                          color: activity.hasLiked
+                                              ? Colors.red
+                                              : Colors.grey,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              if (activity.reactions.isNotEmpty)
+                                ...activity.reactions.entries
+                                    .where((entry) => entry.value.length > 0)
+                                    .map((entry) {
+                                  final reactionType = entry.key;
+                                  final count = entry.value.length;
+                                  String emoji =
+                                      reactionIcons[reactionType] ?? '👍';
+
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      await model.toggleReaction(
+                                          activity.id, reactionType);
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: kFadedBlue.withOpacity(0.3),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: kFadedBlue.withOpacity(0.4),
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(emoji,
+                                              style: TextStyle(fontSize: 14)),
+                                          SizedBox(width: 6),
+                                          Text(
+                                            count.toString(),
+                                            style: TextStyle(
+                                              color: Colors.grey,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                            ],
+                          ),
+                        ),
+                        if (activity.userId == _authService.currentUser?.uid)
+                          IconButton(
+                            icon: Icon(Icons.delete_outline),
+                            onPressed: () => model.deleteActivity(activity.id),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: kFadedBlue.withOpacity(0.6),
+                      width: 1,
+                    ),
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                child: Row(
+                  children: [
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () =>
+                            model.showReactionPicker(context, activity.id),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.0, vertical: 8.0),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.add_reaction_outlined,
+                                  size: 20, color: kPrimaryColor),
+                              SizedBox(width: 6),
+                              Text(
+                                'React',
+                                style: TextStyle(
+                                  color: kPrimaryColor,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      timeago.format(activity.timestamp),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: kDarkGray.withOpacity(0.7),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              activity.hasLiked
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: activity.hasLiked ? Colors.red : null,
-                            ),
-                            onPressed: () {
-                              if (activity.hasLiked) {
-                                model.unlikeActivity(activity.id);
-                              } else {
-                                model.likeActivity(activity.id);
-                              }
-                            },
-                          ),
-                          Text(
-                            activity.likeCount.toString(),
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                      if (activity.userId == _authService.currentUser?.uid)
-                        IconButton(
-                          icon: Icon(Icons.delete_outline),
-                          onPressed: () => model.deleteActivity(activity.id),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: kFadedBlue.withOpacity(0.6),
-                    width: 1,
-                  ),
-                ),
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-              child: Row(
-                children: [
-                  Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () =>
-                          model.showReactionPicker(context, activity.id),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 8.0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.add_reaction_outlined,
-                                size: 20, color: kPrimaryColor),
-                            SizedBox(width: 6),
-                            Text(
-                              'React',
-                              style: TextStyle(
-                                color: kPrimaryColor,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

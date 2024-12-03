@@ -29,39 +29,56 @@ class ModernDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        decoration: BoxDecoration(
-          color: kBackgroundColor,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: kFadedBlue.withOpacity(0.6),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: kPrimaryColor.withOpacity(0.1),
-              blurRadius: 20,
-              spreadRadius: 5,
+    return Stack(
+      children: [
+        // Invisible fullscreen button to handle outside taps
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              color: Colors.transparent,
             ),
-          ],
+          ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeader(),
-            if (content != null)
-              Padding(
-                padding: contentPadding,
-                child: content,
+        Dialog(
+          backgroundColor: Colors.transparent,
+          child: GestureDetector(
+            // Prevent taps on dialog from closing it
+            onTap: () {},
+            child: Container(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              decoration: BoxDecoration(
+                color: kBackgroundColor,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: kFadedBlue.withOpacity(0.6),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: kPrimaryColor.withOpacity(0.1),
+                    blurRadius: 20,
+                    spreadRadius: 5,
+                  ),
+                ],
               ),
-            if (_hasActions) _buildActions(),
-          ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(),
+                  if (content != null)
+                    Padding(
+                      padding: contentPadding,
+                      child: content,
+                    ),
+                  if (_hasActions) _buildActions(),
+                ],
+              ),
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 

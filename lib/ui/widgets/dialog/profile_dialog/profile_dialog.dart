@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/privacy_settings.dart';
+import 'package:habitur/ui/widgets/aside_button.dart';
 import 'package:habitur/ui/widgets/line_graph/line_graph.dart';
 import 'package:habitur/ui/widgets/rounded_progress_bar.dart';
 import 'package:habitur/ui/widgets/stat-chips/stat_chip.dart';
@@ -12,10 +13,14 @@ import 'profile_dialog_model.dart';
 
 class ProfileDialog extends StackedView<ProfileDialogModel> {
   const ProfileDialog(
-      {super.key, required this.uid, this.isFriendProfile = false});
+      {super.key,
+      required this.uid,
+      this.isFriendProfile = false,
+      required this.completer});
 
   final String uid;
   final bool isFriendProfile;
+  final dynamic completer;
 
   @override
   Widget builder(
@@ -24,106 +29,137 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
     Widget? child,
   ) {
     if (viewModel.isBusy) {
-      return Dialog(
-        backgroundColor: Colors.black,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: viewModel.closeDialog,
+              child: Container(
+                color: Colors.transparent,
+              ),
+            ),
+          ),
+          Dialog(
+            backgroundColor: Colors.black,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: GestureDetector(
+              onTap: () {},
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          ),
+        ],
       );
     }
 
     if (viewModel.userModel == null) {
-      return Dialog(
-        backgroundColor: Colors.black,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.grey.withOpacity(0.1),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.person_off_outlined,
-                size: 64,
-                color: Colors.redAccent,
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              onTap: viewModel.closeDialog,
+              child: Container(
+                color: Colors.transparent,
               ),
-              const SizedBox(height: 16),
-              Text(
-                'User not found',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+            ),
+          ),
+          Dialog(
+            backgroundColor: kBackgroundColor,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.grey.withOpacity(0.1),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.person_off_outlined,
+                      size: 64,
+                      color: Colors.redAccent,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'User not found',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'This user profile could not be found.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                'This user profile could not be found.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       );
     }
 
     final userModel = viewModel.userModel!;
-    return Dialog(
-      backgroundColor: kBackgroundColor,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.8,
-        height: MediaQuery.of(context).size.height * 0.82,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(15),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: viewModel.closeDialog,
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+        Dialog(
+          backgroundColor: kBackgroundColor,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: GestureDetector(
+            onTap: () {},
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              height: MediaQuery.of(context).size.height * 0.82,
+              child: SingleChildScrollView(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 20),
-                    UserAvatar(username: viewModel.userModel?.username ?? ''),
-                    const SizedBox(height: 16),
-                    Text(
-                      userModel.username ?? 'No username found',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 30),
+                          _buildOverviewTab(viewModel),
+                          const SizedBox(height: 30),
+                          _buildStatsTab(viewModel),
+                          const SizedBox(height: 30),
+                          _buildHabitsTab(viewModel),
+                          const SizedBox(height: 30),
+                        ],
                       ),
                     ),
-                    if (userModel.bio?.isNotEmpty ?? false) ...[
-                      const SizedBox(height: 10),
-                      Text(
-                        userModel.bio ?? 'No bio available',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.grey,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                    const SizedBox(height: 30),
+                    // Add further sections like habits or stats as required
                   ],
                 ),
               ),
-              // Add further sections like habits or stats as required
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -166,7 +202,6 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
           SizedBox(height: 20),
           UserAvatar(
             username: viewModel.userModel?.username ?? 'No username found',
-            size: 80.0,
           ),
           SizedBox(height: 16),
           Text(
@@ -189,9 +224,13 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 30),
-          _buildLevelProgressBar(viewModel),
-          const SizedBox(height: 20),
-          _buildConfidenceIndicator(viewModel),
+          Row(
+            children: [
+              _buildLevelProgressBar(viewModel),
+              const SizedBox(width: 20),
+              _buildConfidenceIndicator(viewModel),
+            ],
+          ),
         ],
       ),
     );
@@ -318,7 +357,6 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
 
   @override
   void onViewModelReady(ProfileDialogModel viewModel) {
-    // TODO: implement onViewModelReady
     viewModel.loadUserData();
   }
 
@@ -327,7 +365,7 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
     BuildContext context,
   ) {
     final viewModel = ProfileDialogModel();
-    viewModel.initialize(uid, isFriendProfile);
+    viewModel.initialize(uid, isFriendProfile, completer);
     return viewModel;
   }
 }

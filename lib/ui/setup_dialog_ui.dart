@@ -1,5 +1,7 @@
 import 'package:habitur/ui/widgets/dialog/modern_dialog.dart';
-import 'package:habitur/ui/widgets/profile_dialog/profile_dialog.dart';
+import 'package:habitur/ui/widgets/dialog/habit_difficulty_dialog.dart';
+import 'package:habitur/ui/widgets/dialog/profile_dialog/profile_dialog.dart';
+import 'package:habitur/ui/widgets/dialog/success_dialog.dart';
 import 'package:stacked_services/stacked_services.dart';
 import '../app/app.locator.dart';
 import '../constants.dart';
@@ -48,37 +50,52 @@ void setupDialogUi() {
                           style: const TextStyle(color: Colors.white70),
                         ),
                       ),
-                    const SizedBox(width: 10),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimaryColor,
-                      ),
+                    TextButton(
                       onPressed: () => completer(DialogResponse(
                         confirmed: true,
                       )),
-                      child: Text(request.mainButtonTitle ?? 'OK'),
+                      child: Text(
+                        request.mainButtonTitle ?? 'OK',
+                        style: const TextStyle(color: kPrimaryColor),
+                      ),
                     ),
                   ],
-                ),
+                )
               ],
             ),
           ),
         ),
     DialogType.profile: (context, request, completer) => ProfileDialog(
-          uid: request.uid,
-          isFriendProfile: request.isFriendProfile ?? false,
+          uid: request.data['user'].uid,
+          isFriendProfile: request.data['isFriendProfile'],
+          completer: completer,
         ),
     DialogType.modern: (context, request, completer) => ModernDialog(
+          title: request.title ?? '',
+          subtitle: request.description,
+          content: request.data as Widget?,
+          primaryAction: request.mainButtonTitle != null
+              ? ModernDialogAction(
+                  label: request.mainButtonTitle!,
+                  onPressed: () => completer(DialogResponse(confirmed: true)),
+                )
+              : null,
+          secondaryAction: request.secondaryButtonTitle != null
+              ? ModernDialogAction(
+                  label: request.secondaryButtonTitle!,
+                  onPressed: () => completer(DialogResponse(confirmed: false)),
+                )
+              : null,
+        ),
+    DialogType.difficultyPopup: (context, request, completer) =>
+        HabitDifficultyDialog(
+          completer: completer,
+        ),
+    DialogType.success: (context, request, completer) => SuccessDialog(
           title: request.title,
-          subtitle: request.subtitle,
-          content: request.content,
-          icon: request.icon,
-          iconColor: request.iconColor,
-          primaryAction: request.primaryAction,
-          secondaryAction: request.secondaryAction,
-          tertiaryAction: request.tertiaryAction,
-          maxWidth: request.maxWidth,
-        )
+          description: request.description,
+          onTap: () => completer(DialogResponse(confirmed: true)),
+        ),
   };
 
   dialogService.registerCustomDialogBuilders(builders);
