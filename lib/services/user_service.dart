@@ -4,7 +4,7 @@ import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:habitur/services/local_storage_service.dart';
-import 'package:habitur/services/habit_service.dart';
+import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:stacked/stacked.dart';
 import 'stats/user_stats_service.dart';
 
@@ -13,9 +13,8 @@ import '../models/habit.dart';
 class UserService with ListenableServiceMixin {
   final _databaseService = locator<DatabaseService>();
   final _localStorageService = locator<LocalStorageService>();
-  final _habitService = locator<HabitService>();
-  final _userStatsService = locator<UserStatsService>();
   final _authService = locator<AuthService>();
+  final _statsCalculationService = locator<StatsCalculationService>();
 
   UserModel? _currentUser;
   UserModel? get currentUser => _currentUser;
@@ -118,61 +117,6 @@ class UserService with ListenableServiceMixin {
     return user.stats!.map((stat) => stat).toList(); // make a copy
   }
 
-  Future<void> logHabitCompletion() async {
-    final user = await getCurrentUser();
-    if (user == null) return;
-
-    final habits = await _habitService.getUserHabits();
-    final now = DateTime.now();
-
-    // Pre-calculate all stats values
-    final Map<String, dynamic> statsUpdates = {
-      'date': now,
-      'confidenceLevel':
-          _userStatsService.calculateStatAverage('confidenceLevel', habits),
-      'streak':
-          _userStatsService.calculateStatAverage('streak', habits).toInt(),
-      'consistencyFactor':
-          _userStatsService.calculateStatAverage('consistencyFactor', habits),
-      'difficultyRating':
-          _userStatsService.calculateStatAverage('difficultyRating', habits),
-      'slopeCompletions':
-          _userStatsService.calculateOverallSlope('completions', habits),
-      'slopeConsistency':
-          _userStatsService.calculateOverallSlope('consistencyFactor', habits),
-      'slopeConfidenceLevel':
-          _userStatsService.calculateOverallSlope('confidenceLevel', habits),
-      'slopeDifficultyRating':
-          _userStatsService.calculateOverallSlope('difficultyRating', habits),
-    };
-
-    // Update local storage
-    final stats = getStats(user);
-    bool needsNewPoint = true;
-    int currentDayIndex = -1;
-
-    for (int i = 0; i < stats.length; i++) {
-      final stat = stats[i];
-      if (isSameDay(stat.date, now)) {
-        needsNewPoint = false;
-        currentDayIndex = i;
-        break;
-      }
-    }
-
-    if (needsNewPoint) {
-      await _localStorageService.addNewUserStat();
-      currentDayIndex = stats.length;
-    }
-
-    // Update all stats
-    await _localStorageService.updateUserStats(statsUpdates);
-
-    // Update database
-    await _databaseService.updateStats(
-        user.uid, user.stats..add(StatPoint.fromMap(statsUpdates)));
-  }
-
   Future<void> unlogHabitCompletion() async {
     final user = await getCurrentUser();
     if (user == null) return;
@@ -180,14 +124,12 @@ class UserService with ListenableServiceMixin {
     await undoCompletion(user);
   }
 
-  Future<void> recordAverageConfidenceLevel() async {
+  Future<void> recordAverageConfidenceLevel(List<Habit> habits) async {
     final user = await getCurrentUser();
     if (user == null) return;
 
-    final habits = await _habitService.getUserHabits();
-
-    double averageConfidence =
-        _userStatsService.calculateStatAverage('confidenceLevel', habits);
+    double averageConfidence = _statsCalculationService.calculateStatAverage(
+        'confidenceLevel', habits);
     await updateConfidenceLevel(user, averageConfidence);
   }
 
@@ -222,15 +164,10 @@ class UserService with ListenableServiceMixin {
     await _localStorageService.updateAllStats(stats);
   }
 
-  Future<void> updateStats() async {
+  Future<void> updateStats(List<Habit> habits) async {
     final user = await getCurrentUser();
     if (user != null) {
-      final habits = await _habitService.getUserHabits();
-
-      // Use UserStatsService for stats calculations
-      final stats = _userStatsService.getUserStats(habits);
-
-      await _databaseService.updateStats(user.uid, user.stats);
+      await _databaseService.updateUserStats(user.uid, user.stats);
 
       await updateUser(user);
     }
