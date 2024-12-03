@@ -5,15 +5,17 @@ import 'package:habitur/models/habit_visibility.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/habit_service.dart';
-import 'package:habitur/services/stats/base_stats_service.dart';
+import 'package:habitur/services/stats_calculation_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class ProfileDialogModel extends BaseViewModel {
   final _authService = locator<AuthService>();
   final _userService = locator<UserService>();
   final _habitService = locator<HabitService>();
-  final _baseStatsService = locator<BaseStatsService>();
+  final _statsCalculationService = locator<StatsCalculationService>();
+  final _dialogService = locator<DialogService>();
 
   late final String _uid;
 
@@ -21,13 +23,16 @@ class ProfileDialogModel extends BaseViewModel {
 
   UserModel? _userModel;
 
+  dynamic _completer;
+
   UserModel? get userModel => _userModel;
 
   bool get isCurrentUser => _uid == _authService.currentUser!.uid;
 
-  void initialize(String uid, bool isFriendProfile) {
+  void initialize(String uid, bool isFriendProfile, dynamic completer) {
     _uid = uid;
     _isFriendProfile = isFriendProfile;
+    _completer = completer;
   }
 
   Future<void> loadUserData() async {
@@ -68,7 +73,13 @@ class ProfileDialogModel extends BaseViewModel {
   }
 
   double getConfidenceLevel() {
-    return _baseStatsService.calculateAverageValueForStat(
+    return _statsCalculationService.calculateAverageValueForStat(
         _userModel?.stats ?? [], 'confidenceLevel');
+  }
+
+  void closeDialog() {
+    _completer(DialogResponse(
+      confirmed: true,
+    ));
   }
 }
