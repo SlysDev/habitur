@@ -73,7 +73,7 @@ class SettingsService with ListenableServiceMixin {
     final userID =
         _authService.currentUser?.uid ?? _userService.currentUser?.uid;
     if (userID != null) {
-      await _databaseService.updateSettings(userID, setting);
+      await _databaseService.updateSetting(userID, setting);
     }
 
     notifyListeners();
