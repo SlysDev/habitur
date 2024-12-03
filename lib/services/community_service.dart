@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
@@ -29,10 +30,10 @@ class CommunityService with ListenableServiceMixin {
         for (var doc in snapshot.docs) {
           try {
             final data = doc.data();
-            data['id'] = doc.id;
-            final participants = await _loadParticipants(doc.id);
-            data['participants'] = participants;
-            challenges.add(CommunityChallenge(
+            debugPrint(data.toString());
+            final participants = await _loadParticipants(data['id'].toString());
+            data['participantDataList'] = participants;
+            CommunityChallenge challenge = CommunityChallenge(
               description: data['description'],
               id: data['id'],
               startDate: (data['startDate'] as Timestamp).toDate(),
@@ -49,9 +50,13 @@ class CommunityService with ListenableServiceMixin {
                 dateCreated:
                     (data['habit']['dateCreated'] as Timestamp).toDate(),
               ),
-            ));
-          } catch (e) {
-            debugPrint('Error loading challenge: $e');
+            );
+            debugPrint(
+                'community_service.dart: trying to load participants: $participants of length ${participants.length}');
+            challenge.loadParticipants(participants);
+            challenges.add(challenge);
+          } catch (e, s) {
+            debugPrint('Error loading challenge: $e, $s');
           }
         }
         return challenges;
@@ -72,17 +77,17 @@ class CommunityService with ListenableServiceMixin {
   Stream<CommunityChallenge> getChallengeByIdStream(String challengeId) =>
       _firestore
           .collection('community-challenges')
-          .doc(challengeId)
+          .where('id', isEqualTo: int.parse(challengeId))
           .snapshots()
-          .asyncMap((doc) async {
-        if (!doc.exists) {
+          .asyncMap((snapshot) async {
+        if (snapshot.docs.isEmpty) {
           throw Exception('Challenge not found');
         }
+        final doc = snapshot.docs.first;
         final data = doc.data()!;
-        data['id'] = doc.id;
-        final participants = await _loadParticipants(doc.id);
-        data['participants'] = participants;
-        return CommunityChallenge(
+        final participants = await _loadParticipants(data['id'].toString());
+        data['participantDataList'] = participants;
+        CommunityChallenge challenge = CommunityChallenge(
           description: data['description'],
           id: data['id'],
           startDate: (data['startDate'] as Timestamp).toDate(),
@@ -99,34 +104,67 @@ class CommunityService with ListenableServiceMixin {
             dateCreated: (data['habit']['dateCreated'] as Timestamp).toDate(),
           ),
         );
+        challenge.loadParticipants(participants);
+        debugPrint('Challenge loaded:');
+        debugPrint(challenge
+            .toString()
+            .split('\n')
+            .map((line) => '  $line')
+            .join('\n'));
+        return challenge;
       });
 
   Future<List<ParticipantData>> _loadParticipants(String challengeId) async {
-    final participantsSnapshot = await _firestore
+    final participantsList = await _firestore
         .collection('community-challenges')
-        .doc(challengeId)
-        .collection('participants')
-        .get();
+        .where('id', isEqualTo: int.parse(challengeId))
+        .get()
+        .then((snapshot) => snapshot.docs.first)
+        .then((doc) => doc.get('participantDataList') as List<dynamic>);
 
-    final participants = <ParticipantData>[];
-    for (var doc in participantsSnapshot.docs) {
-      try {
-        final data = doc.data();
-        final user = await _userService.getUserById(doc.id);
-        if (user != null) {
-          participants.add(ParticipantData(
-            user: user,
-            currentCompletions: data['currentCompletions'] ?? 0,
-            fullCompletionCount: data['fullCompletionCount'] ?? 0,
-            lastSeen: data['lastSeen'] ?? DateTime.now(),
-          ));
-        }
-      } catch (e) {
-        debugPrint('Error loading participant: $e');
-      }
-    }
+    debugPrint(
+        'Participant data from Firestore: ${participantsList.toString()}');
+
+    final participants = participantsList
+        .map((participantData) {
+          try {
+            final userData = participantData['user'] as Map<String, dynamic>;
+            return ParticipantData(
+              user: UserModel.fromMap(userData),
+              currentCompletions: participantData['currentCompletions'] ?? 0,
+              fullCompletionCount: participantData['fullCompletionCount'] ?? 0,
+              lastSeen: participantData['lastSeen'] != null
+                  ? (participantData['lastSeen'] as Timestamp).toDate()
+                  : DateTime.now(),
+            );
+          } catch (e) {
+            debugPrint('Error parsing participant data: $e');
+            return null;
+          }
+        })
+        .where((participant) => participant != null)
+        .cast<ParticipantData>()
+        .toList();
+
+    debugPrint('Parsed ${participants.length} participants');
     return participants;
   }
+  // for (var doc in participantsSnapshot.docs) {
+  //   try {
+  //     final data = doc.data();
+  //     final user = await _userService.getUserById(data['user']['uid']);
+  //     if (user != null) {
+  //       participants.add(ParticipantData(
+  //         user: user,
+  //         currentCompletions: data['currentCompletions'] ?? 0,
+  //         fullCompletionCount: data['fullCompletionCount'] ?? 0,
+  //         lastSeen: data['lastSeen'] ?? DateTime.now(),
+  //       ));
+  //     }
+  //   } catch (e) {
+  //     debugPrint('Error loading participant: $e');
+  //   }
+  // }
 
   Future<void> updateChallengeProgress(
       String challengeId, int newProgress) async {
@@ -138,7 +176,7 @@ class CommunityService with ListenableServiceMixin {
     await _firestore
         .collection('community-challenges')
         .doc(challengeId)
-        .collection('participants')
+        .collection('participantDataList')
         .doc(userId)
         .set({
       'currentCompletions': newProgress,
@@ -155,7 +193,7 @@ class CommunityService with ListenableServiceMixin {
     await _firestore
         .collection('community-challenges')
         .doc(challengeId)
-        .collection('participants')
+        .collection('participantDataList')
         .doc(userId)
         .set({
       'currentCompletions': 0,
@@ -172,7 +210,7 @@ class CommunityService with ListenableServiceMixin {
     await _firestore
         .collection('community-challenges')
         .doc(challengeId)
-        .collection('participants')
+        .collection('participantDataList')
         .doc(userId)
         .delete();
   }
@@ -208,7 +246,7 @@ class CommunityService with ListenableServiceMixin {
           );
 
           // Load participants
-          final participants = await _loadParticipants(doc.id);
+          final participants = await _loadParticipants(data['id'].toString());
           challenge.loadParticipants(participants);
           return challenge;
         }),

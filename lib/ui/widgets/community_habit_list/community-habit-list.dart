@@ -46,34 +46,29 @@ class CommunityHabitList extends StackedView<CommunityHabitListViewModel> {
       );
     }
 
-    if (viewModel.challenges.isEmpty) {
+    if (viewModel.data == null || viewModel.data!.isEmpty) {
       return const Center(
         child: Text(
-          'No active challenges',
-          style: TextStyle(fontSize: 16, color: kGray),
+          'No community challenges available',
+          style: TextStyle(color: Colors.white60),
         ),
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: viewModel.refreshChallenges,
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: viewModel.challenges.length,
-        itemBuilder: (context, index) {
-          final challenge = viewModel.challenges[index];
-          return Column(
-            children: [
-              CommunityChallengeCard(
-                challenge: challenge,
-                isAdmin: viewModel.isAdmin,
-              ),
-              const SizedBox(height: 20),
-            ],
-          );
-        },
-      ),
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: viewModel.data!.length,
+      itemBuilder: (context, index) {
+        final challenge = viewModel.data![index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: CommunityChallengeCard(
+            challenge: challenge,
+            isAdmin: isAdmin,
+          ),
+        );
+      },
     );
   }
 

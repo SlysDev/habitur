@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/app/app.locator.dart';
@@ -7,13 +8,10 @@ import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/community_service.dart';
 import 'package:habitur/services/habit_service.dart';
-import 'package:habitur/ui/views/community_leaderboard/community_leaderboard_view.dart';
+import 'package:habitur/services/network_service.dart';
+import 'package:habitur/services/user_service.dart';
 
-import '../../../services/network_service.dart';
-import '../../../services/user_service.dart';
-
-class CommunityChallengeCardViewModel
-    extends StreamViewModel<CommunityChallenge> {
+class CommunityChallengeCardViewModel extends BaseViewModel {
   final _communityService = locator<CommunityService>();
   final _habitService = locator<HabitService>();
   final _authService = locator<AuthService>();
@@ -22,70 +20,58 @@ class CommunityChallengeCardViewModel
   final _userService = locator<UserService>();
   final _networkService = locator<NetworkService>();
 
-  final String challengeId;
+  final CommunityChallenge challenge;
 
-  CommunityChallengeCardViewModel({required this.challengeId});
+  CommunityChallengeCardViewModel({required this.challenge});
 
-  @override
-  Stream<CommunityChallenge> get stream =>
-      _communityService.getChallengeByIdStream(challengeId);
-
-  CommunityChallenge get challenge => data!;
-
-  bool get isJoined =>
-      data?.participants
-          .any((p) => p.user.uid == _authService.currentUser?.uid) ??
-      false;
+  bool get isJoined => challenge.participants
+      .any((p) => p.user.uid == _authService.currentUser?.uid);
 
   List<ParticipantData> get topParticipants {
-    if (data == null) return [];
-    final sorted = List<ParticipantData>.from(data!.participants)
+    final sorted = List<ParticipantData>.from(challenge.participants)
       ..sort((a, b) => b.currentCompletions.compareTo(a.currentCompletions));
     return sorted.take(3).toList();
   }
 
   double get totalProgress {
-    if (data == null) return 0;
-    return data!.currentFullCompletions / data!.requiredFullCompletions;
+    return challenge.currentFullCompletions / challenge.requiredFullCompletions;
   }
-
-  double get userProgress => (_currentParticipant?.currentCompletions ??
-          0 / challenge.habit.targetGoal)
-      .toDouble();
-
-  ParticipantData? _currentParticipant;
-
-  ParticipantData? get currentParticipant => _currentParticipant;
 
   bool get isConnected => _networkService.isConnected;
 
-  Future<void> initialize() async {
-    try {
-      final currentUser = await _userService.getCurrentUser();
-      if (currentUser != null) {
-        _currentParticipant = challenge.participants
-            .firstWhere((p) => p.user.uid == currentUser.uid);
-        notifyListeners();
-      }
-    } catch (e) {
-      // User is not a participant
-      _currentParticipant = null;
-      notifyListeners();
+  double get userProgress {
+    final user = _userService.currentUser;
+    final habit = challenge.habit;
+    final habitId = challenge.habit.id;
+    if (user == null || habit == null || habitId == null) {
+      return 0.0;
     }
+    final currentCompletions = habit.currentProgress;
+    final requiredCompletions = habit.targetGoal;
+    return currentCompletions / requiredCompletions;
+  }
+
+  Future<void> navigateToChallengeOverview() async {
+    debugPrint(
+        'Navigating to challenge overview... w/ challenge id: ${challenge.id}');
+    await _navigationService.navigateToCommunityLeaderboardView(
+      challengeId: challenge.id.toString(),
+    );
   }
 
   Future<void> joinChallenge() async {
-    if (!_authService.isLoggedIn) {
+    if (!_networkService.isConnected) {
       await _dialogService.showDialog(
-        title: 'Error',
-        description: 'You must be logged in to join a challenge',
+        title: 'No Internet Connection',
+        description: 'Please check your connection and try again.',
       );
       return;
     }
 
-    setBusy(true);
     try {
-      await _communityService.joinChallenge(challengeId);
+      setBusy(true);
+      await _communityService.joinChallenge(challenge.id.toString());
+      notifyListeners();
     } catch (e) {
       await _dialogService.showDialog(
         title: 'Error',
@@ -97,9 +83,18 @@ class CommunityChallengeCardViewModel
   }
 
   Future<void> leaveChallenge() async {
-    setBusy(true);
+    if (!_networkService.isConnected) {
+      await _dialogService.showDialog(
+        title: 'No Internet Connection',
+        description: 'Please check your connection and try again.',
+      );
+      return;
+    }
+
     try {
-      await _communityService.leaveChallenge(challengeId);
+      setBusy(true);
+      await _communityService.leaveChallenge(challenge.id.toString());
+      notifyListeners();
     } catch (e) {
       await _dialogService.showDialog(
         title: 'Error',
@@ -108,59 +103,5 @@ class CommunityChallengeCardViewModel
     } finally {
       setBusy(false);
     }
-  }
-
-  Future<void> completeChallenge() async {
-    try {
-      setBusy(true);
-      await _communityService.updateChallengeProgress(
-          challenge.id.toString(), challenge.currentFullCompletions + 1);
-      await _habitService.completeHabit(challenge.habit.id.toString());
-      await initialize();
-    } catch (e) {
-      await _dialogService.showDialog(
-        title: 'Error',
-        description: 'Failed to complete challenge: ${e.toString()}',
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  Future<void> decrementProgress() async {
-    try {
-      setBusy(true);
-      await _communityService.updateChallengeProgress(
-          challenge.id.toString(), challenge.currentFullCompletions - 1);
-      await _habitService.uncompleteHabit(challenge.habit.id.toString());
-      await initialize();
-    } catch (e) {
-      await _dialogService.showDialog(
-        title: 'Error',
-        description: 'Failed to decrement progress: ${e.toString()}',
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  Future<void> navigateToLeaderboard() async {
-    await _navigationService.navigateToView(
-      CommunityLeaderboardView(challengeId: challengeId),
-    );
-  }
-
-  void navigateToEdit() {
-    _navigationService.navigateTo(
-      '/edit-community-challenge',
-      arguments: challenge,
-    );
-  }
-
-  void navigateToChallengeOverview() {
-    _navigationService.navigateTo(
-      '/community-challenge-overview',
-      arguments: challenge,
-    );
   }
 }
