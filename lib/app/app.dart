@@ -6,7 +6,6 @@ import 'package:habitur/services/stats/user_stats_service.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/status_service.dart';
 import 'package:habitur/services/sync_service.dart';
-import 'package:habitur/ui/views/home_revamp/home_revamp_view.dart';
 import 'package:habitur/ui/views/startup/startup_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
@@ -71,8 +70,6 @@ import '../ui/views/habit_overview/habit_overview_view.dart';
       page: HabitOverviewView,
       transitionsBuilder: TransitionsBuilders.fadeIn,
     ),
-    CustomRoute(
-        page: HomeRevampView, transitionsBuilder: TransitionsBuilders.fadeIn),
   ],
   dependencies: [
     // Core Services

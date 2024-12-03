@@ -169,14 +169,6 @@ class ActivityDatabaseService with ListenableServiceMixin {
       final activity =
           ActivityEvent.fromMap(doc.data() as Map<String, dynamic>);
 
-      // Check if user has access to this activity
-      bool isFriendWithActivityOwner =
-          await _friendsService.isFriend(activity.userId, otherUserId: userId);
-      if (!isFriendWithActivityOwner) {
-        _logger.info('🔒 User does not have access to this activity');
-        return null;
-      }
-
       _logger.info('✅ Successfully retrieved activity');
       return activity;
     } catch (e) {

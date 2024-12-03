@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/models/activity_event.dart';
 import 'package:habitur/models/user.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:logging/logging.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 import '../app/app.locator.dart';
 import '../enums/activity_type.dart';
 import '../enums/reaction_type.dart';
@@ -78,6 +80,9 @@ class ActivityService with ListenableServiceMixin {
               return user.privacySettings?.shareStreakMilestones ?? false;
             case ActivityType.newHabit:
               return user.privacySettings?.shareNewHabits ?? false;
+            case ActivityType.communityChallengeCompletion:
+              return user.privacySettings?.shareCommunityChallengeCompletions ??
+                  false;
           }
         }
 
@@ -105,8 +110,9 @@ class ActivityService with ListenableServiceMixin {
         }).toList();
         await _sortActivities();
       }
-    } catch (e) {
+    } catch (e, s) {
       _logger.severe('Error loading initial activities: $e');
+      _logger.severe('Stack trace: $s');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -181,6 +187,13 @@ class ActivityService with ListenableServiceMixin {
           return;
         }
         break;
+      case ActivityType.communityChallengeCompletion:
+        if (!user.privacySettings!.shareCommunityChallengeCompletions) {
+          _logger.info(
+              'Not creating community challenge completion activity due to privacy settings');
+          return;
+        }
+        break;
     }
 
     // Handle profile picture privacy
@@ -194,6 +207,7 @@ class ActivityService with ListenableServiceMixin {
 
     try {
       _activities.insert(0, activity);
+      await _activityDatabaseService.createActivity(activity);
       await _sortActivities();
       notifyListeners();
     } catch (e) {
@@ -201,12 +215,35 @@ class ActivityService with ListenableServiceMixin {
     }
   }
 
+  Future<void> createActivityForEvent(String userId, String username,
+      ActivityType type, String habitId, String habitTitle,
+      {Map<String, dynamic>? metadata}) async {
+    final activity = ActivityEvent(
+      userId: userId,
+      username: username,
+      type: type,
+      habitId: habitId,
+      habitTitle: habitTitle,
+      metadata: metadata,
+    );
+
+    await createActivity(activity);
+  }
+
   Future<void> likeActivity(String activityId) async {
     debugPrint('activity_service.dart likeActivity(); activityId: $activityId');
     final activity = await getActivity(activityId);
+    debugPrint(
+        'activity_service.dart likeActivity(); activity user id: ${activity?.userId}');
     if (activity == null) throw Exception('Activity not found');
     try {
       final user = await _localStorageService.getCurrentUser();
+      if (activity.userId == user?.uid) {
+        debugPrint('You can\'t like your own activity');
+
+        showErrorSnackbar('You can\'t like your own activity');
+        return;
+      }
       if (user != null && !activity.likes.contains(user.uid)) {
         await _activityDatabaseService.updateActivity(activity.id!, {
           ...activity.toMap(),
@@ -216,6 +253,7 @@ class ActivityService with ListenableServiceMixin {
         });
         await _sortActivities();
         notifyListeners();
+        showSuccessSnackbar('Liked activity');
       }
     } catch (e) {
       _logger.severe('Error liking activity: $e');
@@ -247,6 +285,7 @@ class ActivityService with ListenableServiceMixin {
       await _activityDatabaseService.deleteActivity(activityId);
       _activities.removeWhere((activity) => activity.id == activityId);
       notifyListeners();
+      showSuccessSnackbar('Activity deleted');
     } catch (e) {
       _logger.severe('Error deleting activity: $e');
     }
@@ -328,10 +367,23 @@ class ActivityService with ListenableServiceMixin {
 
         await _sortActivities();
         notifyListeners();
+        showSuccessSnackbar('Reaction updated');
       }
     } catch (e, stack) {
       _logger.severe('Error toggling reaction: $e');
       _logger.severe('Stack trace: $stack');
+      showErrorSnackbar('There was a problem updating your reaction');
+    }
+  }
+
+  Future<void> addComment(String activityId, Comment comment) async {
+    try {
+      await _activityDatabaseService.addComment(activityId, comment.toMap());
+      _logger.info('Comment added to activity: $activityId');
+    } catch (e) {
+      _logger
+          .severe('Error adding comment to activity: $activityId, Error: $e');
+      throw e;
     }
   }
 

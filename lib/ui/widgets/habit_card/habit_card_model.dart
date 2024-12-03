@@ -2,17 +2,23 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
+import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/models/activity_event.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/progress.dart';
+import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/habit_service.dart';
+import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class HabitCardModel extends BaseViewModel {
   final _habitService = locator<HabitService>();
+  final _activityService = locator<ActivityService>();
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
+  final _userService = locator<UserService>();
   late final ConfettiController _controller;
 
   Habit habit;
@@ -51,6 +57,13 @@ class HabitCardModel extends BaseViewModel {
       setBusy(true);
       final difficulty = await showDifficultyPopup();
       await _habitService.incrementHabit(habit.id.toString(), difficulty);
+      debugPrint('Habit ${habit.id} completed. Adding activity...');
+      await _activityService.createActivityForEvent(
+          _userService.currentUser!.uid,
+          _userService.currentUser!.username,
+          ActivityType.habitProgress,
+          habit.id.toString(),
+          habit.title);
       _completed = habit.isCompleted;
       notifyListeners();
 

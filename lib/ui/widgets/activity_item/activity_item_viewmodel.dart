@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/services/auth_service.dart';
+import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import '../../../app/app.locator.dart';
 import '../../../enums/reaction_type.dart';
@@ -7,6 +9,9 @@ import '../../../services/activity_service.dart';
 
 class ActivityItemViewModel extends BaseViewModel {
   final _activityService = locator<ActivityService>();
+  final _authService = locator<AuthService>();
+  final _userService = locator<UserService>();
+  final commentController = TextEditingController();
 
   Future<void> toggleReaction(String activityId, ReactionType type) async {
     await runBusyFuture(_activityService.toggleReaction(activityId, type));
@@ -81,5 +86,28 @@ class ActivityItemViewModel extends BaseViewModel {
     ));
 
     rebuildUi();
+  }
+
+  Future<void> addComment(String activityId) async {
+    final commentText = commentController.text.trim();
+    if (commentText.isEmpty) return;
+
+    final user = _userService.currentUser;
+    if (user == null) return;
+
+    try {
+      await _activityService.addComment(
+          activityId,
+          Comment(
+            userId: user.uid,
+            username: user.username,
+            text: commentText,
+          ));
+      commentController.clear();
+      rebuildUi();
+    } catch (e) {
+      // Handle error, e.g., show a snackbar
+      print('Error adding comment: $e');
+    }
   }
 }

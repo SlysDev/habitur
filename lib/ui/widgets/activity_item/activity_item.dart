@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/ui/common/ui_helpers.dart';
 import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:stacked/stacked.dart';
@@ -11,8 +12,9 @@ import '../../../app/app.locator.dart';
 import '../../../enums/activity_type.dart';
 import '../../../enums/reaction_type.dart';
 import '../../../services/auth_service.dart';
+import '../../../ui/widgets/user_avatar/user_avatar.dart';
 
-class ActivityItem extends StatelessWidget {
+class ActivityItem extends StatefulWidget {
   final ActivityEvent activity;
   final _authService = locator<AuthService>();
 
@@ -33,6 +35,14 @@ class ActivityItem extends StatelessWidget {
         return 'did something';
     }
   }
+
+  @override
+  _ActivityItemState createState() => _ActivityItemState();
+}
+
+class _ActivityItemState extends State<ActivityItem> {
+  bool _showAllComments = false;
+  int _initialCommentCount = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +71,7 @@ class ActivityItem extends StatelessWidget {
                     style: DefaultTextStyle.of(context).style,
                     children: [
                       TextSpan(
-                        text: activity.username,
+                        text: widget.activity.username,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -70,7 +80,7 @@ class ActivityItem extends StatelessWidget {
                       ),
                       TextSpan(text: ' '),
                       TextSpan(
-                        text: _getActivityMessage(),
+                        text: widget._getActivityMessage(),
                         style: TextStyle(
                           fontSize: 15,
                           height: 1.3,
@@ -85,7 +95,7 @@ class ActivityItem extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
-                        timeago.format(activity.timestamp),
+                        timeago.format(widget.activity.timestamp),
                         style: TextStyle(
                           fontSize: 13,
                           color: kDarkGray.withOpacity(0.7),
@@ -105,10 +115,12 @@ class ActivityItem extends StatelessWidget {
                             children: [
                               GestureDetector(
                                 onTap: () async {
-                                  if (!activity.hasLiked) {
-                                    await model.likeActivity(activity.id);
+                                  if (!widget.activity.hasLiked) {
+                                    await model
+                                        .likeActivity(widget.activity.id);
                                   } else {
-                                    await model.unlikeActivity(activity.id);
+                                    await model
+                                        .unlikeActivity(widget.activity.id);
                                   }
                                 },
                                 child: AnimatedContainer(
@@ -117,12 +129,12 @@ class ActivityItem extends StatelessWidget {
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: activity.hasLiked
+                                    color: widget.activity.hasLiked
                                         ? Colors.red.withOpacity(0.1)
                                         : kFadedBlue.withOpacity(0.3),
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: activity.hasLiked
+                                      color: widget.activity.hasLiked
                                           ? Colors.red.withOpacity(0.2)
                                           : kFadedBlue.withOpacity(0.4),
                                       width: 1,
@@ -139,7 +151,7 @@ class ActivityItem extends StatelessWidget {
                                             child: child,
                                           );
                                         },
-                                        child: activity.hasLiked
+                                        child: widget.activity.hasLiked
                                             ? Icon(
                                                 Icons.favorite,
                                                 size: 18,
@@ -155,9 +167,9 @@ class ActivityItem extends StatelessWidget {
                                       ),
                                       SizedBox(width: 6),
                                       Text(
-                                        activity.likeCount.toString(),
+                                        widget.activity.likeCount.toString(),
                                         style: TextStyle(
-                                          color: activity.hasLiked
+                                          color: widget.activity.hasLiked
                                               ? Colors.red
                                               : Colors.grey,
                                           fontWeight: FontWeight.w500,
@@ -167,8 +179,8 @@ class ActivityItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              if (activity.reactions.isNotEmpty)
-                                ...activity.reactions.entries
+                              if (widget.activity.reactions.isNotEmpty)
+                                ...widget.activity.reactions.entries
                                     .where((entry) => entry.value.length > 0)
                                     .map((entry) {
                                   final reactionType = entry.key;
@@ -179,7 +191,7 @@ class ActivityItem extends StatelessWidget {
                                   return GestureDetector(
                                     onTap: () async {
                                       await model.toggleReaction(
-                                          activity.id, reactionType);
+                                          widget.activity.id, reactionType);
                                     },
                                     child: Container(
                                       padding: EdgeInsets.symmetric(
@@ -213,10 +225,12 @@ class ActivityItem extends StatelessWidget {
                             ],
                           ),
                         ),
-                        if (activity.userId == _authService.currentUser?.uid)
+                        if (widget.activity.userId ==
+                            widget._authService.currentUser?.uid)
                           IconButton(
                             icon: Icon(Icons.delete_outline),
-                            onPressed: () => model.deleteActivity(activity.id),
+                            onPressed: () =>
+                                model.deleteActivity(widget.activity.id),
                           ),
                       ],
                     ),
@@ -239,8 +253,8 @@ class ActivityItem extends StatelessWidget {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(8),
-                        onTap: () =>
-                            model.showReactionPicker(context, activity.id),
+                        onTap: () => model.showReactionPicker(
+                            context, widget.activity.id),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 12.0, vertical: 8.0),
@@ -262,6 +276,113 @@ class ActivityItem extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(
+                height: 1,
+                color: kFadedBlue.withOpacity(0.6),
+              ),
+              SizedBox(height: 12),
+              if (widget.activity.comments.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ...widget.activity.comments
+                          .take(_showAllComments
+                              ? widget.activity.comments.length
+                              : _initialCommentCount)
+                          .map((comment) => Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: Row(
+                                  children: [
+                                    UserAvatar(
+                                        username: comment.username, size: 0.8),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            comment.username,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                              color: kPrimaryColor,
+                                            ),
+                                          ),
+                                          Text(
+                                            comment.text,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: kGray,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Text(
+                                      timeago.format(comment.timestamp),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: kDarkGray,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )),
+                      if (widget.activity.comments.length >
+                          _initialCommentCount)
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _showAllComments = !_showAllComments;
+                            });
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(top: 8),
+                            child: Text(
+                              _showAllComments
+                                  ? 'Show less'
+                                  : 'Show all comments',
+                              style: TextStyle(
+                                color: kPrimaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: model.commentController,
+                        decoration: InputDecoration(
+                          hintText: 'Add a comment...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: kFadedBlue.withOpacity(0.1),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.send, color: kPrimaryColor),
+                      onPressed: () => model.addComment(widget.activity.id),
                     ),
                   ],
                 ),

@@ -25,6 +25,7 @@ class PrivacySettingsAdapter extends TypeAdapter<PrivacySettings> {
       shareHabitCompletions: fields[5] as bool,
       shareStreakMilestones: fields[6] as bool,
       shareNewHabits: fields[7] as bool,
+      shareCommunityChallengeCompletions: fields[9] as bool,
       shareProfilePicture: fields[8] as bool,
     );
   }
@@ -32,7 +33,7 @@ class PrivacySettingsAdapter extends TypeAdapter<PrivacySettings> {
   @override
   void write(BinaryWriter writer, PrivacySettings obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.statsScope)
       ..writeByte(1)
@@ -49,6 +50,8 @@ class PrivacySettingsAdapter extends TypeAdapter<PrivacySettings> {
       ..write(obj.shareStreakMilestones)
       ..writeByte(7)
       ..write(obj.shareNewHabits)
+      ..writeByte(9)
+      ..write(obj.shareCommunityChallengeCompletions)
       ..writeByte(8)
       ..write(obj.shareProfilePicture);
   }

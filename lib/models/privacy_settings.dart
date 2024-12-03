@@ -39,6 +39,9 @@ class PrivacySettings {
   @HiveField(7)
   final bool shareNewHabits;
 
+  @HiveField(9)
+  final bool shareCommunityChallengeCompletions;
+
   @HiveField(8)
   final bool shareProfilePicture;
 
@@ -51,6 +54,7 @@ class PrivacySettings {
     this.shareHabitCompletions = true,
     this.shareStreakMilestones = true,
     this.shareNewHabits = true,
+    this.shareCommunityChallengeCompletions = true,
     this.shareProfilePicture = true,
   });
 
