@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:habitur/services/local_storage_service.dart';
+import 'package:habitur/services/stats/habit_stats_service.dart';
+import 'package:habitur/services/stats/stats_orchestration_service.dart';
 import 'package:habitur/services/user_service.dart';
+import 'package:habitur/util_functions.dart';
+import 'package:intl/intl.dart';
 import 'package:stacked/stacked.dart';
+import 'dart:math' as math;
+import 'package:habitur/ui/widgets/habit_difficulty_popup.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class HabitService with ListenableServiceMixin {
   final _databaseService = locator<DatabaseService>();
   final _localStorageService = locator<LocalStorageService>();
   final _authService = locator<AuthService>();
+  final _statsOrchestrationService = locator<StatsOrchestrationService>();
+  final _dialogService = locator<DialogService>();
 
   final ReactiveValue<List<Habit>> _habits = ReactiveValue<List<Habit>>([]);
   List<Habit> get habits => _habits.value;
+  Stream<List<Habit>> get habitsStream => _habits.values;
 
   HabitService() {
     listenToReactiveValues([_habits]);
@@ -26,16 +38,27 @@ class HabitService with ListenableServiceMixin {
   }
 
   Future<void> loadHabits() async {
+    debugPrint('Loading habits...');
     // Try local storage first
-    _habits.value = await _localStorageService.getHabits() ?? [];
+    var localHabits = await _localStorageService.getHabitData();
+    debugPrint(
+        'Local habits: ${localHabits.map((h) => 'ID: ${h.id}, Title: ${h.title}')}');
 
     // If empty or forced refresh, get from database
-    if (_habits.value.isEmpty) {
-      _habits.value =
+    if (localHabits.isEmpty) {
+      debugPrint('No local habits, fetching from database...');
+      localHabits =
           await _databaseService.getHabits(_authService.currentUser!.uid);
-      await _localStorageService.saveHabits(_habits.value);
+      await _localStorageService.saveHabits(localHabits);
+      debugPrint(
+          'Fetched habits from database: ${localHabits.map((h) => 'ID: ${h.id}, Title: ${h.title}')}');
     }
+
+    _habits.value = localHabits;
+    await resetHabits();
     notifyListeners();
+    debugPrint(
+        'Finished loading habits. Current habits: ${_habits.value.map((h) => 'ID: ${h.id}, Title: ${h.title}')}');
   }
 
   Future<void> loadFromRemote() async {
@@ -47,8 +70,8 @@ class HabitService with ListenableServiceMixin {
     }
   }
 
-  Future<void> loadFromLocal() async {
-    _habits.value = await _localStorageService.getHabits() ?? [];
+  loadFromLocal() async {
+    _habits.value = _localStorageService.getHabitData() ?? [];
     notifyListeners();
   }
 
@@ -56,7 +79,7 @@ class HabitService with ListenableServiceMixin {
     if (userId != null) {
       return await _databaseService.getHabits(userId);
     }
-    return habits;
+    return _habits.value;
   }
 
   Future<List<Habit>> getVisibleHabits({String? userId}) async {
@@ -71,79 +94,98 @@ class HabitService with ListenableServiceMixin {
   }
 
   Future<void> addHabit(Habit habit) async {
-    final habits = await getUserHabits();
-    habits.add(habit);
-    await saveHabits(habits);
+    _habits.value = [..._habits.value, habit];
+    await _localStorageService.saveHabits(_habits.value);
+    await _databaseService.updateAllHabits(
+        _authService.currentUser!.uid, _habits.value);
+    notifyListeners();
   }
 
   Future<void> updateHabit(Habit updatedHabit) async {
-    final habits = await getUserHabits();
-    final index =
-        habits.indexWhere((h) => h.id.toString() == updatedHabit.id.toString());
+    final index = _habits.value.indexWhere((h) => h.id == updatedHabit.id);
     if (index != -1) {
-      habits[index] = updatedHabit;
-      await saveHabits(habits);
+      _habits.value = [
+        ..._habits.value.sublist(0, index),
+        updatedHabit,
+        ..._habits.value.sublist(index + 1),
+      ];
+      await _localStorageService.saveHabits(_habits.value);
+      await _databaseService.updateHabit(
+          _authService.currentUser!.uid, updatedHabit);
+      notifyListeners();
     }
   }
 
   Future<void> deleteHabit(String habitId) async {
-    final habits = await getUserHabits();
-    habits.removeWhere((h) => h.id.toString() == habitId);
-    await saveHabits(habits);
+    debugPrint('Attempting to delete habit with ID: $habitId');
+    debugPrint(
+        'Current habits before deletion: ${_habits.value.map((h) => 'ID: ${h.id}, Title: ${h.title}')}');
+
+    // Convert string ID to int for comparison
+    final habitIdInt = int.parse(habitId);
+    final habitToDelete = _habits.value.firstWhere(
+      (h) => h.id == habitIdInt,
+      orElse: () => throw Exception('Habit not found with ID: $habitId'),
+    );
+    debugPrint(
+        'Found habit to delete: ID: ${habitToDelete.id}, Title: ${habitToDelete.title}');
+
+    _habits.value = _habits.value.where((h) => h.id != habitIdInt).toList();
+    debugPrint(
+        'Habits after deletion: ${_habits.value.map((h) => 'ID: ${h.id}, Title: ${h.title}')}');
+
+    await _localStorageService.deleteHabit(habitId);
+    await _databaseService.deleteHabit(_authService.currentUser!.uid, habitId);
+    notifyListeners();
   }
 
-  Future<void> completeHabit(String habitId) async {
-    final habits = await getUserHabits();
-    final index = habits.indexWhere((h) => h.id.toString() == habitId);
+  Future<void> incrementHabit(String habitId, double difficultyRating,
+      {int amount = 1}) async {
+    // Convert string ID to int for comparison
+    final habitIdInt = int.parse(habitId);
+    final index = _habits.value.indexWhere((h) => h.id == habitIdInt);
     if (index != -1) {
-      final habit = habits[index];
-      habit.currentProgress = habit.targetGoal; // This will trigger isCompleted
-      habit.lastSeen = DateTime.now();
-      habit.totalProgress++;
+      final habit = _habits.value[index];
 
-      if (habit.streak == 0)
-        habit.streak = 1;
-      else
-        habit.streak++;
+      // Process stats (which will also save the habit changes)
+      await _statsOrchestrationService.processHabitIncrement(
+        habit: habit,
+        amount: amount,
+        difficultyRating: difficultyRating,
+      );
 
-      // Update highest streak if current streak is higher
-      if (habit.streak > (habit.highestStreak)) {
-        habit.highestStreak = habit.streak;
-      }
+      // Create a new list to trigger reactivity
+      _habits.value = [
+        ..._habits.value.sublist(0, index),
+        habit,
+        ..._habits.value.sublist(index + 1),
+      ];
 
-      // Add completion date to days completed
-      if (!habit.daysCompleted.contains(DateTime.now())) {
-        habit.daysCompleted.add(DateTime.now());
-      }
-
-      habits[index] = habit;
-      await saveHabits(habits);
-
-      // Update stats
-      await calculateHabitStats();
+      notifyListeners();
     }
   }
 
-  Future<void> uncompleteHabit(String habitId) async {
-    final habits = await getUserHabits();
-    final index = habits.indexWhere((h) => h.id.toString() == habitId);
+  Future<void> decrementHabit(String habitId, {int amount = 1}) async {
+    // Convert string ID to int for comparison
+    final habitIdInt = int.parse(habitId);
+    final index = _habits.value.indexWhere((h) => h.id == habitIdInt);
     if (index != -1) {
-      final habit = habits[index];
-      habit.currentProgress = 0; // This will trigger isCompleted
-      if (habit.streak > 0) {
-        habit.streak--;
-      }
-      habit.totalProgress--;
+      final habit = _habits.value[index];
 
-      // Remove today from days completed if it exists
-      habit.daysCompleted
-          .removeWhere((date) => isSameDay(date, DateTime.now()));
+      // Process stats (which will also save the habit changes)
+      await _statsOrchestrationService.processHabitDecrement(
+        habit: habit,
+        amount: amount,
+      );
 
-      habits[index] = habit;
-      await saveHabits(habits);
+      // Create a new list to trigger reactivity
+      _habits.value = [
+        ..._habits.value.sublist(0, index),
+        habit,
+        ..._habits.value.sublist(index + 1),
+      ];
 
-      // Update stats
-      await calculateHabitStats();
+      notifyListeners();
     }
   }
 
@@ -159,15 +201,32 @@ class HabitService with ListenableServiceMixin {
 
   Future<List<Habit>> getTodaysDueHabits() async {
     final habits = await getUserHabits();
-    return habits.where((h) => h.isCompleted).toList();
+    return habits.where((h) => !h.isCompleted && isDue(h)).toList();
+  }
+
+  bool isDue(Habit habit) {
+    if (habit.requiredDatesOfCompletion.isEmpty) {
+      return false;
+    }
+    return habit.requiredDatesOfCompletion
+            .contains(DateFormat('EEEE').format(DateTime.now())) &&
+        !habit.isCompleted;
+  }
+
+  Future<void> resetHabits() async {
+    await resetDailyHabits();
+    await resetWeeklyHabits();
+    await resetMonthlyHabits();
+    await calculateHabitStats();
   }
 
   Future<void> resetDailyHabits() async {
     final habits = await getUserHabits();
     bool hasChanges = false;
     for (var habit in habits) {
-      if (habit.resetPeriod.toLowerCase() == 'daily' && habit.isCompleted) {
-        habit.currentProgress = 0;
+      if (habit.resetPeriod.toLowerCase() == 'daily' &&
+          habit.currentProgress > 0) {
+        habit.progress.reset();
         hasChanges = true;
       }
     }
@@ -181,7 +240,7 @@ class HabitService with ListenableServiceMixin {
     bool hasChanges = false;
     for (var habit in habits) {
       if (habit.resetPeriod.toLowerCase() == 'weekly' && habit.isCompleted) {
-        habit.currentProgress = 0;
+        habit.progress.reset();
         hasChanges = true;
       }
     }
@@ -195,7 +254,7 @@ class HabitService with ListenableServiceMixin {
     bool hasChanges = false;
     for (var habit in habits) {
       if (habit.resetPeriod.toLowerCase() == 'monthly' && habit.isCompleted) {
-        habit.currentProgress = 0;
+        habit.progress.reset();
         hasChanges = true;
       }
     }
@@ -257,12 +316,5 @@ class HabitService with ListenableServiceMixin {
     final averageGap = totalGap / gapCount;
     // Convert average gap to a 0-1 scale where smaller gaps mean higher consistency
     return 1.0 / (1.0 + averageGap);
-  }
-
-  bool isSameDay(DateTime? date1, DateTime? date2) {
-    if (date1 == null || date2 == null) return false;
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
   }
 }
