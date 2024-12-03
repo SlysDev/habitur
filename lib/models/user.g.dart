@@ -30,10 +30,10 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       sentFriendRequests: (fields[10] as List).cast<FriendRequest>(),
       profilePicture: fields[11] as String?,
       habitVisibilitySettings: (fields[12] as List).cast<HabitVisibility>(),
-      isBlocked: fields[13] as bool,
-      blockedAt: fields[14] as DateTime?,
-      blockReason: fields[15] as String?,
-      privacySettings: fields[16] as PrivacySettings,
+      isBlocked: fields[14] as bool,
+      blockedAt: fields[15] as DateTime?,
+      blockReason: fields[16] as String?,
+      privacySettings: fields[13] as PrivacySettings,
     );
   }
 
@@ -68,13 +68,13 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(12)
       ..write(obj.habitVisibilitySettings)
       ..writeByte(13)
-      ..write(obj.isBlocked)
+      ..write(obj.privacySettings)
       ..writeByte(14)
-      ..write(obj.blockedAt)
+      ..write(obj.isBlocked)
       ..writeByte(15)
-      ..write(obj.blockReason)
+      ..write(obj.blockedAt)
       ..writeByte(16)
-      ..write(obj.privacySettings);
+      ..write(obj.blockReason);
   }
 
   @override
