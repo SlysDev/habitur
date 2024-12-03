@@ -1,4 +1,5 @@
-import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:habitur/services/stats/user_stats_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/services/habit_service.dart';
@@ -6,48 +7,44 @@ import 'package:habitur/services/user_service.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/stat_point.dart';
 
-class HabitStat {
-  final String habitName;
-  final double completionRate;
-  final int streak;
-
-  HabitStat({
-    required this.habitName,
-    required this.completionRate,
-    required this.streak,
-  });
-}
-
 class StatisticsViewModel extends BaseViewModel {
   final _habitService = locator<HabitService>();
   final _userService = locator<UserService>();
+  final _userStatsService = locator<UserStatsService>();
 
   List<Habit> _habits = [];
   List<StatPoint> _statPoints = [];
-  List<HabitStat> _habitStats = [];
-  int _totalHabits = 0;
+  List<StatPoint> _habitStats = [];
   double _completionRate = 0.0;
   int _bestStreak = 0;
-  List<FlSpot> _completionData = [];
-  List<FlSpot> _streakData = [];
+  Map<dynamic, dynamic> _userMetrics = {
+    'totalHabitsCompleted': 0,
+    'longestStreak': 0,
+    'weekCompletions': 0,
+    'overallProgress': 0.0,
+    'goalAchievementRates': {},
+    'engagement': {},
+    'rankedHabits': [],
+  };
 
-  List<HabitStat> get habitStats => _habitStats;
-  int get totalHabits => _totalHabits;
+  // Getters
+  List<StatPoint> get habitStats => _habitStats;
+  List<StatPoint> get statPoints => _statPoints;
+  Map<dynamic, dynamic> get userMetrics => _userMetrics;
+
+  int get totalHabits => userMetrics['totalHabitsCompleted'];
   double get completionRate => _completionRate;
-  int get bestStreak => _bestStreak;
-  List<FlSpot> get completionData => _completionData;
-  List<FlSpot> get streakData => _streakData;
+  int get bestStreak => userMetrics['longestStreak'];
+  List<Habit> get habits => _habits;
 
-  StatisticsViewModel() {
-    _initialize();
-  }
-
-  Future<void> _initialize() async {
+  Future<void> initialize() async {
     setBusy(true);
+    debugPrint('Initializing Statistics Viewmodel...');
     try {
       await _loadHabits();
       await _loadStats();
-      _calculateStats();
+      rebuildUi();
+      debugPrint('Done! Rebuilt UI');
     } catch (e) {
       // Handle error
     } finally {
@@ -57,56 +54,19 @@ class StatisticsViewModel extends BaseViewModel {
 
   Future<void> _loadHabits() async {
     _habits = await _habitService.getUserHabits();
-    _totalHabits = _habits.length;
+    rebuildUi();
   }
 
   Future<void> _loadStats() async {
     final user = await _userService.getCurrentUser();
+    _userMetrics = _userStatsService.getUserStats(_habits);
     if (user != null) {
       _statPoints = user.stats;
     }
-  }
-
-  void _calculateStats() {
-    if (_habits.isEmpty) return;
-
-    // Calculate completion rate
-    int totalCompletions = 0;
-    int totalPossibleCompletions = 0;
-    _bestStreak = 0;
-
-    for (var habit in _habits) {
-      totalCompletions += habit.daysCompleted.length;
-      final daysSinceCreation =
-          DateTime.now().difference(habit.dateCreated).inDays;
-      totalPossibleCompletions += daysSinceCreation + 1;
-
-      if (habit.streak != null && habit.streak! > _bestStreak) {
-        _bestStreak = habit.streak!;
-      }
-
-      _habitStats.add(HabitStat(
-        habitName: habit.title,
-        completionRate: habit.completionRate ?? 0.0,
-        streak: habit.streak ?? 0,
-      ));
-    }
-
-    _completionRate = totalCompletions / totalPossibleCompletions;
-
-    // Generate chart data
-    if (_statPoints.isNotEmpty) {
-      for (var i = 0; i < _statPoints.length; i++) {
-        final point = _statPoints[i];
-        _completionData.add(FlSpot(i.toDouble(), point.completions.toDouble()));
-        _streakData.add(FlSpot(i.toDouble(), point.streak.toDouble()));
-      }
-    }
-
-    notifyListeners();
+    rebuildUi();
   }
 
   void refreshStats() {
-    _initialize();
+    initialize();
   }
 }
