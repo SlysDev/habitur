@@ -1,9 +1,12 @@
 import 'package:habitur/services/notification_scheduling_service.dart';
-import 'package:habitur/services/stats/base_stats_service.dart';
+import 'package:habitur/services/stats/aggregate_stats_calculator_service.dart';
 import 'package:habitur/services/stats/habit_stats_service.dart';
+import 'package:habitur/services/stats/stats_orchestration_service.dart';
 import 'package:habitur/services/stats/user_stats_service.dart';
+import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/status_service.dart';
 import 'package:habitur/services/sync_service.dart';
+import 'package:habitur/ui/views/home_revamp/home_revamp_view.dart';
 import 'package:habitur/ui/views/startup/startup_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
@@ -40,20 +43,36 @@ import '../ui/views/habit_overview/habit_overview_view.dart';
 
 @StackedApp(
   routes: [
-    MaterialRoute(page: StartupView, initial: true),
-    MaterialRoute(page: WelcomeView),
-    MaterialRoute(page: HomeView),
-    MaterialRoute(page: LoginView),
-    MaterialRoute(page: RegisterView),
-    MaterialRoute(page: StatisticsView),
-    MaterialRoute(page: SettingsView),
-    MaterialRoute(page: HabitsView),
-    MaterialRoute(page: EditHabitView),
-    MaterialRoute(page: CommunityLeaderboardView),
-    MaterialRoute(page: AdminView),
-    MaterialRoute(
+    CustomRoute(
+        page: StartupView,
+        initial: true,
+        transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
+        page: WelcomeView, transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(page: HomeView, transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
+        page: LoginView, transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
+        page: RegisterView, transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
+        page: StatisticsView, transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
+        page: SettingsView, transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
+        page: HabitsView, transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
+        page: EditHabitView, transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
+        page: CommunityLeaderboardView,
+        transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
+        page: AdminView, transitionsBuilder: TransitionsBuilders.fadeIn),
+    CustomRoute(
       page: HabitOverviewView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
     ),
+    CustomRoute(
+        page: HomeRevampView, transitionsBuilder: TransitionsBuilders.fadeIn),
   ],
   dependencies: [
     // Core Services
@@ -82,9 +101,11 @@ import '../ui/views/habit_overview/habit_overview_view.dart';
     LazySingleton(classType: NotificationSchedulingService),
     LazySingleton(classType: StatusService),
     LazySingleton(classType: SyncService),
-    LazySingleton(classType: BaseStatsService),
     LazySingleton(classType: HabitStatsService),
     LazySingleton(classType: UserStatsService),
+    LazySingleton(classType: StatsCalculationService),
+    LazySingleton(classType: StatsOrchestrationService),
+    LazySingleton(classType: AggregateStatsCalculatorService),
   ],
 )
 class App {}

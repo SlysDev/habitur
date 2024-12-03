@@ -7,7 +7,7 @@ import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:habitur/services/local_storage_service.dart';
 import 'package:habitur/services/stats/aggregate_stats_calculator_service.dart';
-import 'package:habitur/services/stats_calculation_service.dart';
+import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'dart:math' as math;
 

@@ -26,9 +26,11 @@ import '../services/network_service.dart';
 import '../services/notification_scheduling_service.dart';
 import '../services/notification_service.dart';
 import '../services/settings_service.dart';
-import '../services/stats/base_stats_service.dart';
+import '../services/stats/aggregate_stats_calculator_service.dart';
 import '../services/stats/habit_stats_service.dart';
+import '../services/stats/stats_orchestration_service.dart';
 import '../services/stats/user_stats_service.dart';
+import '../services/stats/stats_calculation_service.dart';
 import '../services/status_service.dart';
 import '../services/sync_service.dart';
 import '../services/user_service.dart';
@@ -65,7 +67,9 @@ Future<void> setupLocator({
   locator.registerLazySingleton(() => NotificationSchedulingService());
   locator.registerLazySingleton(() => StatusService());
   locator.registerLazySingleton(() => SyncService());
-  locator.registerLazySingleton(() => BaseStatsService());
   locator.registerLazySingleton(() => HabitStatsService());
   locator.registerLazySingleton(() => UserStatsService());
+  locator.registerLazySingleton(() => StatsCalculationService());
+  locator.registerLazySingleton(() => StatsOrchestrationService());
+  locator.registerLazySingleton(() => AggregateStatsCalculatorService());
 }

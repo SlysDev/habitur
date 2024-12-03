@@ -1,19 +1,19 @@
-import 'package:habitur/services/stats/base_stats_service.dart';
+import 'package:habitur/services/stats/stats_calculation_service.dart';
 
 import '../app/app.locator.dart';
 import '../models/stat_point.dart';
 
 class InsightGeneratorService {
-  final _baseStatsService = locator<BaseStatsService>();
+  final _statsCalculationService = locator<StatsCalculationService>();
 
   Map<String, dynamic> findAreaForImprovement(List<StatPoint> stats,
       {int period = 7, bool isSummary = false}) {
     Map<String, dynamic> worstSlopeData =
-        _baseStatsService.findWorstSlope(stats, period: period);
+        _statsCalculationService.findWorstSlope(stats, period: period);
     String worstSlopeName = worstSlopeData['name'] as String;
     dynamic worstSlopeValue = worstSlopeData['value'];
-    double percentChange =
-        _baseStatsService.calculatePercentChangeForStat(worstSlopeName, stats);
+    double percentChange = _statsCalculationService
+        .calculatePercentChangeForStat(worstSlopeName, stats);
     String worstSlopeNameFormatted;
     String postInsight = '';
     switch (worstSlopeName) {

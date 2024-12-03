@@ -1,7 +1,7 @@
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/stat_point.dart';
-import 'package:habitur/services/stats_calculation_service.dart';
+import 'package:habitur/services/stats/stats_calculation_service.dart';
 
 class AggregateStatsCalculatorService {
   final _statsCalculationService = locator<StatsCalculationService>();
