@@ -6,7 +6,7 @@ import 'package:habitur/app/app.router.dart';
 
 class HabitOverviewViewModel extends BaseViewModel {
   final _habitService = locator<HabitService>();
-  late Habit habit;
+  Habit? habit;
 
   void initialize(String habitId) async {
     setBusy(true);

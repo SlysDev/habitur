@@ -50,7 +50,6 @@ class MiniHabitCard extends StatelessWidget {
               const SizedBox(height: 12),
               Row(
                 children: [
-                  // TODO: Convert stat specific chips to stacked
                   StreakStatChip(streak: habit.streak),
                   const SizedBox(width: 12),
                   ConfidenceLevelStatChip(

@@ -20,51 +20,15 @@ class HabitsViewModel extends ReactiveViewModel {
   List<ListenableServiceMixin> get listenableServices => [_habitService];
 
   Future<void> initialize() async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Loading habits...',
-      operation: () => _habitService.getUserHabits(),
-      successMessage: 'Habits loaded successfully',
-    );
+    await refreshHabits();
+    rebuildUi();
   }
 
   Future<void> refreshHabits() async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Refreshing habits...',
-      operation: () => _habitService.getUserHabits(),
-      successMessage: 'Habits refreshed successfully',
+    await runBusyFuture(
+      _habitService.loadHabits(),
     );
-  }
-
-  Future<void> completeHabit(String habitId) async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Completing habit...',
-      operation: () => _habitService.completeHabit(habitId),
-      successMessage: 'Habit completed!',
-    );
-  }
-
-  Future<void> uncompleteHabit(String habitId) async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Uncompleting habit...',
-      operation: () => _habitService.uncompleteHabit(habitId),
-      successMessage: 'Habit uncompleted',
-    );
-  }
-
-  Future<void> deleteHabit(String habitId) async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Deleting habit...',
-      operation: () => _habitService.deleteHabit(habitId),
-      successMessage: 'Habit deleted successfully',
-    );
-  }
-
-  Future<void> updateHabit(Habit habit) async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Updating habit...',
-      operation: () => _habitService.updateHabit(habit),
-      successMessage: 'Habit updated successfully',
-    );
+    rebuildUi();
   }
 
   void handleNavigation(int index) {

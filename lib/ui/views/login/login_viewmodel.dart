@@ -15,9 +15,6 @@ class LoginViewModel extends BaseViewModel {
 
   String _email = '';
   String _password = '';
-  bool _isLoading = false;
-
-  bool get isLoading => _isLoading;
 
   void setEmail(String value) {
     _email = value;
@@ -34,20 +31,16 @@ class LoginViewModel extends BaseViewModel {
     }
 
     try {
-      await _statusService.executeWithLoading(
-        loadingMessage: 'Logging in...',
-        operation: () async {
-          final credential = await _authService.signInWithEmailAndPassword(
-            email: _email,
-            password: _password,
-          );
-
-          // Load user data and navigate
-          await _userService.loadUser(credential.user!.uid);
-          await _navigationService.replaceWith(Routes.homeView);
-        },
-        successMessage: 'Welcome back!',
+      setBusy(true);
+      final credential = await _authService.signInWithEmailAndPassword(
+        email: _email,
+        password: _password,
       );
+
+      // Load user data and navigate
+      await _userService.loadUser(credential.user!.uid);
+      setBusy(false);
+      await _navigationService.replaceWith(Routes.homeView);
     } on FirebaseAuthException catch (e) {
       String message;
       switch (e.code) {

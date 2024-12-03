@@ -5,7 +5,7 @@ import 'package:habitur/models/habit_visibility.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/habit_service.dart';
-import 'package:habitur/services/stats_calculation_service.dart';
+import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';

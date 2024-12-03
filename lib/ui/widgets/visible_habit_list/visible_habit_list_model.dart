@@ -12,12 +12,13 @@ class VisibleHabitListModel extends BaseViewModel {
   SharingScope? _habitsScope;
   List<Habit>? habits;
 
-  void initialize(String userId, bool isFriendProfile,
-      SharingScope? habitsScope, List<Habit>? habits) {
+  Future<void> initialize(String userId, bool isFriendProfile,
+      SharingScope? habitsScope, List<Habit>? habits) async {
     this.userId = userId;
     this.isFriendProfile = isFriendProfile;
     _habitsScope = habitsScope;
     this.habits = habits;
+    await loadHabits();
   }
 
   bool get userHasChosenToShareHabits =>
@@ -25,9 +26,7 @@ class VisibleHabitListModel extends BaseViewModel {
       (_habitsScope == SharingScope.friends && isFriendProfile);
 
   Future<List<Habit>> loadHabits() async {
-    setBusy(true);
     final loadedHabits = await _habitService.getUserHabits(userId: userId);
-    setBusy(false);
     return loadedHabits;
   }
 

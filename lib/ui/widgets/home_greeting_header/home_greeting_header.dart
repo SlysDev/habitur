@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/ui/widgets/days_of_week_widget/days_of_week_widget.dart';
 import 'package:habitur/ui/widgets/network_indicator/network_indicator.dart';
+import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 
 import 'home_greeting_header_model.dart';
@@ -20,34 +21,12 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Network Status
-          const NetworkIndicator(),
-          const SizedBox(height: 20),
-
           // User Info Row
           Row(
             children: [
               // Avatar
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: kFadedBlue,
-                  image: viewModel.photoUrl.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(viewModel.photoUrl),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: viewModel.photoUrl.isEmpty
-                    ? Icon(
-                        Icons.person,
-                        color: Colors.white.withOpacity(0.8),
-                        size: 30,
-                      )
-                    : null,
+              UserAvatar(
+                username: viewModel.isBusy ? '...' : viewModel.username,
               ),
               const SizedBox(width: 15),
 
@@ -92,6 +71,7 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                   ],
                 ),
               ),
+              const NetworkIndicator(),
             ],
           ),
           const SizedBox(height: 25),
@@ -123,7 +103,7 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: kLightGreenAccent,
+                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -153,7 +133,7 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: kLightGreenAccent,
+                            color: Colors.white,
                           ),
                         ),
                         const SizedBox(width: 4),
@@ -186,9 +166,9 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                     const SizedBox(height: 4),
                     SizedBox(
                       width: 50,
-                      height: 24,
-                      child: Stack(
-                        alignment: Alignment.center,
+                      height: 30,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           // Progress Bar
                           ClipRRect(
@@ -197,10 +177,11 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                               value: viewModel.xpProgress,
                               backgroundColor: Colors.white.withOpacity(0.1),
                               valueColor: const AlwaysStoppedAnimation<Color>(
-                                kLightGreenAccent,
+                                Colors.white,
                               ),
                             ),
                           ),
+                          const SizedBox(height: 2),
                           // Percentage Text
                           Text(
                             '${(viewModel.xpProgress * 100).toInt()}%',

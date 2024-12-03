@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/constants.dart';
 import 'package:habitur/ui/widgets/habit_card_list/habit_card_list.dart';
 import 'package:habitur/ui/widgets/home_greeting_header/home_greeting_header.dart';
+import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
 import 'package:habitur/ui/widgets/navbar/navbar.dart';
 import 'package:habitur/ui/widgets/profile_drawer/profile_drawer.dart';
 import 'package:stacked/stacked.dart';
@@ -12,37 +14,27 @@ class HabitsView extends StackedView<HabitsViewModel> {
   @override
   Widget builder(
       BuildContext context, HabitsViewModel viewModel, Widget? child) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        actions: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openEndDrawer();
-              },
+    return LoadingOverlay(
+      isLoading: viewModel.isBusy,
+      child: const Scaffold(
+        backgroundColor: kBackgroundColor,
+        endDrawer: ProfileDrawer(),
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                HomeGreetingHeader(),
+                HabitCardList(),
+                SizedBox(height: 20),
+              ],
             ),
           ),
-        ],
-      ),
-      endDrawer: const ProfileDrawer(),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              HomeGreetingHeader(),
-              HabitCardList(),
-              const SizedBox(height: 20),
-            ],
-          ),
         ),
-      ),
-      bottomNavigationBar: NavBar(
-        currentPage: 'habits',
+        bottomNavigationBar: NavBar(
+          currentPage: 'habits',
+        ),
       ),
     );
   }

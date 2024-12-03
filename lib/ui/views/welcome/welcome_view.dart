@@ -35,6 +35,11 @@ class WelcomeView extends StackedView<WelcomeViewModel> {
               onPressed: viewModel.navigateToLogin,
               text: 'I already have an account',
             ),
+            const SizedBox(height: 40),
+            AsideButton(
+              onPressed: viewModel.clearLocalStorageData,
+              text: 'Clear local storage data',
+            ),
           ],
         ),
       ),

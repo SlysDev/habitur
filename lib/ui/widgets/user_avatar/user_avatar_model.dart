@@ -2,14 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
 class UserAvatarModel extends BaseViewModel {
-  late final String _username;
-
-  void initialize(String username) {
-    this._username = username;
-  }
-
-  String getInitial() {
-    return _username.isNotEmpty ? _username[0].toUpperCase() : '?';
+  String getInitial(String username) {
+    return username.isEmpty ? '?' : username[0].toUpperCase();
   }
 
   Color generateColorFromString(String str) {

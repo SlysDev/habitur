@@ -1,6 +1,7 @@
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/user_service.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:intl/intl.dart';
 import 'package:stacked/stacked.dart';
 
@@ -8,33 +9,22 @@ class HomeGreetingHeaderModel extends BaseViewModel {
   final _userService = locator<UserService>();
   final DateTime _currentTime = DateTime.now();
 
-  late String _username;
-  String get username => _username;
+  String? _username;
+  String get username => _username ?? '';
 
-  late String _photoUrl;
-  String get photoUrl => _photoUrl;
+  String? _photoUrl;
+  String get photoUrl => _photoUrl ?? '';
 
-  late int _level;
-  int get level => _level;
+  int? _level;
+  int get level => _level ?? 1;
 
-  late double _xpProgress;
-  double get xpProgress => _xpProgress;
+  double? _xpProgress;
+  double get xpProgress => _xpProgress ?? 0.0;
 
-  late int _streak;
-  int get streak => _streak;
+  int? _streak;
+  int get streak => _streak ?? 0;
 
-  String get timeOfDay {
-    final hour = _currentTime.hour;
-    if (hour >= 5 && hour < 12) {
-      return 'Morning';
-    } else if (hour >= 12 && hour < 17) {
-      return 'Afternoon';
-    } else if (hour >= 17 && hour < 21) {
-      return 'Evening';
-    } else {
-      return 'Night';
-    }
-  }
+  String get timeOfDay => getTimeSlot(_currentTime);
 
   String get formattedDate {
     final now = DateTime.now();
@@ -58,6 +48,7 @@ class HomeGreetingHeaderModel extends BaseViewModel {
         _xpProgress = 0.0;
         _streak = 0;
       }
+      rebuildUi();
     } catch (e) {
       setError(e);
     } finally {

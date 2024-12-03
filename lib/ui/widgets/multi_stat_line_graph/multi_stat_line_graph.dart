@@ -147,7 +147,7 @@ class MultiStatLineGraph extends StackedView<MultiStatLineGraphModel> {
             children: statOptions.map((String value) {
               return Center(
                 child: Text(
-                  viewModel.mappedStatName,
+                  viewModel.getDisplayNameForStat(value),
                   style: const TextStyle(
                     color: Colors.white,
                     fontFamily: 'DM Sans',

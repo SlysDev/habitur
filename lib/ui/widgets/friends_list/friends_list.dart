@@ -64,14 +64,7 @@ class FriendsList extends StackedView<FriendsListModel> {
 
             return ListTile(
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => ProfileDialog(
-                    // TODO: Implement profile dialog
-                    uid: friend.uid,
-                    isFriendProfile: true,
-                  ),
-                );
+                viewModel.showFriendProfile(friend);
               },
               leading: UserAvatar(username: friend.username),
               title: Text(

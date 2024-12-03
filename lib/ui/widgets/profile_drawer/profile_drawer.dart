@@ -10,7 +10,6 @@ import 'package:habitur/ui/widgets/dialog/profile_dialog/profile_dialog.dart';
 import 'package:habitur/ui/widgets/friends_list/friends_list.dart';
 import 'package:habitur/ui/widgets/aside_button.dart';
 import 'profile_drawer_model.dart';
-// TODO: Implement received/sent friend requests list
 
 class ProfileDrawer extends StackedView<ProfileDrawerModel> {
   const ProfileDrawer({super.key});
@@ -119,13 +118,7 @@ class ProfileDrawer extends StackedView<ProfileDrawerModel> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) => ProfileDialog(
-                          uid: viewModel.uid,
-                          isFriendProfile: false,
-                        ),
-                      );
+                      viewModel.showProfileDialog();
                     },
                     child: Container(
                       padding: EdgeInsets.only(
@@ -154,7 +147,7 @@ class ProfileDrawer extends StackedView<ProfileDrawerModel> {
                                 ),
                                 child: UserAvatar(
                                   username: viewModel.currentUser.username,
-                                  size: 80.0,
+                                  size: 2,
                                 ),
                               ),
                               Positioned(
@@ -242,6 +235,7 @@ class ProfileDrawer extends StackedView<ProfileDrawerModel> {
                           icon: Icons.person_add_outlined,
                           color: kOrangeAccent,
                           child: Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 'Received',

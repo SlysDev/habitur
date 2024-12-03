@@ -3,13 +3,18 @@ import 'package:flutter/material.dart';
 import '../../constants.dart';
 
 class ModernCard extends StatelessWidget {
-  const ModernCard(
-      {Key? key, required this.child, this.opacity = 0.20, this.color})
-      : super(key: key);
+  const ModernCard({
+    Key? key,
+    required this.child,
+    this.opacity = 0.20,
+    this.color,
+    this.padding = 25,
+  }) : super(key: key);
 
   final Widget child;
   final double opacity;
   final Color? color;
+  final double padding;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,7 @@ class ModernCard extends StatelessWidget {
         side: BorderSide(color: kPrimaryColor.withOpacity(0.1), width: 1),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(25),
+        padding: EdgeInsets.all(padding),
         child: child,
       ),
     );
