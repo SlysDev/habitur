@@ -26,6 +26,7 @@ class HomeViewModel extends ReactiveViewModel {
   int _totalHabits = 0;
   int _currentStreak = 0;
   int _userLevel = 1;
+  int _userXP = 0;
 
   int get currentIndex => _currentIndex;
   List<Habit> get habits => _habitService.habits;
@@ -33,6 +34,7 @@ class HomeViewModel extends ReactiveViewModel {
   int get totalHabits => _totalHabits;
   int get currentStreak => _currentStreak;
   int get userLevel => _userLevel;
+  int get userXP => _userXP;
 
   HomeViewModel() {
     _initialize();
@@ -82,6 +84,7 @@ class HomeViewModel extends ReactiveViewModel {
       _totalHabits = _habitService.habits.length;
       _currentStreak = user.stats.last.streak;
       _userLevel = user.userLevel;
+      _userXP = user.userXP;
       notifyListeners();
     }
   }
