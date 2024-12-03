@@ -587,6 +587,21 @@ class MockFriendsService extends _i1.Mock implements _i7.FriendsService {
       ) as _i5.Stream<List<_i8.FriendRequest>>);
 
   @override
+  _i5.Future<bool> isFriend(
+    String? userId, {
+    String? otherUserId,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #isFriend,
+          [userId],
+          {#otherUserId: otherUserId},
+        ),
+        returnValue: _i5.Future<bool>.value(false),
+        returnValueForMissingStub: _i5.Future<bool>.value(false),
+      ) as _i5.Future<bool>);
+
+  @override
   _i5.Future<void> sendFriendRequest(String? recipientUid) =>
       (super.noSuchMethod(
         Invocation.method(
