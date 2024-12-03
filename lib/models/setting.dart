@@ -17,8 +17,8 @@ class SettingModel {
   });
   factory SettingModel.fromMap(Map<String, dynamic> map) {
     return SettingModel(
-      settingValue: map['settingValue'],
-      settingName: map['settingName'],
+      settingValue: map['settingValue'] ?? '',
+      settingName: map['settingName'] ?? '',
       settingDescription: map['settingDescription'] ?? '',
     );
   }

@@ -51,16 +51,16 @@ class UserModel extends HiveObject {
   List<HabitVisibility> habitVisibilitySettings;
 
   @HiveField(13)
-  bool isBlocked;
+  PrivacySettings privacySettings;
 
   @HiveField(14)
-  DateTime? blockedAt;
+  bool isBlocked;
 
   @HiveField(15)
-  String? blockReason;
+  DateTime? blockedAt;
 
   @HiveField(16)
-  PrivacySettings privacySettings;
+  String? blockReason;
 
   int get levelUpRequirement {
     return 100 * pow(1.5, userLevel).ceil();

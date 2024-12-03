@@ -23,28 +23,58 @@ class LocalStorageService with ListenableServiceMixin {
   Box? _settingsBox;
 
   Future<void> init() async {
-    await _initHive();
-    await _migrateDataIfNeeded();
+    try {
+      await _initHive();
+      // Check if we need to clear data due to schema changes
+      final needsSchemaUpdate = await getValue('needs_schema_update') ?? true;
+      if (needsSchemaUpdate) {
+        await _clearHiveData();
+        await setValue('needs_schema_update', false);
+      }
+
+      await _migrateDataIfNeeded();
+    } catch (e) {
+      debugPrint('Error initializing Hive boxes: $e');
+      // If initialization fails, try clearing data and reinitializing
+      await _clearHiveData();
+    }
   }
 
   Future<void> _initHive() async {
-if (kIsWeb) {
-    await Hive.initFlutter();
-  } else {
-    Directory directory =
-        await path_provider.getApplicationDocumentsDirectory();
-    await Hive.initFlutter(directory.path);
-  }
-Hive
-    ..registerAdapter(HabitAdapter())
-    ..registerAdapter(StatPointAdapter())
-    ..registerAdapter(SettingModelAdapter())
-    ..registerAdapter(TimeModelAdapter())
-    ..registerAdapter(HabitVisibilityAdapter())
-    ..registerAdapter(PrivacySettingsAdapter())
-    ..registerAdapter(SharingScopeAdapter())
-    ..registerAdapter(FriendRequestAdapter())
-    ..registerAdapter(UserModelAdapter());
+    if (kIsWeb) {
+      await Hive.initFlutter();
+    } else {
+      Directory directory =
+          await path_provider.getApplicationDocumentsDirectory();
+      await Hive.initFlutter(directory.path);
+    }
+    if (!Hive.isAdapterRegistered(HabitAdapter().typeId)) {
+      Hive.registerAdapter(HabitAdapter());
+    }
+    if (!Hive.isAdapterRegistered(StatPointAdapter().typeId)) {
+      Hive.registerAdapter(StatPointAdapter());
+    }
+    if (!Hive.isAdapterRegistered(SettingModelAdapter().typeId)) {
+      Hive.registerAdapter(SettingModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(TimeModelAdapter().typeId)) {
+      Hive.registerAdapter(TimeModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(HabitVisibilityAdapter().typeId)) {
+      Hive.registerAdapter(HabitVisibilityAdapter());
+    }
+    if (!Hive.isAdapterRegistered(PrivacySettingsAdapter().typeId)) {
+      Hive.registerAdapter(PrivacySettingsAdapter());
+    }
+    if (!Hive.isAdapterRegistered(SharingScopeAdapter().typeId)) {
+      Hive.registerAdapter(SharingScopeAdapter());
+    }
+    if (!Hive.isAdapterRegistered(FriendRequestAdapter().typeId)) {
+      Hive.registerAdapter(FriendRequestAdapter());
+    }
+    if (!Hive.isAdapterRegistered(UserModelAdapter().typeId)) {
+      Hive.registerAdapter(UserModelAdapter());
+    }
     try {
       if (!Hive.isBoxOpen('user')) {
         _userBox = await Hive.openBox('user');
@@ -67,22 +97,30 @@ Hive
   }
 
   Future<void> _migrateDataIfNeeded() async {
-    final currentVersion = await getValue('data_version') ?? 0;
-
-    if (currentVersion < 1) {
-      // Migrate to version 1
-      await _migrateToVersion1();
-      await setValue('data_version', 1);
+    try {
+      final version = await getValue('data_version') ?? 0;
+      if (version < 1) {
+        await _migrateToVersion1();
+        await setValue('data_version', 1);
+      }
+      if (version < 2) {
+        await _migrateToVersion2();
+        await setValue('data_version', 2);
+      }
+    } catch (e) {
+      debugPrint('Error during migration: $e');
     }
   }
 
   Future<void> _migrateToVersion1() async {
     try {
-      final habitsBox = Hive.box<Habit>('habits');
+      final habitsBox = await Hive.openBox('habits');
 
       // Create backup of current data
-      final habitBackups =
-          habitsBox.values.map((habit) => habit.toMap()).toList();
+      final habitBackups = habitsBox.values
+          .whereType<Habit>()
+          .map((habit) => habit.toMap())
+          .toList();
       await setValue('habits_backup_v0', habitBackups);
 
       // Clear and update data
@@ -98,13 +136,15 @@ Hive
         await habitsBox.add(habit);
       }
 
+      await setHabitsLastUpdated(DateTime.now());
+
       print('Successfully migrated habits to version 1');
     } catch (e) {
       print('Error during migration: $e');
       // Restore from backup if needed
       final backup = await getValue('habits_backup_v0');
       if (backup != null) {
-        final habitsBox = Hive.box<Habit>('habits');
+        final habitsBox = Hive.box('habits');
         await habitsBox.clear();
         for (var habitData in backup) {
           await habitsBox.add(Habit.fromMap(habitData));
@@ -112,6 +152,74 @@ Hive
       }
       rethrow;
     }
+  }
+
+  Future<void> _migrateToVersion2() async {
+    try {
+      final userBox = await Hive.openBox('user');
+
+      // Create backup of current data
+      final userBackup = Map<String, dynamic>.from(userBox.toMap());
+      await setValue('user_backup_v1', userBackup);
+
+      // Clear the box to prevent type conflicts
+      await userBox.clear();
+
+      // Convert old data to new format
+      final userData = userBackup.map((key, value) {
+        if (value is Map && value.containsKey('privacySettings')) {
+          if (value['privacySettings'] is bool) {
+            // Convert old boolean privacy setting to new PrivacySettings object
+            value['privacySettings'] = PrivacySettings().toMap();
+          }
+        }
+        return MapEntry(key, value);
+      });
+
+      // Write back the converted data
+      for (var entry in userData.entries) {
+        await userBox.put(entry.key, entry.value);
+      }
+
+      debugPrint('Successfully migrated user data to version 2');
+    } catch (e) {
+      debugPrint('Error during user data migration: $e');
+      // Restore from backup if needed
+      final backup = await getValue('user_backup_v1');
+      if (backup != null) {
+        debugPrint('Restoring user data from backup...');
+        final userBox = await Hive.openBox('user');
+        await userBox.clear();
+        for (var entry in (backup as Map).entries) {
+          await userBox.put(entry.key, entry.value);
+        }
+      }
+    }
+  }
+
+  Future<void> clearAllHiveData() async {
+    await _clearHiveData();
+    await _initHive();
+  }
+
+  Future<void> _clearHiveData() async {
+    await Hive.deleteFromDisk();
+    // try {
+    //   if (!kIsWeb) {
+    //     final directory =
+    //         await path_provider.getApplicationDocumentsDirectory();
+    //     final hivePath = '${directory.path}/habitur.hive';
+    //     final dir = Directory(hivePath);
+    //     if (await dir.exists()) {
+    //       await dir.delete(recursive: true);
+    //       debugPrint('Cleared Hive data directory');
+    //     }
+    //   } else {
+    //     await Hive.deleteFromDisk();
+    //   }
+    // } catch (e) {
+    // debugPrint('Error clearing Hive data: $e');
+    // }
   }
 
   void _debugPrintBoxInfo(Box box, String boxName) {
@@ -174,51 +282,19 @@ Hive
     }
   }
 
-  Future<void> updateUserStats(Map<String, dynamic> stats) async {
+  Future<void> updateMostRecentStat(StatPoint stat) async {
+    await _ensureBoxOpen('user');
+    UserModel? user = await getCurrentUser();
+    if (user == null || user.stats == null) return;
+    user.stats.last = stat;
+  }
+
+  Future<void> updateUserStats(List<StatPoint> stats) async {
     await _ensureBoxOpen('user');
     UserModel? user = await getCurrentUser();
     if (user != null && user.stats != null) {
-      int todayIndex = user.stats!.indexWhere((stat) =>
-          stat.date.year == DateTime.now().year &&
-          stat.date.month == DateTime.now().month &&
-          stat.date.day == DateTime.now().day);
-
-      if (todayIndex != -1) {
-        StatPoint updatedStat = user.stats![todayIndex];
-        stats.forEach((key, value) {
-          switch (key) {
-            case 'completions':
-              updatedStat.completions = value;
-              break;
-            case 'confidenceLevel':
-              updatedStat.confidenceLevel = value;
-              break;
-            case 'streak':
-              updatedStat.streak = value;
-              break;
-            case 'consistencyFactor':
-              updatedStat.consistencyFactor = value;
-              break;
-            case 'difficultyRating':
-              updatedStat.difficultyRating = value;
-              break;
-            case 'slopeCompletions':
-              updatedStat.slopeCompletions = value;
-              break;
-            case 'slopeConsistency':
-              updatedStat.slopeConsistency = value;
-              break;
-            case 'slopeConfidenceLevel':
-              updatedStat.slopeConfidenceLevel = value;
-              break;
-            case 'slopeDifficultyRating':
-              updatedStat.slopeDifficultyRating = value;
-              break;
-          }
-        });
-        user.stats![todayIndex] = updatedStat;
-        await setCurrentUser(user);
-      }
+      user.stats = stats;
+      await setCurrentUser(user);
     }
   }
 
@@ -249,15 +325,121 @@ Hive
   }
 
   // Habits Methods
-  Future<List<Habit>> getHabits() async {
+  Future<void> addHabit(Habit habit) async {
+    await _habitsBox!.put(habit.id, habit);
+    await setSettingsLastUpdated(DateTime.now());
+  }
+
+  Future<void> updateHabit(Habit habit) async {
+    await _habitsBox!.put(habit.id, habit);
+    debugPrint('Updated habit in LS with ID: ${habit.id}');
+    debugPrint('Box values after update: ${_habitsBox!.values.toList()}');
+    await setHabitsLastUpdated(DateTime.now());
+  }
+
+  Future<void> deleteHabit(String habitId) async {
     await _ensureBoxOpen('habits');
-    final habitsData = _habitsBox?.get('habits');
-    return habitsData?.cast<Habit>() ?? [];
+    debugPrint('Deleting habit in LS with ID: $habitId');
+    final habitIdInt = int.parse(habitId);
+    debugPrint('Box keys before deletion: ${_habitsBox!.keys.toList()}');
+    await _habitsBox!.delete(habitIdInt);
+    debugPrint('Box keys after deletion: ${_habitsBox!.keys.toList()}');
+    await setHabitsLastUpdated(DateTime.now());
+  }
+
+  List<Habit> getHabitData() {
+    try {
+      if (_habitsBox == null || !_habitsBox!.isOpen) {
+        debugPrint('habitsBox is null or not open');
+        return [];
+      }
+
+      debugPrint('\n=== HABITS BOX DEBUG INFO ===');
+      debugPrint('Box name: ${_habitsBox!.name}');
+      debugPrint('Box length: ${_habitsBox!.length}');
+      debugPrint('Box keys: ${_habitsBox!.keys.toList()}');
+
+      // Print each habit's basic info
+      _habitsBox!.values.whereType<Habit>().forEach((habit) {
+        debugPrint(habit.toString());
+      });
+      debugPrint('===========================\n');
+
+      List<dynamic> allValues = _habitsBox!.values.toList();
+      return allValues.whereType<Habit>().toList();
+    } catch (e, s) {
+      debugPrint('Error in getHabitData: ${e.toString()}');
+      debugPrint(s.toString());
+      return [];
+    }
+  }
+
+  Habit? getHabitById(int id) {
+    return _habitsBox!.get(id);
+  }
+
+  Future<void> clearStats() async {
+    for (Habit habit in getHabitData()) {
+      Habit clearedHabit = habit;
+      clearedHabit.currentProgress = 0;
+      clearedHabit.streak = 0;
+      clearedHabit.lastSeen = DateTime.now();
+      clearedHabit.daysCompleted = [];
+      clearedHabit.stats = [];
+      clearedHabit.confidenceLevel = 0;
+      clearedHabit.highestStreak = 0;
+      clearedHabit.totalProgress = 0;
+
+      updateHabit(clearedHabit);
+    }
+    await setSettingsLastUpdated(DateTime.now());
+  }
+
+  Future<void> clearDuplicateHabits() async {
+    debugPrint('clearing duplicate habits');
+    try {
+      List<Habit> allHabits = getHabitData();
+      for (Habit habit in allHabits) {
+        if (allHabits.where((element) => element.id == habit.id).length > 1) {
+          debugPrint('clearing a habit');
+          Habit duplicateHabit =
+              allHabits.where((element) => element.id == habit.id).first;
+          await deleteHabit(duplicateHabit.id.toString());
+        }
+      } // clears dups
+      await setSettingsLastUpdated(DateTime.now());
+      saveHabits(allHabits);
+    } catch (e, s) {
+      debugPrint(e.toString());
+      debugPrint(s.toString());
+    }
+  }
+
+  String stringifyHabitData() {
+    String output = "";
+    output += "----------------------------------\n";
+    output += "LS Habits:\n";
+    for (Habit habit in getHabitData()) {
+      debugPrint(habit.title);
+      output += " ${habit.title}:\n";
+      output += " -> Completions: ${habit.currentProgress}\n";
+      output += " -> Streak: ${habit.streak}\n";
+      output += " -> Last seen: ${habit.lastSeen}\n";
+      output += " -> Days Completed: ${habit.daysCompleted}\n";
+    }
+    output += "----------------------------------\n";
+    return output;
   }
 
   Future<void> saveHabits(List<Habit> habits) async {
     await _ensureBoxOpen('habits');
-    await _habitsBox?.put('habits', habits);
+    await _habitsBox!.clear(); // Clear existing habits
+    for (var habit in habits) {
+      await _habitsBox!.put(habit.id, habit);
+    }
+    await setHabitsLastUpdated(DateTime.now());
+    debugPrint('Saved ${habits.length} habits to local storage');
+    debugPrint('Habit IDs: ${habits.map((h) => h.id).toList()}');
   }
 
   // Settings Methods
@@ -349,5 +531,57 @@ Hive
   Future<void> setValue(String key, dynamic value) async {
     await _ensureBoxOpen('settings');
     await _settingsBox?.put(key, value);
+  }
+
+  Future<void> clearUserData() async {
+    try {
+      await _habitsBox?.clear();
+      await resetSettings();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error clearing user data: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> resetSettings() async {
+    try {
+      final defaultSettings = [
+        SettingModel(
+          settingValue: true,
+          settingName: 'Daily Reminders',
+          settingDescription: 'Enable daily reminders',
+        ),
+        SettingModel(
+          settingValue: 3,
+          settingName: 'Number of Reminders',
+          settingDescription: 'Number of daily reminders',
+        ),
+        SettingModel(
+          settingValue: TimeModel(hour: 10, minute: 0),
+          settingName: '1st Reminder Time',
+          settingDescription: 'First reminder of the day',
+        ),
+        SettingModel(
+          settingValue: TimeModel(hour: 16, minute: 0),
+          settingName: '2nd Reminder Time',
+          settingDescription: 'Second reminder of the day',
+        ),
+        SettingModel(
+          settingValue: TimeModel(hour: 22, minute: 0),
+          settingName: '3rd Reminder Time',
+          settingDescription: 'Third reminder of the day',
+        ),
+      ];
+
+      await _settingsBox?.clear();
+      for (var setting in defaultSettings) {
+        await _settingsBox?.put(setting.settingName, setting);
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error resetting settings: $e');
+      rethrow;
+    }
   }
 }
