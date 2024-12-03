@@ -109,6 +109,7 @@ class Habit {
       'lastSeen': lastSeen,
       'streak': streak,
       'stats': stats.map((stat) => stat.toMap()).toList(),
+      'daysCompleted': daysCompleted,
       'highestStreak': highestStreak,
       'currentProgress': currentProgress,
       'totalProgress': totalProgress,
@@ -156,7 +157,9 @@ class Habit {
             ?.map((stat) => StatPoint.fromMap(stat))
             .toList() ??
         [];
-    habit.daysCompleted = (map['daysCompleted'] as List<DateTime>);
+    habit.daysCompleted =
+        (map['daysCompleted'] ?? <DateTime>[] as List<DateTime>);
+    // you have to keep that cast in case days completed is null
 
     return habit;
   }

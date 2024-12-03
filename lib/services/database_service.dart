@@ -115,8 +115,9 @@ class DatabaseService with ListenableServiceMixin {
           .collection('habits')
           .get();
       return snapshot.docs.map((doc) => Habit.fromMap(doc.data())).toList();
-    } catch (e) {
+    } catch (e, s) {
       debugPrint('Error getting habits: $e');
+      debugPrint('$s');
       rethrow;
     }
   }
