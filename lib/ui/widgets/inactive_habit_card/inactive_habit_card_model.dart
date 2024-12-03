@@ -19,10 +19,10 @@ class InactiveHabitCardModel extends BaseViewModel {
   bool _completed = false;
   bool get completed => _completed;
 
-  Future<void> init(int index) async {
+  Future<void> init(Habit habit) async {
     try {
       setBusy(true);
-      _habit = await _habitService.habits[index];
+      _habit = habit;
       _updateProgress();
     } catch (e) {
       setError(Exception(e.toString()));

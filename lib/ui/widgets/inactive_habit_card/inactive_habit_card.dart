@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/models/habit.dart';
 import 'package:habitur/ui/widgets/rounded_progress_bar.dart';
 import 'package:stacked/stacked.dart';
 
@@ -9,11 +10,11 @@ import 'inactive_habit_card_model.dart';
 class InactiveHabitCard extends StackedView<InactiveHabitCardModel> {
   const InactiveHabitCard({
     super.key,
-    required this.index,
+    required this.habit,
     this.color = const Color(0x0AFFFFFF), // 4% white opacity
   });
 
-  final int index;
+  final Habit habit;
   final Color color;
 
   @override
@@ -124,5 +125,5 @@ class InactiveHabitCard extends StackedView<InactiveHabitCardModel> {
 
   @override
   void onViewModelReady(InactiveHabitCardModel viewModel) =>
-      viewModel.init(index);
+      viewModel.init(habit);
 }
