@@ -157,8 +157,15 @@ class Habit {
             ?.map((stat) => StatPoint.fromMap(stat))
             .toList() ??
         [];
-    habit.daysCompleted =
-        (map['daysCompleted'] ?? <DateTime>[] as List<DateTime>);
+    if (map['daysCompleted'] == null) {
+      habit.daysCompleted = [];
+    } else {
+      habit.daysCompleted = (map['daysCompleted'] as List?)
+              ?.map((item) =>
+                  item is Timestamp ? item.toDate() : item as DateTime)
+              .toList() ??
+          [];
+    }
     // you have to keep that cast in case days completed is null
 
     return habit;
