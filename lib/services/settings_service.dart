@@ -29,10 +29,10 @@ class SettingsService with ListenableServiceMixin {
     final isConnected = _networkService.isConnected;
     final futures = <Future<void>>[];
 
+    futures.add(loadFromLocal());
     if (isConnected) {
       futures.add(loadFromRemote());
     }
-    futures.add(loadFromLocal());
 
     await Future.wait(futures);
   }
@@ -43,6 +43,9 @@ class SettingsService with ListenableServiceMixin {
     if (userID == null) throw Exception('User ID is null');
 
     _settings = await _databaseService.getSettings(userID);
+    final settingsString =
+        _settings.map((s) => '${s.settingName}: ${s.settingValue}').join('\n');
+    debugPrint('Settings:\n$settingsString');
     if (_settings.isEmpty) {
       _settings = kDefaultSettings;
     }
@@ -69,10 +72,14 @@ class SettingsService with ListenableServiceMixin {
     }
 
     await _localStorageService.saveSettings(_settings);
+    // update to impl. singular setting function to LS
 
     final userID =
         _authService.currentUser?.uid ?? _userService.currentUser?.uid;
     if (userID != null) {
+      debugPrint('Updating setting for user $userID in DB');
+      debugPrint(
+          'Setting: ${setting.settingName}, Value: ${setting.settingValue}');
       await _databaseService.updateSetting(userID, setting);
     }
 
@@ -84,6 +91,24 @@ class SettingsService with ListenableServiceMixin {
       return _settings.firstWhere((s) => s.settingName == name);
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<void> resetToDefaults() async {
+    try {
+      final userId = _authService.currentUser?.uid;
+      if (userId == null) throw Exception('No user logged in');
+
+      // Reset local storage
+      await _localStorageService.clearUserData();
+
+      // Reset database
+      await _databaseService.clearUserData(userId);
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error resetting to defaults: $e');
+      rethrow;
     }
   }
 }
