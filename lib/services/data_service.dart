@@ -81,10 +81,10 @@ class DataService {
           forceDbLoad)) {
         await _habitService.loadFromRemote();
       } else {
-        await _habitService.loadFromLocal();
+        _habitService.loadFromLocal();
       }
     } else {
-      await _habitService.loadFromLocal();
+      _habitService.loadFromLocal();
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:habitur/services/local_storage_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/app/app.locator.dart';
@@ -12,5 +13,9 @@ class WelcomeViewModel extends BaseViewModel {
 
   Future<void> navigateToLogin() async {
     await _navigationService.navigateTo(Routes.loginView);
+  }
+
+  Future<void> clearLocalStorageData() async {
+    await locator<LocalStorageService>().clearAllHiveData();
   }
 }

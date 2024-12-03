@@ -57,8 +57,6 @@ class ActivityService with ListenableServiceMixin {
         .map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        data['id'] = doc.id;
-        data['currentUserId'] = user.uid;
         return ActivityEvent.fromMap(data);
       }).where((activity) {
         // Only show activities from friends and self
@@ -103,8 +101,6 @@ class ActivityService with ListenableServiceMixin {
 
         _activities = snapshot.docs.map((doc) {
           final data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id;
-          data['currentUserId'] = user.uid;
           return ActivityEvent.fromMap(data);
         }).toList();
         await _sortActivities();
@@ -197,9 +193,7 @@ class ActivityService with ListenableServiceMixin {
     notifyListeners();
 
     try {
-      final docRef = await _activityDatabaseService.createActivity(activity);
-      final newActivity = activity.copyWith(id: docRef.id);
-      _activities.insert(0, newActivity);
+      _activities.insert(0, activity);
       await _sortActivities();
       notifyListeners();
     } catch (e) {
@@ -208,6 +202,7 @@ class ActivityService with ListenableServiceMixin {
   }
 
   Future<void> likeActivity(String activityId) async {
+    debugPrint('activity_service.dart likeActivity(); activityId: $activityId');
     final activity = await getActivity(activityId);
     if (activity == null) throw Exception('Activity not found');
     try {
@@ -262,30 +257,25 @@ class ActivityService with ListenableServiceMixin {
       final user = await _localStorageService.getCurrentUser();
       if (user == null) return;
 
-      final activityRef = _activityDatabaseService.collection.doc(activityId);
-      final activityDoc = await activityRef.get();
+      ActivityEvent? activity = await getActivity(activityId);
 
-      if (!activityDoc.exists) {
+      if (activity == null) {
         _logger.warning('Activity $activityId not found');
         return;
       }
 
-      final data = activityDoc.data() as Map<String, dynamic>;
-      final reactions = (data['reactions'] as Map?)?.map(
-            (key, value) => MapEntry(
-              key.toString(),
-              (value as List).map((r) => (r as Map<String, dynamic>)).toList(),
-            ),
-          ) ??
-          {};
+      final reactions = activity.reactions;
+      debugPrint('checking reactions length: ${reactions.length.toString()}');
+      debugPrint('reactions: $reactions');
 
       // Convert ReactionType to string for Firestore
-      final reactionKey = type.toString().split('.').last;
-      final currentReactions = (reactions[reactionKey] ?? []) as List;
+      final currentReactions = (reactions[type] ?? []) as List<Reaction>;
+      debugPrint('checking ID of user who reacted to activity: ${user.uid}');
+      debugPrint(currentReactions.length.toString());
 
       // Check if user has already reacted
       final userReactionIndex = currentReactions.indexWhere(
-        (r) => r['userId'] == user.uid,
+        (r) => r.userId == user.uid,
       );
 
       if (userReactionIndex >= 0) {
@@ -293,17 +283,22 @@ class ActivityService with ListenableServiceMixin {
         currentReactions.removeAt(userReactionIndex);
       } else {
         // Add reaction
-        currentReactions.add({
-          'userId': user.uid,
-          'username': user.username,
-          'type': reactionKey,
-          'timestamp': DateTime.now().toIso8601String(),
-        });
+        currentReactions.add(Reaction(
+          userId: user.uid,
+          username: user.username,
+          type: type,
+          timestamp: DateTime.now(),
+        ));
       }
 
+      // Convert currentReactions to firebase friendly maps
+      final convertedCurrentReactions =
+          currentReactions.map((r) => r.toMap()).toList();
+
       // Update Firestore
+      final reactionKey = type.toString().split('.').last;
       await _activityDatabaseService.updateActivity(activityId, {
-        'reactions.$reactionKey': currentReactions,
+        'reactions.$reactionKey': convertedCurrentReactions,
       });
 
       // Update local state
@@ -318,10 +313,10 @@ class ActivityService with ListenableServiceMixin {
         } else {
           updatedReactions[type] = currentReactions
               .map((r) => Reaction(
-                    userId: r['userId'],
-                    username: r['username'],
+                    userId: r.userId,
+                    username: r.username,
                     type: type,
-                    timestamp: DateTime.parse(r['timestamp'] as String),
+                    timestamp: DateTime.parse(r.timestamp.toString()),
                   ))
               .toList();
         }

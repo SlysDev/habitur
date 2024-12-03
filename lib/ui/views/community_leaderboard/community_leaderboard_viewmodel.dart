@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import '../../../app/app.locator.dart';
@@ -18,7 +19,10 @@ class CommunityLeaderboardViewModel
   String? _challengeId;
 
   void initialize({String? challengeId}) {
+    debugPrint('Initializing leaderboard view model...');
+    debugPrint('This is what\'s coming in: $challengeId');
     _challengeId = challengeId;
+    debugPrint('Challenge id: $_challengeId');
     initialise();
   }
 
@@ -32,7 +36,12 @@ class CommunityLeaderboardViewModel
 
   CommunityChallenge? get currentChallenge => data;
 
-  List<ParticipantData> get participants => data?.participants ?? [];
+  List<ParticipantData> get participants {
+    debugPrint('Getting participants...');
+    debugPrint(
+        'Participants: ${data?.participants}, ${data?.id}, length: ${data?.participants?.length}');
+    return data?.participants ?? [];
+  }
 
   double get totalProgress {
     if (data == null) return 0;
@@ -48,7 +57,7 @@ class CommunityLeaderboardViewModel
         data!.id.toString(),
         data!.currentFullCompletions + 1,
       );
-      await _habitService.completeHabit(data!.habit.id.toString());
+      await _habitService.incrementHabit(data!.habit.id.toString(), 0);
     } catch (e) {
       await _dialogService.showDialog(
         title: 'Error',
@@ -68,7 +77,7 @@ class CommunityLeaderboardViewModel
         data!.id.toString(),
         data!.currentFullCompletions - 1,
       );
-      await _habitService.uncompleteHabit(data!.habit.id.toString());
+      await _habitService.decrementHabit(data!.habit.id.toString());
     } catch (e) {
       await _dialogService.showDialog(
         title: 'Error',
@@ -79,20 +88,7 @@ class CommunityLeaderboardViewModel
     }
   }
 
-  void handleNavigation(int index) {
-    switch (index) {
-      case 0:
-        _navigationService.navigateTo(Routes.habitsView);
-        break;
-      case 1:
-        _navigationService.navigateTo(Routes.statisticsView);
-        break;
-      case 2:
-        // Already on community
-        break;
-      case 3:
-        _navigationService.navigateTo(Routes.settingsView);
-        break;
-    }
+  void navigateBack() {
+    _navigationService.back();
   }
 }

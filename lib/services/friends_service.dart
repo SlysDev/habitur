@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/friend_request.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/habit_service.dart';
 import 'package:stacked/stacked_annotations.dart';
@@ -47,6 +48,40 @@ class FriendsService {
           .map((req) => FriendRequest.fromMap(req as Map<String, dynamic>))
           .toList();
     });
+  }
+
+  Future<bool> isFriend(String? userId, {String? otherUserId}) async {
+    if (userId == null) {
+      debugPrint(
+          'the user sent into isFriend() of friends_service.dart is null');
+      return false;
+    }
+    // If otherUser is provided, check if those two users are friends
+    if (otherUserId != null) {
+      final otherUserDoc =
+          await _firestore.collection('users').doc(otherUserId).get();
+      if (!otherUserDoc.exists) return false;
+
+      final friendsList =
+          List<String>.from(otherUserDoc.data()?['friends'] ?? []);
+      return friendsList.contains(userId);
+    }
+
+    // Otherwise check if the provided user is friends with the current user
+    if (!_authService.isLoggedIn) return false;
+
+    final userDoc = await _firestore
+        .collection('users')
+        .doc(_authService.currentUser!.uid)
+        .get();
+    if (!userDoc.exists) {
+      debugPrint(
+          'couldn\'t find user doc in DB in friends_service.dart isFriend()');
+      return false;
+    }
+
+    final friendsList = List<String>.from(userDoc.data()?['friends'] ?? []);
+    return friendsList.contains(userId);
   }
 
   // Friend request operations

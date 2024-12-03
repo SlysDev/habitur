@@ -24,44 +24,26 @@ class SocialFeed extends StatelessWidget {
           await model.refresh();
           await onRefresh();
         },
-        child: CustomScrollView(
-          controller: ScrollController()
-            ..addListener(() {
-              if (model.hasMore && !model.isLoading) {
-                final controller = ScrollController();
-                if (controller.position.pixels >=
-                    controller.position.maxScrollExtent - 200) {
-                  model.loadMore();
-                }
-              }
-            }),
-          slivers: [
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             // Community Habits Section
-            SliverToBoxAdapter(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text(
-                      'Community Habits',
-                      style: kSubHeadingTextStyle,
-                    ),
-                  ),
-                  CommunityHabitList(onRefresh: onRefresh),
-                ],
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                'Community Habits',
+                style: kSubHeadingTextStyle,
               ),
             ),
+            CommunityHabitList(onRefresh: onRefresh),
 
             // Activity Feed Section
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Text(
-                  'Friend Activity',
-                  style: kSubHeadingTextStyle,
-                ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Text(
+                'Friend Activity',
+                style: kSubHeadingTextStyle,
               ),
             ),
 
@@ -70,94 +52,87 @@ class SocialFeed extends StatelessWidget {
               stream: model.activitiesStream,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Icon(Icons.error_outline,
-                                size: 48, color: Colors.red),
-                            SizedBox(height: 16),
-                            Text(
-                              'Something went wrong',
-                              style: kMainDescription,
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Icon(Icons.error_outline,
+                              size: 48, color: Colors.red),
+                          SizedBox(height: 16),
+                          Text(
+                            'Something went wrong',
+                            style: kMainDescription,
+                          ),
+                          TextButton(
+                            onPressed: onRefresh,
+                            child: Text(
+                              'Try Again',
+                              style: kMainDescription.copyWith(
+                                  color: kPrimaryColor),
                             ),
-                            TextButton(
-                              onPressed: onRefresh,
-                              child: Text(
-                                'Try Again',
-                                style: kMainDescription.copyWith(
-                                    color: kPrimaryColor),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   );
                 }
 
-                // Only show loading indicator on initial load
                 if (snapshot.connectionState == ConnectionState.waiting &&
                     !snapshot.hasData) {
-                  return SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: CircularProgressIndicator(),
-                      ),
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
                     ),
                   );
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Icon(
-                              Icons.people_outline,
-                              size: 48,
-                              color: Theme.of(context).disabledColor,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'No activity yet',
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                            Text(
-                              'Complete habits or add friends to see activity',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.people_outline,
+                            size: 48,
+                            color: Theme.of(context).disabledColor,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No activity yet',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          Text(
+                            'Complete habits or add friends to see activity',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
                       ),
                     ),
                   );
                 }
 
                 final activities = snapshot.data!;
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      if (index >= activities.length) {
-                        if (model.hasMore) {
-                          return const Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                        }
-                        return null;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: activities.length + (model.hasMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index >= activities.length) {
+                      if (model.hasMore) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
                       }
-                      return ActivityItem(activity: activities[index]);
-                    },
-                    childCount: activities.length + (model.hasMore ? 1 : 0),
-                  ),
+                      return null;
+                    }
+                    return ActivityItem(activity: activities[index]);
+                  },
                 );
               },
             ),

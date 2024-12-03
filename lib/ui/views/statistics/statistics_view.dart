@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/ui/widgets/insight_display/insight_display.dart';
+import 'package:habitur/ui/widgets/line_graph/line_graph.dart';
+import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
+import 'package:habitur/ui/widgets/modern_card.dart';
+import 'package:habitur/ui/widgets/navbar/navbar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/constants.dart';
 import 'statistics_viewmodel.dart';
@@ -12,33 +17,49 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
       BuildContext context, StatisticsViewModel viewModel, Widget? child) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: AppBar(
-        title: const Text('Statistics'),
-      ),
       body: viewModel.isBusy
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildOverallStats(viewModel),
-                    const SizedBox(height: 24),
-                    _buildCompletionChart(viewModel),
-                    const SizedBox(height: 24),
-                    _buildStreakChart(viewModel),
-                    const SizedBox(height: 24),
-                    _buildHabitStats(viewModel),
-                  ],
+          : LoadingOverlay(
+              isLoading: viewModel.isBusy,
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildOverallStats(viewModel),
+                        const SizedBox(height: 24),
+                        InsightDisplay(stats: viewModel.statPoints),
+                        const SizedBox(height: 24),
+                        LineGraph(
+                            data: viewModel.statPoints,
+                            title: 'Confidence Level',
+                            statName: 'confidenceLevel'),
+                        const SizedBox(height: 24),
+                        LineGraph(
+                            data: viewModel.statPoints,
+                            title: 'Consistency',
+                            statName: 'consistencyFactor'),
+                        const SizedBox(height: 24),
+                        LineGraph(
+                            data: viewModel.statPoints,
+                            title: 'Streak',
+                            statName: 'streak'),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
+      bottomNavigationBar: const NavBar(
+        currentPage: 'stats',
+      ),
     );
   }
 
   Widget _buildOverallStats(StatisticsViewModel viewModel) {
-    return Card(
+    return ModernCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -47,6 +68,7 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
             Text(
               'Overall Progress',
               style: kTitleTextStyle,
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Row(
@@ -81,7 +103,7 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
   }
 
   Widget _buildCompletionChart(StatisticsViewModel viewModel) {
-    return Card(
+    return ModernCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -92,25 +114,6 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
               style: kTitleTextStyle,
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              height: 200,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: true),
-                  titlesData: FlTitlesData(show: true),
-                  borderData: FlBorderData(show: true),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: viewModel.completionData,
-                      isCurved: true,
-                      color: Colors.blue,
-                      barWidth: 3,
-                      dotData: FlDotData(show: false),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -118,7 +121,7 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
   }
 
   Widget _buildStreakChart(StatisticsViewModel viewModel) {
-    return Card(
+    return ModernCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -129,25 +132,10 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
               style: kTitleTextStyle,
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              height: 200,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(show: true),
-                  titlesData: FlTitlesData(show: true),
-                  borderData: FlBorderData(show: true),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: viewModel.streakData,
-                      isCurved: true,
-                      color: Colors.green,
-                      barWidth: 3,
-                      dotData: FlDotData(show: false),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            LineGraph(
+                data: viewModel.statPoints,
+                title: 'Streak',
+                statName: 'streak'),
           ],
         ),
       ),
@@ -155,7 +143,7 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
   }
 
   Widget _buildHabitStats(StatisticsViewModel viewModel) {
-    return Card(
+    return ModernCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -173,13 +161,13 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
               itemBuilder: (context, index) {
                 final stat = viewModel.habitStats[index];
                 return ListTile(
-                  title: Text(stat.habitName),
+                  title: Text(viewModel.habits[index].title),
                   subtitle: Text(
-                    'Completion Rate: ${(stat.completionRate * 100).toStringAsFixed(1)}% • '
+                    'Completion Rate: ${(stat.consistencyFactor * 100).toStringAsFixed(1)}% • '
                     'Streak: ${stat.streak}',
                   ),
                   trailing: CircularProgressIndicator(
-                    value: stat.completionRate,
+                    value: stat.consistencyFactor,
                     backgroundColor: Colors.grey[200],
                   ),
                 );
@@ -192,6 +180,9 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
   }
 
   @override
-  StatisticsViewModel viewModelBuilder(BuildContext context) =>
-      StatisticsViewModel();
+  StatisticsViewModel viewModelBuilder(BuildContext context) {
+    final viewModel = StatisticsViewModel();
+    viewModel.initialize();
+    return viewModel;
+  }
 }

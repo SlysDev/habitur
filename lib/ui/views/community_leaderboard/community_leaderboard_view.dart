@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/ui/widgets/leaderboard_card/leaderboard_card.dart';
 import 'package:habitur/ui/widgets/navbar/navbar.dart';
+import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 import '../../../constants.dart';
 import '../../widgets/rounded_progress_bar.dart';
@@ -20,7 +22,10 @@ class CommunityLeaderboardView
     CommunityLeaderboardViewModel viewModel,
     Widget? child,
   ) {
+    debugPrint('Building leaderboard view...');
+    debugPrint('Challenge id: $challengeId');
     return Scaffold(
+      backgroundColor: kBackgroundColor,
       body: Container(
         margin: const EdgeInsets.symmetric(horizontal: 10),
         child: SafeArea(
@@ -30,6 +35,17 @@ class CommunityLeaderboardView
                   children: [
                     Column(
                       children: [
+                        Row(
+                          children: [
+                            IconButton(
+                              padding: EdgeInsets.all(16),
+                              icon: Icon(Icons.arrow_back),
+                              onPressed: () {
+                                viewModel.navigateBack();
+                              },
+                            ),
+                          ],
+                        ),
                         Text(
                           viewModel.currentChallenge?.habit.title ??
                               'No Active Challenge',
@@ -75,23 +91,9 @@ class CommunityLeaderboardView
                               itemBuilder: (context, index) {
                                 final participant =
                                     viewModel.participants[index];
-                                return ListTile(
-                                  leading: CircleAvatar(
-                                    child: Text(participant.user.username[0]
-                                        .toUpperCase()),
-                                  ),
-                                  title: Text(participant.user.username),
-                                  subtitle: Text(
-                                    'Completions: ${participant.currentCompletions}',
-                                  ),
-                                  trailing: Text(
-                                    'Level ${participant.user.userLevel}',
-                                    style: const TextStyle(
-                                      color: kLightPrimaryColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                );
+                                return LeaderboardCard(
+                                    participant: viewModel.participants[index],
+                                    rank: index + 1);
                               },
                             ),
                           ),
@@ -106,10 +108,10 @@ class CommunityLeaderboardView
   }
 
   @override
-  CommunityLeaderboardViewModel viewModelBuilder(BuildContext context) =>
-      CommunityLeaderboardViewModel();
-
-  @override
-  void onViewModelReady(CommunityLeaderboardViewModel viewModel) =>
-      viewModel.initialize(challengeId: challengeId);
+  CommunityLeaderboardViewModel viewModelBuilder(BuildContext context) {
+    final viewModel = CommunityLeaderboardViewModel();
+    debugPrint('beginning to init view model w/ challenge id: $challengeId');
+    viewModel.initialize(challengeId: challengeId);
+    return viewModel;
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:habitur/services/friends_service.dart';
 import 'package:logging/logging.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -7,6 +8,7 @@ import '../app/app.locator.dart';
 
 class ActivityDatabaseService with ListenableServiceMixin {
   final _firestore = FirebaseFirestore.instance;
+  final _friendsService = locator<FriendsService>();
   final _logger = Logger('ActivityDatabaseService');
   static const String _collection = 'activities';
   static const int _pageSize = 10;
@@ -108,7 +110,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
   Future<void> updateActivity(
       String activityId, Map<String, dynamic> data) async {
     try {
-      await collection.doc(activityId).update(data);
+      DocumentSnapshot doc = await _getActivityDoc(activityId);
+      await doc.reference.update(data);
     } catch (e) {
       _logger.severe('Error updating activity: $e');
       rethrow;
@@ -117,7 +120,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
 
   Future<void> deleteActivity(String activityId) async {
     try {
-      await collection.doc(activityId).delete();
+      DocumentSnapshot doc = await _getActivityDoc(activityId);
+      await doc.reference.delete();
     } catch (e) {
       _logger.severe('Error deleting activity: $e');
       rethrow;
@@ -127,7 +131,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
   Future<void> addComment(
       String activityId, Map<String, dynamic> comment) async {
     try {
-      await collection.doc(activityId).update({
+      DocumentSnapshot doc = await _getActivityDoc(activityId);
+      doc.reference.update({
         'comments': FieldValue.arrayUnion([comment]),
         'commentCount': FieldValue.increment(1),
       });
@@ -140,7 +145,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
   Future<void> removeComment(
       String activityId, Map<String, dynamic> comment) async {
     try {
-      await collection.doc(activityId).update({
+      DocumentSnapshot doc = await _getActivityDoc(activityId);
+      doc.reference.update({
         'comments': FieldValue.arrayRemove([comment]),
         'commentCount': FieldValue.increment(-1),
       });
@@ -154,7 +160,7 @@ class ActivityDatabaseService with ListenableServiceMixin {
     try {
       _logger.info('🔍 Getting activity: $activityId for user: $userId');
 
-      final doc = await collection.doc(activityId).get();
+      final doc = await _getActivityDoc(activityId);
       if (!doc.exists) {
         _logger.info('❌ Activity not found');
         return null;
@@ -164,7 +170,9 @@ class ActivityDatabaseService with ListenableServiceMixin {
           ActivityEvent.fromMap(doc.data() as Map<String, dynamic>);
 
       // Check if user has access to this activity
-      if (activity.userId != userId) {
+      bool isFriendWithActivityOwner =
+          await _friendsService.isFriend(activity.userId, otherUserId: userId);
+      if (!isFriendWithActivityOwner) {
         _logger.info('🔒 User does not have access to this activity');
         return null;
       }
@@ -173,6 +181,19 @@ class ActivityDatabaseService with ListenableServiceMixin {
       return activity;
     } catch (e) {
       _logger.severe('❌ Error getting activity: $e');
+      rethrow;
+    }
+  }
+
+  Future<DocumentSnapshot> _getActivityDoc(String activityId) async {
+    try {
+      return await collection
+          .where('id', isEqualTo: activityId)
+          .get()
+          .then((value) => value.docs[0]);
+    } catch (e, s) {
+      _logger.severe('❌ Error getting activity document: $e');
+      _logger.info('$s');
       rethrow;
     }
   }

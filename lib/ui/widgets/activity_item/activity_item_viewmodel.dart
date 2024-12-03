@@ -13,13 +13,13 @@ class ActivityItemViewModel extends BaseViewModel {
   }
 
   Future<void> likeActivity(String activityId) async {
-    await _activityService.likeActivity(activityId);
-    notifyListeners();
+    await runBusyFuture(_activityService.likeActivity(activityId));
+    rebuildUi();
   }
 
   Future<void> unlikeActivity(String activityId) async {
-    await _activityService.unlikeActivity(activityId);
-    notifyListeners();
+    await runBusyFuture(_activityService.unlikeActivity(activityId));
+    rebuildUi();
   }
 
   Future<void> deleteActivity(String activityId) async {
@@ -30,8 +30,7 @@ class ActivityItemViewModel extends BaseViewModel {
       BuildContext context, String activityId) async {
     final reactionTypes =
         ReactionType.values.where((type) => type != ReactionType.none);
-
-    await showModalBottomSheet(
+    await runBusyFuture(showModalBottomSheet(
       context: context,
       builder: (context) => Container(
         padding: const EdgeInsets.all(16),
@@ -47,47 +46,9 @@ class ActivityItemViewModel extends BaseViewModel {
               spacing: 16,
               runSpacing: 16,
               children: reactionTypes.map((type) {
-                String emoji;
-                String label = type.name;
-
-                switch (type) {
-                  case ReactionType.like:
-                    emoji = '❤️';
-                    label = 'Like';
-                    break;
-                  case ReactionType.love:
-                    emoji = '😍';
-                    label = 'Love';
-                    break;
-                  case ReactionType.inspire:
-                    emoji = '💪';
-                    label = 'Inspire';
-                    break;
-                  case ReactionType.celebrate:
-                    emoji = '🎉';
-                    label = 'Celebrate';
-                    break;
-                  case ReactionType.support:
-                    emoji = '🙌';
-                    label = 'Support';
-                    break;
-                  case ReactionType.proud:
-                    emoji = '🦁';
-                    label = 'Proud';
-                    break;
-                  case ReactionType.fire:
-                    emoji = '🔥';
-                    label = 'Fire';
-                    break;
-                  case ReactionType.strong:
-                    emoji = '💪';
-                    label = 'Strong';
-                    break;
-                  case ReactionType.none:
-                    emoji = '';
-                    label = '';
-                    break;
-                }
+                String emoji = reactionIcons[type] ?? '👍';
+                String label =
+                    type.name[0].toUpperCase() + type.name.substring(1);
 
                 return InkWell(
                   onTap: () {
@@ -117,7 +78,8 @@ class ActivityItemViewModel extends BaseViewModel {
           ],
         ),
       ),
-    );
-    notifyListeners();
+    ));
+
+    rebuildUi();
   }
 }
