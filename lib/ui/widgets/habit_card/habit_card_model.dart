@@ -2,26 +2,27 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
+import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/progress.dart';
 import 'package:habitur/services/habit_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class HabitCardModel extends BaseViewModel {
   final _habitService = locator<HabitService>();
+  final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
   late final ConfettiController _controller;
 
-  Habit? _habit;
-  Habit get habit => _habit!;
-
+  Habit habit;
   bool _completed = false;
   bool get completed => _completed;
 
-  double _progress = 0.0;
-  double get progress => _progress;
-
-  ConfettiController get controller => _controller;
+  HabitCardModel({required this.habit}) {
+    _completed = habit.isCompleted;
+    _controller = ConfettiController(duration: const Duration(seconds: 1));
+  }
 
   @override
   void dispose() {
@@ -29,75 +30,109 @@ class HabitCardModel extends BaseViewModel {
     super.dispose();
   }
 
-  Future<void> init(int index) async {
-    try {
-      setBusy(true);
-      _controller = ConfettiController(duration: const Duration(seconds: 1));
-      _habit = await _habitService.habits[index];
-      _updateProgress();
-    } catch (e) {
-      setError(Exception(e.toString()));
-      notifyListeners();
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  void _updateProgress() {
-    if (_habit == null) return;
-    _completed = _habit!.isCompleted;
-    _progress = _habit!.currentProgress / _habit!.targetGoal;
+  Future<void> initialize() async {
+    _completed = habit.isCompleted;
     notifyListeners();
   }
 
-  Future<void> completeHabit() async {
-    if (_habit == null) return;
+  /// Gets the current progress of the habit
+  Progress get progress => habit.progress;
+
+  /// Gets the completion percentage for UI display
+  double get progressPercentage => progress.percentage;
+
+  /// Gets a formatted string representation of the progress
+  String get progressText => progress.toString();
+
+  Future<void> incrementHabit() async {
+    if (habit.isCompleted) return;
 
     try {
       setBusy(true);
-      await _habitService.completeHabit(_habit!.id.toString());
-      _updateProgress();
+      final difficulty = await showDifficultyPopup();
+      await _habitService.incrementHabit(habit.id.toString(), difficulty);
+      _completed = habit.isCompleted;
+      notifyListeners();
 
-      if (_completed && !_habit!.isCompleted) {
+      final updatedHabit = await _habitService.getHabit(habit.id.toString());
+      if (_completed && updatedHabit!.isCompleted) {
         _controller.play();
       }
-    } catch (e) {
-      setError(Exception(e.toString()));
+    } catch (e, s) {
+      final error = Exception(e.toString());
+      debugPrint(error.toString());
+      debugPrint(s.toString());
+      setError(error);
     } finally {
       setBusy(false);
+      rebuildUi();
     }
   }
 
   Future<void> uncompleteHabit() async {
-    if (_habit == null) return;
-
     try {
       setBusy(true);
-      await _habitService.uncompleteHabit(_habit!.id.toString());
-      _updateProgress();
+      await _habitService.decrementHabit(habit.id.toString());
+      _completed = habit.isCompleted;
+      notifyListeners();
     } catch (e) {
-      setError(Exception(e.toString()));
+      final error = Exception(e.toString());
+      setError(error);
+      await showErrorDialog(error.toString());
     } finally {
       setBusy(false);
+      rebuildUi();
     }
   }
 
   Future<void> deleteHabit() async {
-    if (_habit == null) return;
-
     try {
       setBusy(true);
-      await _habitService.deleteHabit(_habit!.id.toString());
+      // Check if habit still exists in service before trying to delete
+      final habits = _habitService.habits;
+      final habitExists =
+          habits.any((h) => h.id.toString() == habit.id.toString());
+
+      if (!habitExists) {
+        debugPrint('Habit ${habit.id} no longer exists in service');
+        // Just rebuild UI since habit is already gone
+        rebuildUi();
+        return;
+      }
+
+      await _habitService.deleteHabit(habit.id.toString());
     } catch (e) {
-      setError(Exception(e.toString()));
+      final error = Exception(e.toString());
+      setError(error);
+      await showErrorDialog('Unable to delete habit. Please try again.');
     } finally {
       setBusy(false);
+      rebuildUi();
     }
   }
 
   Future<void> editHabit() async {
-    if (_habit == null) return;
     await _navigationService.navigateTo(Routes.editHabitView,
-        arguments: _habit);
+        arguments: EditHabitViewArguments(habitId: habit.id.toString()));
+    rebuildUi();
   }
+
+  Future<void> showErrorDialog(String errorMessage) async {
+    await _dialogService.showDialog(
+      title: 'Error',
+      description: errorMessage,
+      buttonTitle: 'OK',
+    );
+    rebuildUi();
+  }
+
+  Future<double> showDifficultyPopup() async {
+    final response = await _dialogService.showCustomDialog(
+      variant: DialogType.difficultyPopup,
+    );
+
+    return response?.data ?? 5.0;
+  }
+
+  ConfettiController get controller => _controller;
 }

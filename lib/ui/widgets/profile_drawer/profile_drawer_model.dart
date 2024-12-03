@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/enums/dialog_type.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:habitur/services/friends_service.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class ProfileDrawerModel extends BaseViewModel {
   final _authService = locator<AuthService>();
   final _userService = locator<UserService>();
   final _friendsService = locator<FriendsService>();
+  final _dialogService = locator<DialogService>();
 
   late UserModel _currentUser;
   UserModel get currentUser => _currentUser;
@@ -48,6 +51,13 @@ class ProfileDrawerModel extends BaseViewModel {
 
   void navigateToSettings(BuildContext context) {
     Navigator.pushNamed(context, '/settings');
+  }
+
+  void showProfileDialog() {
+    _dialogService.showCustomDialog(
+      variant: DialogType.profile,
+      data: {'user': _currentUser, 'isFriendProfile': false},
+    );
   }
 
   String get uid => _authService.currentUser?.uid ?? '';

@@ -15,13 +15,13 @@ class UserAvatar extends StackedView<UserAvatarModel> {
     Widget? child,
   ) {
     return CircleAvatar(
-      radius: size / 2,
+      radius: 20 * size,
       backgroundColor: viewModel.generateColorFromString(username),
       child: Text(
-        viewModel.getInitial(),
+        viewModel.getInitial(username),
         style: TextStyle(
           color: Colors.white,
-          fontSize: size * 0.4,
+          fontSize: 16 * size,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -31,9 +31,6 @@ class UserAvatar extends StackedView<UserAvatarModel> {
   @override
   UserAvatarModel viewModelBuilder(
     BuildContext context,
-  ) {
-    final viewModel = UserAvatarModel();
-    viewModel.initialize(username);
-    return viewModel;
-  }
+  ) =>
+      UserAvatarModel();
 }

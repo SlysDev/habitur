@@ -98,11 +98,16 @@ class VisibleHabitList extends StackedView<VisibleHabitListModel> {
   }
 
   @override
+  void onViewModelReady(VisibleHabitListModel viewModel) {
+    // TODO: implement onViewModelReady
+    viewModel.initialize(userId, isFriendProfile, habitsScope, habits);
+  }
+
+  @override
   VisibleHabitListModel viewModelBuilder(
     BuildContext context,
   ) {
     final viewModel = VisibleHabitListModel();
-    viewModel.initialize(userId, isFriendProfile, habitsScope, habits);
     return viewModel;
   }
 }

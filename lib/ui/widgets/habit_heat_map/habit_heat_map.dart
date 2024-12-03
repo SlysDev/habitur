@@ -20,6 +20,8 @@ class HabitHeatMap extends StackedView<HabitHeatMapModel> {
       BuildContext context, HabitHeatMapModel viewModel, Widget? child) {
     return Column(
       children: [
+        Text('Completion Heatmap',
+            style: kSubHeadingTextStyle.copyWith(color: Colors.white)),
         DefaultTextStyle(
           style: TextStyle(fontWeight: FontWeight.bold),
           child: HeatMapCalendar(
@@ -41,8 +43,8 @@ class HabitHeatMap extends StackedView<HabitHeatMapModel> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('less'),
-            SizedBox(width: 5),
+            Text('less', style: kMainDescription),
+            SizedBox(width: 10),
             Container(
               color: kLightGreenAccent.withOpacity(0.1),
               width: 15,
@@ -68,8 +70,8 @@ class HabitHeatMap extends StackedView<HabitHeatMapModel> {
               width: 15,
               height: 15,
             ),
-            SizedBox(width: 5),
-            Text('more'),
+            SizedBox(width: 10),
+            Text('more', style: kMainDescription),
           ],
         ),
       ],
