@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:habitur/ui/views/social_feed/social_feed.dart';
 import 'package:habitur/ui/widgets/habit_card_list/habit_card_list.dart';
 import 'package:habitur/ui/widgets/home_greeting_header/home_greeting_header.dart';
-import 'package:habitur/ui/widgets/home_screen_design.dart';
 import 'package:habitur/ui/widgets/navbar/navbar.dart';
 import 'package:habitur/ui/widgets/profile_drawer/profile_drawer.dart';
 import 'package:stacked/stacked.dart';
