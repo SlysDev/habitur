@@ -9,6 +9,7 @@ import 'package:habitur/services/user_service.dart';
 import 'package:habitur/services/data_service.dart';
 import 'package:habitur/services/status_service.dart';
 import 'package:habitur/services/notification_scheduling_service.dart';
+import 'package:habitur/services/settings_service.dart';
 import '../../../enums/bottom_sheet_type.dart';
 
 class HomeViewModel extends ReactiveViewModel {
@@ -20,6 +21,7 @@ class HomeViewModel extends ReactiveViewModel {
   final _bottomSheetService = locator<BottomSheetService>();
   final _notificationSchedulingService =
       locator<NotificationSchedulingService>();
+  final _settingsService = locator<SettingsService>();
 
   int _currentIndex = 0;
   String _userName = '';
@@ -35,6 +37,8 @@ class HomeViewModel extends ReactiveViewModel {
   int get currentStreak => _currentStreak;
   int get userLevel => _userLevel;
   int get userXP => _userXP;
+  bool get communityFeaturesEnabled =>
+      _settingsService.getCommunityFeaturesEnabled();
 
   HomeViewModel() {
     _initialize();

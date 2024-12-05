@@ -202,11 +202,12 @@ class SettingsView extends StackedView<SettingsViewModel> {
                           ),
                           const Divider(),
                           _buildSwitchTile(
-                            title: 'Community Features',
-                            subtitle: 'Enable social features',
+                            title: 'Enable Community Features',
+                            subtitle: 'Toggle to enable or disable community features',
                             value: viewModel.communityFeaturesEnabled,
-                            onChanged: (bool value) => viewModel.updateSetting(
-                                'communityFeatures', value),
+                            onChanged: (bool value) {
+                              viewModel.toggleCommunityFeatures(value);
+                            },
                           ),
                         ],
                       ),

@@ -16,6 +16,10 @@ import '../../../services/settings_service.dart';
 import '../../../services/notification_service.dart';
 import '../../../services/notification_scheduling_service.dart';
 import '../../../services/status_service.dart';
+import '../../../services/community_service.dart';
+import '../../views/social_feed/social_feed.dart';
+import '../../../services/activity_service.dart';
+import '../../../services/friends_service.dart';
 
 class SettingsViewModel extends BaseViewModel {
   final _authService = locator<AuthService>();
@@ -28,6 +32,9 @@ class SettingsViewModel extends BaseViewModel {
   final _userService = locator<UserService>();
   final _localStorageService = locator<LocalStorageService>();
   final _databaseService = locator<DatabaseService>();
+  final _communityService = locator<CommunityService>();
+  final _activityService = locator<ActivityService>();
+  final _friendsService = locator<FriendsService>();
 
   TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -222,6 +229,22 @@ class SettingsViewModel extends BaseViewModel {
     } finally {
       setBusy(false);
     }
+  }
+
+  void toggleCommunityFeatures(bool isEnabled) async{
+    _communityFeaturesEnabled = isEnabled;
+    notifyListeners();
+    setBusy(true);
+    if (isEnabled) {
+      await _settingsService.enableCommunityFeatures();
+      _activityService.enableActivityService();
+      _friendsService.enableFriendsService();
+    } else {
+      await _settingsService.disableCommunityFeatures();
+      _activityService.disableActivityService();
+      _friendsService.disableFriendsService();
+    }
+    setBusy(false);
   }
 
   Future<void> logout() async {
