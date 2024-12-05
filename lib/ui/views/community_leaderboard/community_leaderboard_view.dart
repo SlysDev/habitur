@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/ui/widgets/leaderboard_card/leaderboard_card.dart';
+import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
 import 'package:habitur/ui/widgets/navbar/navbar.dart';
+import 'package:habitur/ui/widgets/primary_button.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 import '../../../constants.dart';
@@ -24,85 +26,110 @@ class CommunityLeaderboardView
   ) {
     debugPrint('Building leaderboard view...');
     debugPrint('Challenge id: $challengeId');
-    return Scaffold(
-      backgroundColor: kBackgroundColor,
-      body: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10),
-        child: SafeArea(
-          child: viewModel.isBusy
-              ? const Center(child: CircularProgressIndicator())
-              : Stack(
+    return LoadingOverlay(
+      isLoading: viewModel.isBusy || viewModel.currentChallenge == null,
+      child: Scaffold(
+        backgroundColor: kBackgroundColor,
+        body: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 10),
+          child: SafeArea(
+            bottom: false,
+            child: Stack(
+              children: [
+                Column(
                   children: [
-                    Column(
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            IconButton(
-                              padding: EdgeInsets.all(16),
-                              icon: Icon(Icons.arrow_back),
-                              onPressed: () {
-                                viewModel.navigateBack();
-                              },
-                            ),
-                          ],
+                        IconButton(
+                          padding: EdgeInsets.all(16),
+                          icon: Icon(Icons.arrow_back),
+                          onPressed: () {
+                            viewModel.navigateBack();
+                          },
                         ),
-                        Text(
-                          viewModel.currentChallenge?.habit.title ??
-                              'No Active Challenge',
-                          style: kTitleTextStyle.copyWith(
-                              color: kLightPrimaryColor),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          viewModel.currentChallenge?.description ??
-                              'Join a challenge to get started!',
-                          style: kMainDescription,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 40),
-                        if (viewModel.currentChallenge != null) ...[
-                          RoundedProgressBar(
-                            progress: viewModel.totalProgress,
-                            lineHeight: 40,
-                            color: kPrimaryColor,
-                          ),
-                          const SizedBox(height: 30),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '${viewModel.currentChallenge!.currentFullCompletions} / ${viewModel.currentChallenge!.requiredFullCompletions}',
-                                style: kMainDescription.copyWith(
-                                  color: Colors.white,
-                                  fontSize: 22,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              const Icon(Icons.people, size: 24),
-                            ],
-                          ),
-                          const SizedBox(height: 30),
-                          Expanded(
-                            child: ListView.separated(
-                              itemCount: viewModel.participants.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 10),
-                              itemBuilder: (context, index) {
-                                final participant =
-                                    viewModel.participants[index];
-                                return LeaderboardCard(
-                                    participant: viewModel.participants[index],
-                                    rank: index + 1);
-                              },
-                            ),
-                          ),
-                        ],
                       ],
                     ),
+                    Text(
+                      viewModel.currentChallenge?.habit.title ?? '',
+                      style:
+                          kTitleTextStyle.copyWith(color: kLightPrimaryColor),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      viewModel.currentChallenge?.description ?? '',
+                      style: kMainDescription,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 40),
+                    if (viewModel.currentChallenge != null) ...[
+                      RoundedProgressBar(
+                        progress: viewModel.totalProgress,
+                        lineHeight: 40,
+                        color: kPrimaryColor,
+                      ),
+                      const SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${viewModel.currentChallenge!.currentFullCompletions} / ${viewModel.currentChallenge!.requiredFullCompletions}',
+                            style: kMainDescription.copyWith(
+                              color: Colors.white,
+                              fontSize: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          const Icon(Icons.people, size: 24),
+                        ],
+                      ),
+                      const SizedBox(height: 30),
+                      Expanded(
+                        child: ListView.separated(
+                          itemCount: viewModel.participants.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (context, index) {
+                            final participant = viewModel.participants[index];
+                            return Container(
+                              margin: index == viewModel.participants.length - 1
+                                  ? EdgeInsets.only(bottom: 75)
+                                  : EdgeInsets.only(bottom: 0),
+                              child: LeaderboardCard(
+                                  participant: viewModel.participants[index],
+                                  rank: index + 1),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ],
                 ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.8),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
+        floatingActionButton: PrimaryButton(
+            text: 'Complete', onPressed: viewModel.incrementProgress),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
     );
   }

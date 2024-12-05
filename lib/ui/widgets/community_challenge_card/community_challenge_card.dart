@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/ui/widgets/emphasis_card/emphasis_card.dart';
+import 'package:habitur/ui/widgets/modern_card.dart';
 import 'package:habitur/ui/widgets/rounded_progress_bar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/constants.dart';
@@ -44,9 +45,11 @@ class CommunityChallengeCard
     CommunityChallengeCardViewModel viewModel,
   ) {
     return GestureDetector(
-      onTap:
-          viewModel.isConnected ? viewModel.navigateToChallengeOverview : () {},
-      child: EmphasisCard(
+      onTap: viewModel.isConnected
+          ? viewModel.navigateToChallengeOverview
+          : viewModel.navigateToChallengeOverview,
+      child: ModernCard(
+        opacity: 0.4,
         color: challenge.currentFullCompletions ==
                 challenge.requiredFullCompletions
             ? kLightGreenAccent

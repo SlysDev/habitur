@@ -37,9 +37,6 @@ class CommunityLeaderboardViewModel
   CommunityChallenge? get currentChallenge => data;
 
   List<ParticipantData> get participants {
-    debugPrint('Getting participants...');
-    debugPrint(
-        'Participants: ${data?.participants}, ${data?.id}, length: ${data?.participants?.length}');
     return data?.participants ?? [];
   }
 
@@ -50,19 +47,37 @@ class CommunityLeaderboardViewModel
 
   Future<void> incrementProgress() async {
     if (data == null) return;
-
+    int challengeCurrentFullCompletions = data!.currentFullCompletions;
     setBusy(true);
     try {
-      await _communityService.updateChallengeProgress(
-        data!.id.toString(),
-        data!.currentFullCompletions + 1,
-      );
+      ParticipantData participantData = await _communityService
+          .getCurrentUserParticipantData(data!.id.toString());
+      if (participantData.currentCompletions == data!.habit.targetGoal) {
+        return;
+      }
+      // increment current completions first
+      if (participantData.currentCompletions < data!.habit.targetGoal) {
+        participantData.currentCompletions += 1;
+        if (participantData.currentCompletions == data!.habit.targetGoal) {
+          // update participant full completions
+          participantData.fullCompletionCount += 1;
+          // update challenge completions
+          challengeCurrentFullCompletions += 1;
+          await _communityService.updateChallengeProgress(
+            data!.id.toString(),
+            challengeCurrentFullCompletions,
+          );
+        }
+      }
+      await _communityService.updateParticipantProgress(
+          challengeId: data!.id.toString(), participant: participantData);
       await _habitService.incrementHabit(data!.habit.id.toString(), 0);
-    } catch (e) {
+    } catch (e, s) {
       await _dialogService.showDialog(
         title: 'Error',
         description: 'Failed to update progress: ${e.toString()}',
       );
+      debugPrint(s.toString());
     } finally {
       setBusy(false);
     }
