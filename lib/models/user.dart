@@ -87,9 +87,6 @@ class UserModel extends HiveObject {
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
-    debugPrint('UserModel.fromMap: Converting map to UserModel');
-    debugPrint('Stats data: ${map['stats']}');
-
     List<StatPoint> statPoints = [];
     if (map['stats'] != null && map['stats'] is Map) {
       var statsMap = map['stats'] as Map<String, dynamic>;
