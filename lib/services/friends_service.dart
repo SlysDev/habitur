@@ -269,4 +269,14 @@ class FriendsService {
     if (!snapshot.exists) return null;
     return userDoc;
   }
+
+  void enableFriendsService() {
+    // Logic to enable the friends system
+    // For example, start processing friend requests
+  }
+
+  void disableFriendsService() {
+    // Logic to disable the friends system
+    // For example, stop processing friend requests
+  }
 }

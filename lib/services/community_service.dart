@@ -113,17 +113,44 @@ class CommunityService with ListenableServiceMixin {
             .join('\n'));
         return challenge;
       });
+  Future<ParticipantData> getCurrentUserParticipantData(
+      String challengeId) async {
+    final user = await _userService.getCurrentUser();
+    if (user == null) throw Exception('Current user not found');
+    List<ParticipantData> participants =
+        await _loadParticipants(challengeId.toString());
+
+    return participants
+        .firstWhere((participant) => participant.user.uid == user.uid);
+  }
+
+  Future<void> updateParticipantProgress(
+      {required ParticipantData participant,
+      required String challengeId}) async {
+    debugPrint('Updating participant progress: ${participant.toString()}');
+    CommunityChallenge challenge = getChallengeById(int.parse(challengeId));
+    // TODO: finish implementing this
+    DocumentReference doc = await getChallengeDocById(challengeId);
+    DocumentSnapshot snapshot = await doc.get();
+    List<ParticipantData> participants = await _loadParticipants(challengeId);
+    participants[participants
+        .indexWhere((p) => p.user.uid == participant.user.uid)] = participant;
+    List<Map<String, dynamic>> participantsFormatted =
+        participants.map((p) => p.toMap()).toList();
+    doc.set({
+      'participantDataList': participantsFormatted,
+      'lastUpdated': DateTime.now(),
+    }, SetOptions(merge: true));
+  }
 
   Future<List<ParticipantData>> _loadParticipants(String challengeId) async {
-    final participantsList = await _firestore
+    final List participantsList = await _firestore
         .collection('community-challenges')
         .where('id', isEqualTo: int.parse(challengeId))
         .get()
         .then((snapshot) => snapshot.docs.first)
-        .then((doc) => doc.get('participantDataList') as List<dynamic>);
+        .then((doc) => doc.get('participantDataList'));
 
-    debugPrint(
-        'Participant data from Firestore: ${participantsList.toString()}');
 
     final participants = participantsList
         .map((participantData) {
@@ -134,8 +161,10 @@ class CommunityService with ListenableServiceMixin {
               currentCompletions: participantData['currentCompletions'] ?? 0,
               fullCompletionCount: participantData['fullCompletionCount'] ?? 0,
               lastSeen: participantData['lastSeen'] != null
-                  ? (participantData['lastSeen'] as Timestamp).toDate()
-                  : DateTime.now(),
+                  ? participantData['lastSeen'] is Timestamp
+                      ? participantData['lastSeen'].toDate()
+                      : DateTime.now()
+                  : null,
             );
           } catch (e) {
             debugPrint('Error parsing participant data: $e');
@@ -173,13 +202,10 @@ class CommunityService with ListenableServiceMixin {
     }
 
     final userId = _authService.userId;
-    await _firestore
-        .collection('community-challenges')
-        .doc(challengeId)
-        .collection('participantDataList')
-        .doc(userId)
-        .set({
-      'currentCompletions': newProgress,
+    DocumentReference doc = await getChallengeDocById(challengeId);
+    DocumentSnapshot docSnapshot = await doc.get();
+    doc.set({
+      'currentFullCompletions': newProgress,
       'lastUpdated': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }
@@ -280,6 +306,18 @@ class CommunityService with ListenableServiceMixin {
     return _challenges.firstWhere((challenge) => challenge.id == id);
   }
 
+  Future<DocumentReference> getChallengeDocById(String id) async {
+    QuerySnapshot snapshot = await _firestore
+        .collection('community-challenges')
+        .where('id', isEqualTo: int.parse(id))
+        .get();
+    if (snapshot.size > 0) {
+      return snapshot.docs.first.reference;
+    } else {
+      throw Exception('No challenge found with id: $id');
+    }
+  }
+
   Future<void> createChallenge({
     required String description,
     required DateTime startDate,
@@ -325,7 +363,7 @@ class CommunityService with ListenableServiceMixin {
     }
   }
 
-  List<ParticipantData> getTopParticipants(int challengeId) {
+  List<ParticipantData> getTopParticipants(String challengeId) {
     try {
       final challenge = _challenges.firstWhere((c) => c.id == challengeId);
       return challenge.getTopThreeParticipants();
@@ -334,4 +372,6 @@ class CommunityService with ListenableServiceMixin {
       return [];
     }
   }
+
+  // Removed methods `enableCommunityFeatures` and `disableCommunityFeatures` as they are now in `SettingsService`.
 }

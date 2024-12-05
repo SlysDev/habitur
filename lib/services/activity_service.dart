@@ -21,6 +21,7 @@ class ActivityService with ListenableServiceMixin {
   bool _hasMore = true;
   bool _isLoading = false;
   List<ActivityEvent> _activities = [];
+  bool _isEnabled = true;
 
   // Scoring constants
   static const double _baseScore = 1.0;
@@ -43,6 +44,7 @@ class ActivityService with ListenableServiceMixin {
   List<ActivityEvent> get activities => _activities;
   bool get hasMore => _hasMore;
   bool get isLoading => _isLoading;
+  bool get isEnabled => _isEnabled;
 
   Future<ActivityEvent?> getActivity(String activityId) async {
     final user = await _localStorageService.getCurrentUser();
@@ -422,5 +424,17 @@ class ActivityService with ListenableServiceMixin {
 
     // Update activities list with sorted order
     _activities = activityScores.map((e) => e.key).toList();
+  }
+
+  void enableActivityService() {
+    _isEnabled = true;
+    // Logic to enable activity service
+    // For example, start processing activities
+  }
+
+  void disableActivityService() {
+    _isEnabled = false;
+    // Logic to disable activity service
+    // For example, stop processing activities
   }
 }
