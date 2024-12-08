@@ -26,7 +26,6 @@ import '../services/community_service.dart';
 import '../services/network_service.dart';
 import '../services/activity_service.dart';
 import '../services/friends_service.dart';
-import '../services/shared_habits_service.dart';
 
 // Views
 import '../ui/views/admin/admin_view.dart';
@@ -104,7 +103,6 @@ import '../ui/views/habit_overview/habit_overview_view.dart';
     LazySingleton(classType: StatsCalculationService),
     LazySingleton(classType: StatsOrchestrationService),
     LazySingleton(classType: AggregateStatsCalculatorService),
-    LazySingleton(classType: SharedHabitsService),
   ],
 )
 class App {}
