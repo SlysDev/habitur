@@ -17,7 +17,7 @@ class NotificationSchedulingService {
   final UserService _userService = locator<UserService>();
 
   Future<void> scheduleDefaultTrack(
-      BuildContext context, int numberOfNotifs) async {
+      int numberOfNotifs) async {
     final habits = await _habitService.getTodaysDueHabits();
     if (habits.isEmpty) return;
 
@@ -33,7 +33,6 @@ class NotificationSchedulingService {
 
     // Schedule general reminders
     await _scheduleGeneralReminders(
-      context,
       now,
       firstNotifTime,
       secondNotifTime,
@@ -52,7 +51,6 @@ class NotificationSchedulingService {
   }
 
   Future<void> _scheduleGeneralReminders(
-    BuildContext context,
     DateTime now,
     TimeModel firstTime,
     TimeModel secondTime,
@@ -192,9 +190,9 @@ class NotificationSchedulingService {
     return messages[Random().nextInt(messages.length)];
   }
 
-  Future<void> rescheduleNotifications(BuildContext context) async {
+  Future<void> rescheduleNotifications() async {
     await _notificationService.cancelAllScheduledNotifications();
     await scheduleDefaultTrack(
-        context, 3); // Default to 3 notifications per day
+        3); // Default to 3 notifications per day
   }
 }

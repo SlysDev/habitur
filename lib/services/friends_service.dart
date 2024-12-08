@@ -6,6 +6,7 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/habit_service.dart';
+import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked_annotations.dart';
 
 @LazySingleton()
@@ -13,6 +14,7 @@ class FriendsService {
   final _firestore = FirebaseFirestore.instance;
   final _authService = locator<AuthService>();
   final _habitService = locator<HabitService>();
+  final _userService = locator<UserService>();
 
   // Core friend operations
   Stream<List<String>> get friendsStream {
@@ -258,6 +260,34 @@ class FriendsService {
           .toList();
     } catch (e) {
       debugPrint('Error parsing friend habits: $e');
+      return [];
+    }
+  }
+
+  Future<List<User>> getFriends() async {
+    final currentUser = _userService.currentUser;
+    if (currentUser == null) return [];
+
+    try {
+      final friendsSnapshot = await _firestore
+          .collection('users')
+          .doc(currentUser.uid)
+          .collection('friends')
+          .get();
+
+      final friendIds = friendsSnapshot.docs.map((doc) => doc.id).toList();
+      if (friendIds.isEmpty) return [];
+
+      final friendsData = await Future.wait(
+        friendIds.map((friendId) => _firestore.collection('users').doc(friendId).get())
+      );
+
+      return friendsData
+          .where((doc) => doc.exists)
+          .map((doc) => User.fromJson({...doc.data()!, 'uid': doc.id}))
+          .toList();
+    } catch (e) {
+      print('Error getting friends: $e');
       return [];
     }
   }

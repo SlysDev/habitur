@@ -73,7 +73,6 @@ class HomeViewModel extends ReactiveViewModel {
     try {
       if (_habitService.habits.isNotEmpty) {
         await _notificationSchedulingService.rescheduleNotifications(
-          _navigationService.navigatorKey!.currentContext!,
         );
       }
     } catch (e) {

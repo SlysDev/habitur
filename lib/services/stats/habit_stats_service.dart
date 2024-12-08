@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/models/stat_point.dart';
+import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:habitur/services/local_storage_service.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
+import 'package:habitur/services/user_service.dart';
 import 'package:habitur/util_functions.dart';
 import 'dart:math' as math;
 
@@ -15,6 +18,8 @@ class HabitStatsService {
   final _databaseService = locator<DatabaseService>();
   final _authService = locator<AuthService>();
   final _statsCalculationService = locator<StatsCalculationService>();
+  final _activityService = locator<ActivityService>();
+  final _userService = locator<UserService>();
 
   Future<void> processHabitIncrement(
     Habit habit, {
@@ -24,11 +29,21 @@ class HabitStatsService {
     // Update habit stats
     habit.incrementProgress(amount);
 
-    // If habit was completed, update streak
+    // If habit is completed, update streak
     if (habit.isCompleted) {
       habit.streak = math.max(0, habit.streak + 1);
       habit.highestStreak = math.max(habit.streak, habit.highestStreak);
       habit.daysCompleted.add(simplifyDateIntoDays(DateTime.now()));
+
+      if (habit.streak % 5 == 0 && habit.streak != 0) {
+        await _activityService.createActivityForEvent(
+            _userService.currentUser!.uid,
+            _userService.currentUser!.username,
+            ActivityType.streakMilestone,
+            habit.id.toString(),
+            habit.title,
+            metadata: {'streakDays': habit.streak});
+      }
 
       // Calculate stats
       final confidenceLevel =

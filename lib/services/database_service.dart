@@ -10,6 +10,7 @@ import '../models/habit.dart';
 import '../models/stat_point.dart';
 import '../models/setting.dart';
 import '../app/app.locator.dart';
+import '../models/shared_habit.dart';
 
 class DatabaseService with ListenableServiceMixin {
   final _auth = FirebaseAuth.instance;
@@ -178,6 +179,70 @@ class DatabaseService with ListenableServiceMixin {
       }
     } catch (e) {
       debugPrint('Error updating all habits: $e');
+      rethrow;
+    }
+  }
+
+  // Shared Habits
+  Future<List<SharedHabit>> getSharedHabits(String userId) async {
+    try {
+      final sharedHabitsRef = _firestore
+          .collection('shared_habits')
+          .where('participantData', arrayContains: {'userId': userId});
+
+      final snapshot = await sharedHabitsRef.get();
+      return snapshot.docs
+          .map((doc) => SharedHabit.fromJson({...doc.data(), 'id': doc.id}))
+          .toList();
+    } catch (e) {
+      print('Error getting shared habits: $e');
+      rethrow;
+    }
+  }
+
+  Future<SharedHabit?> getSharedHabitById(String habitId) async {
+    try {
+      final doc = await _firestore.collection('shared_habits').doc(habitId).get();
+      if (!doc.exists) return null;
+      return SharedHabit.fromJson({...doc.data()!, 'id': doc.id});
+    } catch (e) {
+      print('Error getting shared habit: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> createSharedHabit(SharedHabit sharedHabit) async {
+    try {
+      await _firestore
+          .collection('shared_habits')
+          .doc(sharedHabit.id.toString())
+          .set(sharedHabit.toJson());
+    } catch (e) {
+      print('Error creating shared habit: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateSharedHabit(SharedHabit sharedHabit) async {
+    try {
+      await _firestore
+          .collection('shared_habits')
+          .doc(sharedHabit.id.toString())
+          .update(sharedHabit.toJson());
+    } catch (e) {
+      print('Error updating shared habit: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteSharedHabit(int habitId) async {
+    try {
+      await _firestore
+          .collection('shared_habits')
+          .doc(habitId.toString())
+          .delete();
+    } catch (e) {
+      print('Error deleting shared habit: $e');
       rethrow;
     }
   }

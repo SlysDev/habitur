@@ -16,23 +16,37 @@ class HabitsView extends StackedView<HabitsViewModel> {
       BuildContext context, HabitsViewModel viewModel, Widget? child) {
     return LoadingOverlay(
       isLoading: viewModel.isBusy,
-      child: const Scaffold(
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.transparent,
+          actions: [
+            Builder(
+              builder: (context) => IconButton(
+                icon: const Icon(Icons.person_rounded, color: Colors.white),
+                onPressed: () => Scaffold.of(context).openEndDrawer(),
+              ),
+            ),
+          ],
+        ),
         backgroundColor: kBackgroundColor,
-        endDrawer: ProfileDrawer(),
-        body: SafeArea(
+        endDrawer: const ProfileDrawer(),
+        body: const SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                HomeGreetingHeader(),
-                HabitCardList(),
-                SizedBox(height: 20),
-              ],
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  HomeGreetingHeader(),
+                  HabitCardList(),
+                  SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
         ),
-        bottomNavigationBar: NavBar(
+        bottomNavigationBar: const NavBar(
           currentPage: 'habits',
         ),
       ),

@@ -80,6 +80,7 @@ class HabitCardList extends StackedView<HabitCardListModel> {
               )
             : ListView.builder(
                 shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 itemCount: viewModel.habits.length,
                 itemBuilder: (context, index) {
                   final habit = viewModel.getHabit(index);
