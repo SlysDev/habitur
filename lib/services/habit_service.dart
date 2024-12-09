@@ -216,55 +216,54 @@ class HabitService with ListenableServiceMixin {
 
   int getWeekOfYear(DateTime date) {
     final startOfYear = DateTime(date.year, 1, 1);
-    return ((date.difference(startOfYear).inDays + startOfYear.weekday) / 7).floor() + 1;
+    return ((date.difference(startOfYear).inDays + startOfYear.weekday) / 7)
+            .floor() +
+        1;
   }
 
   Future<void> resetDailyHabits() async {
     final habits = await getUserHabits();
     bool hasChanges = false;
     bool needsNotificationReschedule = false;
-    
+
     for (var habit in habits) {
-      if (habit.resetPeriod.toLowerCase() == 'daily' && habit.daysCompleted.isNotEmpty) {
+      if (habit.resetPeriod.toLowerCase() == 'daily' &&
+          habit.daysCompleted.isNotEmpty) {
         final lastCompletionDate = habit.daysCompleted.last;
         final today = DateTime.now();
-        
+
         // Normalize dates to midnight
-        final lastCompletionNormalized = DateTime(
-          lastCompletionDate.year, 
-          lastCompletionDate.month, 
-          lastCompletionDate.day
-        );
-        final todayNormalized = DateTime(
-          today.year, today.month, today.day
-        );
-        
-        final daysDifference = todayNormalized.difference(lastCompletionNormalized).inDays;
-        
+        final lastCompletionNormalized = DateTime(lastCompletionDate.year,
+            lastCompletionDate.month, lastCompletionDate.day);
+        final todayNormalized = DateTime(today.year, today.month, today.day);
+
+        final daysDifference =
+            todayNormalized.difference(lastCompletionNormalized).inDays;
+
         if (daysDifference > 0) {
           int missedRequiredDays = 0;
-          
+
           // Check each missed day
           for (int i = 1; i <= daysDifference; i++) {
             final missedDay = todayNormalized.subtract(Duration(days: i));
             final dayOfWeek = DateFormat('EEEE').format(missedDay);
-            
+
             if (habit.requiredDatesOfCompletion.contains(dayOfWeek)) {
               missedRequiredDays++;
             }
           }
-          
+
           // Reset progress if any required days were missed
           if (missedRequiredDays >= 1) {
             habit.resetProgress();
             hasChanges = true;
-            
+
             // If habit has smart notifications enabled, mark for rescheduling
             if (habit.smartNotifsEnabled) {
               needsNotificationReschedule = true;
             }
           }
-          
+
           // Reset streak only if multiple required days were missed
           if (missedRequiredDays > 1) {
             habit.streak = 0;
@@ -273,13 +272,15 @@ class HabitService with ListenableServiceMixin {
         }
       }
     }
-    
+
     if (hasChanges) {
       await saveHabits(habits);
-      
+
       // If any habits with smart notifications were reset, reschedule notifications
       if (needsNotificationReschedule) {
-          await locator<NotificationSchedulingService>().rescheduleNotifications();
+        final notificationSchedulingService =
+            locator<NotificationSchedulingService>();
+        await notificationSchedulingService.rescheduleNotifications();
       }
     }
   }
@@ -288,24 +289,25 @@ class HabitService with ListenableServiceMixin {
     final habits = await getUserHabits();
     bool hasChanges = false;
     bool needsNotificationReschedule = false;
-    
+
     for (var habit in habits) {
-      if (habit.resetPeriod.toLowerCase() == 'weekly' && habit.daysCompleted.isNotEmpty) {
+      if (habit.resetPeriod.toLowerCase() == 'weekly' &&
+          habit.daysCompleted.isNotEmpty) {
         final now = DateTime.now();
         final currentWeek = getWeekOfYear(now);
         final lastCompletedDay = habit.daysCompleted.last;
         final lastCompletedWeek = getWeekOfYear(lastCompletedDay);
-        
+
         // Reset completions if we're in a new week
         if (currentWeek > lastCompletedWeek) {
           habit.resetProgress();
           hasChanges = true;
-          
+
           if (habit.smartNotifsEnabled) {
             needsNotificationReschedule = true;
           }
         }
-        
+
         // Reset streak if more than a week has passed
         if (now.difference(lastCompletedDay).inDays >= 7) {
           habit.streak = 0;
@@ -313,12 +315,13 @@ class HabitService with ListenableServiceMixin {
         }
       }
     }
-    
+
     if (hasChanges) {
       await saveHabits(habits);
-      
+
       if (needsNotificationReschedule) {
-        await locator<NotificationSchedulingService>().rescheduleNotifications();
+        await locator<NotificationSchedulingService>()
+            .rescheduleNotifications();
       }
     }
   }
@@ -327,28 +330,30 @@ class HabitService with ListenableServiceMixin {
     final habits = await getUserHabits();
     bool hasChanges = false;
     bool needsNotificationReschedule = false;
-    
+
     for (var habit in habits) {
-      if (habit.resetPeriod.toLowerCase() == 'monthly' && habit.daysCompleted.isNotEmpty) {
+      if (habit.resetPeriod.toLowerCase() == 'monthly' &&
+          habit.daysCompleted.isNotEmpty) {
         final now = DateTime.now();
         final currentMonth = now.month;
         final lastCompletedDay = habit.daysCompleted.last;
         final lastCompletedMonth = lastCompletedDay.month;
-        
+
         // Also check year to handle year transitions correctly
-        bool isNewMonth = now.year > lastCompletedDay.year || 
-                         (now.year == lastCompletedDay.year && currentMonth > lastCompletedMonth);
-        
+        bool isNewMonth = now.year > lastCompletedDay.year ||
+            (now.year == lastCompletedDay.year &&
+                currentMonth > lastCompletedMonth);
+
         // Reset completions if we're in a new month
         if (isNewMonth) {
           habit.resetProgress();
           hasChanges = true;
-          
+
           if (habit.smartNotifsEnabled) {
             needsNotificationReschedule = true;
           }
         }
-        
+
         // Reset streak if more than a month has passed
         if (now.difference(lastCompletedDay).inDays >= 30) {
           habit.streak = 0;
@@ -356,12 +361,13 @@ class HabitService with ListenableServiceMixin {
         }
       }
     }
-    
+
     if (hasChanges) {
       await saveHabits(habits);
-      
+
       if (needsNotificationReschedule) {
-        await locator<NotificationSchedulingService>().rescheduleNotifications();
+        await locator<NotificationSchedulingService>()
+            .rescheduleNotifications();
       }
     }
   }
@@ -374,7 +380,6 @@ class HabitService with ListenableServiceMixin {
   }
 
   Future<void> calculateHabitStats() async {
-    final habits = await getUserHabits();
     bool hasChanges = false;
 
     for (var habit in habits) {
