@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -16,6 +17,7 @@ class NetworkService with ReactiveServiceMixin {
   }
 
   Future<void> _initConnectivity() async {
+    debugPrint('Initializing connectivity...');
     try {
       final result = await _connectivity.checkConnectivity();
       _updateConnectionStatus(result);
