@@ -9,6 +9,7 @@ import 'dart:ui' as _i6;
 import 'package:flutter/material.dart' as _i4;
 import 'package:habitur/models/friend_request.dart' as _i8;
 import 'package:habitur/models/habit.dart' as _i9;
+import 'package:habitur/models/user.dart' as _i10;
 import 'package:habitur/services/friends_service.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i3;
@@ -667,4 +668,33 @@ class MockFriendsService extends _i1.Mock implements _i7.FriendsService {
         returnValueForMissingStub:
             _i5.Future<List<_i9.Habit>>.value(<_i9.Habit>[]),
       ) as _i5.Future<List<_i9.Habit>>);
+
+  @override
+  _i5.Future<List<_i10.UserModel>> getFriends() => (super.noSuchMethod(
+        Invocation.method(
+          #getFriends,
+          [],
+        ),
+        returnValue: _i5.Future<List<_i10.UserModel>>.value(<_i10.UserModel>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i10.UserModel>>.value(<_i10.UserModel>[]),
+      ) as _i5.Future<List<_i10.UserModel>>);
+
+  @override
+  void enableFriendsService() => super.noSuchMethod(
+        Invocation.method(
+          #enableFriendsService,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void disableFriendsService() => super.noSuchMethod(
+        Invocation.method(
+          #disableFriendsService,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 }

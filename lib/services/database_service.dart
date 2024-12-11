@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:stacked/stacked.dart';
 import '../models/user.dart';
@@ -108,6 +109,8 @@ class DatabaseService with ListenableServiceMixin {
   }
 
   // Habits Operations
+
+  // normal habits
   Future<List<Habit>> getHabits(String userId) async {
     try {
       final snapshot = await _firestore
@@ -183,6 +186,88 @@ class DatabaseService with ListenableServiceMixin {
     }
   }
 
+  // habit interface methods
+
+  Future<List<HabitInterface>> getInterfaceHabits(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('habits')
+          .get();
+      return snapshot.docs
+          .map((doc) => doc.data()['isShared']
+              ? SharedHabit.fromMap(doc.data())
+              : Habit.fromMap(doc.data()))
+          .toList();
+    } catch (e, s) {
+      debugPrint('Error getting habits: $e');
+      debugPrint('$s');
+      rethrow;
+    }
+  }
+
+  Future<void> addInterfaceHabit(String userId, HabitInterface habit) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('habits')
+          .doc(habit.id.toString())
+          .set(habit.toMap());
+    } catch (e, s) {
+      debugPrint('Error adding habit: $e');
+      debugPrint('$s');
+      rethrow;
+    }
+  }
+
+  Future<void> updateInterfaceHabit(String userId, HabitInterface habit) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('habits')
+          .doc(habit.id.toString())
+          .set(habit.toMap(), SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('Error updating habit: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteInterfaceHabit(String userId, String habitId) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('habits')
+          .doc(habitId)
+          .delete();
+    } catch (e, s) {
+      debugPrint('Error deleting habit: $e');
+      debugPrint('$s');
+      rethrow;
+    }
+  }
+
+  Future<void> updateAllInterfaceHabits(
+      String userId, List<HabitInterface> habits) async {
+    try {
+      for (HabitInterface habit in habits) {
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('habits')
+            .doc(habit.id.toString())
+            .set(habit.toMap(), SetOptions(merge: true));
+      }
+    } catch (e) {
+      debugPrint('Error updating all habits: $e');
+      rethrow;
+    }
+  }
+
   // Shared Habits
   Future<List<SharedHabit>> getSharedHabits(String userId) async {
     try {
@@ -192,7 +277,7 @@ class DatabaseService with ListenableServiceMixin {
 
       final snapshot = await sharedHabitsRef.get();
       return snapshot.docs
-          .map((doc) => SharedHabit.fromJson({...doc.data(), 'id': doc.id}))
+          .map((doc) => SharedHabit.fromMap({...doc.data(), 'id': doc.id}))
           .toList();
     } catch (e) {
       print('Error getting shared habits: $e');
@@ -202,23 +287,30 @@ class DatabaseService with ListenableServiceMixin {
 
   Future<SharedHabit?> getSharedHabitById(String habitId) async {
     try {
-      final doc = await _firestore.collection('shared_habits').doc(habitId).get();
+      final doc =
+          await _firestore.collection('shared_habits').doc(habitId).get();
       if (!doc.exists) return null;
-      return SharedHabit.fromJson({...doc.data()!, 'id': doc.id});
+      return SharedHabit.fromMap({...doc.data()!, 'id': doc.id});
     } catch (e) {
-      print('Error getting shared habit: $e');
+      debugPrint('Error getting shared habit: $e');
       rethrow;
     }
   }
 
   Future<void> createSharedHabit(SharedHabit sharedHabit) async {
     try {
-      await _firestore
-          .collection('shared_habits')
-          .doc(sharedHabit.id.toString())
-          .set(sharedHabit.toJson());
-    } catch (e) {
-      print('Error creating shared habit: $e');
+      // Update each participant's shared habits
+      for (var participant in sharedHabit.participantData) {
+        await _firestore
+            .collection('users')
+            .doc(participant.user.uid)
+            .collection('shared_habits')
+            .doc(sharedHabit.id.toString())
+            .set(sharedHabit.toMap());
+      }
+    } catch (e, s) {
+      debugPrint('Error creating shared habit: $e');
+      debugPrint('$s');
       rethrow;
     }
   }
@@ -228,7 +320,7 @@ class DatabaseService with ListenableServiceMixin {
       await _firestore
           .collection('shared_habits')
           .doc(sharedHabit.id.toString())
-          .update(sharedHabit.toJson());
+          .update(sharedHabit.toMap());
     } catch (e) {
       print('Error updating shared habit: $e');
       rethrow;

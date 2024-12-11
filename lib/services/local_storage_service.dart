@@ -4,18 +4,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:habitur/models/friend_request.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/habit_visibility.dart';
 import 'package:habitur/models/privacy_settings.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/models/user.dart';
+import 'package:habitur/models/setting.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:stacked/stacked.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart' as path_provider;
-import '../models/setting.dart';
 
 class LocalStorageService with ListenableServiceMixin {
   Box? _userBox;
@@ -50,6 +52,9 @@ class LocalStorageService with ListenableServiceMixin {
     }
     if (!Hive.isAdapterRegistered(HabitAdapter().typeId)) {
       Hive.registerAdapter(HabitAdapter());
+    }
+    if (!Hive.isAdapterRegistered(SharedHabitAdapter().typeId)) {
+      Hive.registerAdapter(SharedHabitAdapter());
     }
     if (!Hive.isAdapterRegistered(StatPointAdapter().typeId)) {
       Hive.registerAdapter(StatPointAdapter());
@@ -432,6 +437,17 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   Future<void> saveHabits(List<Habit> habits) async {
+    await _ensureBoxOpen('habits');
+    await _habitsBox!.clear(); // Clear existing habits
+    for (var habit in habits) {
+      await _habitsBox!.put(habit.id, habit);
+    }
+    await setHabitsLastUpdated(DateTime.now());
+    debugPrint('Saved ${habits.length} habits to local storage');
+    debugPrint('Habit IDs: ${habits.map((h) => h.id).toList()}');
+  }
+
+  Future<void> saveInterfaceHabits(List<HabitInterface> habits) async {
     await _ensureBoxOpen('habits');
     await _habitsBox!.clear(); // Clear existing habits
     for (var habit in habits) {

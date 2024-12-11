@@ -10,7 +10,9 @@ import 'package:habitur/ui/views/invite_participants/invite_participants_viewmod
 import 'package:mockito/mockito.dart';
 
 class MockFriendsService extends Mock implements FriendsService {}
+
 class MockSharedHabitsService extends Mock implements SharedHabitsService {}
+
 class MockNavigationService extends Mock implements NavigationService {}
 
 void main() {
@@ -75,7 +77,8 @@ void main() {
 
     test('init loads friends list', () async {
       // Arrange
-      when(mockFriendsService.getFriends()).thenAnswer((_) async => testFriends);
+      when(mockFriendsService.getFriends())
+          .thenAnswer((_) async => testFriends);
 
       // Act
       await viewModel.init(testSharedHabit);
@@ -87,7 +90,8 @@ void main() {
 
     test('search filters friends correctly', () async {
       // Arrange
-      when(mockFriendsService.getFriends()).thenAnswer((_) async => testFriends);
+      when(mockFriendsService.getFriends())
+          .thenAnswer((_) async => testFriends);
       await viewModel.init(testSharedHabit);
 
       // Act
@@ -100,7 +104,8 @@ void main() {
 
     test('toggleFriendSelection adds and removes friends', () async {
       // Arrange
-      when(mockFriendsService.getFriends()).thenAnswer((_) async => testFriends);
+      when(mockFriendsService.getFriends())
+          .thenAnswer((_) async => testFriends);
       await viewModel.init(testSharedHabit);
       final friend = testFriends.first;
 
@@ -124,7 +129,8 @@ void main() {
           lastSeen: DateTime.now(),
         ),
       );
-      when(mockFriendsService.getFriends()).thenAnswer((_) async => testFriends);
+      when(mockFriendsService.getFriends())
+          .thenAnswer((_) async => testFriends);
       await viewModel.init(testSharedHabit);
 
       // Act & Assert
@@ -132,9 +138,11 @@ void main() {
       expect(viewModel.isExistingParticipant(testFriends[1]), isFalse);
     });
 
-    test('sendInvitations updates shared habit with new participants', () async {
+    test('sendInvitations updates shared habit with new participants',
+        () async {
       // Arrange
-      when(mockFriendsService.getFriends()).thenAnswer((_) async => testFriends);
+      when(mockFriendsService.getFriends())
+          .thenAnswer((_) async => testFriends);
       await viewModel.init(testSharedHabit);
       final friend = testFriends.first;
       viewModel.toggleFriendSelection(friend);
@@ -149,7 +157,8 @@ void main() {
 
     test('sendInvitations does nothing when no friends selected', () async {
       // Arrange
-      when(mockFriendsService.getFriends()).thenAnswer((_) async => testFriends);
+      when(mockFriendsService.getFriends())
+          .thenAnswer((_) async => testFriends);
       await viewModel.init(testSharedHabit);
 
       // Act

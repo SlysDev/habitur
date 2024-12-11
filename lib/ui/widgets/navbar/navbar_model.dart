@@ -82,4 +82,12 @@ class NavBarModel extends BaseViewModel {
       barrierColor: Colors.black.withOpacity(0.2),
     );
   }
+
+  Future<void> showCreateSharedHabitSheet() async {
+    await _bottomSheetService.showCustomSheet(
+      variant: BottomSheetType.createSharedHabit,
+      isScrollControlled: true,
+      barrierColor: Colors.black.withOpacity(0.2),
+    );
+  }
 }

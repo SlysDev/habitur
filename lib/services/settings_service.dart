@@ -97,14 +97,16 @@ class SettingsService with ListenableServiceMixin {
   bool getCommunityFeaturesEnabled() {
     final setting = _settings.firstWhere(
       (s) => s.settingName == 'communityFeatures',
-      orElse: () => SettingModel(settingName: 'communityFeatures', settingValue: 'true'),
+      orElse: () =>
+          SettingModel(settingName: 'communityFeatures', settingValue: 'true'),
     );
     return setting.settingValue == 'true';
   }
 
   Future<void> enableCommunityFeatures() async {
     try {
-      await updateSetting(SettingModel(settingName: 'communityFeatures', settingValue: 'true'));
+      await updateSetting(
+          SettingModel(settingName: 'communityFeatures', settingValue: 'true'));
       debugPrint('Community features enabled');
     } catch (e) {
       debugPrint('Error enabling community features: $e');
@@ -113,7 +115,8 @@ class SettingsService with ListenableServiceMixin {
 
   Future<void> disableCommunityFeatures() async {
     try {
-      await updateSetting(SettingModel(settingName: 'communityFeatures', settingValue: 'false'));
+      await updateSetting(SettingModel(
+          settingName: 'communityFeatures', settingValue: 'false'));
       debugPrint('Community features disabled');
     } catch (e) {
       debugPrint('Error disabling community features: $e');

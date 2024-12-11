@@ -1,50 +1,55 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'habit.dart';
+part of 'shared_habit.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class HabitAdapter extends TypeAdapter<Habit> {
+class SharedHabitAdapter extends TypeAdapter<SharedHabit> {
   @override
-  final int typeId = 0;
+  final int typeId = 2;
 
   @override
-  Habit read(BinaryReader reader) {
+  SharedHabit read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Habit(
+    return SharedHabit(
       title: fields[0] as String,
-      dateCreated: fields[8] as DateTime,
-      resetPeriod: fields[7] as String,
       id: fields[11] as int,
-      lastSeen: fields[10] as DateTime,
-      description: fields[17] == null ? '' : fields[17] as String,
+      description: fields[17] == null ? '' : fields[17] as String?,
+      targetGoal: fields[3] as int?,
+      author: fields[20] as UserModel?,
+      participantData: (fields[19] as List?)?.cast<ParticipantData>(),
       streak: fields[2] as int,
-      highestStreak: fields[6] as int,
       currentProgress: fields[4] as int,
       totalProgress: fields[5] as int,
+      highestStreak: fields[6] as int,
+      resetPeriod: fields[7] as String,
+      dateCreated: fields[8] as DateTime?,
       confidenceLevel: fields[9] as double,
-      requiredDatesOfCompletion: (fields[13] as List).cast<String>(),
-      isShared: fields[18] == null ? false : fields[18] as bool,
+      lastSeen: fields[10] as DateTime?,
+      daysCompleted:
+          fields[12] == null ? [] : (fields[12] as List?)?.cast<DateTime>(),
+      requiredDatesOfCompletion: (fields[13] as List?)?.cast<String>(),
       smartNotifsEnabled: fields[14] as bool,
-      isVisible: fields[15] as bool,
-      targetGoal: fields[3] as int,
     )
       ..proficiencyRating = fields[1] as int
-      ..daysCompleted =
-          fields[12] == null ? [] : (fields[12] as List).cast<DateTime>()
-      ..stats =
-          fields[16] == null ? [] : (fields[16] as List).cast<StatPoint>();
+      ..isShared = fields[18] == null ? false : fields[18] as bool
+      ..stats = fields[16] == null ? [] : (fields[16] as List).cast<StatPoint>()
+      ..isVisible = fields[15] as bool;
   }
 
   @override
-  void write(BinaryWriter writer, Habit obj) {
+  void write(BinaryWriter writer, SharedHabit obj) {
     writer
+      ..writeByte(21)
       ..writeByte(19)
+      ..write(obj.participantData)
+      ..writeByte(20)
+      ..write(obj.author)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(17)
@@ -91,7 +96,7 @@ class HabitAdapter extends TypeAdapter<Habit> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HabitAdapter &&
+      other is SharedHabitAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

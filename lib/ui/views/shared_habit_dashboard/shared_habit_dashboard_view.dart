@@ -1,11 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/ui/common/app_colors.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 import 'shared_habit_dashboard_viewmodel.dart';
 
-class SharedHabitDashboardView extends StackedView<SharedHabitDashboardViewModel> {
-  const SharedHabitDashboardView({Key? key}) : super(key: key);
+class SharedHabitDashboardView
+    extends StackedView<SharedHabitDashboardViewModel> {
+  final SharedHabit sharedHabit;
+
+  const SharedHabitDashboardView({
+    Key? key,
+    required this.sharedHabit,
+  }) : super(key: key);
+
+  @override
+  void onViewModelReady(SharedHabitDashboardViewModel viewModel) {
+    viewModel.init(sharedHabit);
+  }
 
   @override
   Widget builder(
@@ -47,13 +59,14 @@ class SharedHabitDashboardView extends StackedView<SharedHabitDashboardViewModel
     );
   }
 
-  Widget _buildAppBar(BuildContext context, SharedHabitDashboardViewModel viewModel) {
+  Widget _buildAppBar(
+      BuildContext context, SharedHabitDashboardViewModel viewModel) {
     return SliverAppBar(
       expandedHeight: 200,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          viewModel.sharedHabit.habit.title,
+          viewModel.sharedHabit.title,
           style: const TextStyle(
             color: kcPrimaryColor,
             fontWeight: FontWeight.bold,
@@ -157,30 +170,62 @@ class SharedHabitDashboardView extends StackedView<SharedHabitDashboardViewModel
               ],
             ),
             const SizedBox(height: 16),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: viewModel.participants.length,
-              itemBuilder: (context, index) {
-                final participant = viewModel.participants[index];
-                return ListTile(
-                  leading: UserAvatar(
-                    user: participant.user,
-                    size: 40,
-                  ),
-                  title: Text(participant.user.username),
-                  subtitle: Text(
-                    '${participant.currentCompletions}/${viewModel.targetGoal} today',
-                  ),
-                  trailing: Text(
-                    '🔥 ${participant.fullCompletionCount}',
-                    style: const TextStyle(
-                      color: kcAccentColor,
-                      fontWeight: FontWeight.bold,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: 250, // Adjust this value as needed
+                minHeight: 0,
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: viewModel.participants.length,
+                separatorBuilder: (context, index) => const Divider(
+                  height: 1,
+                  color: kcFadedBlue,
+                ),
+                itemBuilder: (context, index) {
+                  final participant = viewModel.participants[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      children: [
+                        UserAvatar(
+                          username: participant.user.username,
+                          size: 40,
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                participant.user.username,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                '${participant.currentCompletions}/${viewModel.targetGoal} today',
+                                style: const TextStyle(
+                                  color: kcMediumGrey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '🔥 ${participant.fullCompletionCount}',
+                          style: const TextStyle(
+                            color: kcAccentColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -254,6 +299,9 @@ class SharedHabitDashboardView extends StackedView<SharedHabitDashboardViewModel
   }
 
   @override
-  SharedHabitDashboardViewModel viewModelBuilder(BuildContext context) =>
-      SharedHabitDashboardViewModel();
+  SharedHabitDashboardViewModel viewModelBuilder(BuildContext context) {
+    final viewModel = SharedHabitDashboardViewModel();
+    viewModel.init(sharedHabit);
+    return viewModel;
+  }
 }

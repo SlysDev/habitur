@@ -5,6 +5,7 @@ import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/community_service.dart';
 import 'package:habitur/services/habit_service.dart';
@@ -24,11 +25,13 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
 
   CommunityChallengeCardViewModel({required this.challenge});
 
-  bool get isJoined => challenge.participants
-      .any((p) => p.user.uid == _authService.currentUser?.uid);
+  List<ParticipantData> get participants => challenge.participantData;
+
+  bool get isJoined =>
+      participants.any((p) => p.user.uid == _authService.currentUser?.uid);
 
   List<ParticipantData> get topParticipants {
-    final sorted = List<ParticipantData>.from(challenge.participants)
+    final sorted = List<ParticipantData>.from(participants)
       ..sort((a, b) => b.currentCompletions.compareTo(a.currentCompletions));
     return sorted.take(3).toList();
   }
@@ -41,13 +44,39 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
 
   double get userProgress {
     final user = _userService.currentUser;
-    final habit = challenge.habit;
-    final habitId = challenge.habit.id;
-    if (user == null || habit == null || habitId == null) {
+    if (user == null) {
       return 0.0;
     }
-    final currentCompletions = habit.currentProgress;
-    final requiredCompletions = habit.targetGoal;
+    final currentCompletions = challenge.currentFullCompletions;
+    final requiredCompletions = challenge.requiredFullCompletions;
+    return currentCompletions / requiredCompletions;
+  }
+
+  bool get isCompletedByCurrentUser {
+    final currentUserParticipant = participants.firstWhere(
+      (p) => p.user.uid == _authService.currentUser?.uid,
+      orElse: () => ParticipantData(
+        user: UserModel(uid: '', username: '', email: ''),
+        currentCompletions: 0,
+        lastSeen: DateTime.now(),
+        fullCompletionCount: 0,
+      ),
+    );
+    return currentUserParticipant.fullCompletionCount > 0;
+  }
+
+  double get completionProgress {
+    final currentUserParticipant = participants.firstWhere(
+      (p) => p.user.uid == _authService.currentUser?.uid,
+      orElse: () => ParticipantData(
+        user: UserModel(uid: '', email: '', username: ''),
+        currentCompletions: 0,
+        fullCompletionCount: 0,
+        lastSeen: DateTime.now(),
+      ),
+    );
+    final requiredCompletions = challenge.requiredFullCompletions;
+    final currentCompletions = currentUserParticipant.currentCompletions;
     return currentCompletions / requiredCompletions;
   }
 

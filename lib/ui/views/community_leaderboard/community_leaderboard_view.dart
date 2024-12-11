@@ -5,7 +5,7 @@ import 'package:habitur/ui/widgets/navbar/navbar.dart';
 import 'package:habitur/ui/widgets/primary_button.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
-import '../../../constants.dart';
+import 'package:habitur/constants.dart';
 import '../../widgets/rounded_progress_bar.dart';
 import 'community_leaderboard_viewmodel.dart';
 
@@ -50,10 +50,12 @@ class CommunityLeaderboardView
                       ],
                     ),
                     Text(
-                      viewModel.currentChallenge?.habit.title ?? '',
-                      style:
-                          kTitleTextStyle.copyWith(color: kLightPrimaryColor),
-                      textAlign: TextAlign.center,
+                      viewModel.currentChallenge?.title ??
+                          'Community Challenge',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: kPrimaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                     const SizedBox(height: 20),
                     Text(

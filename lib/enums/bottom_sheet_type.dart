@@ -1,3 +1,4 @@
 enum BottomSheetType {
   addHabit,
+  createSharedHabit,
 }

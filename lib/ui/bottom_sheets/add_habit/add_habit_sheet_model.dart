@@ -55,7 +55,7 @@ class AddHabitSheetModel extends BaseViewModel {
       resetActiveDaysToDefault();
     }
     _resetPeriod = period;
-    notifyListeners();
+    rebuildUi();
   }
 
   void resetActiveDaysToDefault() {
@@ -77,17 +77,17 @@ class AddHabitSheetModel extends BaseViewModel {
     } else {
       _selectedDays.add(day);
     }
-    notifyListeners();
+    rebuildUi();
   }
 
   void adjustTargetGoal(int adjustment) {
     _targetGoal = (_targetGoal + adjustment).clamp(1, 10);
-    notifyListeners();
+    rebuildUi();
   }
 
   void setSmartNotifications(bool enabled) {
     _smartNotificationsEnabled = enabled;
-    notifyListeners();
+    rebuildUi();
   }
 
   Future<void> createHabit() async {

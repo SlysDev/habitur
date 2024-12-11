@@ -31,16 +31,16 @@ class HabitsView extends StackedView<HabitsViewModel> {
         ),
         backgroundColor: kBackgroundColor,
         endDrawer: const ProfileDrawer(),
-        body: const SafeArea(
+        body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  HomeGreetingHeader(),
+                  const HomeGreetingHeader(),
                   HabitCardList(),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),

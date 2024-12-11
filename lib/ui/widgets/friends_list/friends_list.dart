@@ -7,7 +7,9 @@ import 'package:habitur/ui/widgets/stat-chips/stat_chip.dart';
 import 'friends_list_model.dart';
 
 class FriendsList extends StackedView<FriendsListModel> {
-  const FriendsList({super.key});
+  const FriendsList({super.key, this.onTap});
+
+  final void Function(dynamic)? onTap;
 
   @override
   Widget builder(
@@ -63,9 +65,11 @@ class FriendsList extends StackedView<FriendsListModel> {
             }
 
             return ListTile(
-              onTap: () {
-                viewModel.showFriendProfile(friend);
-              },
+              onTap: () =>
+                  onTap ??
+                  () {
+                    viewModel.showFriendProfile(friend);
+                  },
               leading: UserAvatar(username: friend.username),
               title: Text(
                 friend.username,

@@ -5,8 +5,8 @@ import 'package:habitur/models/user.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/services/shared_habits_service.dart';
 import 'package:habitur/services/friends_service.dart';
-import 'package:habitur/services/navigation_service.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class InviteParticipantsViewModel extends BaseViewModel {
   final _sharedHabitsService = locator<SharedHabitsService>();
@@ -16,17 +16,16 @@ class InviteParticipantsViewModel extends BaseViewModel {
   final searchController = TextEditingController();
 
   late SharedHabit _sharedHabit;
-  List<User> _friends = [];
-  final Set<User> _selectedFriends = {};
+  List<UserModel> _friends = [];
+  final Set<UserModel> _selectedFriends = {};
   String _searchQuery = '';
 
-  List<User> get friends => _friends;
-  Set<User> get selectedFriends => _selectedFriends;
-  
-  List<User> get filteredFriends => _friends
-      .where((friend) => friend.username
-          .toLowerCase()
-          .contains(_searchQuery.toLowerCase()))
+  List<UserModel> get friends => _friends;
+  Set<UserModel> get selectedFriends => _selectedFriends;
+
+  List<UserModel> get filteredFriends => _friends
+      .where((friend) =>
+          friend.username.toLowerCase().contains(_searchQuery.toLowerCase()))
       .toList();
 
   Future<void> init(SharedHabit sharedHabit) async {
@@ -51,14 +50,14 @@ class InviteParticipantsViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  bool isSelected(User friend) => _selectedFriends.contains(friend);
+  bool isSelected(UserModel friend) => _selectedFriends.contains(friend);
 
-  bool isExistingParticipant(User friend) {
+  bool isExistingParticipant(UserModel friend) {
     return _sharedHabit.participantData
         .any((participant) => participant.user.uid == friend.uid);
   }
 
-  void toggleFriendSelection(User friend) {
+  void toggleFriendSelection(UserModel friend) {
     if (_selectedFriends.contains(friend)) {
       _selectedFriends.remove(friend);
     } else {
@@ -73,16 +72,18 @@ class InviteParticipantsViewModel extends BaseViewModel {
     setBusy(true);
     try {
       // Create new participant data for each selected friend
-      final newParticipants = _selectedFriends.map((friend) => ParticipantData(
-            user: friend,
-            fullCompletionCount: 0,
-            currentCompletions: 0,
-            lastSeen: DateTime.now(),
-          )).toList();
+      final newParticipants = _selectedFriends
+          .map((friend) => ParticipantData(
+                user: friend,
+                fullCompletionCount: 0,
+                currentCompletions: 0,
+                lastSeen: DateTime.now(),
+              ))
+          .toList();
 
       // Add new participants to the shared habit
       _sharedHabit.participantData.addAll(newParticipants);
-      
+
       // Update the shared habit with new participants
       await _sharedHabitsService.updateSharedHabit(_sharedHabit);
 
@@ -91,7 +92,7 @@ class InviteParticipantsViewModel extends BaseViewModel {
       // 1. Push notifications
       // 2. In-app notifications
       // 3. Email notifications (if configured)
-      
+
       _navigationService.back(result: newParticipants);
     } catch (e) {
       setError(e);

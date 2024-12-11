@@ -7,6 +7,7 @@ import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/activity_event.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/progress.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/habit_service.dart';
 import 'package:habitur/services/user_service.dart';
@@ -128,6 +129,33 @@ class HabitCardModel extends BaseViewModel {
     await _navigationService.navigateTo(Routes.editHabitView,
         arguments: EditHabitViewArguments(habitId: habit.id.toString()));
     rebuildUi();
+  }
+
+  Future<void> navigateToHabitDashboard() async {
+    if (habit.isShared) {
+      await _navigationService.navigateToSharedHabitDashboardView(
+          sharedHabit: SharedHabit(
+        title: habit.title,
+        description: habit.description,
+        id: habit.id,
+        targetGoal: habit.targetGoal,
+        streak: habit.streak,
+        currentProgress: habit.currentProgress,
+        totalProgress: habit.totalProgress,
+        highestStreak: habit.highestStreak,
+        resetPeriod: habit.resetPeriod,
+        dateCreated: habit.dateCreated,
+        confidenceLevel: habit.confidenceLevel,
+        lastSeen: habit.lastSeen,
+        daysCompleted: habit.daysCompleted,
+        requiredDatesOfCompletion: habit.requiredDatesOfCompletion,
+        smartNotifsEnabled: habit.smartNotifsEnabled,
+        participantData: [],
+      ));
+    } else {
+      await _navigationService.navigateToHabitOverviewView(
+          habitId: habit.id.toString());
+    }
   }
 
   Future<void> showErrorDialog(String errorMessage) async {

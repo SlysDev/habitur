@@ -50,10 +50,10 @@ class CommunityService with ListenableServiceMixin {
                 dateCreated:
                     (data['habit']['dateCreated'] as Timestamp).toDate(),
               ),
+              participants: participants,
             );
             debugPrint(
                 'community_service.dart: trying to load participants: $participants of length ${participants.length}');
-            challenge.loadParticipants(participants);
             challenges.add(challenge);
           } catch (e, s) {
             debugPrint('Error loading challenge: $e, $s');
@@ -103,8 +103,8 @@ class CommunityService with ListenableServiceMixin {
             resetPeriod: data['habit']['resetPeriod'],
             dateCreated: (data['habit']['dateCreated'] as Timestamp).toDate(),
           ),
+          participants: participants,
         );
-        challenge.loadParticipants(participants);
         debugPrint('Challenge loaded:');
         debugPrint(challenge
             .toString()
@@ -150,7 +150,6 @@ class CommunityService with ListenableServiceMixin {
         .get()
         .then((snapshot) => snapshot.docs.first)
         .then((doc) => doc.get('participantDataList'));
-
 
     final participants = participantsList
         .map((participantData) {
@@ -269,11 +268,9 @@ class CommunityService with ListenableServiceMixin {
               resetPeriod: data['habit']['resetPeriod'],
               dateCreated: (data['habit']['dateCreated'] as Timestamp).toDate(),
             ),
+            participants: await _loadParticipants(data['id'].toString()),
           );
 
-          // Load participants
-          final participants = await _loadParticipants(data['id'].toString());
-          challenge.loadParticipants(participants);
           return challenge;
         }),
       );
@@ -318,59 +315,51 @@ class CommunityService with ListenableServiceMixin {
     }
   }
 
-  Future<void> createChallenge({
+  Future<CommunityChallenge> createChallenge({
     required String description,
     required DateTime startDate,
     required DateTime endDate,
     required int requiredFullCompletions,
     required Habit habit,
   }) async {
-    try {
-      if (!_authService.isLoggedIn) {
-        throw Exception('User not logged in');
-      }
+    final id = DateTime.now().millisecondsSinceEpoch;
+    final challengeData = {
+      'description': description,
+      'id': id,
+      'startDate': Timestamp.fromDate(startDate),
+      'endDate': Timestamp.fromDate(endDate),
+      'requiredFullCompletions': requiredFullCompletions,
+      'currentFullCompletions': 0,
+      'habit': habit.toMap(),
+      'participantDataList': [],
+    };
 
-      final challenge = CommunityChallenge(
-        description: description,
-        id: DateTime.now().millisecondsSinceEpoch,
-        startDate: startDate,
-        endDate: endDate,
-        requiredFullCompletions: requiredFullCompletions,
-        habit: habit,
-      );
+    // Save challenge to Firestore
+    await _firestore
+        .collection('community-challenges')
+        .doc(id.toString())
+        .set(challengeData);
 
-      await _firestore.collection('community-challenges').add({
-        'description': challenge.description,
-        'id': challenge.id,
-        'startDate': Timestamp.fromDate(challenge.startDate),
-        'endDate': Timestamp.fromDate(challenge.endDate),
-        'requiredFullCompletions': challenge.requiredFullCompletions,
-        'currentFullCompletions': 0,
-        'createdBy': _authService.userId,
-        'habit': {
-          'title': habit.title,
-          'targetGoal': habit.targetGoal,
-          'id': habit.id,
-          'resetPeriod': habit.resetPeriod,
-          'dateCreated': Timestamp.fromDate(habit.dateCreated),
-        },
-      });
-
-      await loadChallenges();
-    } catch (e) {
-      debugPrint('Error creating challenge: $e');
-      rethrow;
-    }
+    // Create CommunityChallenge
+    return CommunityChallenge(
+      description: description,
+      id: id,
+      startDate: startDate,
+      endDate: endDate,
+      requiredFullCompletions: requiredFullCompletions,
+      currentFullCompletions: 0,
+      habit: habit,
+      participants: [], // Start with empty participants list
+    );
   }
 
-  List<ParticipantData> getTopParticipants(String challengeId) {
-    try {
-      final challenge = _challenges.firstWhere((c) => c.id == challengeId);
-      return challenge.getTopThreeParticipants();
-    } catch (e) {
-      debugPrint('Error getting top participants: $e');
-      return [];
-    }
+  List<ParticipantData> getTopThreeParticipants(String challengeId) {
+    final challenge =
+        _challenges.firstWhere((c) => c.id.toString() == challengeId);
+    final sortedParticipants = List<ParticipantData>.from(
+        challenge.participantData)
+      ..sort((a, b) => b.fullCompletionCount.compareTo(a.fullCompletionCount));
+    return sortedParticipants.take(3).toList();
   }
 
   // Removed methods `enableCommunityFeatures` and `disableCommunityFeatures` as they are now in `SettingsService`.

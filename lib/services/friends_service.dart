@@ -264,7 +264,7 @@ class FriendsService {
     }
   }
 
-  Future<List<User>> getFriends() async {
+  Future<List<UserModel>> getFriends() async {
     final currentUser = _userService.currentUser;
     if (currentUser == null) return [];
 
@@ -278,13 +278,12 @@ class FriendsService {
       final friendIds = friendsSnapshot.docs.map((doc) => doc.id).toList();
       if (friendIds.isEmpty) return [];
 
-      final friendsData = await Future.wait(
-        friendIds.map((friendId) => _firestore.collection('users').doc(friendId).get())
-      );
+      final friendsData = await Future.wait(friendIds.map(
+          (friendId) => _firestore.collection('users').doc(friendId).get()));
 
       return friendsData
           .where((doc) => doc.exists)
-          .map((doc) => User.fromJson({...doc.data()!, 'uid': doc.id}))
+          .map((doc) => UserModel.fromMap({...doc.data()!, 'uid': doc.id}))
           .toList();
     } catch (e) {
       print('Error getting friends: $e');

@@ -1,12 +1,15 @@
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/app/app.router.dart';
+import 'package:habitur/enums/bottom_sheet_type.dart';
 import 'package:habitur/models/shared_habit.dart';
-import 'package:habitur/services/navigation_service.dart';
 import 'package:habitur/services/shared_habits_service.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class SharedHabitsViewModel extends BaseViewModel {
   final _sharedHabitsService = locator<SharedHabitsService>();
   final _navigationService = locator<NavigationService>();
+  final _bottomSheetService = locator<BottomSheetService>();
 
   List<SharedHabit> _sharedHabits = [];
   List<SharedHabit> get sharedHabits => _sharedHabits;
@@ -27,11 +30,19 @@ class SharedHabitsViewModel extends BaseViewModel {
     }
   }
 
-  void navigateToSharedHabitDashboard(SharedHabit sharedHabit) {
-    _navigationService.navigateToSharedHabitDashboardView(sharedHabit: sharedHabit);
+  Future<void> navigateToSharedHabitDashboard(SharedHabit sharedHabit) async {
+    await _navigationService.navigateToSharedHabitDashboardView(
+      sharedHabit: sharedHabit,
+    );
   }
 
-  void navigateToCreateSharedHabit() {
-    _navigationService.navigateToCreateSharedHabitView();
+  Future<void> showCreateSharedHabitSheet() async {
+    final response = await _bottomSheetService.showCustomSheet(
+      variant: BottomSheetType.createSharedHabit,
+    );
+
+    if (response?.confirmed == true) {
+      await loadSharedHabits();
+    }
   }
 }

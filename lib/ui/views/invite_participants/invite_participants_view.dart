@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/ui/common/app_colors.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 import 'invite_participants_viewmodel.dart';
 
 class InviteParticipantsView extends StackedView<InviteParticipantsViewModel> {
-  const InviteParticipantsView({Key? key}) : super(key: key);
+  const InviteParticipantsView({Key? key, required this.sharedHabit})
+      : super(key: key);
+
+  final SharedHabit sharedHabit;
 
   @override
   Widget builder(
@@ -35,7 +39,8 @@ class InviteParticipantsView extends StackedView<InviteParticipantsViewModel> {
     );
   }
 
-  Widget _buildSearchBar(BuildContext context, InviteParticipantsViewModel viewModel) {
+  Widget _buildSearchBar(
+      BuildContext context, InviteParticipantsViewModel viewModel) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: TextField(
@@ -55,7 +60,8 @@ class InviteParticipantsView extends StackedView<InviteParticipantsViewModel> {
     );
   }
 
-  Widget _buildFriendsList(BuildContext context, InviteParticipantsViewModel viewModel) {
+  Widget _buildFriendsList(
+      BuildContext context, InviteParticipantsViewModel viewModel) {
     if (viewModel.isBusy) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -93,7 +99,7 @@ class InviteParticipantsView extends StackedView<InviteParticipantsViewModel> {
 
         return ListTile(
           leading: UserAvatar(
-            user: friend,
+            username: friend.username,
             size: 40,
           ),
           title: Text(friend.username),
@@ -121,7 +127,8 @@ class InviteParticipantsView extends StackedView<InviteParticipantsViewModel> {
     );
   }
 
-  Widget _buildBottomBar(BuildContext context, InviteParticipantsViewModel viewModel) {
+  Widget _buildBottomBar(
+      BuildContext context, InviteParticipantsViewModel viewModel) {
     return Container(
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
@@ -169,6 +176,9 @@ class InviteParticipantsView extends StackedView<InviteParticipantsViewModel> {
   }
 
   @override
-  InviteParticipantsViewModel viewModelBuilder(BuildContext context) =>
-      InviteParticipantsViewModel();
+  InviteParticipantsViewModel viewModelBuilder(BuildContext context) {
+    final viewModel = InviteParticipantsViewModel();
+    viewModel.init(sharedHabit);
+    return viewModel;
+  }
 }

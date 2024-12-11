@@ -39,13 +39,8 @@ class HabitCard extends StatelessWidget {
                   model.habit.lastSeen =
                       DateTime.now().subtract(const Duration(days: 1));
                 },
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => HabitOverviewView(
-                                habitId: model.habit.id.toString(),
-                              )));
+                onTap: () async {
+                  await model.navigateToHabitDashboard();
                 },
                 child: Slidable(
                   startActionPane: ActionPane(

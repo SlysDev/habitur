@@ -5,4 +5,5 @@ enum DialogType {
   difficultyPopup,
   loading,
   success,
+  selectFriends,
 }

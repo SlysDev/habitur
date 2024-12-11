@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/constants.dart';
 import 'package:habitur/ui/common/app_colors.dart';
 import 'package:habitur/ui/widgets/shared_habit_card/shared_habit_card.dart';
 import 'package:stacked/stacked.dart';
@@ -43,8 +44,9 @@ class SharedHabitsView extends StackedView<SharedHabitsViewModel> {
                                 padding: const EdgeInsets.only(bottom: 16.0),
                                 child: SharedHabitCard(
                                   sharedHabit: sharedHabit,
-                                  onTap: () => viewModel
-                                      .navigateToSharedHabitDashboard(sharedHabit),
+                                  onTap: () =>
+                                      viewModel.navigateToSharedHabitDashboard(
+                                          sharedHabit),
                                 ),
                               );
                             },
@@ -55,8 +57,8 @@ class SharedHabitsView extends StackedView<SharedHabitsViewModel> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: viewModel.navigateToCreateSharedHabit,
-        backgroundColor: kcAccentColor,
+        onPressed: viewModel.showCreateSharedHabitSheet,
+        backgroundColor: kLightGreenAccent,
         child: const Icon(Icons.add),
       ),
     );

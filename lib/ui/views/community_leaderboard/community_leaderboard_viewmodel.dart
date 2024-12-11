@@ -37,7 +37,7 @@ class CommunityLeaderboardViewModel
   CommunityChallenge? get currentChallenge => data;
 
   List<ParticipantData> get participants {
-    return data?.participants ?? [];
+    return data?.participantData ?? [];
   }
 
   double get totalProgress {
@@ -52,13 +52,13 @@ class CommunityLeaderboardViewModel
     try {
       ParticipantData participantData = await _communityService
           .getCurrentUserParticipantData(data!.id.toString());
-      if (participantData.currentCompletions == data!.habit.targetGoal) {
+      if (participantData.currentCompletions == data!.targetGoal) {
         return;
       }
       // increment current completions first
-      if (participantData.currentCompletions < data!.habit.targetGoal) {
+      if (participantData.currentCompletions < data!.targetGoal) {
         participantData.currentCompletions += 1;
-        if (participantData.currentCompletions == data!.habit.targetGoal) {
+        if (participantData.currentCompletions == data!.targetGoal) {
           // update participant full completions
           participantData.fullCompletionCount += 1;
           // update challenge completions
@@ -71,7 +71,7 @@ class CommunityLeaderboardViewModel
       }
       await _communityService.updateParticipantProgress(
           challengeId: data!.id.toString(), participant: participantData);
-      await _habitService.incrementHabit(data!.habit.id.toString(), 0);
+      await _habitService.incrementHabit(data!.id.toString(), 0);
     } catch (e, s) {
       await _dialogService.showDialog(
         title: 'Error',
@@ -92,7 +92,7 @@ class CommunityLeaderboardViewModel
         data!.id.toString(),
         data!.currentFullCompletions - 1,
       );
-      await _habitService.decrementHabit(data!.habit.id.toString());
+      await _habitService.decrementHabit(data!.id.toString());
     } catch (e) {
       await _dialogService.showDialog(
         title: 'Error',

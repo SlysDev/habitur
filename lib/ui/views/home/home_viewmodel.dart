@@ -72,8 +72,7 @@ class HomeViewModel extends ReactiveViewModel {
   Future<void> _rescheduleNotificationsIfEnabled() async {
     try {
       if (_habitService.habits.isNotEmpty) {
-        await _notificationSchedulingService.rescheduleNotifications(
-        );
+        await _notificationSchedulingService.rescheduleNotifications();
       }
     } catch (e) {
       debugPrint('Failed to reschedule notifications: $e');

@@ -29,9 +29,15 @@ class HabitOverviewView extends StackedView<HabitOverviewViewModel> {
     return Scaffold(
       backgroundColor: kBackgroundColor,
       appBar: AppBar(
-        title: Text(viewModel.habit?.title ?? ''),
+        title: Text(
+          viewModel.habit?.title ?? '',
+          style: kSubHeadingTextStyle.copyWith(color: Colors.white),
+        ),
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
+        actions: [
+          _buildCustomPopupMenu(context, viewModel),
+        ],
       ),
       body: Center(
         child: viewModel.habit?.stats?.isEmpty ?? true
@@ -98,6 +104,106 @@ class HabitOverviewView extends StackedView<HabitOverviewViewModel> {
                   SizedBox(height: 40),
                 ],
               ),
+      ),
+    );
+  }
+
+  Widget _buildCustomPopupMenu(
+      BuildContext context, HabitOverviewViewModel viewModel) {
+    return GestureDetector(
+      onTapDown: (details) =>
+          _showCustomPopupMenu(context, viewModel, details.globalPosition),
+      child: Container(
+        margin: const EdgeInsets.only(right: 16),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: kFadedBlue,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          Icons.more_vert,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  void _showCustomPopupMenu(BuildContext context,
+      HabitOverviewViewModel viewModel, Offset tapPosition) async {
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final position = button.localToGlobal(Offset.zero, ancestor: overlay);
+
+    final result = await showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        tapPosition.dx,
+        position.dy + kToolbarHeight,
+        tapPosition.dx + 50,
+        0,
+      ),
+      color: kFadedBlue,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      items: [
+        if (!(viewModel.habit?.isCommunityHabit ?? true))
+          PopupMenuItem(
+            value: 'share',
+            child: _buildPopupMenuItem(
+              icon: Icons.group_add,
+              text: 'Share Habit',
+              color: kPrimaryColor,
+            ),
+          ),
+        PopupMenuItem(
+          value: 'edit',
+          child: _buildPopupMenuItem(
+            icon: Icons.edit,
+            text: 'Edit Habit',
+            color: kLightPrimaryColor,
+          ),
+        ),
+      ],
+    );
+
+    if (result != null) {
+      switch (result) {
+        case 'share':
+          await viewModel.shareHabit();
+          break;
+        case 'edit':
+          viewModel.navigateToEditHabit();
+          break;
+      }
+    }
+  }
+
+  Widget _buildPopupMenuItem({
+    required IconData icon,
+    required String text,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: kFadedBlue.withOpacity(0.5),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(width: 12),
+          Text(
+            text,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }

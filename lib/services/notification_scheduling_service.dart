@@ -16,8 +16,7 @@ class NotificationSchedulingService {
   final SettingsService _settingsService = locator<SettingsService>();
   final UserService _userService = locator<UserService>();
 
-  Future<void> scheduleDefaultTrack(
-      int numberOfNotifs) async {
+  Future<void> scheduleDefaultTrack(int numberOfNotifs) async {
     final habits = await _habitService.getTodaysDueHabits();
     if (habits.isEmpty) return;
 
@@ -192,7 +191,6 @@ class NotificationSchedulingService {
 
   Future<void> rescheduleNotifications() async {
     await _notificationService.cancelAllScheduledNotifications();
-    await scheduleDefaultTrack(
-        3); // Default to 3 notifications per day
+    await scheduleDefaultTrack(3); // Default to 3 notifications per day
   }
 }

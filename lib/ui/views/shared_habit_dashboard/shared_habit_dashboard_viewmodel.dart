@@ -1,10 +1,11 @@
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/app/app.router.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/services/shared_habits_service.dart';
 import 'package:habitur/services/user_service.dart';
-import 'package:habitur/services/navigation_service.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class SharedHabitDashboardViewModel extends BaseViewModel {
   final _sharedHabitsService = locator<SharedHabitsService>();
@@ -16,7 +17,7 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
 
   List<ParticipantData> get participants => _sharedHabit.participantData;
   int get currentProgress => _getCurrentUserProgress();
-  int get targetGoal => _sharedHabit.habit.targetGoal;
+  int get targetGoal => _sharedHabit.targetGoal;
   int get groupStreak => _calculateGroupStreak();
   int get totalGroupCompletions => _calculateTotalGroupCompletions();
   int get highestGroupStreak => _calculateHighestGroupStreak();
@@ -31,7 +32,8 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
     setBusy(true);
     try {
       // Refresh shared habit data
-      final updatedHabit = await _sharedHabitsService.getSharedHabitById(_sharedHabit.id);
+      final updatedHabit =
+          await _sharedHabitsService.getSharedHabitById(_sharedHabit.id);
       if (updatedHabit != null) {
         _sharedHabit = updatedHabit;
       }
@@ -49,7 +51,7 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
 
     try {
       final currentCompletions = _getCurrentUserProgress();
-      if (currentCompletions < targetGoal) {
+      if (currentCompletions < _sharedHabit.targetGoal) {
         await _sharedHabitsService.updateParticipantProgress(
           _sharedHabit,
           currentUser.uid,
@@ -63,7 +65,8 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
   }
 
   void inviteParticipants() {
-    _navigationService.navigateToInviteParticipantsView(sharedHabit: _sharedHabit);
+    _navigationService.navigateToInviteParticipantsView(
+        sharedHabit: _sharedHabit);
   }
 
   int _getCurrentUserProgress() {
@@ -77,7 +80,7 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
 
   int _calculateGroupStreak() {
     if (_sharedHabit.participantData.isEmpty) return 0;
-    
+
     return _sharedHabit.participantData
         .map((participant) => _getParticipantStreak(participant))
         .reduce((min, current) => current < min ? current : min);
@@ -86,7 +89,7 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
   int _getParticipantStreak(ParticipantData participant) {
     final now = DateTime.now();
     final daysSinceLastSeen = now.difference(participant.lastSeen).inDays;
-    
+
     if (daysSinceLastSeen > 1) return 0;
     return participant.fullCompletionCount;
   }
@@ -99,7 +102,7 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
 
   int _calculateHighestGroupStreak() {
     if (_sharedHabit.participantData.isEmpty) return 0;
-    
+
     return _sharedHabit.participantData
         .map((p) => p.fullCompletionCount)
         .reduce((max, count) => count > max ? count : max);

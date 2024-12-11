@@ -231,7 +231,7 @@ class SettingsViewModel extends BaseViewModel {
     }
   }
 
-  void toggleCommunityFeatures(bool isEnabled) async{
+  void toggleCommunityFeatures(bool isEnabled) async {
     _communityFeaturesEnabled = isEnabled;
     notifyListeners();
     setBusy(true);

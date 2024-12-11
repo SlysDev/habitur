@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:hive/hive.dart';
 
 part 'habit.g.dart';
 
 @HiveType(typeId: 0)
-class Habit {
+class Habit implements HabitInterface {
   @HiveField(0)
   String title;
+  @HiveField(17, defaultValue: '')
+  String description;
   @HiveField(1)
   int proficiencyRating = 0;
   @HiveField(2)
@@ -35,8 +38,10 @@ class Habit {
   @HiveField(11)
   int id;
   bool isCommunityHabit;
+  @HiveField(18, defaultValue: false)
+  bool isShared;
 
-  @HiveField(12)
+  @HiveField(12, defaultValue: [])
   List<DateTime> daysCompleted = [];
   @HiveField(13)
   List<String> requiredDatesOfCompletion = [];
@@ -84,6 +89,7 @@ class Habit {
     required this.resetPeriod,
     required this.id,
     required this.lastSeen,
+    this.description = '',
     this.streak = 0,
     this.highestStreak = 0,
     this.currentProgress = 0,
@@ -91,6 +97,7 @@ class Habit {
     this.confidenceLevel = 0,
     this.requiredDatesOfCompletion = const [],
     this.isCommunityHabit = false,
+    this.isShared = false,
     this.smartNotifsEnabled = false,
     this.isVisible = true, // Default to true for backward compatibility
     this.targetGoal = 1,

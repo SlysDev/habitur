@@ -9,6 +9,7 @@ import 'package:habitur/services/user_service.dart';
 import 'package:mockito/mockito.dart';
 
 class MockDatabaseService extends Mock implements DatabaseService {}
+
 class MockUserService extends Mock implements UserService {}
 
 void main() {
@@ -30,7 +31,8 @@ void main() {
       locator.reset();
     });
 
-    test('getSharedHabits returns empty list when user is not logged in', () async {
+    test('getSharedHabits returns empty list when user is not logged in',
+        () async {
       // Arrange
       when(mockUserService.currentUser).thenReturn(null);
 
@@ -42,7 +44,8 @@ void main() {
       verifyNever(mockDatabaseService.getSharedHabits(any));
     });
 
-    test('getSharedHabits returns list of shared habits for logged in user', () async {
+    test('getSharedHabits returns list of shared habits for logged in user',
+        () async {
       // Arrange
       final testUser = User(
         uid: 'test-uid',
@@ -66,8 +69,7 @@ void main() {
         habit: testHabit,
         description: 'Test Description',
         participantData: [],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        author: testUser,
       );
 
       when(mockUserService.currentUser).thenReturn(testUser);
@@ -83,7 +85,8 @@ void main() {
       verify(mockDatabaseService.getSharedHabits(testUser.uid)).called(1);
     });
 
-    test('createSharedHabit adds current user as participant if not included', () async {
+    test('createSharedHabit adds current user as participant if not included',
+        () async {
       // Arrange
       final testUser = User(
         uid: 'test-uid',
@@ -107,8 +110,7 @@ void main() {
         habit: testHabit,
         description: 'Test Description',
         participantData: [],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        author: testUser,
       );
 
       when(mockUserService.currentUser).thenReturn(testUser);
@@ -121,10 +123,11 @@ void main() {
       final captured = verify(mockDatabaseService.createSharedHabit(captureAny))
           .captured
           .first as SharedHabit;
-      expect(captured.participantData.any((p) => p.user.uid == testUser.uid), isTrue);
+      expect(captured.participantData.any((p) => p.user.uid == testUser.uid),
+          isTrue);
     });
 
-    test('updateParticipantProgress updates completion count and streak', () async {
+    test('updateParticipantProgress updates completion count', () async {
       // Arrange
       final testUser = User(
         uid: 'test-uid',
@@ -155,8 +158,7 @@ void main() {
             lastSeen: DateTime.now(),
           ),
         ],
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        author: testUser,
       );
 
       // Act

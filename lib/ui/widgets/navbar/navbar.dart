@@ -37,6 +37,7 @@ class NavBar extends StackedView<NavBarModel> {
             viewModel: viewModel,
           ),
           _buildAddButton(viewModel),
+          _buildAddSharedButton(viewModel),
           _buildNavItem(
             icon: Icons.bar_chart_rounded,
             page: 'stats',
@@ -77,6 +78,25 @@ class NavBar extends StackedView<NavBarModel> {
         onPressed: viewModel.showAddHabitSheet,
         style: ElevatedButton.styleFrom(
           backgroundColor: kPrimaryColor,
+          shape: const CircleBorder(),
+          padding: const EdgeInsets.all(20),
+        ),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 25,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddSharedButton(NavBarModel viewModel) {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: ElevatedButton(
+        onPressed: viewModel.showCreateSharedHabitSheet,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: kLightRedAccent,
           shape: const CircleBorder(),
           padding: const EdgeInsets.all(20),
         ),
