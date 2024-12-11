@@ -1,3 +1,5 @@
+import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/user.dart';
 
 class ParticipantData {
@@ -5,10 +7,12 @@ class ParticipantData {
   int fullCompletionCount;
   int currentCompletions;
   DateTime lastSeen;
+  Habit habit;
   ParticipantData({
     required this.user,
     required this.fullCompletionCount,
     required this.lastSeen,
+    required this.habit,
     this.currentCompletions = 0,
   });
   factory ParticipantData.fromMap(Map<String, dynamic> map) {
@@ -17,6 +21,7 @@ class ParticipantData {
       fullCompletionCount: map['fullCompletionCount'],
       currentCompletions: map['currentCompletions'],
       lastSeen: DateTime.parse(map['lastSeen']).toLocal(),
+      habit: Habit.fromMap(map['habit']),
     );
   }
 
@@ -26,6 +31,7 @@ class ParticipantData {
       'fullCompletionCount': fullCompletionCount,
       'currentCompletions': currentCompletions,
       'lastSeen': lastSeen.toIso8601String(),
+      'habit': habit.toMap(),
     };
   }
 }

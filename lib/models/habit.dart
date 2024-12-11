@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/constants.dart';
@@ -176,6 +177,26 @@ class Habit implements HabitInterface {
     // you have to keep that cast in case days completed is null
 
     return habit;
+  }
+
+  factory Habit.fromSharedHabit(SharedHabit sharedHabit) {
+    return Habit(
+      title: sharedHabit.title,
+      dateCreated: sharedHabit.dateCreated,
+      resetPeriod: sharedHabit.resetPeriod,
+      id: sharedHabit.id,
+      lastSeen: sharedHabit.lastSeen,
+      streak: sharedHabit.streak,
+      highestStreak: sharedHabit.highestStreak,
+      currentProgress: sharedHabit.currentProgress,
+      totalProgress: sharedHabit.totalProgress,
+      confidenceLevel: sharedHabit.confidenceLevel,
+      requiredDatesOfCompletion: sharedHabit.requiredDatesOfCompletion,
+      isCommunityHabit: sharedHabit.isCommunityHabit,
+      smartNotifsEnabled: sharedHabit.smartNotifsEnabled,
+      isVisible: sharedHabit.isVisible,
+      targetGoal: sharedHabit.targetGoal,
+    );
   }
 
   Habit copyWith({

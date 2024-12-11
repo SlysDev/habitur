@@ -53,6 +53,7 @@ class SharedHabitsService with ListenableServiceMixin {
               user: currentUser,
               fullCompletionCount: 0,
               lastSeen: DateTime.now(),
+              habit: Habit.fromSharedHabit(sharedHabit),
             ),
           );
         }
@@ -93,7 +94,7 @@ class SharedHabitsService with ListenableServiceMixin {
     }
   }
 
-  Future<void> deleteSharedHabit(int habitId) async {
+  Future<void> deleteSharedHabit(String habitId) async {
     try {
       // Delete from database
       await _databaseService.deleteSharedHabit(habitId);
@@ -178,6 +179,7 @@ class SharedHabitsService with ListenableServiceMixin {
                 user: user,
                 fullCompletionCount: 0,
                 lastSeen: DateTime.now(),
+                habit: habit
               ))
           .toList();
 
@@ -190,6 +192,7 @@ class SharedHabitsService with ListenableServiceMixin {
             user: currentUser,
             fullCompletionCount: 0,
             lastSeen: DateTime.now(),
+            habit: habit
           ),
         );
       }
