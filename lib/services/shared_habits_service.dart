@@ -56,6 +56,11 @@ class SharedHabitsService with ListenableServiceMixin {
             ),
           );
         }
+        // Set hasSharedHabits to true
+        if (currentUser.hasSharedHabits == false) {
+          currentUser.hasSharedHabits = true;
+          await _userService.updateUser(currentUser);
+        }
       }
 
       // Save to database
@@ -217,6 +222,11 @@ class SharedHabitsService with ListenableServiceMixin {
       // Optionally, you might want to mark the original habit as a community habit
       habit.isShared = true;
 
+      // Set hasSharedHabits to true
+      if (currentUser.hasSharedHabits == false) {
+        currentUser.hasSharedHabits = true;
+        await _userService.updateUser(currentUser);
+      }
       return sharedHabit;
     } catch (e, s) {
       debugPrint('Error converting habit to shared habit: $e');

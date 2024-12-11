@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/time_model.dart';
+import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import '../models/user.dart';
 import '../models/habit.dart';
@@ -189,17 +190,21 @@ class DatabaseService with ListenableServiceMixin {
   // habit interface methods
 
   Future<List<HabitInterface>> getInterfaceHabits(String userId) async {
+    final userService = locator<UserService>();
+    List<HabitInterface> habits = [];
     try {
       final snapshot = await _firestore
           .collection('users')
           .doc(userId)
           .collection('habits')
           .get();
-      return snapshot.docs
-          .map((doc) => doc.data()['isShared']
-              ? SharedHabit.fromMap(doc.data())
-              : Habit.fromMap(doc.data()))
-          .toList();
+      snapshot.docs.map((doc) =>
+          habits.add(Habit.fromMap(doc.data())));
+      if (userService.currentUser?.hasSharedHabits == true) {
+        final sharedHabits = await getSharedHabits(userId);
+        habits.addAll(sharedHabits);
+      }
+      return habits;
     } catch (e, s) {
       debugPrint('Error getting habits: $e');
       debugPrint('$s');

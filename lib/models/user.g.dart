@@ -33,6 +33,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       isBlocked: fields[14] as bool,
       blockedAt: fields[15] as DateTime?,
       blockReason: fields[16] as String?,
+      hasSharedHabits: fields[17] == null ? false : fields[17] as bool,
       privacySettings: fields[13] as PrivacySettings,
     );
   }
@@ -40,7 +41,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.username)
       ..writeByte(1)
@@ -74,7 +75,9 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(15)
       ..write(obj.blockedAt)
       ..writeByte(16)
-      ..write(obj.blockReason);
+      ..write(obj.blockReason)
+      ..writeByte(17)
+      ..write(obj.hasSharedHabits);
   }
 
   @override
