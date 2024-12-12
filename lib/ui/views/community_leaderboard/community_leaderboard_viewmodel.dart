@@ -52,15 +52,15 @@ class CommunityLeaderboardViewModel
     try {
       ParticipantData participantData = await _communityService
           .getCurrentUserParticipantData(data!.id.toString());
-      if (participantData.currentCompletions == data!.targetGoal) {
+      if (participantData.habit.currentProgress == data!.targetGoal) {
         return;
       }
       // increment current completions first
-      if (participantData.currentCompletions < data!.targetGoal) {
-        participantData.currentCompletions += 1;
-        if (participantData.currentCompletions == data!.targetGoal) {
+      if (participantData.habit.currentProgress < data!.targetGoal) {
+        participantData.habit.currentProgress += 1;
+        if (participantData.habit.currentProgress == data!.targetGoal) {
           // update participant full completions
-          participantData.fullCompletionCount += 1;
+          participantData.habit.totalProgress += 1;
           // update challenge completions
           challengeCurrentFullCompletions += 1;
           await _communityService.updateChallengeProgress(

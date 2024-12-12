@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/models/participant_data.dart';
@@ -75,9 +76,7 @@ class InviteParticipantsViewModel extends BaseViewModel {
       final newParticipants = _selectedFriends
           .map((friend) => ParticipantData(
                 user: friend,
-                fullCompletionCount: 0,
-                currentCompletions: 0,
-                lastSeen: DateTime.now(),
+                habit: Habit.fromSharedHabit(_sharedHabit),
               ))
           .toList();
 

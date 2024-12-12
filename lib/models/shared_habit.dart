@@ -91,25 +91,22 @@ class SharedHabit extends Habit implements HabitInterface {
 
   // Additional methods specific to SharedHabit
   int get totalGroupCompletions => participantData.fold(
-      0, (sum, participant) => sum + participant.fullCompletionCount);
+      0, (sum, participant) => sum + participant.habit.totalProgress);
 
   int get highestGroupStreak => participantData.fold(
       0,
-      (max, participant) => participant.fullCompletionCount > max
-          ? participant.fullCompletionCount
+      (max, participant) => participant.habit.totalProgress > max
+          ? participant.habit.totalProgress
           : max);
 
   int get totalActiveDays => participantData.fold(
-      0, (sum, participant) => sum + participant.fullCompletionCount);
+      0, (sum, participant) => sum + participant.habit.totalProgress);
 
   // Method to add a new participant
   void addParticipant(UserModel user) {
     if (!participantData.any((p) => p.user.uid == user.uid)) {
-      participantData.add(ParticipantData(
-        user: user,
-        fullCompletionCount: 0,
-        lastSeen: DateTime.now(),
-      ));
+      participantData
+          .add(ParticipantData(user: user, habit: Habit.fromSharedHabit(this)));
     }
   }
 

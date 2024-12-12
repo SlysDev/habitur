@@ -108,12 +108,12 @@ class SharedHabitCard extends StatelessWidget {
 
   int _getParticipantStreak(ParticipantData participant) {
     final now = DateTime.now();
-    final daysSinceLastSeen = now.difference(participant.lastSeen).inDays;
+    final daysSinceLastSeen = now.difference(participant.habit.lastSeen).inDays;
 
     // If participant hasn't been seen in more than a day, their streak is 0
     if (daysSinceLastSeen > 1) return 0;
 
     // Return their completion count as their streak
-    return participant.fullCompletionCount;
+    return participant.habit.totalProgress;
   }
 }

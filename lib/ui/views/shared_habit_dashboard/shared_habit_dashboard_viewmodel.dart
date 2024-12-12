@@ -75,7 +75,7 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
 
     final participant = _sharedHabit.participantData
         .firstWhere((p) => p.user.uid == currentUser.uid);
-    return participant.currentCompletions;
+    return participant.habit.currentProgress;
   }
 
   int _calculateGroupStreak() {
@@ -88,15 +88,15 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
 
   int _getParticipantStreak(ParticipantData participant) {
     final now = DateTime.now();
-    final daysSinceLastSeen = now.difference(participant.lastSeen).inDays;
+    final daysSinceLastSeen = now.difference(participant.habit.lastSeen).inDays;
 
     if (daysSinceLastSeen > 1) return 0;
-    return participant.fullCompletionCount;
+    return participant.habit.totalProgress;
   }
 
   int _calculateTotalGroupCompletions() {
     return _sharedHabit.participantData
-        .map((p) => p.fullCompletionCount)
+        .map((p) => p.habit.totalProgress)
         .fold(0, (sum, count) => sum + count);
   }
 
@@ -104,14 +104,14 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
     if (_sharedHabit.participantData.isEmpty) return 0;
 
     return _sharedHabit.participantData
-        .map((p) => p.fullCompletionCount)
+        .map((p) => p.habit.totalProgress)
         .reduce((max, count) => count > max ? count : max);
   }
 
   int _calculateTotalActiveDays() {
     final now = DateTime.now();
     return _sharedHabit.participantData
-        .where((p) => now.difference(p.lastSeen).inDays <= 1)
+        .where((p) => now.difference(p.habit.lastSeen).inDays <= 1)
         .length;
   }
 }

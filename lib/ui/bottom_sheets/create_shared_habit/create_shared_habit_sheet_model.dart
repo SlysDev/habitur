@@ -132,20 +132,29 @@ class CreateSharedHabitSheetModel extends BaseViewModel {
 
       final currentUser = _userService.currentUser;
       if (currentUser == null) return false;
+      Habit sharedHabitAsHabit = Habit(
+        title: _habitName,
+        description: _habitDescription,
+        id: int.parse(generateUniqueId()),
+        targetGoal: _targetGoal,
+        resetPeriod: _selectedResetPeriod,
+        dateCreated: DateTime.now(),
+        lastSeen: DateTime.now(),
+        requiredDatesOfCompletion: _selectedDays.toList(),
+        smartNotifsEnabled: _smartNotifsEnabled,
+      );
 
       final participantData = _selectedParticipants
           .map((user) => ParticipantData(
                 user: user,
-                fullCompletionCount: 0,
-                lastSeen: DateTime.now(),
+                habit: sharedHabitAsHabit,
               ))
           .toList();
 
       // Add current user as a participant
       participantData.add(ParticipantData(
         user: currentUser,
-        fullCompletionCount: 0,
-        lastSeen: DateTime.now(),
+        habit: sharedHabitAsHabit,
       ));
 
       final sharedHabit = SharedHabit(

@@ -98,7 +98,7 @@ class LeaderboardCard extends StackedView<LeaderboardCardModel> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '${participant.fullCompletionCount}',
+                      '${participant.habit.totalProgress}',
                       style: const TextStyle(
                         color: kPrimaryColor,
                         fontWeight: FontWeight.w600,

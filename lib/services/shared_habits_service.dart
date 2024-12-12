@@ -51,8 +51,6 @@ class SharedHabitsService with ListenableServiceMixin {
           sharedHabit.participantData.add(
             ParticipantData(
               user: currentUser,
-              fullCompletionCount: 0,
-              lastSeen: DateTime.now(),
               habit: Habit.fromSharedHabit(sharedHabit),
             ),
           );
@@ -119,12 +117,14 @@ class SharedHabitsService with ListenableServiceMixin {
 
       if (participantIndex != -1) {
         // Update participant data
-        sharedHabit.participantData[participantIndex].currentCompletions =
+        sharedHabit.participantData[participantIndex].habit.currentProgress =
             completions;
-        sharedHabit.participantData[participantIndex].lastSeen = DateTime.now();
+        // updating last seen
+        sharedHabit.participantData[participantIndex].habit.lastSeen =
+            DateTime.now();
 
         if (completions >= sharedHabit.targetGoal) {
-          sharedHabit.participantData[participantIndex].fullCompletionCount++;
+          sharedHabit.participantData[participantIndex].habit.totalProgress++;
         }
 
         // Save changes
@@ -173,14 +173,12 @@ class SharedHabitsService with ListenableServiceMixin {
       final currentUser = _userService.currentUser;
       if (currentUser == null) return null;
 
+      // update last seen just in case
+      habit.lastSeen = DateTime.now();
+
       // Create participant data for all selected participants
       final participantData = participants
-          .map((user) => ParticipantData(
-                user: user,
-                fullCompletionCount: 0,
-                lastSeen: DateTime.now(),
-                habit: habit
-              ))
+          .map((user) => ParticipantData(user: user, habit: habit))
           .toList();
 
       // Add current user as a participant if not already included
@@ -188,12 +186,7 @@ class SharedHabitsService with ListenableServiceMixin {
           .any((participant) => participant.user.uid == currentUser.uid);
       if (!isCurrentUserIncluded) {
         participantData.add(
-          ParticipantData(
-            user: currentUser,
-            fullCompletionCount: 0,
-            lastSeen: DateTime.now(),
-            habit: habit
-          ),
+          ParticipantData(user: currentUser, habit: habit),
         );
       }
 

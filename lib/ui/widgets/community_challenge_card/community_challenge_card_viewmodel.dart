@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/models/habit.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/app/app.locator.dart';
@@ -32,7 +33,8 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
 
   List<ParticipantData> get topParticipants {
     final sorted = List<ParticipantData>.from(participants)
-      ..sort((a, b) => b.currentCompletions.compareTo(a.currentCompletions));
+      ..sort(
+          (a, b) => b.habit.currentProgress.compareTo(a.habit.currentProgress));
     return sorted.take(3).toList();
   }
 
@@ -57,27 +59,23 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
       (p) => p.user.uid == _authService.currentUser?.uid,
       orElse: () => ParticipantData(
         user: UserModel(uid: '', username: '', email: ''),
-        currentCompletions: 0,
-        lastSeen: DateTime.now(),
-        fullCompletionCount: 0,
+        habit: Habit.fromSharedHabit(challenge),
       ),
     );
-    return currentUserParticipant.fullCompletionCount > 0;
+    return currentUserParticipant.habit.totalProgress > 0;
   }
 
-  double get completionProgress {
+  double get currentUserCompletionProgress {
     final currentUserParticipant = participants.firstWhere(
       (p) => p.user.uid == _authService.currentUser?.uid,
       orElse: () => ParticipantData(
         user: UserModel(uid: '', email: '', username: ''),
-        currentCompletions: 0,
-        fullCompletionCount: 0,
-        lastSeen: DateTime.now(),
+        habit: Habit.fromSharedHabit(challenge),
       ),
     );
-    final requiredCompletions = challenge.requiredFullCompletions;
-    final currentCompletions = currentUserParticipant.currentCompletions;
-    return currentCompletions / requiredCompletions;
+    final targetGoal = challenge.targetGoal;
+    final currentProgress = currentUserParticipant.habit.currentProgress;
+    return currentProgress / targetGoal;
   }
 
   Future<void> navigateToChallengeOverview() async {

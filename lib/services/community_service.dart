@@ -157,13 +157,7 @@ class CommunityService with ListenableServiceMixin {
             final userData = participantData['user'] as Map<String, dynamic>;
             return ParticipantData(
               user: UserModel.fromMap(userData),
-              currentCompletions: participantData['currentCompletions'] ?? 0,
-              fullCompletionCount: participantData['fullCompletionCount'] ?? 0,
-              lastSeen: participantData['lastSeen'] != null
-                  ? participantData['lastSeen'] is Timestamp
-                      ? participantData['lastSeen'].toDate()
-                      : DateTime.now()
-                  : null,
+              habit: Habit.fromMap(participantData['habit']),
             );
           } catch (e) {
             debugPrint('Error parsing participant data: $e');
@@ -358,7 +352,7 @@ class CommunityService with ListenableServiceMixin {
         _challenges.firstWhere((c) => c.id.toString() == challengeId);
     final sortedParticipants = List<ParticipantData>.from(
         challenge.participantData)
-      ..sort((a, b) => b.fullCompletionCount.compareTo(a.fullCompletionCount));
+      ..sort((a, b) => b.habit.totalProgress.compareTo(a.habit.totalProgress));
     return sortedParticipants.take(3).toList();
   }
 

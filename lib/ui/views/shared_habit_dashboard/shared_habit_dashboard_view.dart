@@ -205,7 +205,7 @@ class SharedHabitDashboardView
                                 ),
                               ),
                               Text(
-                                '${participant.currentCompletions}/${viewModel.targetGoal} today',
+                                '${participant.habit.currentProgress}/${viewModel.targetGoal} today',
                                 style: const TextStyle(
                                   color: kcMediumGrey,
                                   fontSize: 12,
@@ -215,7 +215,7 @@ class SharedHabitDashboardView
                           ),
                         ),
                         Text(
-                          '🔥 ${participant.fullCompletionCount}',
+                          '🔥 ${participant.habit.totalProgress}',
                           style: const TextStyle(
                             color: kcAccentColor,
                             fontWeight: FontWeight.bold,
