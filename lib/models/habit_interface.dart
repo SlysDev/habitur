@@ -35,6 +35,24 @@ abstract class HabitInterface {
   bool get isCommunityHabit;
   bool get isShared;
 
+  // All Setters
+
+  set lastSeen(DateTime lastSeen);
+  set streak(int streak);
+  set highestStreak(int highestStreak);
+  set currentProgress(int currentProgress);
+  set totalProgress(int totalProgress);
+  set targetGoal(int targetGoal);
+  set confidenceLevel(double confidenceLevel);
+  set daysCompleted(List<DateTime> daysCompleted);
+  set stats(List<StatPoint> stats);
+  set requiredDatesOfCompletion(List<String> requiredDatesOfCompletion);
+  set color(Color color);
+  set smartNotifsEnabled(bool smartNotifsEnabled);
+  set isVisible(bool isVisible);
+  set isCommunityHabit(bool isCommunityHabit);
+  set isShared(bool isShared);
+
   // Core Functional Methods
   void incrementProgress([int amount]);
   void decrementProgress([int amount]);
