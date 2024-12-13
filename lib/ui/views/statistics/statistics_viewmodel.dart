@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/services/stats/user_stats_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/app/app.locator.dart';
@@ -12,7 +13,7 @@ class StatisticsViewModel extends BaseViewModel {
   final _userService = locator<UserService>();
   final _userStatsService = locator<UserStatsService>();
 
-  List<Habit> _habits = [];
+  List<HabitInterface> _habits = [];
   List<StatPoint> _statPoints = [];
   List<StatPoint> _habitStats = [];
   double _completionRate = 0.0;
@@ -35,7 +36,7 @@ class StatisticsViewModel extends BaseViewModel {
   int get totalHabits => userMetrics['totalHabitsCompleted'];
   double get completionRate => _completionRate;
   int get bestStreak => userMetrics['longestStreak'];
-  List<Habit> get habits => _habits;
+  List<HabitInterface> get habits => _habits;
 
   Future<void> initialize() async {
     setBusy(true);

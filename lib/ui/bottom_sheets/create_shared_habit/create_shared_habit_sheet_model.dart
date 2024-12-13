@@ -219,7 +219,7 @@ class CreateSharedHabitSheetModel extends BaseViewModel {
     final mixedHabits = <HabitInterface>[regularHabit, sharedHabit];
 
     // Add mixed habits to service
-    await _habitService.saveInterfaceHabits(mixedHabits);
+    await _habitService.saveHabits(mixedHabits);
 
     // Verify by printing
     debugPrint(

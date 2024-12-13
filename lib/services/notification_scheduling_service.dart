@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/services/notification_service.dart';
@@ -91,7 +92,7 @@ class NotificationSchedulingService {
   }
 
   Future<void> _scheduleSmartRemindersForHabit(
-      Habit habit, DateTime now) async {
+      HabitInterface habit, DateTime now) async {
     final completionHistory = _habitService.getDaysCompleted(habit);
     if (completionHistory.isEmpty) return;
 
@@ -179,7 +180,7 @@ class NotificationSchedulingService {
     return followUpDateTime;
   }
 
-  String _generateSmartReminderMessage(Habit habit) {
+  String _generateSmartReminderMessage(HabitInterface habit) {
     final messages = [
       "This is usually a great time for you to complete this habit!",
       "Based on your history, you're most successful with this habit around now.",

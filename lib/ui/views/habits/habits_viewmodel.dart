@@ -1,4 +1,5 @@
 import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
@@ -18,7 +19,7 @@ class HabitsViewModel extends ReactiveViewModel {
   final _dialogService = locator<DialogService>();
   final _sharedHabitsService = locator<SharedHabitsService>();
 
-  List<Habit> get habits => _habitService.habits;
+  List<HabitInterface> get habits => _habitService.habits;
   bool get isConnected => _networkService.isConnected;
 
   @override

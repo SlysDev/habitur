@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/privacy_settings.dart';
 import 'package:habitur/ui/widgets/mini_habit_card.dart';
 import 'package:stacked/stacked.dart';
@@ -11,7 +12,7 @@ class VisibleHabitList extends StackedView<VisibleHabitListModel> {
   final String userId;
   final bool isFriendProfile;
   final SharingScope? habitsScope;
-  final List<Habit>? habits;
+  final List<HabitInterface>? habits;
 
   const VisibleHabitList({
     Key? key,
@@ -42,7 +43,7 @@ class VisibleHabitList extends StackedView<VisibleHabitListModel> {
     }
 
     // Load habits if the user is allowed
-    return FutureBuilder<List<Habit>>(
+    return FutureBuilder<List<HabitInterface>>(
       future: viewModel.loadHabits(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -72,7 +73,7 @@ class VisibleHabitList extends StackedView<VisibleHabitListModel> {
     );
   }
 
-  Widget _buildHabitList(VisibleHabitListModel viewModel, List<Habit> habits) {
+  Widget _buildHabitList(VisibleHabitListModel viewModel, List<HabitInterface> habits) {
     final visibleHabits = viewModel.getVisibleHabits(habits);
 
     if (visibleHabits.isEmpty) {

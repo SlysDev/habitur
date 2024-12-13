@@ -1,15 +1,16 @@
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
 
 class AggregateStatsCalculatorService {
   final _statsCalculationService = locator<StatsCalculationService>();
 
-  double calculateSingleDayStatSum(String statisticName, List<Habit> habits) {
+  double calculateSingleDayStatSum(String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
-    for (Habit habit in habits) {
+    for (HabitInterface habit in habits) {
       if (habit.stats.isEmpty) {
         sum += 0;
       } else {
@@ -19,10 +20,10 @@ class AggregateStatsCalculatorService {
     return sum;
   }
 
-  double calculateStatAverage(String statisticName, List<Habit> habits) {
+  double calculateStatAverage(String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
-    for (Habit habit in habits) {
+    for (HabitInterface habit in habits) {
       if (habit.stats.isEmpty) {
         sum += 0;
       } else {
@@ -33,10 +34,10 @@ class AggregateStatsCalculatorService {
     return sum / habits.length;
   }
 
-  double calculateOverallSlope(String statisticName, List<Habit> habits) {
+  double calculateOverallSlope(String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
-    for (Habit habit in habits) {
+    for (HabitInterface habit in habits) {
       if (habit.stats.isEmpty) {
         sum += 0;
       } else {

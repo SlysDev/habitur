@@ -330,12 +330,12 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   // Habits Methods
-  Future<void> addHabit(Habit habit) async {
+  Future<void> addHabit(HabitInterface habit) async {
     await _habitsBox!.put(habit.id, habit);
     await setSettingsLastUpdated(DateTime.now());
   }
 
-  Future<void> updateHabit(Habit habit) async {
+  Future<void> updateHabit(HabitInterface habit) async {
     await _habitsBox!.put(habit.id, habit);
     debugPrint('Updated habit in LS with ID: ${habit.id}');
     debugPrint('Box values after update: ${_habitsBox!.values.toList()}');
@@ -352,7 +352,7 @@ class LocalStorageService with ListenableServiceMixin {
     await setHabitsLastUpdated(DateTime.now());
   }
 
-  List<Habit> getHabitData() {
+  List<HabitInterface> getHabitData() {
     try {
       if (_habitsBox == null || !_habitsBox!.isOpen) {
         debugPrint('habitsBox is null or not open');
@@ -384,8 +384,8 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   Future<void> clearStats() async {
-    for (Habit habit in getHabitData()) {
-      Habit clearedHabit = habit;
+    for (HabitInterface habit in getHabitData()) {
+      HabitInterface clearedHabit = habit;
       clearedHabit.currentProgress = 0;
       clearedHabit.streak = 0;
       clearedHabit.lastSeen = DateTime.now();
@@ -403,11 +403,11 @@ class LocalStorageService with ListenableServiceMixin {
   Future<void> clearDuplicateHabits() async {
     debugPrint('clearing duplicate habits');
     try {
-      List<Habit> allHabits = getHabitData();
-      for (Habit habit in allHabits) {
+      List<HabitInterface> allHabits = getHabitData();
+      for (HabitInterface habit in allHabits) {
         if (allHabits.where((element) => element.id == habit.id).length > 1) {
           debugPrint('clearing a habit');
-          Habit duplicateHabit =
+          HabitInterface duplicateHabit =
               allHabits.where((element) => element.id == habit.id).first;
           await deleteHabit(duplicateHabit.id.toString());
         }
@@ -424,7 +424,7 @@ class LocalStorageService with ListenableServiceMixin {
     String output = "";
     output += "----------------------------------\n";
     output += "LS Habits:\n";
-    for (Habit habit in getHabitData()) {
+    for (HabitInterface habit in getHabitData()) {
       debugPrint(habit.title);
       output += " ${habit.title}:\n";
       output += " -> Completions: ${habit.currentProgress}\n";
@@ -436,18 +436,7 @@ class LocalStorageService with ListenableServiceMixin {
     return output;
   }
 
-  Future<void> saveHabits(List<Habit> habits) async {
-    await _ensureBoxOpen('habits');
-    await _habitsBox!.clear(); // Clear existing habits
-    for (var habit in habits) {
-      await _habitsBox!.put(habit.id, habit);
-    }
-    await setHabitsLastUpdated(DateTime.now());
-    debugPrint('Saved ${habits.length} habits to local storage');
-    debugPrint('Habit IDs: ${habits.map((h) => h.id).toList()}');
-  }
-
-  Future<void> saveInterfaceHabits(List<HabitInterface> habits) async {
+  Future<void> saveHabits(List<HabitInterface> habits) async {
     await _ensureBoxOpen('habits');
     await _habitsBox!.clear(); // Clear existing habits
     for (var habit in habits) {

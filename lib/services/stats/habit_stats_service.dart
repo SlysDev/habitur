@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/services/activity_service.dart';
@@ -22,7 +23,7 @@ class HabitStatsService {
   final _userService = locator<UserService>();
 
   Future<void> processHabitIncrement(
-    Habit habit, {
+    HabitInterface habit, {
     required int amount,
     required double difficultyRating,
   }) async {
@@ -90,7 +91,7 @@ class HabitStatsService {
   }
 
   Future<void> processHabitDecrement(
-    Habit habit, {
+    HabitInterface habit, {
     required int amount,
   }) async {
     final wasCompleted = habit.isCompleted;
@@ -155,13 +156,13 @@ class HabitStatsService {
     await _saveHabitStats(habit);
   }
 
-  Future<void> _saveHabitStats(Habit habit) async {
+  Future<void> _saveHabitStats(HabitInterface habit) async {
     // Save to local storage
     await _localStorageService.updateHabit(habit);
 
     // Save to remote database if user is authenticated
     if (_authService.currentUser != null) {
-      await _databaseService.updateHabit(
+      await _databaseService.updateInterfaceHabit(
         _authService.currentUser!.uid,
         habit,
       );

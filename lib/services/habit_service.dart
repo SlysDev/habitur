@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:habitur/app/app.locator.dart';
-import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/habit_interface.dart';
@@ -27,18 +26,14 @@ class HabitService with ListenableServiceMixin {
   final _statsOrchestrationService = locator<StatsOrchestrationService>();
   final _dialogService = locator<DialogService>();
 
-  final ReactiveValue<List<Habit>> _habits = ReactiveValue<List<Habit>>([]);
-  List<Habit> get habits => _habits.value;
-  Stream<List<Habit>> get habitsStream => _habits.values;
-
-  final ReactiveValue<List<HabitInterface>> _interfaceHabits =
+  final ReactiveValue<List<HabitInterface>> _habits =
       ReactiveValue<List<HabitInterface>>([]);
-  List<HabitInterface> get interfaceHabits => _interfaceHabits.value;
-  Stream<List<HabitInterface>> get interfaceHabitsStream =>
-      _interfaceHabits.values;
+  List<HabitInterface> get habits => _habits.value;
+  Stream<List<HabitInterface>> get habitsStream =>
+      _habits.values;
 
   HabitService() {
-    listenToReactiveValues([_habits, _interfaceHabits]);
+    listenToReactiveValues([_habits]);
     _initHabits();
   }
 
@@ -58,8 +53,8 @@ class HabitService with ListenableServiceMixin {
     // If empty or forced refresh, get from database
     if (localHabits.isEmpty) {
       debugPrint('No local habits, fetching from database...');
-      localHabits =
-          await _databaseService.getHabits(_authService.currentUser!.uid);
+      localHabits = await _databaseService
+          .getInterfaceHabits(_authService.currentUser!.uid);
       await _localStorageService.saveHabits(localHabits);
       debugPrint(
           'Fetched habits from database: ${localHabits.map((h) => 'ID: ${h.id}, Title: ${h.title}')}');
@@ -75,56 +70,15 @@ class HabitService with ListenableServiceMixin {
   Future<void> loadFromRemote() async {
     final userId = _authService.currentUser?.uid;
     if (userId != null) {
-      _habits.value = await _databaseService.getHabits(userId);
+      _habits.value = await getUserHabits(userId: userId);
       await _localStorageService.saveHabits(_habits.value);
       notifyListeners();
     }
   }
 
   loadFromLocal() async {
-    _habits.value = _localStorageService.getHabitData() ?? [];
+    _habits.value = _localStorageService.getHabitData();
     notifyListeners();
-  }
-
-  Future<List<Habit>> getUserHabits({String? userId}) async {
-    if (userId != null) {
-      return await _databaseService.getHabits(userId);
-    }
-    return _habits.value;
-  }
-
-  Future<List<Habit>> getVisibleHabits({String? userId}) async {
-    return habits.where((habit) => habit.isVisible ?? true).toList();
-  }
-
-  Future<void> saveHabits(List<Habit> habits) async {
-    _habits.value = habits;
-    await _localStorageService.saveHabits(habits);
-    await _databaseService.updateAllHabits(
-        _authService.currentUser!.uid, habits);
-  }
-
-  Future<void> addHabit(Habit habit) async {
-    _habits.value = [..._habits.value, habit];
-    await _localStorageService.saveHabits(_habits.value);
-    await _databaseService.updateAllHabits(
-        _authService.currentUser!.uid, _habits.value);
-    notifyListeners();
-  }
-
-  Future<void> updateHabit(Habit updatedHabit) async {
-    final index = _habits.value.indexWhere((h) => h.id == updatedHabit.id);
-    if (index != -1) {
-      _habits.value = [
-        ..._habits.value.sublist(0, index),
-        updatedHabit,
-        ..._habits.value.sublist(index + 1),
-      ];
-      await _localStorageService.saveHabits(_habits.value);
-      await _databaseService.updateHabit(
-          _authService.currentUser!.uid, updatedHabit);
-      notifyListeners();
-    }
   }
 
   Future<void> deleteHabit(String habitId) async {
@@ -141,7 +95,8 @@ class HabitService with ListenableServiceMixin {
     debugPrint(
         'Found habit to delete: ID: ${habitToDelete.id}, Title: ${habitToDelete.title}');
 
-    _habits.value = _habits.value.where((h) => h.id != habitIdInt).toList();
+    _habits.value =
+        _habits.value.where((h) => h.id != habitIdInt).toList();
     debugPrint(
         'Habits after deletion: ${_habits.value.map((h) => 'ID: ${h.id}, Title: ${h.title}')}');
 
@@ -200,22 +155,12 @@ class HabitService with ListenableServiceMixin {
     }
   }
 
-  Future<Habit?> getHabit(String habitId) async {
-    final habits = await getUserHabits();
-    try {
-      return habits.firstWhere((h) => h.id.toString() == habitId);
-    } catch (e) {
-      debugPrint('Habit not found: $habitId');
-      return null;
-    }
-  }
-
-  Future<List<Habit>> getTodaysDueHabits() async {
+  Future<List<HabitInterface>> getTodaysDueHabits() async {
     final habits = await getUserHabits();
     return habits.where((h) => !h.isCompleted && isDue(h)).toList();
   }
 
-  bool isDue(Habit habit) {
+  bool isDue(HabitInterface habit) {
     if (habit.requiredDatesOfCompletion.isEmpty) {
       return false;
     }
@@ -415,39 +360,39 @@ class HabitService with ListenableServiceMixin {
     }
   }
 
-  List<DateTime> getDaysCompleted(Habit habit) {
+  List<DateTime> getDaysCompleted(HabitInterface habit) {
     return habit.daysCompleted;
   }
 
   // Methods for INTERFACE HABITS
 
-  Future<void> saveInterfaceHabits(List<HabitInterface> habits) async {
-    _interfaceHabits.value = habits;
-    for (HabitInterface habit in _interfaceHabits.value) {
+  Future<void> saveHabits(List<HabitInterface> habits) async {
+    _habits.value = habits;
+    for (HabitInterface habit in _habits.value) {
       debugPrint(habit.toString());
     }
-    // await _localStorageService.saveInterfaceHabits(habits);
-    // await _databaseService.updateAllInterfaceHabits(
-    //     _authService.currentUser!.uid, habits);
+    await _localStorageService.saveHabits(habits);
+    await _databaseService.updateAllInterfaceHabits(
+        _authService.currentUser!.uid, habits);
   }
 
-  Future<List<HabitInterface>> getInterfaceUserHabits({String? userId}) async {
+  Future<List<HabitInterface>> getUserHabits({String? userId}) async {
     if (userId != null) {
       // Assuming _databaseService has a method to fetch interface habits
       return await _databaseService.getInterfaceHabits(userId);
     }
-    return _interfaceHabits.value;
+    return _habits.value;
   }
 
-  Future<List<HabitInterface>> getVisibleInterfaceHabits(
+  Future<List<HabitInterface>> getVisibleHabits(
       {String? userId}) async {
-    return _interfaceHabits.value
+    return _habits.value
         .where((habit) => habit.isVisible ?? true)
         .toList();
   }
 
-  Future<void> addInterfaceHabit(HabitInterface habit) async {
-    _interfaceHabits.value = [..._interfaceHabits.value, habit];
+  Future<void> addHabit(HabitInterface habit) async {
+    _habits.value = [..._habits.value, habit];
     // Uncomment when implementations are ready
     // await _localStorageService.saveInterfaceHabits(_interfaceHabits.value);
     // await _databaseService.updateAllInterfaceHabits(
@@ -455,14 +400,14 @@ class HabitService with ListenableServiceMixin {
     notifyListeners();
   }
 
-  Future<void> updateInterfaceHabit(HabitInterface updatedHabit) async {
+  Future<void> updateHabit(HabitInterface updatedHabit) async {
     final index =
-        _interfaceHabits.value.indexWhere((h) => h.id == updatedHabit.id);
+        _habits.value.indexWhere((h) => h.id == updatedHabit.id);
     if (index != -1) {
-      _interfaceHabits.value = [
-        ..._interfaceHabits.value.sublist(0, index),
+      _habits.value = [
+        ..._habits.value.sublist(0, index),
         updatedHabit,
-        ..._interfaceHabits.value.sublist(index + 1)
+        ..._habits.value.sublist(index + 1)
       ];
       // Uncomment when implementations are ready
       // await _localStorageService.saveInterfaceHabits(_interfaceHabits.value);
@@ -472,8 +417,8 @@ class HabitService with ListenableServiceMixin {
     }
   }
 
-  Future<HabitInterface?> getInterfaceHabit(String habitId) async {
-    final habits = await getInterfaceUserHabits();
+  Future<HabitInterface?> getHabit(String habitId) async {
+    final habits = await getUserHabits();
     try {
       return habits.firstWhere((h) => h.id.toString() == habitId);
     } catch (e) {
@@ -481,21 +426,7 @@ class HabitService with ListenableServiceMixin {
     }
   }
 
-  Future<List<HabitInterface>> getTodaysInterfaceDueHabits() async {
-    final habits = await getInterfaceUserHabits();
-    return habits.where((h) => !h.isCompleted && isDueInterface(h)).toList();
-  }
-
-  bool isDueInterface(HabitInterface habit) {
-    if (habit.requiredDatesOfCompletion.isEmpty) {
-      return false;
-    }
-    return habit.requiredDatesOfCompletion
-            .contains(DateFormat('EEEE').format(DateTime.now())) &&
-        !habit.isCompleted;
-  }
-
-  double calculateInterfaceConsistencyFactor(HabitInterface habit) {
+  double calculateConsistencyFactor(HabitInterface habit) {
     if (habit.daysCompleted.isEmpty) return 0.0;
 
     // Sort days completed
@@ -516,9 +447,5 @@ class HabitService with ListenableServiceMixin {
     final averageGap = totalGap / gapCount;
     // Convert average gap to a 0-1 scale where smaller gaps mean higher consistency
     return 1.0 / (1.0 + averageGap);
-  }
-
-  List<DateTime> getDaysCompletedInterface(HabitInterface habit) {
-    return habit.daysCompleted;
   }
 }

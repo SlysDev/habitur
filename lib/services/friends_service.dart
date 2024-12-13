@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/friend_request.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/habit_service.dart';
@@ -238,8 +239,9 @@ class FriendsService {
   }
 
   // Friend data operations
-  Future<List<Habit>> getFriendVisibleHabits(String friendUid) async {
-    List<Habit> habits = await _habitService.getUserHabits(userId: friendUid);
+  Future<List<HabitInterface>> getFriendVisibleHabits(String friendUid) async {
+    List<HabitInterface> habits =
+        await _habitService.getUserHabits(userId: friendUid);
     final friendDoc = await _getUserDocById(friendUid);
     if (friendDoc == null) {
       throw Exception('Friend not found');

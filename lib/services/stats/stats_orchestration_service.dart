@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/services/habit_service.dart';
 import 'package:habitur/services/stats/habit_stats_service.dart';
 import 'package:habitur/services/stats/user_stats_service.dart';
@@ -13,7 +14,7 @@ class StatsOrchestrationService {
 
   /// Processes all stats updates when a habit is incremented
   Future<void> processHabitIncrement({
-    required Habit habit,
+    required HabitInterface habit,
     required int amount,
     required double difficultyRating,
   }) async {
@@ -41,7 +42,7 @@ class StatsOrchestrationService {
 
   /// Processes all stats updates when a habit is decremented
   Future<void> processHabitDecrement({
-    required Habit habit,
+    required HabitInterface habit,
     required int amount,
   }) async {
     debugPrint('Processing habit decrement for: \n'

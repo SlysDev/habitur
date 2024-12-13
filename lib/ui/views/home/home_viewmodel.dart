@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/app/app.locator.dart';
@@ -31,7 +32,7 @@ class HomeViewModel extends ReactiveViewModel {
   int _userXP = 0;
 
   int get currentIndex => _currentIndex;
-  List<Habit> get habits => _habitService.habits;
+  List<HabitInterface> get habits => _habitService.habits;
   String get userName => _userName;
   int get totalHabits => _totalHabits;
   int get currentStreak => _currentStreak;

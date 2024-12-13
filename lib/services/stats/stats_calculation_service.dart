@@ -1,4 +1,5 @@
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'dart:math' as math;
 
@@ -226,12 +227,12 @@ class StatsCalculationService {
     return (value - min) / (max - min);
   }
 
-  int getLongestStreakSinceLastLapse(Habit habit) {
+  int getLongestStreakSinceLastLapse(HabitInterface habit) {
     if (habit.stats.isEmpty) return 0;
     return math.max(habit.highestStreak, habit.streak);
   }
 
-  double calculateConfidenceLevel(Habit habit) {
+  double calculateConfidenceLevel(HabitInterface habit) {
     double baseConfidence = 1;
     double consistencyFactor =
         calculateConsistencyFactor(habit.stats, habit.targetGoal);
@@ -248,7 +249,7 @@ class StatsCalculationService {
         difficultyWeight;
   }
 
-  double calculateAverageCompletionsPerWeek(Habit habit) {
+  double calculateAverageCompletionsPerWeek(HabitInterface habit) {
     if (habit.stats.isEmpty) return 0.0;
     int totalWeeks = (habit.stats.length / 7).ceil();
     int totalProgress =
@@ -256,7 +257,7 @@ class StatsCalculationService {
     return totalProgress / totalWeeks;
   }
 
-  double calculateRecentCompletionTrend(Habit habit) {
+  double calculateRecentCompletionTrend(HabitInterface habit) {
     if (habit.stats.length < 14) return 0.0;
 
     var recentStats = habit.stats.sublist(habit.stats.length - 7);
@@ -274,14 +275,14 @@ class StatsCalculationService {
   }
 
   // Habit comparison
-  double compareHabitPerformance(Habit habit1, Habit habit2) {
+  double compareHabitPerformance(HabitInterface habit1, HabitInterface habit2) {
     double score1 = calculateConfidenceLevel(habit1);
     double score2 = calculateConfidenceLevel(habit2);
     return score1 - score2;
   }
 
   // Time of day analysis
-  Map<String, double> getSuccessRateByTimeOfDay(Habit habit) {
+  Map<String, double> getSuccessRateByTimeOfDay(HabitInterface habit) {
     var timeSlots = {
       'morning': 0.0, // 5-11
       'afternoon': 0.0, // 11-17
@@ -311,7 +312,7 @@ class StatsCalculationService {
   }
 
   // Streak prediction
-  double predictStreakContinuation(Habit habit) {
+  double predictStreakContinuation(HabitInterface habit) {
     if (habit.stats.isEmpty) return 0.5;
 
     double confidence = calculateConfidenceLevel(habit);
@@ -323,7 +324,7 @@ class StatsCalculationService {
   }
 
   // Recovery analysis
-  double calculateRecoveryRate(Habit habit) {
+  double calculateRecoveryRate(HabitInterface habit) {
     if (habit.stats.length < 2) return 1.0;
 
     int breakCount = 0;
@@ -357,7 +358,7 @@ class StatsCalculationService {
   /// The overall progress would be (0.6 + 0.5) / 2 = 0.55 or 55%
   ///
   /// Note: Habits with no stats are counted as 0% complete in the average
-  double calculateOverallProgress(List<Habit> habits) {
+  double calculateOverallProgress(List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
 
     return habits.fold(0.0, (total, habit) {
@@ -368,7 +369,8 @@ class StatsCalculationService {
   }
 
   // Goal achievement analysis
-  Map<String, double> calculateGoalAchievementRates(List<Habit> habits) {
+  Map<String, double> calculateGoalAchievementRates(
+      List<HabitInterface> habits) {
     if (habits.isEmpty) return {};
 
     var rates = <String, double>{};
@@ -382,7 +384,7 @@ class StatsCalculationService {
   }
 
   // Best/worst performing habits
-  List<Habit> getBestPerformingHabits(List<Habit> habits) {
+  List<HabitInterface> getBestPerformingHabits(List<HabitInterface> habits) {
     return List.from(habits)
       ..sort((a, b) {
         double rateA = calculateGoalAchievementRates([a])[a.id] ?? 0.0;
@@ -392,7 +394,7 @@ class StatsCalculationService {
   }
 
   // // Category performance TODO: Think about implementing habit categories
-  // Map<String, double> getCategoryPerformance(List<Habit> habits) {
+  // Map<String, double> getCategoryPerformance(List<HabitInterface> habits) {
   //   var categoryStats = <String, Map<String, int>>{};
 
   //   for (var habit in habits) {
@@ -424,7 +426,7 @@ class StatsCalculationService {
   // }
 
   // User engagement metrics
-  Map<String, dynamic> calculateEngagementMetrics(List<Habit> habits) {
+  Map<String, dynamic> calculateEngagementMetrics(List<HabitInterface> habits) {
     if (habits.isEmpty) return {};
 
     var now = DateTime.now();
@@ -456,11 +458,12 @@ class StatsCalculationService {
     };
   }
 
-  double calculateStatAverage(String statisticName, List<Habit> habits) {
+  double calculateStatAverage(
+      String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
 
     double sum = 0.0;
-    for (Habit habit in habits) {
+    for (HabitInterface habit in habits) {
       if (habit.stats.isEmpty) {
         sum += 0;
       } else {
@@ -470,11 +473,12 @@ class StatsCalculationService {
     return sum / habits.length;
   }
 
-  double calculateOverallSlope(String statisticName, List<Habit> habits) {
+  double calculateOverallSlope(
+      String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
 
     double sum = 0.0;
-    for (Habit habit in habits) {
+    for (HabitInterface habit in habits) {
       if (habit.stats.isEmpty) {
         sum += 0;
       } else {
@@ -484,11 +488,11 @@ class StatsCalculationService {
     return sum / habits.length;
   }
 
-  int getTotalHabitsCompleted(List<Habit> habits) {
+  int getTotalHabitsCompleted(List<HabitInterface> habits) {
     return habits.fold(0, (total, habit) => total + habit.daysCompleted.length);
   }
 
-  int getLongestStreak(List<Habit> habits) {
+  int getLongestStreak(List<HabitInterface> habits) {
     if (habits.isEmpty) return 0;
 
     return habits
@@ -496,7 +500,7 @@ class StatsCalculationService {
         .reduce((max, streak) => streak > max ? streak : max);
   }
 
-  int getWeekCompletions(List<Habit> habits) {
+  int getWeekCompletions(List<HabitInterface> habits) {
     if (habits.isEmpty) return 0;
 
     final startOfWeek =

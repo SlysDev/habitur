@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/habit_visibility.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
@@ -51,7 +52,7 @@ class ProfileDialogModel extends BaseViewModel {
     }
   }
 
-  List<Habit> getCurrentUserHabits() {
+  List<HabitInterface> getCurrentUserHabits() {
     return _habitService.habits;
   }
 

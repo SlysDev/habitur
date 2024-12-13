@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
@@ -23,7 +24,7 @@ class UserStatsService {
       locator<AggregateStatsCalculatorService>();
 
   // Enhanced user stats
-  Map<String, dynamic> getUserStats(List<Habit> habits) {
+  Map<String, dynamic> getUserStats(List<HabitInterface> habits) {
     if (habits.isEmpty) {
       return {
         'totalHabitsCompleted': 0,
@@ -198,7 +199,7 @@ class UserStatsService {
     return statsInRange;
   }
 
-  Future<void> logHabitIncrement(List<Habit> habits) async {
+  Future<void> logHabitIncrement(List<HabitInterface> habits) async {
     final user = _userService.currentUser;
     if (user == null) return;
 
@@ -247,7 +248,7 @@ class UserStatsService {
     }
   }
 
-  Future<void> unlogHabitIncrement(List<Habit> habits) async {
+  Future<void> unlogHabitIncrement(List<HabitInterface> habits) async {
     final user = _userService.currentUser;
     if (user == null || user.stats.isEmpty) return;
 

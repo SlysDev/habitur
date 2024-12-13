@@ -1,4 +1,5 @@
 import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/habit.dart';
@@ -14,11 +15,11 @@ class HabitOverviewViewModel extends BaseViewModel {
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
 
-  Habit? habit;
+  HabitInterface? habit;
 
   void initialize(String habitId) async {
     setBusy(true);
-    Habit? retrievedHabit = await _habitService.getHabit(habitId);
+    HabitInterface? retrievedHabit = await _habitService.getHabit(habitId);
     if (retrievedHabit != null) {
       habit = retrievedHabit;
     } else {
@@ -61,7 +62,7 @@ class HabitOverviewViewModel extends BaseViewModel {
         setBusy(true);
         final sharedHabit =
             await _sharedHabitsService.convertHabitToSharedHabit(
-          habit!,
+          habit! as Habit,
           participants,
         );
 
