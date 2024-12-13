@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:habitur/services/auth_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/app/app.locator.dart';
@@ -11,7 +13,7 @@ class LoginViewModel extends BaseViewModel {
   final _userService = locator<UserService>();
   final _snackbarService = locator<SnackbarService>();
   final _statusService = locator<StatusService>();
-  final _authService = FirebaseAuth.instance;
+  final _authService = locator<AuthService>();
 
   String _email = '';
   String _password = '';
@@ -33,8 +35,8 @@ class LoginViewModel extends BaseViewModel {
     try {
       setBusy(true);
       final credential = await _authService.signInWithEmailAndPassword(
-        email: _email,
-        password: _password,
+        _email,
+        _password,
       );
 
       // Load user data and navigate
@@ -64,7 +66,9 @@ class LoginViewModel extends BaseViewModel {
           message = 'An error occurred during login';
       }
       throw Exception(message);
-    } catch (e) {
+    } catch (e, s) {
+      debugPrint(e.toString());
+      debugPrint(s.toString());
       throw Exception('An unexpected error occurred. Please try again.');
     }
   }

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -32,8 +33,8 @@ class AuthService with ReactiveServiceMixin {
           email: email, password: password);
       _currentUser.value = credential.user;
       return credential;
-    } catch (e) {
-      throw _handleAuthError(e);
+    } catch (e, s) {
+      throw _handleAuthError(e, s);
     }
   }
 
@@ -59,8 +60,8 @@ class AuthService with ReactiveServiceMixin {
 
       _currentUser.value = credential.user;
       return credential;
-    } catch (e) {
-      throw _handleAuthError(e);
+    } catch (e, s) {
+      throw _handleAuthError(e, s);
     }
   }
 
@@ -68,8 +69,8 @@ class AuthService with ReactiveServiceMixin {
     try {
       await _auth.signOut();
       _currentUser.value = null;
-    } catch (e) {
-      throw _handleAuthError(e);
+    } catch (e, s) {
+      throw _handleAuthError(e, s);
     }
   }
 
@@ -77,8 +78,8 @@ class AuthService with ReactiveServiceMixin {
     try {
       await _auth.currentUser?.delete();
       _currentUser.value = null;
-    } catch (e) {
-      throw _handleAuthError(e);
+    } catch (e, s) {
+      throw _handleAuthError(e, s);
     }
   }
 
@@ -86,8 +87,8 @@ class AuthService with ReactiveServiceMixin {
     try {
       await _auth.currentUser?.updateDisplayName(displayName);
       _currentUser.value = _auth.currentUser;
-    } catch (e) {
-      throw _handleAuthError(e);
+    } catch (e, s) {
+      throw _handleAuthError(e, s);
     }
   }
 
@@ -108,7 +109,7 @@ class AuthService with ReactiveServiceMixin {
     }
   }
 
-  Exception _handleAuthError(dynamic error) {
+  Exception _handleAuthError(dynamic error, dynamic stackTrace) {
     if (error is FirebaseAuthException) {
       switch (error.code) {
         case 'user-blocked':
@@ -127,6 +128,9 @@ class AuthService with ReactiveServiceMixin {
           return Exception('Authentication error: ${error.message}');
       }
     }
+
+    debugPrint(error.toString());
+    debugPrint(stackTrace.toString());
     return Exception('An unexpected error occurred');
   }
 }
