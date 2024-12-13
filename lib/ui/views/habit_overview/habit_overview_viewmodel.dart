@@ -39,10 +39,11 @@ class HabitOverviewViewModel extends BaseViewModel {
     }
 
     // Prevent sharing already shared habits
-    if (habit!.isCommunityHabit) {
-      await _dialogService.showDialog(
+    if (habit!.isShared) {
+      await _dialogService.showCustomDialog(
         title: 'Cannot Share',
         description: 'This habit is already a shared habit.',
+        variant: DialogType.modern,
       );
       return;
     }
@@ -66,7 +67,7 @@ class HabitOverviewViewModel extends BaseViewModel {
 
         if (sharedHabit != null) {
           // Update the habit in the local service
-          await _habitService.updateHabit(habit!);
+          await _habitService.updateHabit(sharedHabit);
 
           // Navigate to the shared habit dashboard
           await _navigationService.navigateToSharedHabitDashboardView(

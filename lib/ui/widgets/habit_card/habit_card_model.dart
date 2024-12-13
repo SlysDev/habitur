@@ -4,12 +4,12 @@ import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
 import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/enums/dialog_type.dart';
-import 'package:habitur/models/activity_event.dart';
-import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/habit_service.dart';
+import 'package:habitur/services/shared_habits_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -20,9 +20,10 @@ class HabitCardModel extends BaseViewModel {
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
   final _userService = locator<UserService>();
+  final _sharedHabitsService = locator<SharedHabitsService>();
   late final ConfettiController _controller;
 
-  Habit habit;
+  HabitInterface habit;
   bool _completed = false;
   bool get completed => _completed;
 
@@ -66,12 +67,17 @@ class HabitCardModel extends BaseViewModel {
           habit.id.toString(),
           habit.title);
       _completed = habit.isCompleted;
-      notifyListeners();
 
-      final updatedHabit = await _habitService.getHabit(habit.id.toString());
+      HabitInterface? updatedHabit;
+      if (habit.isShared) {
+        updatedHabit = await _sharedHabitsService.getSharedHabitById(habit.id);
+      } else {
+        updatedHabit = await _habitService.getHabit(habit.id.toString());
+      }
       if (_completed && updatedHabit!.isCompleted) {
         _controller.play();
       }
+      rebuildUi();
     } catch (e, s) {
       final error = Exception(e.toString());
       debugPrint(error.toString());
@@ -156,6 +162,11 @@ class HabitCardModel extends BaseViewModel {
       await _navigationService.navigateToHabitOverviewView(
           habitId: habit.id.toString());
     }
+  }
+
+  Future<void> navigateToSharedHabitDashboard() async {
+    await _navigationService.navigateToSharedHabitDashboardView(
+        sharedHabit: SharedHabit.fromMap(habit.toMap()));
   }
 
   Future<void> showErrorDialog(String errorMessage) async {

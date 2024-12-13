@@ -8,20 +8,25 @@ class RoundedProgressBar extends StatelessWidget {
     this.color = Colors.white,
     this.lineHeight = 12.0,
     this.width = 100.0,
+    this.radius = 30.0,
+    this.padding = 0,
   }) : super(key: key);
 
   final double progress;
   final Color color;
   final double lineHeight;
   final double width;
+  final double radius;
+  final double padding;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: width,
       child: LinearPercentIndicator(
+        padding: EdgeInsets.all(padding),
         percent: progress,
-        barRadius: const Radius.circular(30),
+        barRadius: Radius.circular(radius),
         lineHeight: lineHeight,
         width: width,
         animation: true,
