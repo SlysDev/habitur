@@ -81,7 +81,8 @@ class AddHabitSheet extends StackedView<AddHabitSheetModel> {
                       resetPeriod: viewModel.resetPeriod,
                       onResetPeriodChanged: (period) {
                         viewModel.setResetPeriod(period);
-                        viewModel.notifyListeners(); // Ensure listeners are notified
+                        viewModel
+                            .notifyListeners(); // Ensure listeners are notified
                       },
                     ),
                   ),

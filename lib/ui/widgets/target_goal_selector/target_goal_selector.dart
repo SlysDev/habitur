@@ -43,8 +43,7 @@ class TargetGoalSelector extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.add_circle_outline,
-                  color: Colors.white70),
+              icon: const Icon(Icons.add_circle_outline, color: Colors.white70),
               onPressed: () => onTargetGoalChanged(targetGoal + 1),
             ),
           ],

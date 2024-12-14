@@ -88,7 +88,8 @@ class EditHabitView extends StackedView<EditHabitViewModel> {
                           resetPeriod: viewModel.resetPeriod,
                           onResetPeriodChanged: (period) {
                             viewModel.setResetPeriod(period);
-                            viewModel.notifyListeners(); // Ensure listeners are notified
+                            viewModel
+                                .notifyListeners(); // Ensure listeners are notified
                           },
                         ),
                       ),
