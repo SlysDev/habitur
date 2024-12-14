@@ -125,6 +125,58 @@ class EditSharedHabitView extends StackedView<EditSharedHabitViewModel> {
                           onTargetGoalChanged: viewModel.adjustTargetGoal,
                         ),
                       ),
+                      const SizedBox(height: 24),
+
+                      // Participants selector
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Participants',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          verticalSpaceSmall,
+                          ModernCard(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (viewModel.selectedParticipants.isEmpty)
+                                  const Text(
+                                    'No participants selected',
+                                    style: TextStyle(color: Colors.grey),
+                                  ),
+                                ...viewModel.selectedParticipants
+                                    .where((participant) =>
+                                        participant.userId !=
+                                        viewModel.currentUserId)
+                                    .map(
+                                  (participant) => ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: Text(
+                                      participant.username,
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.close,
+                                          color: Colors.white),
+                                      onPressed: () =>
+                                          viewModel.removeParticipant(participant),
+                                    ),
+                                  ),
+                                ),
+                                verticalSpaceSmall,
+                                PrimaryButton(
+                                  text: 'Select Participants',
+                                  onPressed: viewModel.selectParticipants,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 40),
 
                       // Save button

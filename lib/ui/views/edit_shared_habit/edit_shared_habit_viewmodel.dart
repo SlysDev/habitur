@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/user_service.dart';
@@ -14,6 +15,7 @@ class EditSharedHabitViewModel extends BaseViewModel {
   final _sharedHabitsService = locator<SharedHabitsService>();
   final _navigationService = locator<NavigationService>();
   final _userService = locator<UserService>();
+  final _dialogService = locator<DialogService>();
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -43,6 +45,8 @@ class EditSharedHabitViewModel extends BaseViewModel {
         return 'day';
     }
   }
+
+  String get currentUserId => _userService.currentUser?.uid ?? '';
 
   EditSharedHabitViewModel({required this.habitId}) {
     _initializeHabit();
@@ -106,6 +110,25 @@ class EditSharedHabitViewModel extends BaseViewModel {
       'Saturday',
       'Sunday'
     ]);
+    notifyListeners();
+  }
+
+  Future<void> selectParticipants() async {
+    final response = await _dialogService.showCustomDialog(
+      variant: DialogType.selectFriends,
+      data: {
+        'preSelectedUsers': selectedParticipants,
+      },
+    );
+
+    if (response?.confirmed == true && response?.data != null) {
+      selectedParticipants = List<ParticipantData>.from(response!.data);
+      notifyListeners();
+    }
+  }
+
+  void removeParticipant(ParticipantData participant) {
+    selectedParticipants.remove(participant);
     notifyListeners();
   }
 

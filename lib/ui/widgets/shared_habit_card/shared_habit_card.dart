@@ -55,6 +55,7 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
                     borderRadius: BorderRadius.circular(20),
                     label: 'Delete',
                   ),
+                  viewModel.isCurrentUserAuthor ? 
                   SlidableAction(
                     onPressed: (context) async {
                       await viewModel.editSharedHabit();
@@ -63,7 +64,7 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
                     icon: Icons.edit,
                     borderRadius: BorderRadius.circular(20),
                     label: 'Edit',
-                  ),
+                  ) : Container(),
                 ],
               ),
               child: Stack(

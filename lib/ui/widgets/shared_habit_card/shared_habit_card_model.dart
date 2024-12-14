@@ -56,6 +56,9 @@ class SharedHabitCardModel extends BaseViewModel {
       .habit
       .isCompleted;
 
+  bool get isCurrentUserAuthor =>
+      sharedHabit?.author?.uid == _userService.currentUser?.uid;
+
   Future<void> incrementSharedHabit() async {
     if (sharedHabit.isCompleted) return;
     try {
