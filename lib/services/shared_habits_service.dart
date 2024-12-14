@@ -65,6 +65,7 @@ class SharedHabitsService with ListenableServiceMixin {
         }
       }
 
+      await _habitService.addHabit(sharedHabit);
       // Save to database
       await _databaseService.createSharedHabit(sharedHabit);
 
@@ -101,6 +102,7 @@ class SharedHabitsService with ListenableServiceMixin {
 
   Future<void> deleteSharedHabit(String habitId) async {
     try {
+      await _habitService.deleteHabit(habitId);
       // Delete from database
       await _databaseService.deleteSharedHabit(habitId);
 

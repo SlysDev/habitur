@@ -82,6 +82,8 @@ class ActivityService with ListenableServiceMixin {
               return user.privacySettings?.shareStreakMilestones ?? false;
             case ActivityType.newHabit:
               return user.privacySettings?.shareNewHabits ?? false;
+            case ActivityType.habitShare:
+              return user.privacySettings?.shareNewHabits ?? false;
             case ActivityType.communityChallengeCompletion:
               return user.privacySettings?.shareCommunityChallengeCompletions ??
                   false;
@@ -186,6 +188,14 @@ class ActivityService with ListenableServiceMixin {
         if (!user.privacySettings!.shareNewHabits) {
           _logger
               .info('Not creating new habit activity due to privacy settings');
+          return;
+        }
+        break;
+      case ActivityType.habitShare:
+      // TODO: Add a custom privacy setting for shared habits in the future
+        if (!user.privacySettings!.shareNewHabits) {
+          _logger.info(
+              'Not creating habit share activity due to privacy settings');
           return;
         }
         break;

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/models/activity_event.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/habit_service.dart';
 import 'package:habitur/services/shared_habits_service.dart';
 import 'package:habitur/services/user_service.dart';
@@ -19,6 +22,7 @@ class CreateSharedHabitSheetModel extends BaseViewModel {
   final _dialogService = locator<DialogService>();
   final _bottomSheetService = locator<BottomSheetService>();
   final _habitService = locator<HabitService>();
+  final _activityService = locator<ActivityService>();
 
   String _habitName = '';
   String get habitName => _habitName;
@@ -174,6 +178,16 @@ class CreateSharedHabitSheetModel extends BaseViewModel {
       );
 
       await _sharedHabitsService.createSharedHabit(sharedHabit);
+      await _activityService.createActivity(
+        ActivityEvent(
+          username: currentUser.username,
+          userId: currentUser.uid,
+          id: generateUniqueId(),
+          type: ActivityType.habitShare,
+          habitId: sharedHabit.id.toString(),
+          habitTitle: sharedHabit.title,
+        ),
+      );
       return true;
     } catch (e) {
       await _dialogService.showDialog(

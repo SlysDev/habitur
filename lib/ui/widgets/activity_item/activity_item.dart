@@ -31,8 +31,10 @@ class ActivityItem extends StatefulWidget {
         final frequency = activity.metadata['frequency'] as String;
         final goal = activity.metadata['targetGoal'] as int;
         return 'started a new habit: "${activity.habitTitle}" (${goal}x ${frequency})';
+      case ActivityType.habitShare:
+        return 'took up "${activity.habitTitle}" with friends';
       default:
-        return 'did something';
+        return 'was active today!';
     }
   }
 
