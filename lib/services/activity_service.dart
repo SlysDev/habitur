@@ -192,7 +192,7 @@ class ActivityService with ListenableServiceMixin {
         }
         break;
       case ActivityType.habitShare:
-      // TODO: Add a custom privacy setting for shared habits in the future
+        // TODO: Add a custom privacy setting for shared habits in the future
         if (!user.privacySettings!.shareNewHabits) {
           _logger.info(
               'Not creating habit share activity due to privacy settings');

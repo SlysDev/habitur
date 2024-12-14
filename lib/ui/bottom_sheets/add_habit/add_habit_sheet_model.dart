@@ -33,7 +33,7 @@ class AddHabitSheetModel extends BaseViewModel {
     }
   }
 
-  final Set<String> _selectedDays = {
+  final List<String> _selectedDays = [
     'Monday',
     'Tuesday',
     'Wednesday',
@@ -41,8 +41,8 @@ class AddHabitSheetModel extends BaseViewModel {
     'Friday',
     'Saturday',
     'Sunday'
-  };
-  Set<String> get selectedDays => _selectedDays;
+  ];
+  List<String> get selectedDays => _selectedDays;
 
   int _targetGoal = 1;
   int get targetGoal => _targetGoal;
@@ -55,7 +55,12 @@ class AddHabitSheetModel extends BaseViewModel {
       resetActiveDaysToDefault();
     }
     _resetPeriod = period;
-    rebuildUi();
+    notifyListeners();
+  }
+
+  void setTargetGoal(int goal) {
+    _targetGoal = goal;
+    notifyListeners();
   }
 
   void resetActiveDaysToDefault() {

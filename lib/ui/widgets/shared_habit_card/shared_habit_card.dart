@@ -75,10 +75,10 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          color.withOpacity(
-                              0.5 - (viewModel.hasCurrentUserCompleted ? 0.3 : 0)),
-                          color.withOpacity(
-                              0.2 - (viewModel.hasCurrentUserCompleted ? 0.1 : 0)),
+                          color.withOpacity(0.5 -
+                              (viewModel.hasCurrentUserCompleted ? 0.3 : 0)),
+                          color.withOpacity(0.2 -
+                              (viewModel.hasCurrentUserCompleted ? 0.1 : 0)),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -114,7 +114,8 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
                                   height: 10,
                                 ),
                                 UserAvatarList(
-                                  usernames: viewModel.sharedHabit.participantData
+                                  usernames: viewModel
+                                      .sharedHabit.participantData
                                       .map((e) => e.username)
                                       .toList(),
                                 ),
@@ -161,15 +162,15 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
                       ],
                     ),
                   ),
-          Positioned(
-            top: 15,
-            left: 15,
-            child: Icon(
-              Icons.group,
-              color: Colors.white.withOpacity(0.8),
-              size: 24,
-            ),
-          ),
+                  Positioned(
+                    top: 15,
+                    left: 15,
+                    child: Icon(
+                      Icons.group,
+                      color: Colors.white.withOpacity(0.8),
+                      size: 24,
+                    ),
+                  ),
                 ],
               ),
             ),

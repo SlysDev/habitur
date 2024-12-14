@@ -14,8 +14,8 @@ class EditHabitViewModel extends BaseViewModel {
   final TextEditingController titleController = TextEditingController();
   String resetPeriod = 'Daily';
   int targetGoal = 1;
-  bool smartNotifsEnabled = true;
-  final Set<String> selectedDays = {
+  bool smartNotificationsEnabled = true;
+  final List<String> selectedDays = [
     'Monday',
     'Tuesday',
     'Wednesday',
@@ -23,7 +23,7 @@ class EditHabitViewModel extends BaseViewModel {
     'Friday',
     'Saturday',
     'Sunday'
-  };
+  ];
 
   String get resetPeriodNoun {
     switch (resetPeriod) {
@@ -48,10 +48,12 @@ class EditHabitViewModel extends BaseViewModel {
       try {
         final habit = await _habitService.getHabit(habitId);
         if (habit != null) {
+          selectedDays.clear();
+          selectedDays.addAll(habit.requiredDatesOfCompletion);
           titleController.text = habit.title;
           resetPeriod = habit.resetPeriod;
           targetGoal = habit.targetGoal;
-          smartNotifsEnabled = habit.smartNotifsEnabled;
+          smartNotificationsEnabled = habit.smartNotifsEnabled;
         }
       } catch (e) {
         setError(e);
@@ -70,12 +72,12 @@ class EditHabitViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  void setSmartNotifs(bool enabled) {
-    smartNotifsEnabled = enabled;
+  void setSmartNotifications(bool enabled) {
+    smartNotificationsEnabled = enabled;
     notifyListeners();
   }
 
-  void toggleDaySelection(String day) {
+  void toggleDay(String day) {
     if (selectedDays.contains(day)) {
       selectedDays.remove(day);
     } else {
@@ -86,7 +88,7 @@ class EditHabitViewModel extends BaseViewModel {
 
   void resetActiveDaysToDefault() {
     selectedDays.clear();
-    selectedDays.addAll({
+    selectedDays.addAll([
       'Monday',
       'Tuesday',
       'Wednesday',
@@ -94,7 +96,7 @@ class EditHabitViewModel extends BaseViewModel {
       'Friday',
       'Saturday',
       'Sunday'
-    });
+    ]);
     notifyListeners();
   }
 
@@ -113,7 +115,8 @@ class EditHabitViewModel extends BaseViewModel {
         lastSeen: DateTime.now(),
         resetPeriod: resetPeriod,
         targetGoal: targetGoal,
-        smartNotifsEnabled: smartNotifsEnabled,
+        smartNotifsEnabled: smartNotificationsEnabled,
+        requiredDatesOfCompletion: selectedDays,
       );
 
       if (habitId.isEmpty) {
