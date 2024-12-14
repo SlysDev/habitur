@@ -20,7 +20,7 @@ class HabitAdapter extends TypeAdapter<Habit> {
       title: fields[0] as String,
       dateCreated: fields[8] as DateTime,
       resetPeriod: fields[7] as String,
-      id: fields[11] as int,
+      id: fields[11] == null ? 0 : fields[11] as int,
       lastSeen: fields[10] as DateTime,
       description: fields[17] == null ? '' : fields[17] as String,
       streak: fields[2] as int,

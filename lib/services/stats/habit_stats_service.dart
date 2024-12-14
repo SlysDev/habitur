@@ -35,6 +35,7 @@ class HabitStatsService {
       habit.streak = math.max(0, habit.streak + 1);
       habit.highestStreak = math.max(habit.streak, habit.highestStreak);
       habit.daysCompleted.add(simplifyDateIntoDays(DateTime.now()));
+      habit.totalProgress = math.max(0, habit.totalProgress + amount);
 
       if (habit.streak % 5 == 0 && habit.streak != 0) {
         await _activityService.createActivityForEvent(

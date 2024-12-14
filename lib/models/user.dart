@@ -14,7 +14,7 @@ class UserModel extends HiveObject {
   @HiveField(0)
   String username;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: '')
   String bio;
 
   @HiveField(2)
@@ -23,25 +23,25 @@ class UserModel extends HiveObject {
   @HiveField(3)
   String uid;
 
-  @HiveField(4)
+  @HiveField(4, defaultValue: 1)
   int userLevel;
 
-  @HiveField(5)
+  @HiveField(5, defaultValue: 0)
   int userXP;
 
-  @HiveField(6)
+  @HiveField(6, defaultValue: false)
   bool isAdmin;
 
-  @HiveField(7)
+  @HiveField(7, defaultValue: [])
   List<StatPoint> stats;
 
-  @HiveField(8)
+  @HiveField(8, defaultValue: [])
   List<String> friends;
 
-  @HiveField(9)
+  @HiveField(9, defaultValue: [])
   List<FriendRequest> receivedFriendRequests;
 
-  @HiveField(10)
+  @HiveField(10, defaultValue: [])
   List<FriendRequest> sentFriendRequests;
 
   @HiveField(11)
@@ -53,7 +53,7 @@ class UserModel extends HiveObject {
   @HiveField(13)
   PrivacySettings privacySettings;
 
-  @HiveField(14)
+  @HiveField(14, defaultValue: false)
   bool isBlocked;
 
   @HiveField(15)
@@ -63,7 +63,7 @@ class UserModel extends HiveObject {
   String? blockReason;
 
   @HiveField(17, defaultValue: false)
-  bool hasSharedHabits = false;
+  bool hasSharedHabits;
 
   int get levelUpRequirement {
     return 100 * pow(1.5, userLevel).ceil();

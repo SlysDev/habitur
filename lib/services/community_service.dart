@@ -121,7 +121,7 @@ class CommunityService with ListenableServiceMixin {
         await _loadParticipants(challengeId.toString());
 
     return participants
-        .firstWhere((participant) => participant.user.uid == user.uid);
+        .firstWhere((participant) => participant.userId == user.uid);
   }
 
   Future<void> updateParticipantProgress(
@@ -134,7 +134,7 @@ class CommunityService with ListenableServiceMixin {
     DocumentSnapshot snapshot = await doc.get();
     List<ParticipantData> participants = await _loadParticipants(challengeId);
     participants[participants
-        .indexWhere((p) => p.user.uid == participant.user.uid)] = participant;
+        .indexWhere((p) => p.userId == participant.userId)] = participant;
     List<Map<String, dynamic>> participantsFormatted =
         participants.map((p) => p.toMap()).toList();
     doc.set({
@@ -156,7 +156,8 @@ class CommunityService with ListenableServiceMixin {
           try {
             final userData = participantData['user'] as Map<String, dynamic>;
             return ParticipantData(
-              user: UserModel.fromMap(userData),
+              username: userData['username'],
+              userId: userData['uid'],
               habit: Habit.fromMap(participantData['habit']),
             );
           } catch (e) {

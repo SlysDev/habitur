@@ -6,6 +6,7 @@ import 'package:habitur/models/friend_request.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/habit_visibility.dart';
+import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/privacy_settings.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/time_model.dart';
@@ -79,6 +80,9 @@ class LocalStorageService with ListenableServiceMixin {
     }
     if (!Hive.isAdapterRegistered(UserModelAdapter().typeId)) {
       Hive.registerAdapter(UserModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(ParticipantDataAdapter().typeId)) {
+      Hive.registerAdapter(ParticipantDataAdapter());
     }
     try {
       if (!Hive.isBoxOpen('user')) {
@@ -208,7 +212,9 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   Future<void> _clearHiveData() async {
-    await Hive.deleteFromDisk();
+    await Hive.deleteBoxFromDisk('user');
+    await Hive.deleteBoxFromDisk('habits');
+    await Hive.deleteBoxFromDisk('settings');
     // try {
     //   if (!kIsWeb) {
     //     final directory =

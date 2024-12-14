@@ -8,7 +8,7 @@ import 'dart:ui' as _i6;
 
 import 'package:flutter/material.dart' as _i4;
 import 'package:habitur/models/friend_request.dart' as _i8;
-import 'package:habitur/models/habit.dart' as _i9;
+import 'package:habitur/models/habit_interface.dart' as _i9;
 import 'package:habitur/models/user.dart' as _i10;
 import 'package:habitur/services/friends_service.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
@@ -658,16 +658,18 @@ class MockFriendsService extends _i1.Mock implements _i7.FriendsService {
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<List<_i9.Habit>> getFriendVisibleHabits(String? friendUid) =>
+  _i5.Future<List<_i9.HabitInterface>> getFriendVisibleHabits(
+          String? friendUid) =>
       (super.noSuchMethod(
         Invocation.method(
           #getFriendVisibleHabits,
           [friendUid],
         ),
-        returnValue: _i5.Future<List<_i9.Habit>>.value(<_i9.Habit>[]),
+        returnValue:
+            _i5.Future<List<_i9.HabitInterface>>.value(<_i9.HabitInterface>[]),
         returnValueForMissingStub:
-            _i5.Future<List<_i9.Habit>>.value(<_i9.Habit>[]),
-      ) as _i5.Future<List<_i9.Habit>>);
+            _i5.Future<List<_i9.HabitInterface>>.value(<_i9.HabitInterface>[]),
+      ) as _i5.Future<List<_i9.HabitInterface>>);
 
   @override
   _i5.Future<List<_i10.UserModel>> getFriends() => (super.noSuchMethod(

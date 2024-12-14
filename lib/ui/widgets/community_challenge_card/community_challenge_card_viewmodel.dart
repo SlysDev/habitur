@@ -29,7 +29,7 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
   List<ParticipantData> get participants => challenge.participantData;
 
   bool get isJoined =>
-      participants.any((p) => p.user.uid == _authService.currentUser?.uid);
+      participants.any((p) => p.userId == _authService.currentUser?.uid);
 
   List<ParticipantData> get topParticipants {
     final sorted = List<ParticipantData>.from(participants)
@@ -56,9 +56,10 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
 
   bool get isCompletedByCurrentUser {
     final currentUserParticipant = participants.firstWhere(
-      (p) => p.user.uid == _authService.currentUser?.uid,
+      (p) => p.userId == _authService.currentUser?.uid,
       orElse: () => ParticipantData(
-        user: UserModel(uid: '', username: '', email: ''),
+        username: '',
+        userId: '',
         habit: Habit.fromSharedHabit(challenge),
       ),
     );
@@ -67,9 +68,10 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
 
   double get currentUserCompletionProgress {
     final currentUserParticipant = participants.firstWhere(
-      (p) => p.user.uid == _authService.currentUser?.uid,
+      (p) => p.userId == _authService.currentUser?.uid,
       orElse: () => ParticipantData(
-        user: UserModel(uid: '', email: '', username: ''),
+        username: '',
+        userId: '',
         habit: Habit.fromSharedHabit(challenge),
       ),
     );

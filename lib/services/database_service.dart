@@ -197,6 +197,8 @@ class DatabaseService with ListenableServiceMixin {
           .collection('habits')
           .get();
       snapshot.docs.map((doc) => habits.add(Habit.fromMap(doc.data())));
+      debugPrint(
+          'hasSharedHabits: ${userService.currentUser?.hasSharedHabits}');
       if (userService.currentUser?.hasSharedHabits == true) {
         final sharedHabits = await getSharedHabits(userId);
         habits.addAll(sharedHabits);
@@ -273,9 +275,10 @@ class DatabaseService with ListenableServiceMixin {
     try {
       final sharedHabitsRef = _firestore
           .collection('shared_habits')
-          .where('participantData', arrayContains: {'userId': userId});
+          .where('participantUids', arrayContains: userId);
 
       final snapshot = await sharedHabitsRef.get();
+      debugPrint('The number of shared habits gotten: ${snapshot.docs.length}');
       return snapshot.docs
           .map((doc) => SharedHabit.fromMap({...doc.data(), 'id': doc.id}))
           .toList();
@@ -291,7 +294,7 @@ class DatabaseService with ListenableServiceMixin {
       final doc =
           await _firestore.collection('shared_habits').doc(habitId).get();
       if (!doc.exists) return null;
-      return SharedHabit.fromMap({...doc.data()!, 'id': doc.id});
+      return SharedHabit.fromMap({...doc.data()!, 'id': int.tryParse(doc.id)});
     } catch (e, s) {
       debugPrint('Error getting shared habit: $e');
       debugPrint('$s');
@@ -314,10 +317,12 @@ class DatabaseService with ListenableServiceMixin {
 
   Future<void> updateSharedHabit(SharedHabit sharedHabit) async {
     try {
+      debugPrint('Updating shared habit in Firestore: ${sharedHabit.toMap()}');
       await _firestore
           .collection('shared_habits')
           .doc(sharedHabit.id.toString())
           .update(sharedHabit.toMap());
+      debugPrint('Shared habit updated in Firestore');
     } catch (e, s) {
       debugPrint('Error updating shared habit: $e');
       debugPrint('$s');

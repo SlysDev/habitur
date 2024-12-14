@@ -15,34 +15,34 @@ enum SharingScope {
 
 @HiveType(typeId: 5)
 class PrivacySettings {
-  @HiveField(0)
+  @HiveField(0, defaultValue: SharingScope.friends)
   final SharingScope statsScope;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: SharingScope.friends)
   final SharingScope habitsScope;
 
-  @HiveField(2)
+  @HiveField(2, defaultValue: true)
   final bool shareConfidenceLevel;
 
-  @HiveField(3)
+  @HiveField(3, defaultValue: true)
   final bool shareConsistencyFactor;
 
-  @HiveField(4)
+  @HiveField(4, defaultValue: true)
   final bool shareActivities;
 
-  @HiveField(5)
+  @HiveField(5, defaultValue: true)
   final bool shareHabitCompletions;
 
-  @HiveField(6)
+  @HiveField(6, defaultValue: true)
   final bool shareStreakMilestones;
 
-  @HiveField(7)
+  @HiveField(7, defaultValue: true)
   final bool shareNewHabits;
 
-  @HiveField(9)
+  @HiveField(9, defaultValue: true)
   final bool shareCommunityChallengeCompletions;
 
-  @HiveField(8)
+  @HiveField(8, defaultValue: true)
   final bool shareProfilePicture;
 
   const PrivacySettings({

@@ -36,7 +36,7 @@ class Habit implements HabitInterface {
   @HiveField(10)
   DateTime lastSeen;
   Color color = kPrimaryColor;
-  @HiveField(11)
+  @HiveField(11, defaultValue: 0)
   int id;
   bool isCommunityHabit;
   @HiveField(18, defaultValue: false)
@@ -145,7 +145,7 @@ class Habit implements HabitInterface {
           ? (map['dateCreated'] as Timestamp).toDate()
           : (map['dateCreated'] as DateTime?) ?? DateTime.now(),
       resetPeriod: (map['resetPeriod'] as String?)?.toLowerCase() ?? 'daily',
-      id: map['id'] as int? ?? 0,
+      id: map['id'] is String ? int.parse(map['id']) : map['id'] as int? ?? 0, // Ensure this is an int
       lastSeen: map['lastSeen'] is Timestamp
           ? (map['lastSeen'] as Timestamp).toDate()
           : (map['lastSeen'] as DateTime?) ?? DateTime.now(),

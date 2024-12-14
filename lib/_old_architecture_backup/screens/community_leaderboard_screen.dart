@@ -180,7 +180,7 @@ class CommunityChallengeOverviewScreen extends StatelessWidget {
                           itemBuilder: (context, index) {
                             ParticipantData participant = participants[index];
                             debugPrint('participant uid:');
-                            debugPrint(participant.user.uid);
+                            debugPrint(participant.userId);
                             debugPrint('current user id:');
                             debugPrint(Provider.of<UserLocalStorage>(context)
                                 .currentUser

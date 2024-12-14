@@ -1,4 +1,5 @@
 import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/enums/snackbar_type.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/app/app.locator.dart';
@@ -14,6 +15,7 @@ class HabitOverviewViewModel extends BaseViewModel {
   final _sharedHabitsService = locator<SharedHabitsService>();
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
+  final _snackbarService = locator<SnackbarService>();
 
   HabitInterface? habit;
 
@@ -67,7 +69,9 @@ class HabitOverviewViewModel extends BaseViewModel {
         );
 
         if (sharedHabit != null) {
-          // Update the habit in the local service
+          // Trying this out to see if it is necessary
+          habit = sharedHabit;
+          // Update the habit in LS and DB services to persist the changes
           await _habitService.updateHabit(sharedHabit);
 
           // Navigate to the shared habit dashboard
@@ -75,11 +79,9 @@ class HabitOverviewViewModel extends BaseViewModel {
             sharedHabit: sharedHabit,
           );
 
-          // Show success dialog
-          await _dialogService.showDialog(
-            title: 'Success',
-            description: 'Habit converted to shared habit successfully!',
-          );
+          await _snackbarService.showCustomSnackBar(
+              message: 'Converted habit successfully!',
+              variant: SnackbarType.success);
         } else {
           await _dialogService.showDialog(
             title: 'Error',

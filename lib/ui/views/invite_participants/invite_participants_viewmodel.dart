@@ -55,7 +55,7 @@ class InviteParticipantsViewModel extends BaseViewModel {
 
   bool isExistingParticipant(UserModel friend) {
     return _sharedHabit.participantData
-        .any((participant) => participant.user.uid == friend.uid);
+        .any((participant) => participant.userId == friend.uid);
   }
 
   void toggleFriendSelection(UserModel friend) {
@@ -75,7 +75,8 @@ class InviteParticipantsViewModel extends BaseViewModel {
       // Create new participant data for each selected friend
       final newParticipants = _selectedFriends
           .map((friend) => ParticipantData(
-                user: friend,
+                username: friend.username,
+                userId: friend.uid,
                 habit: Habit.fromSharedHabit(_sharedHabit),
               ))
           .toList();

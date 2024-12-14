@@ -4,7 +4,9 @@ import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
 import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/habit_interface.dart';
+import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/services/activity_service.dart';
@@ -54,10 +56,10 @@ class HabitCardModel extends BaseViewModel {
 
   Future<void> incrementHabit() async {
     if (habit.isCompleted) return;
-
     try {
       setBusy(true);
       final difficulty = await showDifficultyPopup();
+      debugPrint('Incrementing habit with difficulty: $difficulty');
       await _habitService.incrementHabit(habit.id.toString(), difficulty);
       debugPrint('Habit ${habit.id} completed. Adding activity...');
       await _activityService.createActivityForEvent(
@@ -69,18 +71,15 @@ class HabitCardModel extends BaseViewModel {
       _completed = habit.isCompleted;
 
       HabitInterface? updatedHabit;
-      if (habit.isShared) {
-        updatedHabit = await _sharedHabitsService.getSharedHabitById(habit.id);
-      } else {
-        updatedHabit = await _habitService.getHabit(habit.id.toString());
-      }
+      updatedHabit = await _habitService.getHabit(habit.id.toString());
       if (_completed && updatedHabit!.isCompleted) {
         _controller.play();
       }
+      debugPrint('Habit incremented successfully');
       rebuildUi();
     } catch (e, s) {
       final error = Exception(e.toString());
-      debugPrint(error.toString());
+      debugPrint('Error in incrementHabit: $error');
       debugPrint(s.toString());
       setError(error);
     } finally {
@@ -89,7 +88,7 @@ class HabitCardModel extends BaseViewModel {
     }
   }
 
-  Future<void> uncompleteHabit() async {
+  Future<void> decrementHabit() async {
     try {
       setBusy(true);
       await _habitService.decrementHabit(habit.id.toString());
@@ -138,35 +137,8 @@ class HabitCardModel extends BaseViewModel {
   }
 
   Future<void> navigateToHabitDashboard() async {
-    if (habit.isShared) {
-      await _navigationService.navigateToSharedHabitDashboardView(
-          sharedHabit: SharedHabit(
-        title: habit.title,
-        description: habit.description,
-        id: habit.id,
-        targetGoal: habit.targetGoal,
-        streak: habit.streak,
-        currentProgress: habit.currentProgress,
-        totalProgress: habit.totalProgress,
-        highestStreak: habit.highestStreak,
-        resetPeriod: habit.resetPeriod,
-        dateCreated: habit.dateCreated,
-        confidenceLevel: habit.confidenceLevel,
-        lastSeen: habit.lastSeen,
-        daysCompleted: habit.daysCompleted,
-        requiredDatesOfCompletion: habit.requiredDatesOfCompletion,
-        smartNotifsEnabled: habit.smartNotifsEnabled,
-        participantData: [],
-      ));
-    } else {
-      await _navigationService.navigateToHabitOverviewView(
-          habitId: habit.id.toString());
-    }
-  }
-
-  Future<void> navigateToSharedHabitDashboard() async {
-    await _navigationService.navigateToSharedHabitDashboardView(
-        sharedHabit: SharedHabit.fromMap(habit.toMap()));
+    await _navigationService.navigateToHabitOverviewView(
+        habitId: habit.id.toString());
   }
 
   Future<void> showErrorDialog(String errorMessage) async {

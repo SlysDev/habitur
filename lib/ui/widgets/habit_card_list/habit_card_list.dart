@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/ui/widgets/habit_card/habit_card.dart';
+import 'package:habitur/ui/widgets/shared_habit_card/shared_habit_card.dart';
 import 'package:stacked/stacked.dart';
 
 import 'habit_card_list_model.dart';
@@ -88,10 +90,15 @@ class HabitCardList extends StackedView<HabitCardListModel> {
                     key: ValueKey('habit_column_${habit.id}'),
                     children: [
                       const SizedBox(height: 20),
-                      HabitCard(
-                        key: ValueKey('habit_card_${habit.id}'),
-                        habit: habit,
-                      ),
+                      habit.isShared && habit is SharedHabit
+                          ? SharedHabitCard(
+                              key: ValueKey('habit_card_${habit.id}'),
+                              sharedHabit: habit,
+                            )
+                          : HabitCard(
+                              key: ValueKey('habit_card_${habit.id}'),
+                              habit: habit,
+                            ),
                       const SizedBox(height: 20),
                     ],
                   );

@@ -46,6 +46,8 @@ class HabitCard extends StatelessWidget {
                       DateTime.now().subtract(const Duration(days: 1));
                 },
                 onTap: () async {
+                  debugPrint(
+                      'Navigating to habit dashboard for habit ID: ${model.habit.id}');
                   await model.navigateToHabitDashboard();
                 },
                 child: Slidable(
@@ -107,7 +109,7 @@ class HabitCard extends StatelessWidget {
                                   UserAvatarList(
                                       usernames: (model.habit as SharedHabit)
                                           .participantData
-                                          .map((e) => e.user.username)
+                                          .map((e) => e.username)
                                           .toList()),
                               ],
                             ),
@@ -118,7 +120,9 @@ class HabitCard extends StatelessWidget {
                             await model.incrementHabit();
                           },
                           onLongPress: () async {
-                            await model.uncompleteHabit();
+                            debugPrint(
+                                'Long press detected on habit ID: ${model.habit.id}');
+                            await model.decrementHabit();
                           },
                           child: Stack(
                             children: [
@@ -171,30 +175,28 @@ class HabitCard extends StatelessWidget {
   }
 }
 
-
-
-                                  // if (isShared)
-                                  //   Row(
-                                  //     children: [
-                                  //       // Display avatar icons for shared habits
-                                  //       for (String username
-                                  //           in usernames.take(3))
-                                  //         Padding(
-                                  //           padding: const EdgeInsets.only(
-                                  //               right: 4.0),
-                                  //           child:
-                                  //               UserAvatar(username: username),
-                                  //         ),
-                                  //       if (usernames.length > 3)
-                                  //         const CircleAvatar(
-                                  //           radius: 12,
-                                  //           backgroundColor: kGray,
-                                  //           child: Text(
-                                  //             '...',
-                                  //             style: TextStyle(
-                                  //                 color: Colors.white,
-                                  //                 fontSize: 12),
-                                  //           ),
-                                  //         ),
-                                  //     ],
-                                  //   ),
+// if (isShared)
+//   Row(
+//     children: [
+//       // Display avatar icons for shared habits
+//       for (String username
+//           in usernames.take(3))
+//         Padding(
+//           padding: const EdgeInsets.only(
+//               right: 4.0),
+//           child:
+//               UserAvatar(username: username),
+//         ),
+//       if (usernames.length > 3)
+//         const CircleAvatar(
+//           radius: 12,
+//           backgroundColor: kGray,
+//           child: Text(
+//             '...',
+//             style: TextStyle(
+//                 color: Colors.white,
+//                 fontSize: 12),
+//           ),
+//         ),
+//     ],
+//   ),

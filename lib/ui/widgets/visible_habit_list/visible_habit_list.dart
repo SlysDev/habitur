@@ -73,7 +73,8 @@ class VisibleHabitList extends StackedView<VisibleHabitListModel> {
     );
   }
 
-  Widget _buildHabitList(VisibleHabitListModel viewModel, List<HabitInterface> habits) {
+  Widget _buildHabitList(
+      VisibleHabitListModel viewModel, List<HabitInterface> habits) {
     final visibleHabits = viewModel.getVisibleHabits(habits);
 
     if (visibleHabits.isEmpty) {

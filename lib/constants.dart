@@ -16,6 +16,8 @@ const kFadedGreen = Color.fromRGBO(98, 150, 119, 1);
 const kOrangeAccent = Color.fromRGBO(252, 161, 125, 1);
 const kLightGreenAccent = Color.fromRGBO(129, 193, 151, 1);
 const kFadedRed = Color.fromRGBO(209, 102, 102, 0.7);
+const kGradientStartColor = Color.fromRGBO(4, 73, 149, 1);
+const kGradientEndColor = Color.fromRGBO(136, 191, 252, 1);
 // Text Style
 const kSubHeadingTextStyle = TextStyle(
   fontSize: 18,

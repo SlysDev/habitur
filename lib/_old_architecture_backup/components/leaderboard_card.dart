@@ -21,14 +21,14 @@ class LeaderboardCard extends StatelessWidget {
   void _showProfileDialog(BuildContext context, ParticipantData participant) {
     debugPrint('LeaderboardCard: Opening profile dialog for user:');
     debugPrint('  - Username: ${participant.user.username}');
-    debugPrint('  - UID: ${participant.user.uid}');
+    debugPrint('  - UID: ${participant.userId}');
     debugPrint('  - User object: ${participant.user.toMap()}');
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return ProfileDialog(
-          uid: participant.user.uid,
+          uid: participant.userId,
           isFriendProfile: true,
         );
       },
@@ -38,19 +38,19 @@ class LeaderboardCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentUser = Provider.of<UserLocalStorage>(context).currentUser;
-    final isCurrentUser = participant.user.uid == currentUser.uid;
+    final isCurrentUser = participant.userId == currentUser.uid;
     final friendsManager = FriendsManager();
 
     debugPrint('LeaderboardCard: Building card for user:');
     debugPrint('  - Username: ${participant.user.username}');
-    debugPrint('  - UID: ${participant.user.uid}');
+    debugPrint('  - UID: ${participant.userId}');
     debugPrint('  - Is current user: $isCurrentUser');
 
     return StreamBuilder<List<String>>(
       stream: friendsManager.friendsStream,
       builder: (context, snapshot) {
         final isFriend =
-            snapshot.hasData && snapshot.data!.contains(participant.user.uid);
+            snapshot.hasData && snapshot.data!.contains(participant.userId);
 
         debugPrint('  - Friends stream data: ${snapshot.data}');
         debugPrint('  - Is friend: $isFriend');

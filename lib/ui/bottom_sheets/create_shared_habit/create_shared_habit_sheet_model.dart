@@ -146,14 +146,16 @@ class CreateSharedHabitSheetModel extends BaseViewModel {
 
       final participantData = _selectedParticipants
           .map((user) => ParticipantData(
-                user: user,
+                username: user.username,
+                userId: user.uid,
                 habit: sharedHabitAsHabit,
               ))
           .toList();
 
       // Add current user as a participant
       participantData.add(ParticipantData(
-        user: currentUser,
+        username: currentUser.username,
+        userId: currentUser.uid,
         habit: sharedHabitAsHabit,
       ));
 

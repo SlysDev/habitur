@@ -8,7 +8,7 @@ part of 'shared_habit.dart';
 
 class SharedHabitAdapter extends TypeAdapter<SharedHabit> {
   @override
-  final int typeId = 2;
+  final int typeId = 9;
 
   @override
   SharedHabit read(BinaryReader reader) {
@@ -18,7 +18,7 @@ class SharedHabitAdapter extends TypeAdapter<SharedHabit> {
     };
     return SharedHabit(
       title: fields[0] as String,
-      id: fields[11] as int,
+      id: fields[11] == null ? 0 : fields[11] as int,
       description: fields[17] == null ? '' : fields[17] as String?,
       targetGoal: fields[3] as int?,
       author: fields[20] as UserModel?,

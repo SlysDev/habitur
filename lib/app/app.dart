@@ -41,7 +41,6 @@ import '../ui/views/home/home_view.dart';
 import '../ui/views/statistics/statistics_view.dart';
 import '../ui/views/edit_habit/edit_habit_view.dart';
 import '../ui/views/habit_overview/habit_overview_view.dart';
-import '../ui/views/shared_habits/shared_habits_view.dart';
 import '../ui/views/shared_habit_dashboard/shared_habit_dashboard_view.dart';
 
 @StackedApp(
@@ -93,10 +92,6 @@ import '../ui/views/shared_habit_dashboard/shared_habit_dashboard_view.dart';
     ),
     CustomRoute(
       page: SettingsView,
-      transitionsBuilder: TransitionsBuilders.fadeIn,
-    ),
-    CustomRoute(
-      page: SharedHabitsView,
       transitionsBuilder: TransitionsBuilders.fadeIn,
     ),
     CustomRoute(

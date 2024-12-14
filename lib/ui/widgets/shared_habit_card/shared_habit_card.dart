@@ -1,119 +1,170 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
-import 'package:habitur/models/participant_data.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:habitur/constants.dart';
 import 'package:habitur/models/shared_habit.dart';
-import 'package:habitur/ui/common/app_colors.dart';
-import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
+import 'package:habitur/ui/widgets/rounded_progress_bar.dart';
+import 'package:habitur/ui/widgets/user_avatar_list/user_avatar_list.dart';
+import 'package:stacked/stacked.dart';
 
-class SharedHabitCard extends StatelessWidget {
-  final SharedHabit sharedHabit;
-  final VoidCallback onTap;
+import 'shared_habit_card_model.dart';
 
+class SharedHabitCard extends StackedView<SharedHabitCardModel> {
   const SharedHabitCard({
+    super.key,
     required this.sharedHabit,
-    required this.onTap,
-    Key? key,
-  }) : super(key: key);
+    this.color = kFadedBlue,
+  });
+
+  final SharedHabit sharedHabit;
+  final Color color;
 
   @override
-  Widget build(BuildContext context) {
-    final participants = sharedHabit.participantData;
-    final displayedParticipants = participants.take(3).toList();
-    final extraParticipants =
-        participants.length > 3 ? participants.length - 3 : 0;
-
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      color: kcFadedBlue,
-      elevation: 4,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                sharedHabit.title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: kcPrimaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 12),
-              Row(
+  Widget builder(
+    BuildContext context,
+    SharedHabitCardModel viewModel,
+    Widget? child,
+  ) {
+    double height = viewModel.sharedHabit.title.length > 20
+        ? 128.0 + (viewModel.sharedHabit.title.length.toDouble() * 2.15)
+        : 128;
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.fastOutSlowIn,
+      opacity: viewModel.isBusy ? 0.6 : 1,
+      child: Stack(
+        children: [
+          GestureDetector(
+            onTap: () async {
+              debugPrint(
+                  'Navigating to shared habit dashboard for habit ID: ${viewModel.sharedHabit.id}');
+              await viewModel.navigateToSharedHabitDashboard();
+            },
+            child: Slidable(
+              startActionPane: ActionPane(
+                motion: const DrawerMotion(),
                 children: [
-                  ...displayedParticipants.map((participant) => Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: UserAvatar(
-                          username: participant.user.username,
-                          size: 32,
-                        ),
-                      )),
-                  if (extraParticipants > 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: kcAccentColor.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '+$extraParticipants',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: kcAccentColor,
-                              fontWeight: FontWeight.w500,
+                  SlidableAction(
+                    autoClose: true,
+                    onPressed: (context) async {
+                      await viewModel.deleteSharedHabit();
+                    },
+                    backgroundColor: kLightRedAccent,
+                    icon: Icons.delete,
+                    borderRadius: BorderRadius.circular(20),
+                    label: 'Delete',
+                  ),
+                  SlidableAction(
+                    onPressed: (context) async {
+                      await viewModel.editSharedHabit();
+                    },
+                    backgroundColor: kDarkPrimaryColor,
+                    icon: Icons.edit,
+                    borderRadius: BorderRadius.circular(20),
+                    label: 'Edit',
+                  ),
+                ],
+              ),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.ease,
+                height: height,
+                decoration: BoxDecoration(
+                  color: !viewModel.hasCurrentUserCompleted
+                      ? color.withOpacity(0.5)
+                      : color.withOpacity(0.25),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 25, vertical: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              viewModel.isBusy
+                                  ? '...'
+                                  : viewModel.sharedHabit.title,
+                              style: kHeadingTextStyle.copyWith(
+                                  color: Colors.white),
+                              textAlign: TextAlign.center,
                             ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            UserAvatarList(
+                              usernames: viewModel.sharedHabit.participantData
+                                  .map((e) => e.username)
+                                  .toList(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                ],
+                    GestureDetector(
+                      onTap: () async {
+                        debugPrint(
+                            'Incrementing shared habit ID: ${viewModel.sharedHabit.id}');
+                        await viewModel.incrementSharedHabit();
+                      },
+                      onLongPress: () async {
+                        debugPrint(
+                            'Long press detected on shared habit ID: ${viewModel.sharedHabit.id}');
+                        await viewModel.decrementSharedHabit();
+                      },
+                      child: Stack(
+                        children: [
+                          RoundedProgressBar(
+                            progress: viewModel.userProgressPercentage,
+                            color: viewModel.hasCurrentUserCompleted
+                                ? kLightGreenAccent
+                                : kFadedGreen.withOpacity(0.5),
+                            width: 100,
+                            lineHeight: height,
+                            radius: 17.5,
+                          ),
+                          Positioned.fill(
+                            child: Icon(
+                              viewModel.hasCurrentUserCompleted
+                                  ? Icons.check_circle_rounded
+                                  : Icons.check_rounded,
+                              color: viewModel.hasCurrentUserCompleted
+                                  ? Colors.white
+                                  : kLightGreenAccent,
+                              size: 40,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.local_fire_department,
-                    color: kcAccentColor,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Group Streak: ${_calculateGroupStreak()} days',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: kcLightPrimary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
-        ),
+          Container(
+            height: 128,
+            child: Align(
+              alignment: Alignment.center,
+              child: ConfettiWidget(
+                emissionFrequency: 0,
+                minBlastForce: 10,
+                numberOfParticles: 10,
+                blastDirectionality: BlastDirectionality.explosive,
+                confettiController: viewModel.controller,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  int _calculateGroupStreak() {
-    // Calculate the minimum streak among all active participants
-    if (sharedHabit.participantData.isEmpty) return 0;
-
-    return sharedHabit.participantData
-        .map((participant) => _getParticipantStreak(participant))
-        .reduce((min, current) => current < min ? current : min);
-  }
-
-  int _getParticipantStreak(ParticipantData participant) {
-    final now = DateTime.now();
-    final daysSinceLastSeen = now.difference(participant.habit.lastSeen).inDays;
-
-    // If participant hasn't been seen in more than a day, their streak is 0
-    if (daysSinceLastSeen > 1) return 0;
-
-    // Return their completion count as their streak
-    return participant.habit.totalProgress;
-  }
+  @override
+  SharedHabitCardModel viewModelBuilder(BuildContext context) =>
+      SharedHabitCardModel(sharedHabit: sharedHabit);
 }

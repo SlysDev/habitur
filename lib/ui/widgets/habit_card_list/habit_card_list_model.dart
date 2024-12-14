@@ -25,7 +25,7 @@ class HabitCardListModel extends StreamViewModel {
     final habit = habits[index];
     debugPrint(
         'Getting habit at index $index: ${habit.title} (ID: ${habit.id})');
-        debugPrint('The habit is of type ${habit.runtimeType}');
+    debugPrint('The habit is of type ${habit.runtimeType}');
     return habit;
   }
 

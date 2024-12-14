@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/ui/views/social_feed/social_feed.dart';
+import 'package:habitur/ui/widgets/aside_button.dart';
 import 'package:habitur/ui/widgets/habit_card_list/habit_card_list.dart';
 import 'package:habitur/ui/widgets/home_greeting_header/home_greeting_header.dart';
 import 'package:habitur/ui/widgets/modern_card.dart';

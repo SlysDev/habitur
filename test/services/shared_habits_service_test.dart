@@ -123,7 +123,7 @@ void main() {
       final captured = verify(mockDatabaseService.createSharedHabit(captureAny))
           .captured
           .first as SharedHabit;
-      expect(captured.participantData.any((p) => p.user.uid == testUser.uid),
+      expect(captured.participantData.any((p) => p.userId == testUser.uid),
           isTrue);
     });
 
@@ -173,8 +173,8 @@ void main() {
       final captured = verify(mockDatabaseService.updateSharedHabit(captureAny))
           .captured
           .first as SharedHabit;
-      final participant = captured.participantData
-          .firstWhere((p) => p.user.uid == testUser.uid);
+      final participant =
+          captured.participantData.firstWhere((p) => p.userId == testUser.uid);
       expect(participant.currentCompletions, equals(2));
       expect(participant.fullCompletionCount, equals(1));
     });

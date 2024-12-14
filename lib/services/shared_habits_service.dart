@@ -6,6 +6,7 @@ import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:habitur/services/habit_service.dart';
+import 'package:habitur/services/stats/habit_stats_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 
@@ -13,6 +14,7 @@ class SharedHabitsService with ListenableServiceMixin {
   final _databaseService = locator<DatabaseService>();
   final _userService = locator<UserService>();
   final _habitService = locator<HabitService>();
+  final _habitStatsService = locator<HabitStatsService>();
 
   List<SharedHabit> _sharedHabits = [];
   List<SharedHabit> get sharedHabits => _sharedHabits;
@@ -45,12 +47,13 @@ class SharedHabitsService with ListenableServiceMixin {
       final currentUser = _userService.currentUser;
       if (currentUser != null) {
         final isParticipant = sharedHabit.participantData
-            .any((participant) => participant.user.uid == currentUser.uid);
+            .any((participant) => participant.userId == currentUser.uid);
 
         if (!isParticipant) {
           sharedHabit.participantData.add(
             ParticipantData(
-              user: currentUser,
+              username: currentUser.username,
+              userId: currentUser.uid,
               habit: Habit.fromSharedHabit(sharedHabit),
             ),
           );
@@ -77,16 +80,20 @@ class SharedHabitsService with ListenableServiceMixin {
 
   Future<void> updateSharedHabit(SharedHabit sharedHabit) async {
     try {
+      debugPrint('Updating shared habit in database: ${sharedHabit.toMap()}');
       // Update in database
       await _databaseService.updateSharedHabit(sharedHabit);
 
       // Update local list
+      await _habitService.updateHabit(sharedHabit);
       final index = _sharedHabits.indexWhere((h) => h.id == sharedHabit.id);
       if (index != -1) {
         _sharedHabits[index] = sharedHabit;
         notifyListeners();
+        debugPrint('Shared habit updated in local list');
       }
     } catch (e) {
+      debugPrint('Error updating shared habit: $e');
       print('Error updating shared habit: $e');
       rethrow;
     }
@@ -106,26 +113,86 @@ class SharedHabitsService with ListenableServiceMixin {
     }
   }
 
+  Future<void> incrementHabit(String habitId, double difficultyRating,
+      {int amount = 1}) async {
+    try {
+      debugPrint('Incrementing shared habit with ID: $habitId');
+      final sharedHabit = await getSharedHabitById(int.parse(habitId));
+      if (sharedHabit == null) return;
+
+      final currentUser = _userService.currentUser;
+      if (currentUser == null) return;
+
+      final participantIndex = sharedHabit.participantData
+          .indexWhere((p) => p.userId == currentUser.uid);
+      if (participantIndex == -1) return;
+
+      final participantHabitData =
+          sharedHabit.participantData[participantIndex].habit;
+
+      _habitStatsService.processHabitIncrement(participantHabitData,
+          amount: amount, difficultyRating: difficultyRating);
+      debugPrint('Habit incremented in stats service');
+
+      // Update participant data
+      await updateParticipantProgress(
+          sharedHabit, currentUser.uid, participantHabitData);
+      debugPrint('Participant progress updated');
+
+      // Save changes
+      await updateSharedHabit(sharedHabit);
+      debugPrint('Shared habit updated in database');
+    } catch (e) {
+      debugPrint('Error incrementing habit: $e');
+      print('Error incrementing habit: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> decrementHabit(String habitId, {int amount = 1}) async {
+    try {
+      final sharedHabit = await getSharedHabitById(int.parse(habitId));
+      if (sharedHabit == null) return;
+
+      final currentUser = _userService.currentUser;
+      if (currentUser == null) return;
+
+      final participantIndex = sharedHabit.participantData
+          .indexWhere((p) => p.userId == currentUser.uid);
+      if (participantIndex == -1) return;
+
+      final participantHabitData =
+          sharedHabit.participantData[participantIndex].habit;
+
+      // Use HabitStatsService to handle the decrement
+      _habitStatsService.processHabitDecrement(participantHabitData,
+          amount: amount);
+
+      // Update participant data
+      await updateParticipantProgress(
+          sharedHabit, currentUser.uid, participantHabitData);
+
+      // Save changes
+      await updateSharedHabit(sharedHabit);
+    } catch (e) {
+      print('Error decrementing shared habit: $e');
+      rethrow;
+    }
+  }
+
   Future<void> updateParticipantProgress(
     SharedHabit sharedHabit,
     String userId,
-    int completions,
+    Habit participantHabitData,
   ) async {
     try {
       final participantIndex =
-          sharedHabit.participantData.indexWhere((p) => p.user.uid == userId);
+          sharedHabit.participantData.indexWhere((p) => p.userId == userId);
 
       if (participantIndex != -1) {
         // Update participant data
-        sharedHabit.participantData[participantIndex].habit.currentProgress =
-            completions;
-        // updating last seen
-        sharedHabit.participantData[participantIndex].habit.lastSeen =
-            DateTime.now();
-
-        if (completions >= sharedHabit.targetGoal) {
-          sharedHabit.participantData[participantIndex].habit.totalProgress++;
-        }
+        sharedHabit.participantData[participantIndex].habit =
+            participantHabitData;
 
         // Save changes
         await updateSharedHabit(sharedHabit);
@@ -178,15 +245,19 @@ class SharedHabitsService with ListenableServiceMixin {
 
       // Create participant data for all selected participants
       final participantData = participants
-          .map((user) => ParticipantData(user: user, habit: habit))
+          .map((user) => ParticipantData(
+              username: user.username, userId: user.uid, habit: habit))
           .toList();
 
       // Add current user as a participant if not already included
       final isCurrentUserIncluded = participantData
-          .any((participant) => participant.user.uid == currentUser.uid);
+          .any((participant) => participant.userId == currentUser.uid);
       if (!isCurrentUserIncluded) {
         participantData.add(
-          ParticipantData(user: currentUser, habit: habit),
+          ParticipantData(
+              username: currentUser.username,
+              userId: currentUser.uid,
+              habit: habit),
         );
       }
 
@@ -196,7 +267,7 @@ class SharedHabitsService with ListenableServiceMixin {
         description: habit.description,
         participantData: participantData,
         author: currentUser,
-        id: DateTime.now().millisecondsSinceEpoch,
+        id: habit.id,
         targetGoal: habit.targetGoal,
         streak: habit.streak,
         currentProgress: habit.currentProgress,
@@ -217,6 +288,8 @@ class SharedHabitsService with ListenableServiceMixin {
 
       // Optionally, you might want to mark the original habit as a community habit
       habit.isShared = true;
+
+      habit = sharedHabit;
 
       // Set hasSharedHabits to true
       if (currentUser.hasSharedHabits == false) {

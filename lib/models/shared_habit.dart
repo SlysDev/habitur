@@ -7,7 +7,7 @@ import 'package:habitur/models/habit_interface.dart';
 
 part 'shared_habit.g.dart';
 
-@HiveType(typeId: 2)
+@HiveType(typeId: 9)
 class SharedHabit extends Habit implements HabitInterface {
   @HiveField(19)
   List<ParticipantData> participantData = [];
@@ -84,6 +84,7 @@ class SharedHabit extends Habit implements HabitInterface {
     final habitMap = super.toMap();
     habitMap.addAll({
       'participantData': participantData.map((e) => e.toMap()).toList(),
+      'participantUids': participantData.map((e) => e.userId).toList(),
       'author': author?.toMap(),
     });
     return habitMap;
@@ -103,16 +104,18 @@ class SharedHabit extends Habit implements HabitInterface {
       0, (sum, participant) => sum + participant.habit.totalProgress);
 
   // Method to add a new participant
-  void addParticipant(UserModel user) {
-    if (!participantData.any((p) => p.user.uid == user.uid)) {
-      participantData
-          .add(ParticipantData(user: user, habit: Habit.fromSharedHabit(this)));
+  void addParticipant(UserModel participant) {
+    if (!participantData.any((p) => p.userId == participant.uid)) {
+      participantData.add(ParticipantData(
+          username: participant.username,
+          userId: participant.uid,
+          habit: Habit.fromSharedHabit(this)));
     }
   }
 
   // Method to remove a participant
-  void removeParticipant(UserModel user) {
-    participantData.removeWhere((p) => p.user.uid == user.uid);
+  void removeParticipant(String userId) {
+    participantData.removeWhere((p) => p.userId == userId);
   }
 
   @override
@@ -154,5 +157,9 @@ class SharedHabit extends Habit implements HabitInterface {
         '--- daysCompleted: $daysCompleted,\n'
         '--- stats: $statsBuffer\n'
         '}';
+  }
+
+  Habit getParticipantHabitById(String userId) {
+    return participantData.firstWhere((p) => p.userId == userId).habit;
   }
 }

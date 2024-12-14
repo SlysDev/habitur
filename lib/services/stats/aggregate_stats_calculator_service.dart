@@ -7,7 +7,8 @@ import 'package:habitur/services/stats/stats_calculation_service.dart';
 class AggregateStatsCalculatorService {
   final _statsCalculationService = locator<StatsCalculationService>();
 
-  double calculateSingleDayStatSum(String statisticName, List<HabitInterface> habits) {
+  double calculateSingleDayStatSum(
+      String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
     for (HabitInterface habit in habits) {
@@ -20,7 +21,8 @@ class AggregateStatsCalculatorService {
     return sum;
   }
 
-  double calculateStatAverage(String statisticName, List<HabitInterface> habits) {
+  double calculateStatAverage(
+      String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
     for (HabitInterface habit in habits) {
@@ -34,7 +36,8 @@ class AggregateStatsCalculatorService {
     return sum / habits.length;
   }
 
-  double calculateOverallSlope(String statisticName, List<HabitInterface> habits) {
+  double calculateOverallSlope(
+      String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
     for (HabitInterface habit in habits) {

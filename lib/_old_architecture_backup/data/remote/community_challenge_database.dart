@@ -70,7 +70,7 @@ class CommunityChallengeDatabase {
             .toList();
         loadedChallenge.loadParticipants(participantList);
         for (ParticipantData participant in loadedChallenge.participants) {
-          if (participant.user.uid == _auth.currentUser!.uid.toString()) {
+          if (participant.userId == _auth.currentUser!.uid.toString()) {
             loadedChallenge.habit.currentProgress =
                 participant.currentCompletions;
             break;

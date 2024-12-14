@@ -73,6 +73,13 @@ class LoginViewModel extends BaseViewModel {
     }
   }
 
+  Future<void> loginOffline() async {
+    setBusy(true);
+    await Future.delayed(Duration(seconds: 1)); // Simulate some delay
+    setBusy(false);
+    await _navigationService.replaceWith(Routes.homeView);
+  }
+
   void navigateToRegister() {
     _navigationService.navigateTo(Routes.registerView);
   }
