@@ -31,9 +31,7 @@ class HabitCard extends StatelessWidget {
       ),
       onViewModelReady: (model) => model.initialize(),
       builder: (context, model, child) {
-        double height = model.habit.title.length > 20
-            ? 128.0 + (model.habit.title.length.toDouble() * 2.15)
-            : 128;
+        double height = 128.0 + (model.habit.title.length.toDouble() * 2.15);
         return AnimatedOpacity(
           duration: const Duration(milliseconds: 400),
           curve: Curves.fastOutSlowIn,

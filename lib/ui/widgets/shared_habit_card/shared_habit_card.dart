@@ -26,9 +26,7 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
     SharedHabitCardModel viewModel,
     Widget? child,
   ) {
-    double height = viewModel.sharedHabit.title.length > 20
-        ? 128.0 + (viewModel.sharedHabit.title.length.toDouble() * 2.15)
-        : 128;
+    double height = 128.0 + (viewModel.sharedHabit.title.length.toDouble() * 2.15);
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 400),
       curve: Curves.fastOutSlowIn,
