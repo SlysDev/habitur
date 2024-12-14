@@ -126,8 +126,8 @@ class SharedHabitCardModel extends BaseViewModel {
   }
 
   Future<void> editSharedHabit() async {
-    await _navigationService.navigateTo(Routes.editHabitView,
-        arguments: EditHabitViewArguments(habitId: sharedHabit.id.toString()));
+    await _navigationService.navigateToEditSharedHabitView(
+        habitId: sharedHabit.id.toString());
     rebuildUi();
   }
 

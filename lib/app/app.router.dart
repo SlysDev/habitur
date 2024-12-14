@@ -5,13 +5,15 @@
 // **************************************************************************
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:flutter/material.dart' as _i16;
+import 'package:flutter/material.dart' as _i17;
 import 'package:flutter/material.dart';
-import 'package:habitur/models/shared_habit.dart' as _i17;
+import 'package:habitur/models/shared_habit.dart' as _i18;
 import 'package:habitur/ui/views/admin/admin_view.dart' as _i12;
 import 'package:habitur/ui/views/community_leaderboard/community_leaderboard_view.dart'
     as _i11;
 import 'package:habitur/ui/views/edit_habit/edit_habit_view.dart' as _i9;
+import 'package:habitur/ui/views/edit_shared_habit/edit_shared_habit_view.dart'
+    as _i16;
 import 'package:habitur/ui/views/habit_overview/habit_overview_view.dart'
     as _i10;
 import 'package:habitur/ui/views/habits/habits_view.dart' as _i7;
@@ -27,7 +29,7 @@ import 'package:habitur/ui/views/startup/startup_view.dart' as _i2;
 import 'package:habitur/ui/views/statistics/statistics_view.dart' as _i8;
 import 'package:habitur/ui/views/welcome/welcome_view.dart' as _i3;
 import 'package:stacked/stacked.dart' as _i1;
-import 'package:stacked_services/stacked_services.dart' as _i18;
+import 'package:stacked_services/stacked_services.dart' as _i19;
 
 class Routes {
   static const startupView = '/';
@@ -58,6 +60,8 @@ class Routes {
 
   static const inviteParticipantsView = '/invite-participants-view';
 
+  static const editSharedHabitView = '/edit-shared-habit-view';
+
   static const all = <String>{
     startupView,
     welcomeView,
@@ -73,6 +77,7 @@ class Routes {
     settingsView,
     sharedHabitDashboardView,
     inviteParticipantsView,
+    editSharedHabitView,
   };
 }
 
@@ -134,11 +139,15 @@ class StackedRouter extends _i1.RouterBase {
       Routes.inviteParticipantsView,
       page: _i15.InviteParticipantsView,
     ),
+    _i1.RouteDef(
+      Routes.editSharedHabitView,
+      page: _i16.EditSharedHabitView,
+    ),
   ];
 
   final _pagesMap = <Type, _i1.StackedRouteFactory>{
     _i2.StartupView: (data) {
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const _i2.StartupView(),
         settings: data,
@@ -146,7 +155,7 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i3.WelcomeView: (data) {
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const _i3.WelcomeView(),
         settings: data,
@@ -154,7 +163,7 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i4.LoginView: (data) {
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const _i4.LoginView(),
         settings: data,
@@ -162,7 +171,7 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i5.RegisterView: (data) {
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const _i5.RegisterView(),
         settings: data,
@@ -170,7 +179,7 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i6.HomeView: (data) {
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const _i6.HomeView(),
         settings: data,
@@ -178,7 +187,7 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i7.HabitsView: (data) {
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const _i7.HabitsView(),
         settings: data,
@@ -186,7 +195,7 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i8.StatisticsView: (data) {
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const _i8.StatisticsView(),
         settings: data,
@@ -197,7 +206,7 @@ class StackedRouter extends _i1.RouterBase {
       final args = data.getArgs<EditHabitViewArguments>(
         orElse: () => const EditHabitViewArguments(),
       );
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             _i9.EditHabitView(key: args.key, habitId: args.habitId),
         settings: data,
@@ -206,7 +215,7 @@ class StackedRouter extends _i1.RouterBase {
     },
     _i10.HabitOverviewView: (data) {
       final args = data.getArgs<HabitOverviewViewArguments>(nullOk: false);
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             _i10.HabitOverviewView(habitId: args.habitId, key: args.key),
         settings: data,
@@ -217,7 +226,7 @@ class StackedRouter extends _i1.RouterBase {
       final args = data.getArgs<CommunityLeaderboardViewArguments>(
         orElse: () => const CommunityLeaderboardViewArguments(),
       );
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             _i11.CommunityLeaderboardView(
                 key: args.key, challengeId: args.challengeId),
@@ -226,7 +235,7 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i12.AdminView: (data) {
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const _i12.AdminView(),
         settings: data,
@@ -234,7 +243,7 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i13.SettingsView: (data) {
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const _i13.SettingsView(),
         settings: data,
@@ -244,7 +253,7 @@ class StackedRouter extends _i1.RouterBase {
     _i14.SharedHabitDashboardView: (data) {
       final args =
           data.getArgs<SharedHabitDashboardViewArguments>(nullOk: false);
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             _i14.SharedHabitDashboardView(
                 key: args.key, sharedHabit: args.sharedHabit),
@@ -254,10 +263,21 @@ class StackedRouter extends _i1.RouterBase {
     },
     _i15.InviteParticipantsView: (data) {
       final args = data.getArgs<InviteParticipantsViewArguments>(nullOk: false);
-      return _i16.PageRouteBuilder<dynamic>(
+      return _i17.PageRouteBuilder<dynamic>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             _i15.InviteParticipantsView(
                 key: args.key, sharedHabit: args.sharedHabit),
+        settings: data,
+        transitionsBuilder: data.transition ?? _i1.TransitionsBuilders.fadeIn,
+      );
+    },
+    _i16.EditSharedHabitView: (data) {
+      final args = data.getArgs<EditSharedHabitViewArguments>(
+        orElse: () => const EditSharedHabitViewArguments(),
+      );
+      return _i17.PageRouteBuilder<dynamic>(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            _i16.EditSharedHabitView(key: args.key, habitId: args.habitId),
         settings: data,
         transitionsBuilder: data.transition ?? _i1.TransitionsBuilders.fadeIn,
       );
@@ -277,7 +297,7 @@ class EditHabitViewArguments {
     this.habitId,
   });
 
-  final _i16.Key? key;
+  final _i17.Key? key;
 
   final String? habitId;
 
@@ -306,7 +326,7 @@ class HabitOverviewViewArguments {
 
   final String habitId;
 
-  final _i16.Key? key;
+  final _i17.Key? key;
 
   @override
   String toString() {
@@ -331,7 +351,7 @@ class CommunityLeaderboardViewArguments {
     this.challengeId,
   });
 
-  final _i16.Key? key;
+  final _i17.Key? key;
 
   final String? challengeId;
 
@@ -358,9 +378,9 @@ class SharedHabitDashboardViewArguments {
     required this.sharedHabit,
   });
 
-  final _i16.Key? key;
+  final _i17.Key? key;
 
-  final _i17.SharedHabit sharedHabit;
+  final _i18.SharedHabit sharedHabit;
 
   @override
   String toString() {
@@ -385,9 +405,9 @@ class InviteParticipantsViewArguments {
     required this.sharedHabit,
   });
 
-  final _i16.Key? key;
+  final _i17.Key? key;
 
-  final _i17.SharedHabit sharedHabit;
+  final _i18.SharedHabit sharedHabit;
 
   @override
   String toString() {
@@ -406,7 +426,34 @@ class InviteParticipantsViewArguments {
   }
 }
 
-extension NavigatorStateExtension on _i18.NavigationService {
+class EditSharedHabitViewArguments {
+  const EditSharedHabitViewArguments({
+    this.key,
+    this.habitId,
+  });
+
+  final _i17.Key? key;
+
+  final String? habitId;
+
+  @override
+  String toString() {
+    return '{"key": "$key", "habitId": "$habitId"}';
+  }
+
+  @override
+  bool operator ==(covariant EditSharedHabitViewArguments other) {
+    if (identical(this, other)) return true;
+    return other.key == key && other.habitId == habitId;
+  }
+
+  @override
+  int get hashCode {
+    return key.hashCode ^ habitId.hashCode;
+  }
+}
+
+extension NavigatorStateExtension on _i19.NavigationService {
   Future<dynamic> navigateToStartupView([
     int? routerId,
     bool preventDuplicates = true,
@@ -506,7 +553,7 @@ extension NavigatorStateExtension on _i18.NavigationService {
   }
 
   Future<dynamic> navigateToEditHabitView({
-    _i16.Key? key,
+    _i17.Key? key,
     String? habitId,
     int? routerId,
     bool preventDuplicates = true,
@@ -524,7 +571,7 @@ extension NavigatorStateExtension on _i18.NavigationService {
 
   Future<dynamic> navigateToHabitOverviewView({
     required String habitId,
-    _i16.Key? key,
+    _i17.Key? key,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -540,7 +587,7 @@ extension NavigatorStateExtension on _i18.NavigationService {
   }
 
   Future<dynamic> navigateToCommunityLeaderboardView({
-    _i16.Key? key,
+    _i17.Key? key,
     String? challengeId,
     int? routerId,
     bool preventDuplicates = true,
@@ -586,8 +633,8 @@ extension NavigatorStateExtension on _i18.NavigationService {
   }
 
   Future<dynamic> navigateToSharedHabitDashboardView({
-    _i16.Key? key,
-    required _i17.SharedHabit sharedHabit,
+    _i17.Key? key,
+    required _i18.SharedHabit sharedHabit,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -604,8 +651,8 @@ extension NavigatorStateExtension on _i18.NavigationService {
   }
 
   Future<dynamic> navigateToInviteParticipantsView({
-    _i16.Key? key,
-    required _i17.SharedHabit sharedHabit,
+    _i17.Key? key,
+    required _i18.SharedHabit sharedHabit,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -615,6 +662,23 @@ extension NavigatorStateExtension on _i18.NavigationService {
     return navigateTo<dynamic>(Routes.inviteParticipantsView,
         arguments:
             InviteParticipantsViewArguments(key: key, sharedHabit: sharedHabit),
+        id: routerId,
+        preventDuplicates: preventDuplicates,
+        parameters: parameters,
+        transition: transition);
+  }
+
+  Future<dynamic> navigateToEditSharedHabitView({
+    _i17.Key? key,
+    String? habitId,
+    int? routerId,
+    bool preventDuplicates = true,
+    Map<String, String>? parameters,
+    Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
+        transition,
+  }) async {
+    return navigateTo<dynamic>(Routes.editSharedHabitView,
+        arguments: EditSharedHabitViewArguments(key: key, habitId: habitId),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
@@ -720,7 +784,7 @@ extension NavigatorStateExtension on _i18.NavigationService {
   }
 
   Future<dynamic> replaceWithEditHabitView({
-    _i16.Key? key,
+    _i17.Key? key,
     String? habitId,
     int? routerId,
     bool preventDuplicates = true,
@@ -738,7 +802,7 @@ extension NavigatorStateExtension on _i18.NavigationService {
 
   Future<dynamic> replaceWithHabitOverviewView({
     required String habitId,
-    _i16.Key? key,
+    _i17.Key? key,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -754,7 +818,7 @@ extension NavigatorStateExtension on _i18.NavigationService {
   }
 
   Future<dynamic> replaceWithCommunityLeaderboardView({
-    _i16.Key? key,
+    _i17.Key? key,
     String? challengeId,
     int? routerId,
     bool preventDuplicates = true,
@@ -800,8 +864,8 @@ extension NavigatorStateExtension on _i18.NavigationService {
   }
 
   Future<dynamic> replaceWithSharedHabitDashboardView({
-    _i16.Key? key,
-    required _i17.SharedHabit sharedHabit,
+    _i17.Key? key,
+    required _i18.SharedHabit sharedHabit,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -818,8 +882,8 @@ extension NavigatorStateExtension on _i18.NavigationService {
   }
 
   Future<dynamic> replaceWithInviteParticipantsView({
-    _i16.Key? key,
-    required _i17.SharedHabit sharedHabit,
+    _i17.Key? key,
+    required _i18.SharedHabit sharedHabit,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -829,6 +893,23 @@ extension NavigatorStateExtension on _i18.NavigationService {
     return replaceWith<dynamic>(Routes.inviteParticipantsView,
         arguments:
             InviteParticipantsViewArguments(key: key, sharedHabit: sharedHabit),
+        id: routerId,
+        preventDuplicates: preventDuplicates,
+        parameters: parameters,
+        transition: transition);
+  }
+
+  Future<dynamic> replaceWithEditSharedHabitView({
+    _i17.Key? key,
+    String? habitId,
+    int? routerId,
+    bool preventDuplicates = true,
+    Map<String, String>? parameters,
+    Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
+        transition,
+  }) async {
+    return replaceWith<dynamic>(Routes.editSharedHabitView,
+        arguments: EditSharedHabitViewArguments(key: key, habitId: habitId),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
