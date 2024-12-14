@@ -6,6 +6,7 @@ import 'package:habitur/services/stats/user_stats_service.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/status_service.dart';
 import 'package:habitur/services/sync_service.dart';
+import 'package:habitur/ui/views/edit_shared_habit/edit_shared_habit_view.dart';
 import 'package:habitur/ui/views/invite_participants/invite_participants_view.dart';
 import 'package:habitur/ui/views/startup/startup_view.dart';
 import 'package:stacked/stacked.dart';
@@ -43,6 +44,7 @@ import '../ui/views/edit_habit/edit_habit_view.dart';
 import '../ui/views/habit_overview/habit_overview_view.dart';
 import '../ui/views/shared_habit_dashboard/shared_habit_dashboard_view.dart';
 
+// @stacked-import
 @StackedApp(
   routes: [
     CustomRoute(
@@ -102,6 +104,11 @@ import '../ui/views/shared_habit_dashboard/shared_habit_dashboard_view.dart';
       page: InviteParticipantsView,
       transitionsBuilder: TransitionsBuilders.fadeIn,
     ),
+    CustomRoute(
+      page: EditSharedHabitView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
+    // @stacked-route
   ],
   dependencies: [
     LazySingleton(classType: NavigationService),
@@ -131,6 +138,7 @@ import '../ui/views/shared_habit_dashboard/shared_habit_dashboard_view.dart';
     LazySingleton(classType: AggregateStatsCalculatorService),
     LazySingleton(classType: StatsOrchestrationService),
     LazySingleton(classType: NotificationSchedulingService),
+    // @stacked-service
   ],
   logger: StackedLogger(),
 )
