@@ -47,10 +47,11 @@ class StartupViewModel extends BaseViewModel {
         // No user logged in
         await _navigationService.replaceWith(Routes.welcomeView);
       }
-    } catch (e) {
+    } catch (e, s) {
       // Handle any initialization errors
       // You might want to show an error dialog or navigate to an error screen
       print('Startup Error: $e');
+      print('Stacktrace: $s');
       await _navigationService.replaceWith(Routes.welcomeView);
     } finally {
       setBusy(false);

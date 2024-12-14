@@ -120,6 +120,24 @@ class CommunityService with ListenableServiceMixin {
     List<ParticipantData> participants =
         await _loadParticipants(challengeId.toString());
 
+    if (participants.isEmpty) {
+      debugPrint('No participants found');
+      CommunityChallenge challenge = getChallengeById(int.parse(challengeId));
+      return ParticipantData(
+        username: user.username,
+        userId: user.uid,
+        habit: Habit(
+          title: challenge.title,
+          targetGoal: challenge.targetGoal,
+          lastSeen: challenge.lastSeen,
+          isCommunityHabit: true,
+          id: challenge.id,
+          resetPeriod: challenge.resetPeriod,
+          dateCreated: DateTime.now(),
+        ),
+      );
+    }
+
     return participants
         .firstWhere((participant) => participant.userId == user.uid);
   }
@@ -129,12 +147,18 @@ class CommunityService with ListenableServiceMixin {
       required String challengeId}) async {
     debugPrint('Updating participant progress: ${participant.toString()}');
     CommunityChallenge challenge = getChallengeById(int.parse(challengeId));
-    // TODO: finish implementing this
     DocumentReference doc = await getChallengeDocById(challengeId);
     DocumentSnapshot snapshot = await doc.get();
     List<ParticipantData> participants = await _loadParticipants(challengeId);
-    participants[participants
-        .indexWhere((p) => p.userId == participant.userId)] = participant;
+
+    int participantIndex =
+        participants.indexWhere((p) => p.userId == participant.userId);
+    if (participantIndex != -1) {
+      participants[participantIndex] = participant;
+    } else {
+      participants.add(participant);
+    }
+
     List<Map<String, dynamic>> participantsFormatted =
         participants.map((p) => p.toMap()).toList();
     doc.set({
@@ -144,20 +168,25 @@ class CommunityService with ListenableServiceMixin {
   }
 
   Future<List<ParticipantData>> _loadParticipants(String challengeId) async {
-    final List participantsList = await _firestore
-        .collection('community-challenges')
-        .where('id', isEqualTo: int.parse(challengeId))
-        .get()
-        .then((snapshot) => snapshot.docs.first)
-        .then((doc) => doc.get('participantDataList'));
+    List participantsList;
+    try {
+      participantsList = await _firestore
+          .collection('community-challenges')
+          .where('id', isEqualTo: int.parse(challengeId))
+          .get()
+          .then((snapshot) => snapshot.docs.first)
+          .then((doc) => doc.get('participantDataList'));
+    } catch (e) {
+      debugPrint('Error loading participants: $e');
+      return [];
+    }
 
     final participants = participantsList
         .map((participantData) {
           try {
-            final userData = participantData['user'] as Map<String, dynamic>;
             return ParticipantData(
-              username: userData['username'],
-              userId: userData['uid'],
+              username: participantData['username'],
+              userId: participantData['userId'],
               habit: Habit.fromMap(participantData['habit']),
             );
           } catch (e) {

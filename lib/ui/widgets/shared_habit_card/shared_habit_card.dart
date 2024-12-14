@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/ui/widgets/rounded_progress_bar.dart';
+import 'package:habitur/ui/widgets/stat_change_indicator/stat_change_indicator.dart';
 import 'package:habitur/ui/widgets/user_avatar_list/user_avatar_list.dart';
 import 'package:stacked/stacked.dart';
 
@@ -13,7 +14,7 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
   const SharedHabitCard({
     super.key,
     required this.sharedHabit,
-    this.color = kFadedBlue,
+    this.color = kDarkPrimaryColor,
   });
 
   final SharedHabit sharedHabit;
@@ -70,9 +71,23 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
                 curve: Curves.ease,
                 height: height,
                 decoration: BoxDecoration(
-                  color: !viewModel.hasCurrentUserCompleted
-                      ? color.withOpacity(0.5)
-                      : color.withOpacity(0.25),
+                  gradient: LinearGradient(
+                    colors: [
+                      color.withOpacity(
+                          0.5 - (viewModel.hasCurrentUserCompleted ? 0.3 : 0)),
+                      color.withOpacity(
+                          0.2 - (viewModel.hasCurrentUserCompleted ? 0.1 : 0)),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
+                    ),
+                  ],
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -144,6 +159,15 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
                   ],
                 ),
               ),
+            ),
+          ),
+          Positioned(
+            top: 15,
+            left: 15,
+            child: Icon(
+              Icons.group,
+              color: Colors.white.withOpacity(0.8),
+              size: 24,
             ),
           ),
           Container(

@@ -54,8 +54,9 @@ class HabitsView extends StackedView<HabitsViewModel> {
   }
 
   @override
-  HabitsViewModel viewModelBuilder(BuildContext context) => HabitsViewModel();
-
-  @override
-  void onViewModelReady(HabitsViewModel viewModel) => viewModel.initialize();
+  HabitsViewModel viewModelBuilder(BuildContext context) {
+    final viewModel = HabitsViewModel();
+    viewModel.initialize();
+    return viewModel;
+  }
 }

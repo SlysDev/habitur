@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/ui/common/ui_helpers.dart';
+import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
+import 'package:habitur/ui/widgets/multi_stat_line_graph/multi_stat_line_graph.dart';
 import 'package:habitur/ui/widgets/single-stat-card.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
@@ -19,7 +22,7 @@ class SharedHabitDashboardView
 
   @override
   void onViewModelReady(SharedHabitDashboardViewModel viewModel) {
-    viewModel.init(sharedHabit.id.toString());
+    viewModel.init(sharedHabit);
   }
 
   @override
@@ -30,29 +33,28 @@ class SharedHabitDashboardView
   ) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      body: SafeArea(
-        child: viewModel.isBusy
-            ? const Center(child: CircularProgressIndicator())
-            : CustomScrollView(
-                slivers: [
-                  _buildAppBar(context, viewModel),
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildProgressSection(context, viewModel),
-                          const SizedBox(height: 24),
-                          _buildParticipantsSection(context, viewModel),
-                          const SizedBox(height: 24),
-                          _buildStatsSection(context, viewModel),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+      body: LoadingOverlay(
+        isLoading: viewModel.isBusy,
+        child: CustomScrollView(
+          slivers: [
+            _buildAppBar(context, viewModel),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProgressSection(context, viewModel),
+                    verticalSpaceMedium,
+                    _buildParticipantsSection(context, viewModel),
+                    verticalSpaceMedium,
+                    _buildStatsSection(context, viewModel),
+                  ],
+                ),
               ),
+            ),
+          ],
+        ),
       ),
       // floatingActionButton: FloatingActionButton(
       //   onPressed: viewModel.incrementProgress,
@@ -65,11 +67,13 @@ class SharedHabitDashboardView
   Widget _buildAppBar(
       BuildContext context, SharedHabitDashboardViewModel viewModel) {
     return SliverAppBar(
-      expandedHeight: 200,
+      surfaceTintColor: kDarkGray,
+      backgroundColor: kBackgroundColor,
+      expandedHeight: 300,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          viewModel.sharedHabit.title,
+          viewModel.sharedHabit?.title ?? '...',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -171,55 +175,88 @@ class SharedHabitDashboardView
               itemCount: viewModel.participants.length,
               separatorBuilder: (context, index) => const Divider(
                 height: 1,
-                color: kDarkGray,
+                color: kFadedBlue,
               ),
               itemBuilder: (context, index) {
                 final participant = viewModel.participants[index];
                 return FutureBuilder(
                     future: viewModel.getParticipantUsername(participant),
                     builder: (context, snapshot) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
+                      return Slidable(
+                        enabled: viewModel.isCurrentUserAuthor &&
+                            !(viewModel.isParticipantCurrentUser(participant)),
+                        startActionPane: ActionPane(
+                          motion: const DrawerMotion(),
                           children: [
-                            snapshot.connectionState == ConnectionState.waiting
-                                ? const CircularProgressIndicator()
-                                : UserAvatar(
-                                    username: snapshot.data ?? '...',
-                                  ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  snapshot.connectionState ==
-                                          ConnectionState.waiting
-                                      ? const CircularProgressIndicator()
-                                      : Text(
-                                          snapshot.data ?? '...',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                  Text(
-                                    '${participant.habit.currentProgress}/${viewModel.targetGoal} today',
-                                    style: const TextStyle(
-                                      color: kGray,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              '︎✅ ${participant.habit.totalProgress}',
-                              style: const TextStyle(
-                                color: kLightGreenAccent,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            SlidableAction(
+                              autoClose: true,
+                              onPressed: (context) async {
+                                await viewModel.removeParticipant(participant);
+                              },
+                              backgroundColor: kLightRedAccent,
+                              icon: Icons.person_remove,
+                              label: 'Remove',
                             ),
                           ],
+                        ),
+                        child: Opacity(
+                          opacity: participant.habit.isCompleted ? 0.80 : 1,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: participant.habit.isCompleted
+                                  ? kLightGreenAccent.withOpacity(0.3)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Row(
+                              children: [
+                                snapshot.connectionState ==
+                                        ConnectionState.waiting
+                                    ? const CustomShimmerLoading.circular(
+                                        width: 40, height: 40)
+                                    : UserAvatar(
+                                        username: snapshot.data ?? '...',
+                                      ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      snapshot.connectionState ==
+                                              ConnectionState.waiting
+                                          ? const CustomShimmerLoading
+                                              .rectangular(
+                                              height: 20, width: 100)
+                                          : Text(
+                                              snapshot.data ?? '...',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                      Text(
+                                        '${participant.habit.currentProgress}/${viewModel.targetGoal} today',
+                                        style: const TextStyle(
+                                          color: kGray,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  '︎✅ ${participant.habit.totalProgress}',
+                                  style: const TextStyle(
+                                    color: kLightGreenAccent,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       );
                     });
@@ -270,7 +307,14 @@ class SharedHabitDashboardView
             ],
           ),
         ),
-        verticalSpaceLarge,
+        verticalSpaceMedium,
+        MultiStatLineGraph(
+          data: viewModel.getUserHabit().stats,
+          showStatTitle: true,
+          height: 250,
+          showChangeIndicator: true,
+        ),
+        verticalSpaceMedium,
         GridView.count(
           physics: const NeverScrollableScrollPhysics(),
           crossAxisCount: 2,
@@ -279,37 +323,32 @@ class SharedHabitDashboardView
           shrinkWrap: true,
           children: [
             SingleStatCard(
-              statText: viewModel.getCurrentUserHabit().streak.toString() ?? '',
+              statText: viewModel.getUserHabit().streak.toString() ?? '',
               statDescription: 'Streak',
               fontSize: 40,
               color: Colors.orange.shade300,
             ),
             SingleStatCard(
-              statText:
-                  viewModel.getCurrentUserHabit().highestStreak.toString() ??
-                      '',
+              statText: viewModel.getUserHabit().highestStreak.toString() ?? '',
               statDescription: 'Highest Streak',
               fontSize: 40,
               color: Colors.white,
             ),
-            // TODO: Implement these more complex stats into viewmodel
-            // SingleStatCard(
-            //   statText: _statsCalculationService
-            //       .calculateAverageValueForStat(
-            //           viewModel.getCurrentUserHabit().stats, 'confidenceLevel')
-            //       .toStringAsFixed(1),
-            //   statDescription: 'Average Weekly Completions',
-            //   fontSize: 40,
-            //   color: Colors.green.shade300,
-            // ),
-            // SingleStatCard(
-            //   statText: (viewModel.getCurrentUserHabit().stats?.length ?? 0) < 7
-            //       ? '${(_statsCalculationService.calculateConsistencyFactor(viewModel.getCurrentUserHabit().stats, viewModel.getCurrentUserHabit().targetGoal, period: viewModel.getCurrentUserHabit().stats.length) * 100).toStringAsFixed(0)}%'
-            //       : '${(_statsCalculationService.calculateConsistencyFactor(viewModel.getCurrentUserHabit().stats, viewModel.getCurrentUserHabit().targetGoal) * 100).toStringAsFixed(0)}%',
-            //   statDescription: '7-day Consistency',
-            //   fontSize: 40,
-            //   color: Colors.teal.shade300,
-            // ),
+            SingleStatCard(
+              statText:
+                  viewModel.getAverageWeeklyCompletions().toStringAsFixed(1),
+              statDescription: 'Average Weekly Completions',
+              fontSize: 40,
+              color: Colors.green.shade300,
+            ),
+            SingleStatCard(
+              statText:
+                  (viewModel.getAverageConsistency() * 100).toStringAsFixed(0) +
+                      '%',
+              statDescription: '7-day Consistency',
+              fontSize: 40,
+              color: Colors.teal.shade300,
+            ),
           ],
         ),
       ],
@@ -341,7 +380,80 @@ class SharedHabitDashboardView
   @override
   SharedHabitDashboardViewModel viewModelBuilder(BuildContext context) {
     final viewModel = SharedHabitDashboardViewModel();
-    viewModel.init(sharedHabit.id.toString());
+    viewModel.init(sharedHabit);
     return viewModel;
+  }
+}
+
+class CustomShimmerLoading extends StatefulWidget {
+  final double width;
+  final double height;
+  final ShapeBorder shapeBorder;
+
+  const CustomShimmerLoading.rectangular({
+    Key? key,
+    this.width = double.infinity,
+    required this.height,
+  })  : shapeBorder = const RoundedRectangleBorder(),
+        super(key: key);
+
+  const CustomShimmerLoading.circular({
+    Key? key,
+    required this.width,
+    required this.height,
+  })  : shapeBorder = const CircleBorder(),
+        super(key: key);
+
+  @override
+  _CustomShimmerLoadingState createState() => _CustomShimmerLoadingState();
+}
+
+class _CustomShimmerLoadingState extends State<CustomShimmerLoading>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: ShapeDecoration(
+            shape: widget.shapeBorder,
+            gradient: LinearGradient(
+              colors: [
+                kDarkGray.withOpacity(0.3),
+                kDarkGray.withOpacity(0.1),
+                kDarkGray.withOpacity(0.3)
+              ],
+              stops: [
+                _controller.value - 0.3,
+                _controller.value,
+                _controller.value + 0.3
+              ],
+              begin: Alignment(-1.0, -0.3),
+              end: Alignment(1.0, 0.3),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

@@ -17,8 +17,10 @@ class UserAvatarList extends StatelessWidget {
         ...usernames
             .take(limit)
             .map((username) => Container(
+                  margin: const EdgeInsets.only(left: 4),
                   child: UserAvatar(
                     username: username,
+                    size: 0.75,
                   ),
                 ))
             .toList(),

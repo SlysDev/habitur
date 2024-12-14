@@ -23,9 +23,12 @@ class SharedHabitCardModel extends BaseViewModel {
   late final ConfettiController _controller;
 
   SharedHabit sharedHabit;
+  double oldConfidenceLevel = 0;
+  double newConfidenceLevel = 0;
 
   SharedHabitCardModel({required this.sharedHabit}) {
     _controller = ConfettiController(duration: const Duration(seconds: 1));
+    oldConfidenceLevel = _getCurrentUserConfidenceLevel();
   }
 
   @override
@@ -72,7 +75,8 @@ class SharedHabitCardModel extends BaseViewModel {
         if (sharedHabit.getParticipantHabitById(currentUser.uid).isCompleted) {
           _controller.play();
         }
-      rebuildUi();
+        newConfidenceLevel = _getCurrentUserConfidenceLevel();
+        rebuildUi();
       } catch (e) {
         debugPrint('Error incrementing shared habit: $e');
         setError(e);
@@ -130,8 +134,8 @@ class SharedHabitCardModel extends BaseViewModel {
   Future<void> navigateToSharedHabitDashboard() async {
     debugPrint(
         'Navigating to shared habit dashboard for habit ID: ${sharedHabit.id}');
-    await _navigationService.navigateToSharedHabitDashboardView(
-        sharedHabit: SharedHabit.fromMap(sharedHabit.toMap()));
+    _navigationService.navigateToSharedHabitDashboardView(
+        sharedHabit: sharedHabit);
   }
 
   Future<void> showErrorDialog(String errorMessage) async {
@@ -176,6 +180,19 @@ class SharedHabitCardModel extends BaseViewModel {
             userId: currentUser.uid,
             habit: sharedHabit));
     return participant.habit.currentProgress;
+  }
+
+  double _getCurrentUserConfidenceLevel() {
+    final currentUser = _userService.currentUser;
+    if (currentUser == null) return 0;
+
+    final participant = sharedHabit.participantData.firstWhere(
+        (p) => p.userId == currentUser.uid,
+        orElse: () => ParticipantData(
+            username: currentUser.username,
+            userId: currentUser.uid,
+            habit: sharedHabit));
+    return participant.habit.confidenceLevel;
   }
 
   Future<void> loadSharedHabitData(String id) async {

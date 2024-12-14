@@ -31,87 +31,91 @@ class CommunityLeaderboardView
       child: Scaffold(
         backgroundColor: kBackgroundColor,
         body: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 10),
           child: SafeArea(
             bottom: false,
             child: Stack(
               children: [
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          padding: EdgeInsets.all(16),
-                          icon: Icon(Icons.arrow_back),
-                          onPressed: () {
-                            viewModel.navigateBack();
-                          },
-                        ),
-                      ],
-                    ),
-                    Text(
-                      viewModel.currentChallenge?.title ??
-                          'Community Challenge',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: kPrimaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      viewModel.currentChallenge?.description ?? '',
-                      style: kMainDescription,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 40),
-                    if (viewModel.currentChallenge != null) ...[
-                      RoundedProgressBar(
-                        progress: viewModel.totalProgress,
-                        lineHeight: 40,
-                        color: kPrimaryColor,
-                      ),
-                      const SizedBox(height: 30),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            '${viewModel.currentChallenge!.currentFullCompletions} / ${viewModel.currentChallenge!.requiredFullCompletions}',
-                            style: kMainDescription.copyWith(
-                              color: Colors.white,
-                              fontSize: 22,
-                            ),
+                          IconButton(
+                            padding: EdgeInsets.all(16),
+                            icon: Icon(Icons.arrow_back),
+                            onPressed: () {
+                              viewModel.navigateBack();
+                            },
                           ),
-                          const SizedBox(width: 10),
-                          const Icon(Icons.people, size: 24),
                         ],
                       ),
-                      const SizedBox(height: 30),
-                      Expanded(
-                        child: ListView.separated(
-                          itemCount: viewModel.participants.length,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 10),
-                          itemBuilder: (context, index) {
-                            final participant = viewModel.participants[index];
-                            return Container(
-                              margin: index == viewModel.participants.length - 1
-                                  ? EdgeInsets.only(bottom: 75)
-                                  : EdgeInsets.only(bottom: 0),
-                              child: LeaderboardCard(
-                                  participant: viewModel.participants[index],
-                                  rank: index + 1),
-                            );
-                          },
-                        ),
+                      Text(
+                        viewModel.currentChallenge?.title ??
+                            'Community Challenge',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: kPrimaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
+                      const SizedBox(height: 20),
+                      Text(
+                        viewModel.currentChallenge?.description ?? '',
+                        style: kMainDescription,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 40),
+                      if (viewModel.currentChallenge != null) ...[
+                        RoundedProgressBar(
+                          progress: viewModel.totalProgress,
+                          lineHeight: 40,
+                          color: kPrimaryColor,
+                        ),
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${viewModel.currentChallenge!.currentFullCompletions} / ${viewModel.currentChallenge!.requiredFullCompletions}',
+                              style: kMainDescription.copyWith(
+                                color: Colors.white,
+                                fontSize: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            const Icon(Icons.people, size: 24),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        Expanded(
+                          child: ListView.separated(
+                            itemCount: viewModel.participants.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 10),
+                            itemBuilder: (context, index) {
+                              final participant = viewModel.participants[index];
+                              return Container(
+                                margin:
+                                    index == viewModel.participants.length - 1
+                                        ? EdgeInsets.only(bottom: 75)
+                                        : EdgeInsets.only(bottom: 0),
+                                child: LeaderboardCard(
+                                    participant: viewModel.participants[index],
+                                    rank: index + 1),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
                 Positioned(
                   bottom: 0,
                   left: 0,
                   right: 0,
                   child: Container(
+                    width: double.infinity,
                     height: 100,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(

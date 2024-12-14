@@ -6,7 +6,7 @@ import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:habitur/services/habit_service.dart';
-import 'package:habitur/services/stats/habit_stats_service.dart';
+import 'package:habitur/services/stats/stats_orchestration_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 
@@ -14,7 +14,7 @@ class SharedHabitsService with ListenableServiceMixin {
   final _databaseService = locator<DatabaseService>();
   final _userService = locator<UserService>();
   final _habitService = locator<HabitService>();
-  final _habitStatsService = locator<HabitStatsService>();
+  final _statsOrchestrationService = locator<StatsOrchestrationService>();
 
   List<SharedHabit> _sharedHabits = [];
   List<SharedHabit> get sharedHabits => _sharedHabits;
@@ -130,8 +130,10 @@ class SharedHabitsService with ListenableServiceMixin {
       final participantHabitData =
           sharedHabit.participantData[participantIndex].habit;
 
-      _habitStatsService.processHabitIncrement(participantHabitData,
-          amount: amount, difficultyRating: difficultyRating);
+      _statsOrchestrationService.processHabitIncrement(
+          habit: participantHabitData,
+          amount: amount,
+          difficultyRating: difficultyRating);
       debugPrint('Habit incremented in stats service');
 
       // Update participant data
@@ -165,8 +167,8 @@ class SharedHabitsService with ListenableServiceMixin {
           sharedHabit.participantData[participantIndex].habit;
 
       // Use HabitStatsService to handle the decrement
-      _habitStatsService.processHabitDecrement(participantHabitData,
-          amount: amount);
+      _statsOrchestrationService.processHabitDecrement(
+          habit: participantHabitData, amount: amount);
 
       // Update participant data
       await updateParticipantProgress(

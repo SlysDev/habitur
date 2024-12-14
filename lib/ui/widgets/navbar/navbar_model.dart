@@ -54,17 +54,17 @@ class NavBarModel extends BaseViewModel {
 
     switch (page.toLowerCase()) {
       case 'home':
-        await _navigationService.navigateToHomeView();
+        _navigationService.navigateToHomeView();
         // await _navigationService.navigateToHomeRevampView();
         break;
       case 'habits':
-        await _navigationService.navigateToHabitsView();
+        _navigationService.navigateToHabitsView();
         break;
       case 'stats':
-        await _navigationService.navigateToStatisticsView();
+        _navigationService.navigateToStatisticsView();
         break;
       case 'settings':
-        await _navigationService.navigateToSettingsView();
+        _navigationService.navigateToSettingsView();
         break;
     }
     _currentPage = page;

@@ -145,7 +145,9 @@ class Habit implements HabitInterface {
           ? (map['dateCreated'] as Timestamp).toDate()
           : (map['dateCreated'] as DateTime?) ?? DateTime.now(),
       resetPeriod: (map['resetPeriod'] as String?)?.toLowerCase() ?? 'daily',
-      id: map['id'] is String ? int.parse(map['id']) : map['id'] as int? ?? 0, // Ensure this is an int
+      id: map['id'] is String
+          ? int.parse(map['id'])
+          : map['id'] as int? ?? 0, // Ensure this is an int
       lastSeen: map['lastSeen'] is Timestamp
           ? (map['lastSeen'] as Timestamp).toDate()
           : (map['lastSeen'] as DateTime?) ?? DateTime.now(),

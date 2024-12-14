@@ -36,9 +36,17 @@ class FriendRequest {
     return FriendRequest(
       senderUid: map['senderUid'],
       recipientUid: map['recipientUid'],
-      dateSent: map['dateSent'] != null ? map['dateSent'] is Timestamp ? map['dateSent'].toDate() : map['dateSent'] as DateTime : null,
+      dateSent: map['dateSent'] != null
+          ? map['dateSent'] is Timestamp
+              ? map['dateSent'].toDate()
+              : map['dateSent'] as DateTime
+          : null,
       isAccepted: map['isAccepted'] ?? false,
-      dateAccepted: map['dateAccepted'] != null ? map['dateAccepted'] is Timestamp ? map['dateAccepted'].toDate() : map['dateAccepted'] as DateTime : null,
+      dateAccepted: map['dateAccepted'] != null
+          ? map['dateAccepted'] is Timestamp
+              ? map['dateAccepted'].toDate()
+              : map['dateAccepted'] as DateTime
+          : null,
       isDeclined: map['isDeclined'] ?? false,
     );
   }

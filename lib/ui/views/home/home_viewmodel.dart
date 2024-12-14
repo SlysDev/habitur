@@ -25,6 +25,7 @@ class HomeViewModel extends ReactiveViewModel {
   final _notificationSchedulingService =
       locator<NotificationSchedulingService>();
   final _settingsService = locator<SettingsService>();
+  final _snackbarService = locator<SnackbarService>();
 
   int _currentIndex = 0;
   String _userName = '';
@@ -48,27 +49,23 @@ class HomeViewModel extends ReactiveViewModel {
   }
 
   Future<void> _initialize() async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Loading your data...',
-      operation: () async {
-        await _loadUserData();
-        await _habitService.getUserHabits();
-        await _rescheduleNotificationsIfEnabled();
-      },
-      successMessage: 'Welcome back, $_userName!',
-    );
+    setBusy(true);
+    await _loadUserData();
+    await _habitService.getUserHabits();
+    await _rescheduleNotificationsIfEnabled();
+    setBusy(false);
   }
 
   Future<void> refreshData() async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Refreshing your data...',
-      operation: () async {
-        await _dataService.loadAllData(forceDbLoad: true);
-        await _loadUserData();
-        await _habitService.getUserHabits();
-        await _rescheduleNotificationsIfEnabled();
-      },
-      successMessage: 'Data refreshed successfully',
+    setBusy(true);
+    await _dataService.loadAllData(forceDbLoad: true);
+    await _loadUserData();
+    await _habitService.getUserHabits();
+    await _rescheduleNotificationsIfEnabled();
+    setBusy(false);
+    _snackbarService.showCustomSnackBar(
+      message: 'Data refreshed successfully',
+      variant: SnackbarType.success,
     );
   }
 

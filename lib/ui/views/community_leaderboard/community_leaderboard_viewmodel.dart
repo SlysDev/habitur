@@ -48,6 +48,9 @@ class CommunityLeaderboardViewModel
   Future<void> incrementProgress() async {
     if (data == null) return;
     int challengeCurrentFullCompletions = data!.currentFullCompletions;
+    if (challengeCurrentFullCompletions == data!.requiredFullCompletions) {
+      return;
+    }
     setBusy(true);
     try {
       ParticipantData participantData = await _communityService
