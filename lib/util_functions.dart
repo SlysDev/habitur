@@ -12,7 +12,7 @@ import 'package:stacked_services/stacked_services.dart';
 
 String generateUniqueId() {
   return Random()
-      .nextInt(1000000000)
+      .nextInt(1000000)
       .toString(); // generate a random number between 0 and 1000000000
 }
 

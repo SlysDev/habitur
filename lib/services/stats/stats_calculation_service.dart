@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/stat_point.dart';
@@ -6,30 +7,68 @@ import 'dart:math' as math;
 import 'package:habitur/util_functions.dart';
 
 class StatsCalculationService {
+  /// Calculates the change in a statistic between the last two stat points.
+  ///
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `statisticName`: The name of the statistic to calculate the change for.
+  ///
+  /// Returns the difference in the specified statistic as a `double`.
   double calculateStatChange(List<StatPoint> stats, String statisticName) {
     if (stats.length < 2) return 0.0;
-    return getStatisticValue(stats.last, statisticName) -
-        getStatisticValue(stats[stats.length - 2], statisticName).toDouble();
+    return stats.last.getStatByName(statisticName) -
+        stats[stats.length - 2].getStatByName(statisticName);
   }
 
+  /// Calculates the average value of a statistic over a specified period.
+  ///
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `statisticName`: The name of the statistic to calculate the average for.
+  /// - `period`: (Optional) The number of most recent stat points to include (defaults to 7).
+  ///
+  /// Returns the average value of the specified statistic over the period as a `double`.
   double calculateAverageValueForStat(
       List<StatPoint> stats, String statisticName,
       {int period = 7}) {
-    if (stats.isEmpty || period <= 0) return 0.0;
+    debugPrint(
+        '>>>Calculating average for $statisticName with period: $period');
+    debugPrint('>>>Here are the stats for reference:');
+    stats.forEach((stat) {
+      debugPrint('>>>${stat.date}: ${stat.getStatByName('statisticName')}');
+    });
+
+    if (stats.isEmpty || period <= 0) {
+      debugPrint(
+          '>>>Stats are empty or period is less than 1 for calculating average value for $statisticName');
+      return 0.0;
+    }
 
     if (stats.length < period) {
+      debugPrint(
+          '>>>Adjusting period from $period to ${stats.length} due to insufficient data points');
       period = stats.length;
     }
 
     double sum = 0.0;
     for (int i = stats.length - period; i < stats.length; i++) {
       if (i >= 0) {
-        sum += getStatisticValue(stats[i], statisticName).toDouble();
+        double value = stats[i].getStatByName(statisticName).toDouble();
+        sum += value;
+        debugPrint('>>>Adding value: $value at index $i, running sum: $sum');
       }
     }
-    return sum / period;
+
+    double average = sum / period;
+    debugPrint('>>>Final calculation: sum($sum) / period($period) = $average');
+    return average;
   }
 
+  /// Calculates the percent change of a statistic over a specified period.
+  ///
+  /// - `statisticName`: The name of the statistic to calculate the percent change for.
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `period`: (Optional) The number of most recent stat points to include (defaults to 7).
+  ///
+  /// Returns the percent change of the specified statistic over the period as a `double`.
   double calculatePercentChangeForStat(
       String statisticName, List<StatPoint> stats,
       {int period = 7}) {
@@ -41,15 +80,22 @@ class StatsCalculationService {
 
     int startIndex = stats.length - period;
     double startValue =
-        getStatisticValue(stats[startIndex], statisticName).toDouble();
+        stats[startIndex].getStatByName(statisticName).toDouble();
     double endValue =
-        getStatisticValue(stats[stats.length - 1], statisticName).toDouble();
+        stats[stats.length - 1].getStatByName(statisticName).toDouble();
 
     if (startValue == 0.0) return 0.0;
 
     return ((endValue - startValue) / startValue) * 100.0;
   }
 
+  /// Calculates the consistency factor over a specified period.
+  ///
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `targetGoal`: The target goal for completions.
+  /// - `period`: (Optional) The number of most recent stat points to include (defaults to 7).
+  ///
+  /// Returns the consistency factor as a `double` between 0.0 and 1.0 representing consistency.
   double calculateConsistencyFactor(List<StatPoint> stats, int targetGoal,
       {int period = 7}) {
     if (stats.isEmpty || period <= 0) return 1;
@@ -70,6 +116,12 @@ class StatsCalculationService {
     return totalWeight > 0.0 ? weightedCompletionsSum / totalWeight : 0.0;
   }
 
+  /// Calculates the difficulty weight based on past difficulty ratings.
+  ///
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `decayRate`: (Optional) The rate at which older data is discounted (defaults to 0.8).
+  ///
+  /// Returns the difficulty weight as a `double` where higher values represent lower difficulty.
   double calculateDifficultyWeight(List<StatPoint> stats,
       {double decayRate = 0.8}) {
     if (stats.isEmpty) return 1;
@@ -86,6 +138,13 @@ class StatsCalculationService {
     return weightSum > 0 ? 1 - (ratingSum / weightSum) / 10 : 1;
   }
 
+  /// Calculates the slope (rate of change) of a statistic over a specified period.
+  ///
+  /// - `statisticName`: The name of the statistic to calculate the slope for.
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `period`: (Optional) The number of most recent stat points to include (defaults to 7).
+  ///
+  /// Returns the slope of the specified statistic as a `double`.
   double calculateStatSlope(String statisticName, List<StatPoint> stats,
       {int period = 7}) {
     if (stats.isEmpty || period <= 0) return 0.0;
@@ -103,7 +162,7 @@ class StatsCalculationService {
       if (i >= 0) {
         int dayIndex = i + 1 - (stats.length - period);
         double statisticValue =
-            getStatisticValue(stats[i], statisticName).toDouble();
+            stats[i].getStatByName(statisticName).toDouble();
         sumX += dayIndex;
         sumY += statisticValue;
         sumXY += dayIndex * statisticValue;
@@ -119,6 +178,12 @@ class StatsCalculationService {
     return (n * sumXY - sumX * sumY) / denominator;
   }
 
+  /// Finds the statistic with the worst (most negative) slope over a specified period.
+  ///
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `period`: (Optional) The number of most recent stat points to analyze (defaults to 7).
+  ///
+  /// Returns a `Map` with 'name' of the statistic and 'value' of the slope (`double`).
   Map<String, dynamic> findWorstSlope(List<StatPoint> stats, {int period = 7}) {
     if (stats.isEmpty) {
       return {'name': '', 'value': null}; // No data for slope calculation
@@ -153,18 +218,13 @@ class StatsCalculationService {
     };
   }
 
-  double getStatisticValue(StatPoint point, String statisticName) {
-    switch (statisticName) {
-      case 'completions':
-        return point.completions.toDouble();
-      case 'difficulty':
-        return point.difficultyRating.toDouble();
-      default:
-        return 0.0;
-    }
-  }
-
-  // New time-based filtering methods
+  /// Filters the list of stats to include only those within a specific time range.
+  ///
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `start`: The start `DateTime` of the range.
+  /// - `end`: The end `DateTime` of the range.
+  ///
+  /// Returns a list of `StatPoint` objects within the specified time range.
   List<StatPoint> filterStatsByTimeRange(
       List<StatPoint> stats, DateTime start, DateTime end) {
     return stats
@@ -172,7 +232,13 @@ class StatsCalculationService {
         .toList();
   }
 
-  // Moving average calculation
+  /// Calculates the moving average of a statistic over a specified window size.
+  ///
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `statisticName`: The name of the statistic to calculate the moving average for.
+  /// - `windowSize`: (Optional) The number of stat points to include in each average (defaults to 7).
+  ///
+  /// Returns the most recent moving average as a `double`.
   double calculateMovingAverage(List<StatPoint> stats, String statisticName,
       {int windowSize = 7}) {
     if (stats.length < windowSize)
@@ -187,39 +253,61 @@ class StatsCalculationService {
     return movingAverages.isEmpty ? 0.0 : movingAverages.last;
   }
 
-  // Standard deviation calculation
+  /// Calculates the standard deviation of a statistic.
+  ///
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `statisticName`: The name of the statistic to calculate the standard deviation for.
+  ///
+  /// Returns the standard deviation as a `double`.
   double calculateStandardDeviation(
       List<StatPoint> stats, String statisticName) {
     if (stats.isEmpty) return 0.0;
 
     double mean = calculateAverageValueForStat(stats, statisticName);
     double sumSquaredDiff = stats.fold(0.0, (sum, stat) {
-      double diff = getStatisticValue(stat, statisticName) - mean;
+      double diff = stat.getStatByName(statisticName) - mean;
       return sum + (diff * diff);
     });
 
     return math.sqrt(sumSquaredDiff / stats.length);
   }
 
-  // Outlier detection using Z-score
+  /// Detects outliers in a statistic using the Z-score method.
+  ///
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `statisticName`: The name of the statistic to analyze.
+  /// - `threshold`: (Optional) The Z-score threshold to identify outliers (defaults to 2.0).
+  ///
+  /// Returns a list of `StatPoint` objects identified as outliers.
   List<StatPoint> detectOutliers(List<StatPoint> stats, String statisticName,
       {double threshold = 2.0}) {
     double mean = calculateAverageValueForStat(stats, statisticName);
     double stdDev = calculateStandardDeviation(stats, statisticName);
 
     return stats.where((stat) {
-      double value = getStatisticValue(stat, statisticName);
+      double value = stat.getStatByName(statisticName);
       double zScore = (value - mean) / (stdDev == 0 ? 1 : stdDev);
       return zScore.abs() > threshold;
     }).toList();
   }
 
-  // Data normalization (Min-Max scaling)
+  /// Normalizes a value within the range of a statistic using Min-Max scaling.
+  ///
+  /// - `value`: The value to normalize.
+  /// - `stats`: A list of `StatPoint` objects.
+  /// - `statisticName`: The name of the statistic.
+  ///
+  /// Returns the normalized value as a `double` between 0.0 and 1.0.
   double normalizeValue(
       double value, List<StatPoint> stats, String statisticName) {
     if (stats.isEmpty) return 0.0;
 
-    var values = stats.map((s) => getStatisticValue(s, statisticName)).toList();
+    // go through and get all the stats values for statName; convert from dynamic to double (and handle ints there as well)
+    var values = stats
+        .map((s) => s.getStatByName(statisticName) is double
+            ? s.getStatByName(statisticName) as double
+            : (s.getStatByName(statisticName) as int).toDouble())
+        .toList();
     double min = values.reduce(math.min);
     double max = values.reduce(math.max);
 
@@ -227,11 +315,21 @@ class StatsCalculationService {
     return (value - min) / (max - min);
   }
 
+  /// Gets the longest streak since the last lapse (missed completion).
+  ///
+  /// - `habit`: A `HabitInterface` object representing the habit.
+  ///
+  /// Returns the longest streak as an `int`.
   int getLongestStreakSinceLastLapse(HabitInterface habit) {
     if (habit.stats.isEmpty) return 0;
     return math.max(habit.highestStreak, habit.streak);
   }
 
+  /// Calculates the confidence level for continuing the habit.
+  ///
+  /// - `habit`: A `HabitInterface` object representing the habit.
+  ///
+  /// Returns the confidence level as a `double`.
   double calculateConfidenceLevel(HabitInterface habit) {
     double baseConfidence = 1;
     double consistencyFactor =
@@ -249,6 +347,11 @@ class StatsCalculationService {
         difficultyWeight;
   }
 
+  /// Calculates the average completions per week for a habit.
+  ///
+  /// - `habit`: A `HabitInterface` object representing the habit.
+  ///
+  /// Returns the average completions per week as a `double`.
   double calculateAverageCompletionsPerWeek(HabitInterface habit) {
     if (habit.stats.isEmpty) return 0.0;
     int totalWeeks = (habit.stats.length / 7).ceil();
@@ -257,6 +360,11 @@ class StatsCalculationService {
     return totalProgress / totalWeeks;
   }
 
+  /// Calculates the recent completion trend comparing recent week to previous weeks.
+  ///
+  /// - `habit`: A `HabitInterface` object representing the habit.
+  ///
+  /// Returns the difference in average completions as a `double`.
   double calculateRecentCompletionTrend(HabitInterface habit) {
     if (habit.stats.length < 14) return 0.0;
 
@@ -274,14 +382,23 @@ class StatsCalculationService {
     return recentAverage - previousAverage;
   }
 
-  // Habit comparison
+  /// Compares the performance between two habits.
+  ///
+  /// - `habit1`: The first `HabitInterface` object.
+  /// - `habit2`: The second `HabitInterface` object.
+  ///
+  /// Returns the difference in performance scores as a `double`.
   double compareHabitPerformance(HabitInterface habit1, HabitInterface habit2) {
     double score1 = calculateConfidenceLevel(habit1);
     double score2 = calculateConfidenceLevel(habit2);
     return score1 - score2;
   }
 
-  // Time of day analysis
+  /// Calculates success rates by time of day for habit completions.
+  ///
+  /// - `habit`: A `HabitInterface` object representing the habit.
+  ///
+  /// Returns a `Map` with time slots as keys and success rates as `double` values.
   Map<String, double> getSuccessRateByTimeOfDay(HabitInterface habit) {
     var timeSlots = {
       'morning': 0.0, // 5-11
@@ -311,7 +428,11 @@ class StatsCalculationService {
     return timeSlots;
   }
 
-  // Streak prediction
+  /// Predicts the probability of continuing the current streak.
+  ///
+  /// - `habit`: A `HabitInterface` object representing the habit.
+  ///
+  /// Returns the predicted probability as a `double` between 0.0 and 1.0.
   double predictStreakContinuation(HabitInterface habit) {
     if (habit.stats.isEmpty) return 0.5;
 
@@ -323,7 +444,11 @@ class StatsCalculationService {
     return (confidence + math.max(0, recentTrend) + consistencyFactor) / 3;
   }
 
-  // Recovery analysis
+  /// Calculates the recovery rate after lapses.
+  ///
+  /// - `habit`: A `HabitInterface` object representing the habit.
+  ///
+  /// Returns the recovery rate as a `double` between 0.0 and 1.0.
   double calculateRecoveryRate(HabitInterface habit) {
     if (habit.stats.length < 2) return 1.0;
 
@@ -344,20 +469,11 @@ class StatsCalculationService {
     return breakCount > 0 ? recoveryCount / breakCount : 1.0;
   }
 
-  /// Calculates the overall progress ratio across all habits
+  /// Calculates the overall progress ratio across all habits.
   ///
-  /// Returns a value between 0.0 and 1.0 representing the average completion rate of all habits:
-  /// - 0.0 means no habits have any completions
-  /// - 1.0 means all habits have met their target goals
-  /// - 0.5 means habits are, on average, halfway to their goals
+  /// - `habits`: A list of `HabitInterface` objects.
   ///
-  /// For example:
-  /// - If you have 2 habits:
-  ///   1. Habit with 3/5 completions (60% complete)
-  ///   2. Habit with 2/4 completions (50% complete)
-  /// The overall progress would be (0.6 + 0.5) / 2 = 0.55 or 55%
-  ///
-  /// Note: Habits with no stats are counted as 0% complete in the average
+  /// Returns the average completion rate as a `double` between 0.0 and 1.0.
   double calculateOverallProgress(List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
 
@@ -368,7 +484,11 @@ class StatsCalculationService {
         habits.length;
   }
 
-  // Goal achievement analysis
+  /// Calculates goal achievement rates for a list of habits.
+  ///
+  /// - `habits`: A list of `HabitInterface` objects.
+  ///
+  /// Returns a `Map` with habit IDs as keys and achievement rates as `double` values.
   Map<String, double> calculateGoalAchievementRates(
       List<HabitInterface> habits) {
     if (habits.isEmpty) return {};
@@ -383,7 +503,11 @@ class StatsCalculationService {
     return rates;
   }
 
-  // Best/worst performing habits
+  /// Retrieves the best-performing habits based on goal achievement rates.
+  ///
+  /// - `habits`: A list of `HabitInterface` objects.
+  ///
+  /// Returns a sorted list of `HabitInterface`, best-performing first.
   List<HabitInterface> getBestPerformingHabits(List<HabitInterface> habits) {
     return List.from(habits)
       ..sort((a, b) {
@@ -393,39 +517,11 @@ class StatsCalculationService {
       });
   }
 
-  // // Category performance TODO: Think about implementing habit categories
-  // Map<String, double> getCategoryPerformance(List<HabitInterface> habits) {
-  //   var categoryStats = <String, Map<String, int>>{};
-
-  //   for (var habit in habits) {
-  //     if (habit.category == null) continue;
-
-  //     categoryStats.putIfAbsent(habit.category!, () => {
-  //       'completed': 0,
-  //       'total': 0
-  //     });
-
-  //     for (var stat in habit.stats) {
-  //       categoryStats[habit.category]!['total'] =
-  //         (categoryStats[habit.category]!['total'] ?? 0) + 1;
-  //       if (stat.completions >= habit.targetGoal) {
-  //         categoryStats[habit.category]!['completed'] =
-  //           (categoryStats[habit.category]!['completed'] ?? 0) + 1;
-  //       }
-  //     }
-  //   }
-
-  //   var performance = <String, double>{};
-  //   categoryStats.forEach((category, stats) {
-  //     if (stats['total']! > 0) {
-  //       performance[category] = stats['completed']! / stats['total']!;
-  //     }
-  //   });
-
-  //   return performance;
-  // }
-
-  // User engagement metrics
+  /// Calculates user engagement metrics over the past 30 days.
+  ///
+  /// - `habits`: A list of `HabitInterface` objects.
+  ///
+  /// Returns a `Map` with metrics such as total actions, days active, engagement rate, and average actions per day.
   Map<String, dynamic> calculateEngagementMetrics(List<HabitInterface> habits) {
     if (habits.isEmpty) return {};
 
@@ -458,6 +554,12 @@ class StatsCalculationService {
     };
   }
 
+  /// Calculates the average value of a statistic across all habits.
+  ///
+  /// - `statisticName`: The name of the statistic to average.
+  /// - `habits`: A list of `HabitInterface` objects.
+  ///
+  /// Returns the average value as a `double`.
   double calculateStatAverage(
       String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
@@ -473,6 +575,12 @@ class StatsCalculationService {
     return sum / habits.length;
   }
 
+  /// Calculates the overall slope (rate of change) of a statistic across all habits.
+  ///
+  /// - `statisticName`: The name of the statistic to calculate the slope for.
+  /// - `habits`: A list of `HabitInterface` objects.
+  ///
+  /// Returns the average slope as a `double`.
   double calculateOverallSlope(
       String statisticName, List<HabitInterface> habits) {
     if (habits.isEmpty) return 0.0;
@@ -488,10 +596,20 @@ class StatsCalculationService {
     return sum / habits.length;
   }
 
+  /// Gets the total number of habit completions.
+  ///
+  /// - `habits`: A list of `HabitInterface` objects.
+  ///
+  /// Returns the total completions as an `int`.
   int getTotalHabitsCompleted(List<HabitInterface> habits) {
     return habits.fold(0, (total, habit) => total + habit.daysCompleted.length);
   }
 
+  /// Gets the longest streak among all habits.
+  ///
+  /// - `habits`: A list of `HabitInterface` objects.
+  ///
+  /// Returns the longest streak as an `int`.
   int getLongestStreak(List<HabitInterface> habits) {
     if (habits.isEmpty) return 0;
 
@@ -500,6 +618,11 @@ class StatsCalculationService {
         .reduce((max, streak) => streak > max ? streak : max);
   }
 
+  /// Calculates the total number of completions for the current week.
+  ///
+  /// - `habits`: A list of `HabitInterface` objects.
+  ///
+  /// Returns the total completions for the week as an `int`.
   int getWeekCompletions(List<HabitInterface> habits) {
     if (habits.isEmpty) return 0;
 

@@ -342,9 +342,10 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   Future<void> updateHabit(HabitInterface habit) async {
+    debugPrint('habit being inserted: ${habit.toString()}');
     await _habitsBox!.put(habit.id, habit);
     debugPrint('Updated habit in LS with ID: ${habit.id}');
-    debugPrint('Box values after update: ${_habitsBox!.values.toList()}');
+    debugPrint('Habit values after update: ${_habitsBox!.get(habit.id).toString()}');
     await setHabitsLastUpdated(DateTime.now());
   }
 

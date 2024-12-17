@@ -8,6 +8,7 @@ import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/database_service.dart';
+import 'package:habitur/services/habit_service.dart';
 import 'package:habitur/services/local_storage_service.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/user_service.dart';
@@ -22,129 +23,117 @@ class HabitStatsService {
   final _activityService = locator<ActivityService>();
   final _userService = locator<UserService>();
 
-  Future<void> processHabitIncrement(
+  /// Processes the increment of a habit's progress.
+  ///
+  /// Updates the habit's progress and stats, even if the habit is not yet completed.
+  /// Only updates streak-related stats when the habit is completed.
+  Future<HabitInterface> processHabitIncrement(
     HabitInterface habit, {
     required int amount,
     required double difficultyRating,
   }) async {
-    // Update habit stats
+    // Increment the habit's current progress by the specified amount.
     habit.incrementProgress(amount);
+    habit.daysCompleted.add(simplifyDateIntoDays(DateTime.now()));
+    debugPrint('REALLY QUICK: ${habit.currentProgress}');
 
-    // If habit is completed, update streak
-    if (habit.isCompleted) {
-      habit.streak = math.max(0, habit.streak + 1);
-      habit.highestStreak = math.max(habit.streak, habit.highestStreak);
-      habit.daysCompleted.add(simplifyDateIntoDays(DateTime.now()));
-      habit.totalProgress = math.max(0, habit.totalProgress + amount);
+    // Find the index of today's stat point, if it exists.
+    final existingStatIndex = habit.stats.indexWhere(
+      (stat) => isSameDay(stat.date, DateTime.now()),
+    );
 
-      if (habit.streak % 5 == 0 && habit.streak != 0) {
-        await _activityService.createActivityForEvent(
-            _userService.currentUser!.uid,
-            _userService.currentUser!.username,
-            ActivityType.streakMilestone,
-            habit.id.toString(),
-            habit.title,
-            metadata: {'streakDays': habit.streak});
-      }
+    StatPoint statPoint;
 
-      // Calculate stats
-      final confidenceLevel =
-          _statsCalculationService.calculateConfidenceLevel(habit);
-      final consistencyFactor =
-          _statsCalculationService.calculateConsistencyFactor(
-        habit.stats,
-        habit.targetGoal,
+    if (existingStatIndex != -1) {
+      // If a stat point for today exists, update its completions and difficulty rating.
+      statPoint = habit.stats[existingStatIndex];
+      statPoint.completions += amount;
+      statPoint.difficultyRating = difficultyRating;
+    } else {
+      // If no stat point for today exists, create a new one with initial values.
+      statPoint = StatPoint(
+        date: DateTime.now(),
+        completions: amount,
+        difficultyRating: difficultyRating,
+        streak: habit.streak,
+        // Initialize other fields to default or zero values.
       );
-
-      // Update or create stat point for today
-      final existingStatIndex = habit.stats.indexWhere(
-        (stat) => isSameDay(stat.date, DateTime.now()),
-      );
-
-      if (existingStatIndex != -1) {
-        // Update existing stat point
-        final existingStatPoint = habit.stats[existingStatIndex];
-        existingStatPoint.completions += amount;
-        existingStatPoint.confidenceLevel = confidenceLevel;
-        existingStatPoint.consistencyFactor = consistencyFactor;
-        existingStatPoint.streak = habit.streak;
-        existingStatPoint.difficultyRating = difficultyRating;
-      } else {
-        // Add new stat point
-        final statPoint = StatPoint(
-          date: DateTime.now(),
-          completions: amount,
-          streak: habit.streak,
-          confidenceLevel: confidenceLevel,
-          consistencyFactor: consistencyFactor,
-          difficultyRating: difficultyRating,
-          slopeCompletions: 0.0,
-          slopeConfidenceLevel: 0.0,
-          slopeConsistency: 0.0,
-          slopeDifficultyRating: 0.0,
-        );
-        habit.stats.add(statPoint);
-      }
+      habit.stats.add(statPoint);
     }
 
-    // Save changes
-    await _saveHabitStats(habit);
+      // calculate confidence level, consistency factor, and slopes after the fact
+      habit.confidenceLevel = _statsCalculationService.calculateConfidenceLevel(habit);
+      habit.stats.last.confidenceLevel =
+          _statsCalculationService.calculateConfidenceLevel(habit);
+      habit.stats.last.consistencyFactor = _statsCalculationService
+          .calculateConsistencyFactor(habit.stats, habit.targetGoal);
+      habit.stats.last.slopeCompletions = _statsCalculationService.calculateStatSlope('completions', habit.stats);
+      habit.stats.last.slopeConfidenceLevel = _statsCalculationService.calculateStatSlope('confidenceLevel', habit.stats);
+      habit.stats.last.slopeConsistency = _statsCalculationService.calculateStatSlope('consistencyFactor', habit.stats);
+      habit.stats.last.slopeDifficultyRating = _statsCalculationService.calculateStatSlope('difficultyRating', habit.stats);
+
+    if (habit.isCompleted) {
+      // If the habit has reached its target and is now completed.
+
+      // Update streak-related stats.
+      habit.streak = math.max(0, habit.streak + 1);
+      habit.highestStreak = math.max(habit.streak, habit.highestStreak);
+
+      // Check for streak milestones and create activities if necessary.
+      if (habit.streak % 5 == 0 && habit.streak != 0) {
+        await _activityService.createActivityForEvent(
+          _userService.currentUser!.uid,
+          _userService.currentUser!.username,
+          ActivityType.streakMilestone,
+          habit.id.toString(),
+          habit.title,
+          metadata: {'streakDays': habit.streak},
+        );
+      }
+
+      // Update the stat point's streak value.
+      habit.stats.last.streak = habit.streak;
+    }
+
+    // Save changes to local storage and remote database.
+    return habit;
   }
 
-  Future<void> processHabitDecrement(
+  /// Processes the decrement of a habit's progress.
+  ///
+  /// Updates the habit's progress and stats, even if the habit is not yet completed.
+  /// Only updates streak-related stats when the habit moves from completed to not completed.
+  Future<HabitInterface> processHabitDecrement(
     HabitInterface habit, {
     required int amount,
   }) async {
     final wasCompleted = habit.isCompleted;
 
-    // Update progress directly
-    final newProgress = Progress(
-      current: math.max(habit.currentProgress - amount, 0),
-      target: habit.targetGoal,
-    );
-    habit.currentProgress = newProgress.current;
-    habit.totalProgress = math.max(0, habit.totalProgress - amount);
+    // Decrement the habit's current progress by the specified amount, ensuring it doesn't go negative.
+    habit.decrementProgress(amount);
+    habit.daysCompleted.removeWhere((date) => isSameDay(date, DateTime.now()));
 
-    final isNowCompleted = newProgress.isComplete;
-
-    // Update streak and stats if was completed but now isn't
-    if (wasCompleted && !isNowCompleted) {
-      habit.streak = math.max(0, habit.streak - 1);
-      habit.daysCompleted.removeWhere(
-        (date) => isSameDay(date, DateTime.now()),
-      );
-    }
-
-    // Update or create stat point for today
+    // Find the index of today's stat point, if it exists.
     final existingStatIndex = habit.stats.indexWhere(
       (stat) => isSameDay(stat.date, DateTime.now()),
     );
 
-    // Calculate updated stats
-    final confidenceLevel =
-        _statsCalculationService.calculateConfidenceLevel(habit);
-    final consistencyFactor =
-        _statsCalculationService.calculateConsistencyFactor(
-      habit.stats,
-      habit.targetGoal,
-    );
+    StatPoint statPoint;
 
     if (existingStatIndex != -1) {
-      // Update existing stat point
-      final existingStatPoint = habit.stats[existingStatIndex];
-      existingStatPoint.completions = habit.currentProgress;
-      existingStatPoint.confidenceLevel = confidenceLevel;
-      existingStatPoint.consistencyFactor = consistencyFactor;
-      existingStatPoint.streak = habit.streak;
+      // If a stat point for today exists, update its completions.
+      statPoint = habit.stats[existingStatIndex];
+      statPoint.completions = habit.currentProgress;
     } else {
-      // Add new stat point for the decrement
-      final statPoint = StatPoint(
+      // If no stat point for today exists, create a new one with initial values.
+      statPoint = StatPoint(
         date: DateTime.now(),
         completions: habit.currentProgress,
         streak: habit.streak,
-        confidenceLevel: confidenceLevel,
-        consistencyFactor: consistencyFactor,
-        difficultyRating: 5.0, // Default difficulty
+        // Initialize other fields to default or zero values.
+        confidenceLevel: 0.0,
+        consistencyFactor: 0.0,
+        difficultyRating: 5.0, // Default difficulty rating.
         slopeCompletions: 0.0,
         slopeConfidenceLevel: 0.0,
         slopeConsistency: 0.0,
@@ -153,15 +142,41 @@ class HabitStatsService {
       habit.stats.add(statPoint);
     }
 
-    // Save changes
-    await _saveHabitStats(habit);
+    // Calculate stats that are always updated, even if the habit is not completed.
+    final confidenceLevel =
+        _statsCalculationService.calculateConfidenceLevel(habit);
+    final consistencyFactor =
+        _statsCalculationService.calculateConsistencyFactor(
+      habit.stats,
+      habit.targetGoal,
+    );
+
+    // Update the stat point with the newly calculated values.
+    statPoint.confidenceLevel = confidenceLevel;
+    statPoint.consistencyFactor = consistencyFactor;
+
+    if (wasCompleted && !habit.isCompleted) {
+      // If the habit was completed but is no longer completed after decrementing.
+
+      // Update streak-related stats.
+      habit.streak = math.max(0, habit.streak - 1);
+
+      // Update the stat point's streak value.
+      statPoint.streak = habit.streak;
+    }
+
+    return habit;
   }
 
+  /// Saves the habit's stats to local storage and remote database if authenticated.
   Future<void> _saveHabitStats(HabitInterface habit) async {
-    // Save to local storage
+    debugPrint("saving habit stats (habit stats service)");
+    final habitService = locator<HabitService>();
+    await habitService.updateHabit(habit);
+    // Update habit in local storage.
     await _localStorageService.updateHabit(habit);
 
-    // Save to remote database if user is authenticated
+    // If the user is authenticated, update the remote database.
     if (_authService.currentUser != null) {
       await _databaseService.updateInterfaceHabit(
         _authService.currentUser!.uid,

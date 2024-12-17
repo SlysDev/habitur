@@ -13,7 +13,7 @@ class StatsOrchestrationService {
   final _userStatsService = locator<UserStatsService>();
 
   /// Processes all stats updates when a habit is incremented
-  Future<void> processHabitIncrement({
+  Future<HabitInterface> processHabitIncrement({
     required HabitInterface habit,
     required int amount,
     required double difficultyRating,
@@ -24,7 +24,8 @@ class StatsOrchestrationService {
         'Amount: $amount\n'
         'Difficulty Rating: $difficultyRating');
     // First process habit-specific stats
-    await _habitStatsService.processHabitIncrement(
+    final HabitInterface updatedHabit =
+        await _habitStatsService.processHabitIncrement(
       habit,
       amount: amount,
       difficultyRating: difficultyRating,
@@ -38,10 +39,11 @@ class StatsOrchestrationService {
     debugPrint('Fetched user habits: ${habits.map((h) => h.title).join(', ')}');
     await _userStatsService.logHabitIncrement(habits);
     debugPrint('User stats updated after habit increment.');
+    return updatedHabit;
   }
 
   /// Processes all stats updates when a habit is decremented
-  Future<void> processHabitDecrement({
+  Future<HabitInterface> processHabitDecrement({
     required HabitInterface habit,
     required int amount,
   }) async {
@@ -51,7 +53,8 @@ class StatsOrchestrationService {
         'Amount: $amount');
 
     // First process habit-specific stats
-    await _habitStatsService.processHabitDecrement(habit, amount: amount);
+    final HabitInterface updatedHabit =
+        await _habitStatsService.processHabitDecrement(habit, amount: amount);
 
     debugPrint('Habit-specific stats processed.');
 
@@ -61,5 +64,6 @@ class StatsOrchestrationService {
     debugPrint('Fetched user habits: ${habits.map((h) => h.title).join(', ')}');
     await _userStatsService.unlogHabitIncrement(habits);
     debugPrint('User stats updated after habit decrement.');
+    return updatedHabit;
   }
 }

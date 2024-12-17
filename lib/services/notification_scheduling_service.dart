@@ -18,17 +18,17 @@ class NotificationSchedulingService {
   final UserService _userService = locator<UserService>();
 
   Future<void> scheduleDefaultTrack(int numberOfNotifs) async {
+    DateTime now = DateTime.now();
     final habits = await _habitService.getTodaysDueHabits();
     if (habits.isEmpty) return;
 
+    if (_settingsService.getSetting('Daily Reminders')?.settingValue ?? false) {
     TimeModel firstNotifTime =
-        _settingsService.getSetting('1st Reminder Time')!.settingValue;
+        _settingsService.getSetting('1st Reminder Time')?.settingValue;
     TimeModel secondNotifTime =
-        _settingsService.getSetting('2nd Reminder Time')!.settingValue;
+        _settingsService.getSetting('2nd Reminder Time')?.settingValue;
     TimeModel thirdNotifTime =
-        _settingsService.getSetting('3rd Reminder Time')!.settingValue;
-
-    DateTime now = DateTime.now();
+        _settingsService.getSetting('3rd Reminder Time')?.settingValue;
     final habitCount = habits.length;
 
     // Schedule general reminders
@@ -41,6 +41,7 @@ class NotificationSchedulingService {
       habitCount,
       _userService.currentUser!.username,
     );
+    }
 
     // Schedule habit-specific smart reminders
     for (var habit in habits) {
@@ -112,7 +113,7 @@ class NotificationSchedulingService {
       title: "Time for: ${habit.title}",
       body: _generateSmartReminderMessage(habit),
       date: reminderTime,
-      id: habit.id! * 100, // Unique ID for habit-specific notifications
+      id: habit.id!, // Unique ID for habit-specific notifications
       channelKey: "habit_smart_notifications",
     );
 
@@ -122,7 +123,7 @@ class NotificationSchedulingService {
       title: "Don't forget: ${habit.title}",
       body: "This is usually a great time for you to complete this habit!",
       date: followUpTime,
-      id: habit.id! * 100 + 1,
+      id: int.parse("${habit.id}1"),
       channelKey: "habit_smart_notifications",
     );
   }

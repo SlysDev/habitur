@@ -74,8 +74,9 @@ class NotificationService {
           minute: date.minute,
         ),
       );
-    } catch (e) {
+    } catch (e, s) {
       debugPrint(e.toString());
+      debugPrint(s.toString());
     }
   }
 

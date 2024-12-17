@@ -72,11 +72,13 @@ class Habit implements HabitInterface {
   /// Increments the habit's progress by the specified amount
   void incrementProgress([int amount = 1]) {
     progress = progress.increment(amount: amount);
+    totalProgress += amount;
   }
 
   /// Decrements the habit's progress by the specified amount
   void decrementProgress([int amount = 1]) {
     progress = progress.decrement(amount: amount);
+    totalProgress -= amount;
   }
 
   /// Resets the habit's progress to zero

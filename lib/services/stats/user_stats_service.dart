@@ -23,9 +23,30 @@ class UserStatsService {
   final _aggregateStatsCalculatorService =
       locator<AggregateStatsCalculatorService>();
 
+  void _log(String message) {
+    var current = StackTrace.current;
+    var frames = current.toString().split('\n');
+    if (frames.length > 2) {
+      var frame = frames[2]; // Adjust index if necessary
+      var match = RegExp(r'#\d+\s+(\S+)\s+\(([^:]+):(\d+):\d+\)').firstMatch(frame);
+      if (match != null) {
+        var functionName = match.group(1);
+        var fileName = match.group(2)?.split('/').last;
+        var lineNumber = match.group(3);
+        debugPrint('[$functionName] ($fileName:$lineNumber) $message');
+      } else {
+        debugPrint('[Unknown] $message');
+      }
+    } else {
+      debugPrint('[Unknown] $message');
+    }
+  }
+
   // Enhanced user stats
   Map<String, dynamic> getUserStats(List<HabitInterface> habits) {
+    _log('Called with habits: ${habits.map((h) => h.id).toList()}');
     if (habits.isEmpty) {
+      _log('No habits found, returning default stats');
       return {
         'totalHabitsCompleted': 0,
         'longestStreak': 0,
@@ -37,7 +58,7 @@ class UserStatsService {
       };
     }
 
-    return {
+    var stats = {
       'totalHabitsCompleted':
           _statsCalculationService.getTotalHabitsCompleted(habits),
       'longestStreak': _statsCalculationService.getLongestStreak(habits),
@@ -52,9 +73,12 @@ class UserStatsService {
           .map((h) => h.id.toString())
           .toList(),
     };
+    _log('Computed stats: $stats');
+    return stats;
   }
 
   Future<void> updateCompletions({double amount = 1.0}) async {
+    _log('Called with amount: $amount');
     final user = _userService.currentUser;
     if (user?.stats == null) return;
 
@@ -64,11 +88,13 @@ class UserStatsService {
     if (currentDayIndex != -1) {
       final newCompletions =
           user.stats[currentDayIndex].completions + amount.toInt();
+      _log('Updating completions to $newCompletions');
       await _updateStatValue('completions', newCompletions.toDouble());
     }
   }
 
   Future<void> undoCompletion({double? amount}) async {
+    _log('Called with amount: $amount');
     final user = _userService.currentUser;
     if (user?.stats == null) return;
 
@@ -78,19 +104,18 @@ class UserStatsService {
     if (currentDayIndex != -1) {
       int currentCompletions = user.stats![currentDayIndex].completions;
       if (currentCompletions > 0) {
-        // If amount is null, undo the last recorded amount or default to 1
         int amountToUndo = (amount ?? 1).toInt();
-        // Don't let completions go below 0
         int newCompletions = (currentCompletions - amountToUndo)
             .clamp(0, double.infinity)
             .toInt();
+        _log('Undoing completions, new value: $newCompletions');
         await _updateStatValue('completions', newCompletions.toDouble());
-        // converting to double so it works w/ function; will get converted back to an int for completions within the function
       }
     }
   }
 
   Future<void> updateConfidenceLevel(double newConfidenceLevel) async {
+    _log('Called with newConfidenceLevel: $newConfidenceLevel');
     final user = _userService.currentUser;
     if (user?.stats == null) return;
 
@@ -103,10 +128,12 @@ class UserStatsService {
           .indexWhere((stat) => isSameDay(stat.date, DateTime.now()));
     }
 
+    _log('Updating confidence level to $newConfidenceLevel');
     await _updateStatValue('confidenceLevel', newConfidenceLevel);
   }
 
   Future<void> _ensureCurrentDayStatExists() async {
+    _log('Ensuring current day stat exists');
     final user = _userService.currentUser;
     if (user?.stats == null) return;
 
@@ -132,11 +159,13 @@ class UserStatsService {
       }
 
       user.stats!.add(newStat);
+      _log('Added new stat for today: $newStat');
       await _saveStats(user.stats!);
     }
   }
 
   Future<void> _updateStatValue(String statName, double value) async {
+    _log('Updating $statName to $value');
     final user = _userService.currentUser;
     if (user?.stats == null) return;
 
@@ -155,11 +184,13 @@ class UserStatsService {
           user.stats![currentDayIndex].streak = value.toInt();
           break;
       }
+      _log('Updated $statName for today: ${user.stats![currentDayIndex]}');
       await _saveStats(user.stats!);
     }
   }
 
   Future<void> _saveStats(List<StatPoint> stats) async {
+    _log('Saving stats: $stats');
     // Save to local storage
     await _localStorageService.updateAllStats(stats);
 
@@ -171,6 +202,7 @@ class UserStatsService {
   }
 
   List<StatPoint> getStatsForDateRange(DateTime startDate, DateTime endDate) {
+    _log('Getting stats from $startDate to $endDate');
     final user = _userService.currentUser;
     if (user?.stats == null || user!.stats!.isEmpty) {
       return [];
@@ -196,10 +228,12 @@ class UserStatsService {
         ));
       }
     }
+    _log('Stats in range: $statsInRange');
     return statsInRange;
   }
 
   Future<void> logHabitIncrement(List<HabitInterface> habits) async {
+    _log('Logging habit increment for habits: ${habits.map((h) => h.id).toList()}');
     final user = _userService.currentUser;
     if (user == null) return;
 
@@ -229,16 +263,20 @@ class UserStatsService {
           .calculateOverallSlope('difficultyRating', habits),
     };
 
+    _log('Stats updates: $statsUpdates');
+
     bool needsNewPoint =
         user.stats!.indexWhere((dataPoint) => isSameDay(dataPoint.date, now)) ==
             -1;
 
     if (needsNewPoint) {
       user.stats!.add(StatPoint.fromMap(statsUpdates));
+      _log('Added new stat point for today');
     } else {
       final currentDayIndex = user.stats!
           .indexWhere((stat) => isSameDay(stat.date, DateTime.now()));
       user.stats![currentDayIndex] = StatPoint.fromMap(statsUpdates);
+      _log('Updated existing stat point for today');
     }
 
     await _localStorageService.updateUserStats(user.stats!);
@@ -249,6 +287,7 @@ class UserStatsService {
   }
 
   Future<void> unlogHabitIncrement(List<HabitInterface> habits) async {
+    _log('Unlogging habit increment for habits: ${habits.map((h) => h.id).toList()}');
     final user = _userService.currentUser;
     if (user == null || user.stats.isEmpty) return;
 
@@ -264,6 +303,8 @@ class UserStatsService {
           math.max(0.0, currentStat.confidenceLevel - 0.1);
       currentStat.streak = math.max(0, currentStat.streak - 1);
 
+      _log('Reversed stats: $currentStat');
+
       // Update local storage and database
       await _localStorageService.updateMostRecentStat(currentStat);
       if (_authService.currentUser != null) {
@@ -274,6 +315,7 @@ class UserStatsService {
   }
 
   List<StatPoint> getStats(UserModel user) {
+    _log('Getting stats for user: ${user.uid}');
     if (user.stats == null) return [];
     return user.stats!.map((stat) => stat).toList(); // make a copy
   }

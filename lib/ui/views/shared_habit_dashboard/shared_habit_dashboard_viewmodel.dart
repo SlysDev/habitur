@@ -238,7 +238,7 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
   double getAverageWeeklyCompletions({String? userId}) {
     Habit habit = getUserHabit(userId: userId);
     return _statsCalculationService.calculateAverageValueForStat(
-        habit.stats, 'progress');
+        habit.stats, 'completions');
   }
 
   double getAverageConsistency({String? userId, int period = 7}) {

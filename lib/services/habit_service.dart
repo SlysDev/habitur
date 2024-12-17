@@ -104,24 +104,26 @@ class HabitService with ListenableServiceMixin {
 
   Future<void> incrementHabit(String habitId, double difficultyRating,
       {int amount = 1}) async {
-    final habitIdInt = int.parse(habitId);
-    final index = _habits.value.indexWhere((h) => h.id == habitIdInt);
-    if (index != -1) {
-      final habit = _habits.value[index];
+    try {
+      final habitIdInt = int.parse(habitId);
+      final index = _habits.value.indexWhere((h) => h.id == habitIdInt);
+      if (index != -1) {
+        final habit = _habits.value[index];
 
-      await _statsOrchestrationService.processHabitIncrement(
-        habit: habit,
-        amount: amount,
-        difficultyRating: difficultyRating,
-      );
+        final HabitInterface updatedHabit =
+            await _statsOrchestrationService.processHabitIncrement(
+          habit: habit,
+          amount: amount,
+          difficultyRating: difficultyRating,
+        );
 
-      _habits.value = [
-        ..._habits.value.sublist(0, index),
-        habit,
-        ..._habits.value.sublist(index + 1),
-      ];
+        updateHabit(updatedHabit);
 
-      notifyListeners();
+        notifyListeners();
+      }
+    } catch (e, s) {
+      debugPrint('Error in incrementHabit: $e');
+      debugPrint(s.toString());
     }
   }
 
@@ -131,16 +133,13 @@ class HabitService with ListenableServiceMixin {
     if (index != -1) {
       final habit = _habits.value[index];
 
-      await _statsOrchestrationService.processHabitDecrement(
+      final HabitInterface updatedHabit =
+          await _statsOrchestrationService.processHabitDecrement(
         habit: habit,
         amount: amount,
       );
 
-      _habits.value = [
-        ..._habits.value.sublist(0, index),
-        habit,
-        ..._habits.value.sublist(index + 1),
-      ];
+      updateHabit(updatedHabit);
 
       notifyListeners();
     }
@@ -167,12 +166,18 @@ class HabitService with ListenableServiceMixin {
         1;
   }
 
+  /// Resets the progress of daily habits if they haven't been completed today.
+  /// Also checks if notifications need to be rescheduled.
   Future<void> resetDailyHabits() async {
     final habits = await getUserHabits();
     bool hasChanges = false;
     bool needsNotificationReschedule = false;
 
+    debugPrint('Starting resetDailyHabits...');
+    debugPrint('Total habits to check: ${habits.length}');
+
     for (var habit in habits) {
+      debugPrint('Checking habit: ID: ${habit.id}, Title: ${habit.title}');
       if (habit.resetPeriod.toLowerCase() == 'daily' &&
           habit.daysCompleted.isNotEmpty) {
         final lastCompletionDate = habit.daysCompleted.last;
@@ -184,6 +189,9 @@ class HabitService with ListenableServiceMixin {
 
         final daysDifference =
             todayNormalized.difference(lastCompletionNormalized).inDays;
+
+        debugPrint(
+            'Habit ID: ${habit.id} - Days since last completion: $daysDifference');
 
         if (daysDifference > 0) {
           int missedRequiredDays = 0;
@@ -197,18 +205,25 @@ class HabitService with ListenableServiceMixin {
             }
           }
 
+          debugPrint(
+              'Habit ID: ${habit.id} - Missed required days: $missedRequiredDays');
+
           if (missedRequiredDays >= 1) {
             habit.resetProgress();
             hasChanges = true;
+            debugPrint('Habit ID: ${habit.id} - Progress reset');
 
             if (habit.smartNotifsEnabled) {
               needsNotificationReschedule = true;
+              debugPrint(
+                  'Habit ID: ${habit.id} - Needs notification reschedule');
             }
           }
 
           if (missedRequiredDays > 1) {
             habit.streak = 0;
             hasChanges = true;
+            debugPrint('Habit ID: ${habit.id} - Streak reset to 0');
           }
         }
       }
@@ -216,12 +231,15 @@ class HabitService with ListenableServiceMixin {
 
     if (hasChanges) {
       await saveHabits(habits);
-
+      debugPrint('Habits saved after reset');
       if (needsNotificationReschedule) {
         await locator<NotificationSchedulingService>()
             .rescheduleNotifications();
+        debugPrint('Notifications rescheduled');
       }
     }
+
+    debugPrint('Finished resetDailyHabits');
   }
 
   Future<void> resetWeeklyHabits() async {
@@ -370,13 +388,22 @@ class HabitService with ListenableServiceMixin {
   }
 
   Future<void> updateHabit(HabitInterface habit) async {
+    debugPrint('()()()(): updating this dang habit ${habit.toString()}');
+    // update the habit in _habits as well
+    final index = _habits.value.indexWhere((h) => h.id == habit.id);
+    if (index != -1) {
+      _habits.value = [
+        ..._habits.value.sublist(0, index),
+        habit,
+        ..._habits.value.sublist(index + 1),
+      ];
+    }
     await _localStorageService.updateHabit(habit);
     if (habit is Habit) {
       await _databaseService.updateHabit(_authService.currentUser!.uid, habit);
     } else if (habit is SharedHabit) {
       await _databaseService.updateSharedHabit(habit);
     }
-    await loadHabits();
   }
 
   Future<HabitInterface?> getHabit(String habitId) async {

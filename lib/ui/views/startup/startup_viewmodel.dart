@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:habitur/services/local_storage_service.dart';
+import 'package:habitur/services/notification_scheduling_service.dart';
+import 'package:habitur/services/settings_service.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -17,17 +19,23 @@ class StartupViewModel extends BaseViewModel {
   final _userService = locator<UserService>();
   final _dataService = locator<DataService>();
   final _notificationService = locator<NotificationService>();
+  final _notificationSchedulingService = locator<NotificationSchedulingService>();
   final _localStorageService = locator<LocalStorageService>();
   final _databaseService = locator<DatabaseService>();
+  final _settingsService = locator<SettingsService>();
 
   // Called immediately after the model is initialized
   Future<void> runStartupLogic() async {
     setBusy(true);
 
     try {
+      // LS init
       await _localStorageService.init();
       // Request notification permissions early
       await _notificationService.requestPermission();
+
+      // Load settings 
+      await _settingsService.loadSettings();
 
       debugPrint(
         'Clearing user data for user: ${_authService.currentUser?.uid ?? ''}',
