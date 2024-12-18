@@ -81,7 +81,7 @@ class CommunityChallengeManager extends ChangeNotifier {
       BuildContext context, CommunityChallenge challenge, UserModel user) {
     try {
       return challenge.participants
-          .firstWhere((participant) => participant.user.uid == user.uid);
+          .firstWhere((participant) => participant.userId == user.uid);
     } catch (_) {
       return null;
     }
@@ -181,7 +181,7 @@ class CommunityChallengeManager extends ChangeNotifier {
 
       if (participant.currentCompletions == 0 &&
           participant.fullCompletionCount == 0) {
-        challenge.participants.removeWhere((p) => p.user.uid == user.uid);
+        challenge.participants.removeWhere((p) => p.userId == user.uid);
       }
     } else {
       debugPrint('User not found in participantDataList');
@@ -232,7 +232,7 @@ class CommunityChallengeManager extends ChangeNotifier {
   void clearUserParticipantData(String uid) {
     for (CommunityChallenge challenge in _challenges) {
       challenge.participants
-          .removeWhere((participant) => participant.user.uid == uid);
+          .removeWhere((participant) => participant.userId == uid);
     }
   }
 

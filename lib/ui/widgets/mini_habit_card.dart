@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/ui/widgets/rounded_progress_bar.dart';
 import 'package:habitur/ui/widgets/stat-chips/confidence_level_stat_chip.dart';
 import 'package:habitur/ui/widgets/stat-chips/difficulty_rating_stat_chip.dart';
@@ -9,7 +10,7 @@ import 'package:habitur/ui/widgets/stat-chips/streak_stat_chip.dart';
 class MiniHabitCard extends StatelessWidget {
   const MiniHabitCard({Key? key, required this.habit}) : super(key: key);
 
-  final Habit habit;
+  final HabitInterface habit;
 
   @override
   Widget build(BuildContext context) {

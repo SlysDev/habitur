@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/ui/views/social_feed/social_feed.dart';
+import 'package:habitur/ui/widgets/aside_button.dart';
 import 'package:habitur/ui/widgets/habit_card_list/habit_card_list.dart';
 import 'package:habitur/ui/widgets/home_greeting_header/home_greeting_header.dart';
 import 'package:habitur/ui/widgets/modern_card.dart';
@@ -40,7 +41,7 @@ class HomeView extends StackedView<HomeViewModel> {
               child: SingleChildScrollView(
                 child: SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

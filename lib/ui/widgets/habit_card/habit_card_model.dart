@@ -4,11 +4,11 @@ import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
 import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/enums/dialog_type.dart';
-import 'package:habitur/models/activity_event.dart';
-import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/habit_service.dart';
+import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -19,9 +19,10 @@ class HabitCardModel extends BaseViewModel {
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
   final _userService = locator<UserService>();
+  final _statsCalculationService = locator<StatsCalculationService>();
   late final ConfettiController _controller;
 
-  Habit habit;
+  HabitInterface habit;
   bool _completed = false;
   bool get completed => _completed;
 
@@ -52,10 +53,10 @@ class HabitCardModel extends BaseViewModel {
 
   Future<void> incrementHabit() async {
     if (habit.isCompleted) return;
-
     try {
       setBusy(true);
       final difficulty = await showDifficultyPopup();
+      debugPrint('Incrementing habit with difficulty: $difficulty');
       await _habitService.incrementHabit(habit.id.toString(), difficulty);
       debugPrint('Habit ${habit.id} completed. Adding activity...');
       await _activityService.createActivityForEvent(
@@ -65,15 +66,25 @@ class HabitCardModel extends BaseViewModel {
           habit.id.toString(),
           habit.title);
       _completed = habit.isCompleted;
-      notifyListeners();
 
-      final updatedHabit = await _habitService.getHabit(habit.id.toString());
+      HabitInterface? updatedHabit;
+      updatedHabit = await _habitService.getHabit(habit.id.toString());
+
+      if (_statsCalculationService.isStreakMilestone(habit.streak)) {
+        await _dialogService.showCustomDialog(
+          variant: DialogType.streakMilestone,
+          data: {"streak": habit.streak},
+        );
+      }
+
       if (_completed && updatedHabit!.isCompleted) {
         _controller.play();
       }
+      debugPrint('Habit incremented successfully');
+      rebuildUi();
     } catch (e, s) {
       final error = Exception(e.toString());
-      debugPrint(error.toString());
+      debugPrint('Error in incrementHabit: $error');
       debugPrint(s.toString());
       setError(error);
     } finally {
@@ -82,7 +93,7 @@ class HabitCardModel extends BaseViewModel {
     }
   }
 
-  Future<void> uncompleteHabit() async {
+  Future<void> decrementHabit() async {
     try {
       setBusy(true);
       await _habitService.decrementHabit(habit.id.toString());
@@ -128,6 +139,11 @@ class HabitCardModel extends BaseViewModel {
     await _navigationService.navigateTo(Routes.editHabitView,
         arguments: EditHabitViewArguments(habitId: habit.id.toString()));
     rebuildUi();
+  }
+
+  Future<void> navigateToHabitDashboard() async {
+    await _navigationService.navigateToHabitOverviewView(
+        habitId: habit.id.toString());
   }
 
   Future<void> showErrorDialog(String errorMessage) async {

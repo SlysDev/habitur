@@ -54,7 +54,7 @@ class CommunityChallengeCard
                 challenge.requiredFullCompletions
             ? kLightGreenAccent
             : viewModel.isConnected
-                ? (challenge.habit.isCompleted ? color.withOpacity(0.5) : color)
+                ? (challenge.isCompleted ? color.withOpacity(0.5) : color)
                 : kDarkGray.withOpacity(0.1),
         child: Stack(
           children: [
@@ -102,7 +102,7 @@ class CommunityChallengeCard
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  challenge.habit.title,
+                                  challenge.title,
                                   style: kHeadingTextStyle.copyWith(
                                       color: Colors.white),
                                   textAlign: TextAlign.center,
@@ -157,7 +157,7 @@ class CommunityChallengeCard
         width: 475,
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         decoration: BoxDecoration(
-          color: !challenge.habit.isCompleted ? color : color.withOpacity(0.5),
+          color: !challenge.isCompleted ? color : color.withOpacity(0.5),
           borderRadius: BorderRadius.circular(20),
         ),
         child: viewModel.isConnected
@@ -222,7 +222,7 @@ class CommunityChallengeCard
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          challenge.habit.title,
+                          challenge.title,
                           style:
                               kHeadingTextStyle.copyWith(color: Colors.white),
                           textAlign: TextAlign.center,

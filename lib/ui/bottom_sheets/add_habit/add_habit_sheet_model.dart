@@ -33,7 +33,7 @@ class AddHabitSheetModel extends BaseViewModel {
     }
   }
 
-  final Set<String> _selectedDays = {
+  final List<String> _selectedDays = [
     'Monday',
     'Tuesday',
     'Wednesday',
@@ -41,8 +41,8 @@ class AddHabitSheetModel extends BaseViewModel {
     'Friday',
     'Saturday',
     'Sunday'
-  };
-  Set<String> get selectedDays => _selectedDays;
+  ];
+  List<String> get selectedDays => _selectedDays;
 
   int _targetGoal = 1;
   int get targetGoal => _targetGoal;
@@ -55,6 +55,11 @@ class AddHabitSheetModel extends BaseViewModel {
       resetActiveDaysToDefault();
     }
     _resetPeriod = period;
+    notifyListeners();
+  }
+
+  void setTargetGoal(int goal) {
+    _targetGoal = goal;
     notifyListeners();
   }
 
@@ -77,17 +82,17 @@ class AddHabitSheetModel extends BaseViewModel {
     } else {
       _selectedDays.add(day);
     }
-    notifyListeners();
+    rebuildUi();
   }
 
   void adjustTargetGoal(int adjustment) {
     _targetGoal = (_targetGoal + adjustment).clamp(1, 10);
-    notifyListeners();
+    rebuildUi();
   }
 
   void setSmartNotifications(bool enabled) {
     _smartNotificationsEnabled = enabled;
-    notifyListeners();
+    rebuildUi();
   }
 
   Future<void> createHabit() async {

@@ -9,6 +9,8 @@ import 'package:habitur/services/local_storage_service.dart';
 import 'package:mockito/mockito.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+import '../helpers/test_helpers.dart';
+
 // Generate mocks using mockito
 class MockActivityDatabaseService extends Mock
     implements ActivityDatabaseService {}
@@ -87,6 +89,32 @@ void main() {
                 'test-activity-id', 'test-user-id'))
             .called(1);
       });
+    });
+  });
+
+  group('ActivityService Tests -', () {
+    setUp(() {
+      registerServices();
+    });
+
+    tearDown(() => locator.reset());
+
+    test('getActivity should return activity for given ID', () async {
+      // Arrange
+      final activityService = locator<ActivityService>() as MockActivityService;
+      final activity = ActivityEvent(
+        id: 'activity-1',
+        description: 'Test Activity',
+      );
+      when(activityService.getActivity('activity-1'))
+          .thenAnswer((_) async => activity);
+
+      // Act
+      final result = await activityService.getActivity('activity-1');
+
+      // Assert
+      expect(result, activity);
+      verify(activityService.getActivity('activity-1')).called(1);
     });
   });
 }

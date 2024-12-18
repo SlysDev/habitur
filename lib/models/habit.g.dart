@@ -20,20 +20,23 @@ class HabitAdapter extends TypeAdapter<Habit> {
       title: fields[0] as String,
       dateCreated: fields[8] as DateTime,
       resetPeriod: fields[7] as String,
-      id: fields[11] as int,
+      id: fields[11] == null ? 0 : fields[11] as int,
       lastSeen: fields[10] as DateTime,
+      description: fields[17] == null ? '' : fields[17] as String,
       streak: fields[2] as int,
       highestStreak: fields[6] as int,
       currentProgress: fields[4] as int,
       totalProgress: fields[5] as int,
       confidenceLevel: fields[9] as double,
       requiredDatesOfCompletion: (fields[13] as List).cast<String>(),
+      isShared: fields[18] == null ? false : fields[18] as bool,
       smartNotifsEnabled: fields[14] as bool,
       isVisible: fields[15] as bool,
       targetGoal: fields[3] as int,
     )
       ..proficiencyRating = fields[1] as int
-      ..daysCompleted = (fields[12] as List).cast<DateTime>()
+      ..daysCompleted =
+          fields[12] == null ? [] : (fields[12] as List).cast<DateTime>()
       ..stats =
           fields[16] == null ? [] : (fields[16] as List).cast<StatPoint>();
   }
@@ -41,9 +44,11 @@ class HabitAdapter extends TypeAdapter<Habit> {
   @override
   void write(BinaryWriter writer, Habit obj) {
     writer
-      ..writeByte(17)
+      ..writeByte(19)
       ..writeByte(0)
       ..write(obj.title)
+      ..writeByte(17)
+      ..write(obj.description)
       ..writeByte(1)
       ..write(obj.proficiencyRating)
       ..writeByte(2)
@@ -66,6 +71,8 @@ class HabitAdapter extends TypeAdapter<Habit> {
       ..write(obj.lastSeen)
       ..writeByte(11)
       ..write(obj.id)
+      ..writeByte(18)
+      ..write(obj.isShared)
       ..writeByte(12)
       ..write(obj.daysCompleted)
       ..writeByte(13)

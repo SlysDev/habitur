@@ -46,7 +46,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
     }
   }
 
-  Stream<QuerySnapshot> getActivitiesStream(String userId, List<String> friends) {
+  Stream<QuerySnapshot> getActivitiesStream(
+      String userId, List<String> friends) {
     if (!_isEnabled) {
       _logger.info('Activity database service is disabled');
       return Stream.empty();
@@ -68,7 +69,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
           .handleError((error) {
             _logger.severe('❌ Error in activities stream: $error');
             if (error.toString().contains('missing index')) {
-              _logger.info('ℹ️ Please create the required Firestore index for the activities collection.');
+              _logger.info(
+                  'ℹ️ Please create the required Firestore index for the activities collection.');
             }
             return Stream.empty();
           });
@@ -78,7 +80,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
     }
   }
 
-  Future<QuerySnapshot> getInitialActivities(String userId, List<String> friends) async {
+  Future<QuerySnapshot> getInitialActivities(
+      String userId, List<String> friends) async {
     if (!_isEnabled) {
       _logger.info('Activity database service is disabled');
       return Future.error('Service disabled');
@@ -95,7 +98,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
     }
   }
 
-  Future<QuerySnapshot> getMoreActivities(String userId, List<String> friends, DocumentSnapshot lastDocument) async {
+  Future<QuerySnapshot> getMoreActivities(String userId, List<String> friends,
+      DocumentSnapshot lastDocument) async {
     if (!_isEnabled) {
       _logger.info('Activity database service is disabled');
       return Future.error('Service disabled');
@@ -113,7 +117,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
     }
   }
 
-  Future<void> updateActivity(String activityId, Map<String, dynamic> data) async {
+  Future<void> updateActivity(
+      String activityId, Map<String, dynamic> data) async {
     if (!_isEnabled) {
       _logger.info('Activity database service is disabled');
       return Future.error('Service disabled');
@@ -141,7 +146,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
     }
   }
 
-  Future<void> addComment(String activityId, Map<String, dynamic> comment) async {
+  Future<void> addComment(
+      String activityId, Map<String, dynamic> comment) async {
     if (!_isEnabled) {
       _logger.info('Activity database service is disabled');
       return Future.error('Service disabled');
@@ -158,7 +164,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
     }
   }
 
-  Future<void> removeComment(String activityId, Map<String, dynamic> comment) async {
+  Future<void> removeComment(
+      String activityId, Map<String, dynamic> comment) async {
     if (!_isEnabled) {
       _logger.info('Activity database service is disabled');
       return Future.error('Service disabled');
@@ -189,7 +196,8 @@ class ActivityDatabaseService with ListenableServiceMixin {
         return null;
       }
 
-      final activity = ActivityEvent.fromMap(doc.data() as Map<String, dynamic>);
+      final activity =
+          ActivityEvent.fromMap(doc.data() as Map<String, dynamic>);
 
       _logger.info('✅ Successfully retrieved activity');
       return activity;

@@ -4,18 +4,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:habitur/models/friend_request.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/habit_visibility.dart';
+import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/privacy_settings.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/models/user.dart';
+import 'package:habitur/models/setting.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:stacked/stacked.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart' as path_provider;
-import '../models/setting.dart';
 
 class LocalStorageService with ListenableServiceMixin {
   Box? _userBox;
@@ -51,6 +54,9 @@ class LocalStorageService with ListenableServiceMixin {
     if (!Hive.isAdapterRegistered(HabitAdapter().typeId)) {
       Hive.registerAdapter(HabitAdapter());
     }
+    if (!Hive.isAdapterRegistered(SharedHabitAdapter().typeId)) {
+      Hive.registerAdapter(SharedHabitAdapter());
+    }
     if (!Hive.isAdapterRegistered(StatPointAdapter().typeId)) {
       Hive.registerAdapter(StatPointAdapter());
     }
@@ -74,6 +80,9 @@ class LocalStorageService with ListenableServiceMixin {
     }
     if (!Hive.isAdapterRegistered(UserModelAdapter().typeId)) {
       Hive.registerAdapter(UserModelAdapter());
+    }
+    if (!Hive.isAdapterRegistered(ParticipantDataAdapter().typeId)) {
+      Hive.registerAdapter(ParticipantDataAdapter());
     }
     try {
       if (!Hive.isBoxOpen('user')) {
@@ -203,7 +212,9 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   Future<void> _clearHiveData() async {
-    await Hive.deleteFromDisk();
+    await Hive.deleteBoxFromDisk('user');
+    await Hive.deleteBoxFromDisk('habits');
+    await Hive.deleteBoxFromDisk('settings');
     // try {
     //   if (!kIsWeb) {
     //     final directory =
@@ -325,15 +336,17 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   // Habits Methods
-  Future<void> addHabit(Habit habit) async {
+  Future<void> addHabit(HabitInterface habit) async {
     await _habitsBox!.put(habit.id, habit);
     await setSettingsLastUpdated(DateTime.now());
   }
 
-  Future<void> updateHabit(Habit habit) async {
+  Future<void> updateHabit(HabitInterface habit) async {
+    debugPrint('habit being inserted: ${habit.toString()}');
     await _habitsBox!.put(habit.id, habit);
     debugPrint('Updated habit in LS with ID: ${habit.id}');
-    debugPrint('Box values after update: ${_habitsBox!.values.toList()}');
+    debugPrint(
+        'Habit values after update: ${_habitsBox!.get(habit.id).toString()}');
     await setHabitsLastUpdated(DateTime.now());
   }
 
@@ -347,7 +360,7 @@ class LocalStorageService with ListenableServiceMixin {
     await setHabitsLastUpdated(DateTime.now());
   }
 
-  List<Habit> getHabitData() {
+  List<HabitInterface> getHabitData() {
     try {
       if (_habitsBox == null || !_habitsBox!.isOpen) {
         debugPrint('habitsBox is null or not open');
@@ -379,8 +392,8 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   Future<void> clearStats() async {
-    for (Habit habit in getHabitData()) {
-      Habit clearedHabit = habit;
+    for (HabitInterface habit in getHabitData()) {
+      HabitInterface clearedHabit = habit;
       clearedHabit.currentProgress = 0;
       clearedHabit.streak = 0;
       clearedHabit.lastSeen = DateTime.now();
@@ -398,11 +411,11 @@ class LocalStorageService with ListenableServiceMixin {
   Future<void> clearDuplicateHabits() async {
     debugPrint('clearing duplicate habits');
     try {
-      List<Habit> allHabits = getHabitData();
-      for (Habit habit in allHabits) {
+      List<HabitInterface> allHabits = getHabitData();
+      for (HabitInterface habit in allHabits) {
         if (allHabits.where((element) => element.id == habit.id).length > 1) {
           debugPrint('clearing a habit');
-          Habit duplicateHabit =
+          HabitInterface duplicateHabit =
               allHabits.where((element) => element.id == habit.id).first;
           await deleteHabit(duplicateHabit.id.toString());
         }
@@ -419,7 +432,7 @@ class LocalStorageService with ListenableServiceMixin {
     String output = "";
     output += "----------------------------------\n";
     output += "LS Habits:\n";
-    for (Habit habit in getHabitData()) {
+    for (HabitInterface habit in getHabitData()) {
       debugPrint(habit.title);
       output += " ${habit.title}:\n";
       output += " -> Completions: ${habit.currentProgress}\n";
@@ -431,7 +444,7 @@ class LocalStorageService with ListenableServiceMixin {
     return output;
   }
 
-  Future<void> saveHabits(List<Habit> habits) async {
+  Future<void> saveHabits(List<HabitInterface> habits) async {
     await _ensureBoxOpen('habits');
     await _habitsBox!.clear(); // Clear existing habits
     for (var habit in habits) {

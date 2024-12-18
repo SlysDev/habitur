@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/models/habit.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/community_service.dart';
 import 'package:habitur/services/habit_service.dart';
@@ -24,12 +26,15 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
 
   CommunityChallengeCardViewModel({required this.challenge});
 
-  bool get isJoined => challenge.participants
-      .any((p) => p.user.uid == _authService.currentUser?.uid);
+  List<ParticipantData> get participants => challenge.participantData;
+
+  bool get isJoined =>
+      participants.any((p) => p.userId == _authService.currentUser?.uid);
 
   List<ParticipantData> get topParticipants {
-    final sorted = List<ParticipantData>.from(challenge.participants)
-      ..sort((a, b) => b.currentCompletions.compareTo(a.currentCompletions));
+    final sorted = List<ParticipantData>.from(participants)
+      ..sort(
+          (a, b) => b.habit.currentProgress.compareTo(a.habit.currentProgress));
     return sorted.take(3).toList();
   }
 
@@ -41,14 +46,38 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
 
   double get userProgress {
     final user = _userService.currentUser;
-    final habit = challenge.habit;
-    final habitId = challenge.habit.id;
-    if (user == null || habit == null || habitId == null) {
+    if (user == null) {
       return 0.0;
     }
-    final currentCompletions = habit.currentProgress;
-    final requiredCompletions = habit.targetGoal;
+    final currentCompletions = challenge.currentFullCompletions;
+    final requiredCompletions = challenge.requiredFullCompletions;
     return currentCompletions / requiredCompletions;
+  }
+
+  bool get isCompletedByCurrentUser {
+    final currentUserParticipant = participants.firstWhere(
+      (p) => p.userId == _authService.currentUser?.uid,
+      orElse: () => ParticipantData(
+        username: '',
+        userId: '',
+        habit: Habit.fromSharedHabit(challenge),
+      ),
+    );
+    return currentUserParticipant.habit.totalProgress > 0;
+  }
+
+  double get currentUserCompletionProgress {
+    final currentUserParticipant = participants.firstWhere(
+      (p) => p.userId == _authService.currentUser?.uid,
+      orElse: () => ParticipantData(
+        username: '',
+        userId: '',
+        habit: Habit.fromSharedHabit(challenge),
+      ),
+    );
+    final targetGoal = challenge.targetGoal;
+    final currentProgress = currentUserParticipant.habit.currentProgress;
+    return currentProgress / targetGoal;
   }
 
   Future<void> navigateToChallengeOverview() async {

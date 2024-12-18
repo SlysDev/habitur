@@ -8,7 +8,7 @@ class SingleStatCard extends StatelessWidget {
     required this.statText,
     required this.statDescription,
     required this.color,
-    this.fontSize = 60,
+    this.fontSize = 40,
   });
   final String statText;
   final String statDescription;

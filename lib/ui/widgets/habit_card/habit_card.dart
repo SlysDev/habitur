@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/habit.dart';
+import 'package:habitur/models/habit_interface.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/ui/views/habit_overview/habit_overview_view.dart';
 import 'package:habitur/ui/widgets/rounded_progress_bar.dart';
+import 'package:habitur/ui/widgets/user_avatar_list/user_avatar_list.dart';
 import 'package:stacked/stacked.dart';
 
 import 'habit_card_model.dart';
@@ -16,7 +19,7 @@ class HabitCard extends StatelessWidget {
     this.color = kFadedBlue,
   });
 
-  final Habit habit;
+  final HabitInterface habit;
   final Color color;
 
   @override
@@ -28,6 +31,7 @@ class HabitCard extends StatelessWidget {
       ),
       onViewModelReady: (model) => model.initialize(),
       builder: (context, model, child) {
+        double height = 128.0 + (model.habit.title.length.toDouble() * 2.15);
         return AnimatedOpacity(
           duration: const Duration(milliseconds: 400),
           curve: Curves.fastOutSlowIn,
@@ -39,13 +43,10 @@ class HabitCard extends StatelessWidget {
                   model.habit.lastSeen =
                       DateTime.now().subtract(const Duration(days: 1));
                 },
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => HabitOverviewView(
-                                habitId: model.habit.id.toString(),
-                              )));
+                onTap: () async {
+                  debugPrint(
+                      'Navigating to habit dashboard for habit ID: ${model.habit.id}');
+                  await model.navigateToHabitDashboard();
                 },
                 child: Slidable(
                   startActionPane: ActionPane(
@@ -72,84 +73,82 @@ class HabitCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Column(
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 600),
-                        curve: Curves.ease,
-                        height: model.habit.title.length > 20
-                            ? 128.0 +
-                                (model.habit.title.length.toDouble() * 2.15)
-                            : 128,
-                        decoration: BoxDecoration(
-                          color:
-                              !model.completed ? color : color.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 25, vertical: 20),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      model.isBusy ? '...' : model.habit.title,
-                                      style: kHeadingTextStyle.copyWith(
-                                          color: Colors.white),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    LayoutBuilder(
-                                      builder: (context, constraints) {
-                                        return Column(
-                                          children: [
-                                            RoundedProgressBar(
-                                              progress:
-                                                  model.progressPercentage,
-                                              color: Colors.white,
-                                              width: constraints.maxWidth,
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ],
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 600),
+                    curve: Curves.ease,
+                    height: height,
+                    decoration: BoxDecoration(
+                      color: !model.completed
+                          ? color.withOpacity(0.5)
+                          : color.withOpacity(0.25),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 25, vertical: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  model.isBusy ? '...' : model.habit.title,
+                                  style: kHeadingTextStyle.copyWith(
+                                      color: Colors.white),
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
+                                if (model.habit.isShared)
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                if (model.habit is SharedHabit)
+                                  UserAvatarList(
+                                      usernames: (model.habit as SharedHabit)
+                                          .participantData
+                                          .map((e) => e.username)
+                                          .toList()),
+                              ],
                             ),
-                            GestureDetector(
-                              onTap: () async {
-                                await model.incrementHabit();
-                              },
-                              onLongPress: () async {
-                                await model.uncompleteHabit();
-                              },
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 600),
-                                curve: Curves.ease,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            await model.incrementHabit();
+                          },
+                          onLongPress: () async {
+                            debugPrint(
+                                'Long press detected on habit ID: ${model.habit.id}');
+                            await model.decrementHabit();
+                          },
+                          child: Stack(
+                            children: [
+                              RoundedProgressBar(
+                                progress: model.progressPercentage,
+                                color: model.habit.isCompleted
+                                    ? kLightGreenAccent
+                                    : kFadedGreen.withOpacity(0.5),
                                 width: 100,
-                                height: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
+                                lineHeight: height,
+                                radius: 17.5,
+                              ),
+                              Positioned.fill(
                                 child: Icon(
-                                  Icons.check,
-                                  size: 30,
-                                  color: kLightGreenAccent,
+                                  model.habit.isCompleted
+                                      ? Icons.check_circle_rounded
+                                      : Icons.check_rounded,
+                                  color: model.habit.isCompleted
+                                      ? Colors.white
+                                      : kLightGreenAccent,
+                                  size: 40,
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -158,11 +157,13 @@ class HabitCard extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.center,
                   child: ConfettiWidget(
-                    emissionFrequency: 0,
-                    minBlastForce: 10,
-                    numberOfParticles: 10,
-                    blastDirectionality: BlastDirectionality.explosive,
                     confettiController: model.controller,
+                    blastDirectionality: BlastDirectionality.explosive,
+                    emissionFrequency: 0,
+                    numberOfParticles: 15,
+                    gravity: 0.1,
+                    maxBlastForce: 20,
+                    minBlastForce: 10,
                   ),
                 ),
               ),
@@ -173,3 +174,29 @@ class HabitCard extends StatelessWidget {
     );
   }
 }
+
+// if (isShared)
+//   Row(
+//     children: [
+//       // Display avatar icons for shared habits
+//       for (String username
+//           in usernames.take(3))
+//         Padding(
+//           padding: const EdgeInsets.only(
+//               right: 4.0),
+//           child:
+//               UserAvatar(username: username),
+//         ),
+//       if (usernames.length > 3)
+//         const CircleAvatar(
+//           radius: 12,
+//           backgroundColor: kGray,
+//           child: Text(
+//             '...',
+//             style: TextStyle(
+//                 color: Colors.white,
+//                 fontSize: 12),
+//           ),
+//         ),
+//     ],
+//   ),

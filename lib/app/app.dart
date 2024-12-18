@@ -6,6 +6,8 @@ import 'package:habitur/services/stats/user_stats_service.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/status_service.dart';
 import 'package:habitur/services/sync_service.dart';
+import 'package:habitur/ui/views/edit_shared_habit/edit_shared_habit_view.dart';
+import 'package:habitur/ui/views/invite_participants/invite_participants_view.dart';
 import 'package:habitur/ui/views/startup/startup_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
@@ -39,70 +41,112 @@ import '../ui/views/home/home_view.dart';
 import '../ui/views/statistics/statistics_view.dart';
 import '../ui/views/edit_habit/edit_habit_view.dart';
 import '../ui/views/habit_overview/habit_overview_view.dart';
+import '../ui/views/shared_habit_dashboard/shared_habit_dashboard_view.dart';
 
+import 'package:habitur/ui/dialogs/streak_milestone/streak_milestone_dialog.dart';
+
+import 'package:habitur/ui/dialogs/streak_milestone/streak_milestone_dialog.dart';
+
+// @stacked-import
 @StackedApp(
   routes: [
     CustomRoute(
-        page: StartupView,
-        initial: true,
-        transitionsBuilder: TransitionsBuilders.fadeIn),
+      page: StartupView,
+      initial: true,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
     CustomRoute(
-        page: WelcomeView, transitionsBuilder: TransitionsBuilders.fadeIn),
-    CustomRoute(page: HomeView, transitionsBuilder: TransitionsBuilders.fadeIn),
+      page: WelcomeView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
     CustomRoute(
-        page: LoginView, transitionsBuilder: TransitionsBuilders.fadeIn),
+      page: LoginView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
     CustomRoute(
-        page: RegisterView, transitionsBuilder: TransitionsBuilders.fadeIn),
+      page: RegisterView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
     CustomRoute(
-        page: StatisticsView, transitionsBuilder: TransitionsBuilders.fadeIn),
+      page: HomeView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
     CustomRoute(
-        page: SettingsView, transitionsBuilder: TransitionsBuilders.fadeIn),
+      page: HabitsView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
     CustomRoute(
-        page: HabitsView, transitionsBuilder: TransitionsBuilders.fadeIn),
+      page: StatisticsView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
     CustomRoute(
-        page: EditHabitView, transitionsBuilder: TransitionsBuilders.fadeIn),
-    CustomRoute(
-        page: CommunityLeaderboardView,
-        transitionsBuilder: TransitionsBuilders.fadeIn),
-    CustomRoute(
-        page: AdminView, transitionsBuilder: TransitionsBuilders.fadeIn),
+      page: EditHabitView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
     CustomRoute(
       page: HabitOverviewView,
       transitionsBuilder: TransitionsBuilders.fadeIn,
     ),
+    CustomRoute(
+      page: CommunityLeaderboardView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
+    CustomRoute(
+      page: AdminView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
+    CustomRoute(
+      page: SettingsView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
+    CustomRoute(
+      page: SharedHabitDashboardView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
+    CustomRoute(
+      page: InviteParticipantsView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
+    CustomRoute(
+      page: EditSharedHabitView,
+      transitionsBuilder: TransitionsBuilders.fadeIn,
+    ),
+    // @stacked-route
   ],
   dependencies: [
-    // Core Services
-    LazySingleton(classType: BottomSheetService),
     LazySingleton(classType: NavigationService),
     LazySingleton(classType: DialogService),
+    LazySingleton(classType: BottomSheetService),
     LazySingleton(classType: SnackbarService),
-
-    // Firebase Services
-    LazySingleton(classType: AuthService),
-
-    // App Services
-    LazySingleton(classType: ActivityService),
-    LazySingleton(classType: NetworkService),
-    LazySingleton(classType: ActivityDatabaseService),
-    LazySingleton(classType: InsightGeneratorService),
-    LazySingleton(classType: SettingsService),
-    LazySingleton(classType: CommunityService),
     LazySingleton(classType: DatabaseService),
     LazySingleton(classType: LocalStorageService),
     LazySingleton(classType: HabitService),
     LazySingleton(classType: UserService),
     LazySingleton(classType: NotificationService),
     LazySingleton(classType: DataService),
+    LazySingleton(classType: AuthService),
+    LazySingleton(classType: SettingsService),
+    LazySingleton(classType: CommunityService),
+    LazySingleton(classType: NetworkService),
+    LazySingleton(classType: ActivityService),
+    LazySingleton(classType: ActivityDatabaseService),
     LazySingleton(classType: FriendsService),
-    LazySingleton(classType: NotificationSchedulingService),
-    LazySingleton(classType: StatusService),
+    LazySingleton(classType: SharedHabitsService),
+    LazySingleton(classType: InsightGeneratorService),
     LazySingleton(classType: SyncService),
+    LazySingleton(classType: StatusService),
+    LazySingleton(classType: StatsCalculationService),
     LazySingleton(classType: HabitStatsService),
     LazySingleton(classType: UserStatsService),
-    LazySingleton(classType: StatsCalculationService),
-    LazySingleton(classType: StatsOrchestrationService),
     LazySingleton(classType: AggregateStatsCalculatorService),
+    LazySingleton(classType: StatsOrchestrationService),
+    LazySingleton(classType: NotificationSchedulingService),
+    // @stacked-service
   ],
+  dialogs: [
+    StackedDialog(classType: StreakMilestoneDialog),
+// @stacked-dialog
+  ],
+  logger: StackedLogger(),
 )
 class App {}

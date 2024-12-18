@@ -1,16 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:hive/hive.dart';
 
 part 'habit.g.dart';
 
 @HiveType(typeId: 0)
-class Habit {
+class Habit implements HabitInterface {
   @HiveField(0)
   String title;
+  @HiveField(17, defaultValue: '')
+  String description;
   @HiveField(1)
   int proficiencyRating = 0;
   @HiveField(2)
@@ -32,11 +36,13 @@ class Habit {
   @HiveField(10)
   DateTime lastSeen;
   Color color = kPrimaryColor;
-  @HiveField(11)
+  @HiveField(11, defaultValue: 0)
   int id;
   bool isCommunityHabit;
+  @HiveField(18, defaultValue: false)
+  bool isShared;
 
-  @HiveField(12)
+  @HiveField(12, defaultValue: [])
   List<DateTime> daysCompleted = [];
   @HiveField(13)
   List<String> requiredDatesOfCompletion = [];
@@ -66,11 +72,13 @@ class Habit {
   /// Increments the habit's progress by the specified amount
   void incrementProgress([int amount = 1]) {
     progress = progress.increment(amount: amount);
+    totalProgress += amount;
   }
 
   /// Decrements the habit's progress by the specified amount
   void decrementProgress([int amount = 1]) {
     progress = progress.decrement(amount: amount);
+    totalProgress -= amount;
   }
 
   /// Resets the habit's progress to zero
@@ -84,6 +92,7 @@ class Habit {
     required this.resetPeriod,
     required this.id,
     required this.lastSeen,
+    this.description = '',
     this.streak = 0,
     this.highestStreak = 0,
     this.currentProgress = 0,
@@ -91,6 +100,7 @@ class Habit {
     this.confidenceLevel = 0,
     this.requiredDatesOfCompletion = const [],
     this.isCommunityHabit = false,
+    this.isShared = false,
     this.smartNotifsEnabled = false,
     this.isVisible = true, // Default to true for backward compatibility
     this.targetGoal = 1,
@@ -137,7 +147,9 @@ class Habit {
           ? (map['dateCreated'] as Timestamp).toDate()
           : (map['dateCreated'] as DateTime?) ?? DateTime.now(),
       resetPeriod: (map['resetPeriod'] as String?)?.toLowerCase() ?? 'daily',
-      id: map['id'] as int? ?? 0,
+      id: map['id'] is String
+          ? int.parse(map['id'])
+          : map['id'] as int? ?? 0, // Ensure this is an int
       lastSeen: map['lastSeen'] is Timestamp
           ? (map['lastSeen'] as Timestamp).toDate()
           : (map['lastSeen'] as DateTime?) ?? DateTime.now(),
@@ -169,6 +181,26 @@ class Habit {
     // you have to keep that cast in case days completed is null
 
     return habit;
+  }
+
+  factory Habit.fromSharedHabit(SharedHabit sharedHabit) {
+    return Habit(
+      title: sharedHabit.title,
+      dateCreated: sharedHabit.dateCreated,
+      resetPeriod: sharedHabit.resetPeriod,
+      id: sharedHabit.id,
+      lastSeen: sharedHabit.lastSeen,
+      streak: sharedHabit.streak,
+      highestStreak: sharedHabit.highestStreak,
+      currentProgress: sharedHabit.currentProgress,
+      totalProgress: sharedHabit.totalProgress,
+      confidenceLevel: sharedHabit.confidenceLevel,
+      requiredDatesOfCompletion: sharedHabit.requiredDatesOfCompletion,
+      isCommunityHabit: sharedHabit.isCommunityHabit,
+      smartNotifsEnabled: sharedHabit.smartNotifsEnabled,
+      isVisible: sharedHabit.isVisible,
+      targetGoal: sharedHabit.targetGoal,
+    );
   }
 
   Habit copyWith({

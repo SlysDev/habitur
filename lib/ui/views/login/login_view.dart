@@ -55,6 +55,11 @@ class LoginView extends StackedView<LoginViewModel> {
                   onPressed: viewModel.navigateToRegister,
                   text: 'Don\'t have an account? Sign up',
                 ),
+                const SizedBox(height: 12.0),
+                AsideButton(
+                  onPressed: viewModel.loginOffline,
+                  text: 'Login Offline',
+                ),
               ],
             ),
           ),

@@ -50,10 +50,10 @@ class CommunityService with ListenableServiceMixin {
                 dateCreated:
                     (data['habit']['dateCreated'] as Timestamp).toDate(),
               ),
+              participants: participants,
             );
             debugPrint(
                 'community_service.dart: trying to load participants: $participants of length ${participants.length}');
-            challenge.loadParticipants(participants);
             challenges.add(challenge);
           } catch (e, s) {
             debugPrint('Error loading challenge: $e, $s');
@@ -103,8 +103,8 @@ class CommunityService with ListenableServiceMixin {
             resetPeriod: data['habit']['resetPeriod'],
             dateCreated: (data['habit']['dateCreated'] as Timestamp).toDate(),
           ),
+          participants: participants,
         );
-        challenge.loadParticipants(participants);
         debugPrint('Challenge loaded:');
         debugPrint(challenge
             .toString()
@@ -120,8 +120,26 @@ class CommunityService with ListenableServiceMixin {
     List<ParticipantData> participants =
         await _loadParticipants(challengeId.toString());
 
+    if (participants.isEmpty) {
+      debugPrint('No participants found');
+      CommunityChallenge challenge = getChallengeById(int.parse(challengeId));
+      return ParticipantData(
+        username: user.username,
+        userId: user.uid,
+        habit: Habit(
+          title: challenge.title,
+          targetGoal: challenge.targetGoal,
+          lastSeen: challenge.lastSeen,
+          isCommunityHabit: true,
+          id: challenge.id,
+          resetPeriod: challenge.resetPeriod,
+          dateCreated: DateTime.now(),
+        ),
+      );
+    }
+
     return participants
-        .firstWhere((participant) => participant.user.uid == user.uid);
+        .firstWhere((participant) => participant.userId == user.uid);
   }
 
   Future<void> updateParticipantProgress(
@@ -129,12 +147,18 @@ class CommunityService with ListenableServiceMixin {
       required String challengeId}) async {
     debugPrint('Updating participant progress: ${participant.toString()}');
     CommunityChallenge challenge = getChallengeById(int.parse(challengeId));
-    // TODO: finish implementing this
     DocumentReference doc = await getChallengeDocById(challengeId);
     DocumentSnapshot snapshot = await doc.get();
     List<ParticipantData> participants = await _loadParticipants(challengeId);
-    participants[participants
-        .indexWhere((p) => p.user.uid == participant.user.uid)] = participant;
+
+    int participantIndex =
+        participants.indexWhere((p) => p.userId == participant.userId);
+    if (participantIndex != -1) {
+      participants[participantIndex] = participant;
+    } else {
+      participants.add(participant);
+    }
+
     List<Map<String, dynamic>> participantsFormatted =
         participants.map((p) => p.toMap()).toList();
     doc.set({
@@ -144,27 +168,26 @@ class CommunityService with ListenableServiceMixin {
   }
 
   Future<List<ParticipantData>> _loadParticipants(String challengeId) async {
-    final List participantsList = await _firestore
-        .collection('community-challenges')
-        .where('id', isEqualTo: int.parse(challengeId))
-        .get()
-        .then((snapshot) => snapshot.docs.first)
-        .then((doc) => doc.get('participantDataList'));
-
+    List participantsList;
+    try {
+      participantsList = await _firestore
+          .collection('community-challenges')
+          .where('id', isEqualTo: int.parse(challengeId))
+          .get()
+          .then((snapshot) => snapshot.docs.first)
+          .then((doc) => doc.get('participantDataList'));
+    } catch (e) {
+      debugPrint('Error loading participants: $e');
+      return [];
+    }
 
     final participants = participantsList
         .map((participantData) {
           try {
-            final userData = participantData['user'] as Map<String, dynamic>;
             return ParticipantData(
-              user: UserModel.fromMap(userData),
-              currentCompletions: participantData['currentCompletions'] ?? 0,
-              fullCompletionCount: participantData['fullCompletionCount'] ?? 0,
-              lastSeen: participantData['lastSeen'] != null
-                  ? participantData['lastSeen'] is Timestamp
-                      ? participantData['lastSeen'].toDate()
-                      : DateTime.now()
-                  : null,
+              username: participantData['username'],
+              userId: participantData['userId'],
+              habit: Habit.fromMap(participantData['habit']),
             );
           } catch (e) {
             debugPrint('Error parsing participant data: $e');
@@ -269,11 +292,9 @@ class CommunityService with ListenableServiceMixin {
               resetPeriod: data['habit']['resetPeriod'],
               dateCreated: (data['habit']['dateCreated'] as Timestamp).toDate(),
             ),
+            participants: await _loadParticipants(data['id'].toString()),
           );
 
-          // Load participants
-          final participants = await _loadParticipants(data['id'].toString());
-          challenge.loadParticipants(participants);
           return challenge;
         }),
       );
@@ -318,59 +339,51 @@ class CommunityService with ListenableServiceMixin {
     }
   }
 
-  Future<void> createChallenge({
+  Future<CommunityChallenge> createChallenge({
     required String description,
     required DateTime startDate,
     required DateTime endDate,
     required int requiredFullCompletions,
     required Habit habit,
   }) async {
-    try {
-      if (!_authService.isLoggedIn) {
-        throw Exception('User not logged in');
-      }
+    final id = DateTime.now().millisecondsSinceEpoch;
+    final challengeData = {
+      'description': description,
+      'id': id,
+      'startDate': Timestamp.fromDate(startDate),
+      'endDate': Timestamp.fromDate(endDate),
+      'requiredFullCompletions': requiredFullCompletions,
+      'currentFullCompletions': 0,
+      'habit': habit.toMap(),
+      'participantDataList': [],
+    };
 
-      final challenge = CommunityChallenge(
-        description: description,
-        id: DateTime.now().millisecondsSinceEpoch,
-        startDate: startDate,
-        endDate: endDate,
-        requiredFullCompletions: requiredFullCompletions,
-        habit: habit,
-      );
+    // Save challenge to Firestore
+    await _firestore
+        .collection('community-challenges')
+        .doc(id.toString())
+        .set(challengeData);
 
-      await _firestore.collection('community-challenges').add({
-        'description': challenge.description,
-        'id': challenge.id,
-        'startDate': Timestamp.fromDate(challenge.startDate),
-        'endDate': Timestamp.fromDate(challenge.endDate),
-        'requiredFullCompletions': challenge.requiredFullCompletions,
-        'currentFullCompletions': 0,
-        'createdBy': _authService.userId,
-        'habit': {
-          'title': habit.title,
-          'targetGoal': habit.targetGoal,
-          'id': habit.id,
-          'resetPeriod': habit.resetPeriod,
-          'dateCreated': Timestamp.fromDate(habit.dateCreated),
-        },
-      });
-
-      await loadChallenges();
-    } catch (e) {
-      debugPrint('Error creating challenge: $e');
-      rethrow;
-    }
+    // Create CommunityChallenge
+    return CommunityChallenge(
+      description: description,
+      id: id,
+      startDate: startDate,
+      endDate: endDate,
+      requiredFullCompletions: requiredFullCompletions,
+      currentFullCompletions: 0,
+      habit: habit,
+      participants: [], // Start with empty participants list
+    );
   }
 
-  List<ParticipantData> getTopParticipants(String challengeId) {
-    try {
-      final challenge = _challenges.firstWhere((c) => c.id == challengeId);
-      return challenge.getTopThreeParticipants();
-    } catch (e) {
-      debugPrint('Error getting top participants: $e');
-      return [];
-    }
+  List<ParticipantData> getTopThreeParticipants(String challengeId) {
+    final challenge =
+        _challenges.firstWhere((c) => c.id.toString() == challengeId);
+    final sortedParticipants = List<ParticipantData>.from(
+        challenge.participantData)
+      ..sort((a, b) => b.habit.totalProgress.compareTo(a.habit.totalProgress));
+    return sortedParticipants.take(3).toList();
   }
 
   // Removed methods `enableCommunityFeatures` and `disableCommunityFeatures` as they are now in `SettingsService`.

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:habitur/enums/snackbar_type.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/app/app.locator.dart';
@@ -42,33 +43,31 @@ class RegisterViewModel extends BaseViewModel {
     }
 
     try {
-      await _statusService.executeWithLoading(
-        loadingMessage: 'Creating your account...',
-        operation: () async {
-          // Create user with Firebase Auth
-          final userCredential =
-              await _authService.createUserWithEmailAndPassword(
-            email: _email,
-            password: _password,
-          );
-
-          // Create user model
-          final newUser = UserModel(
-            username: _username,
-            email: _email,
-            uid: userCredential.user!.uid,
-            bio: '',
-            userLevel: 1,
-            userXP: 0,
-            isAdmin: false,
-          );
-
-          // Save user to database
-          await _userService.createUser(newUser);
-          await _navigationService.replaceWith(Routes.homeView);
-        },
-        successMessage: 'Welcome to Habitur!',
+      setBusy(true);
+      final userCredential = await _authService.createUserWithEmailAndPassword(
+        email: _email,
+        password: _password,
       );
+
+      // Create user model
+      final newUser = UserModel(
+        username: _username,
+        email: _email,
+        uid: userCredential.user!.uid,
+        bio: '',
+        userLevel: 1,
+        userXP: 0,
+        isAdmin: false,
+      );
+
+      // Save user to database
+      await _userService.createUser(newUser);
+      await _navigationService.replaceWith(Routes.homeView);
+      setBusy(false);
+
+      _snackbarService.showCustomSnackBar(
+          message: 'Welcome, ${newUser.username}',
+          variant: SnackbarType.success);
     } on FirebaseAuthException catch (e) {
       String message;
       switch (e.code) {

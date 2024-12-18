@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/enums/snackbar_type.dart';
+import 'package:habitur/models/habit_interface.dart';
+import 'package:habitur/services/database_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/app/app.locator.dart';
@@ -22,6 +25,7 @@ class HomeViewModel extends ReactiveViewModel {
   final _notificationSchedulingService =
       locator<NotificationSchedulingService>();
   final _settingsService = locator<SettingsService>();
+  final _snackbarService = locator<SnackbarService>();
 
   int _currentIndex = 0;
   String _userName = '';
@@ -31,7 +35,7 @@ class HomeViewModel extends ReactiveViewModel {
   int _userXP = 0;
 
   int get currentIndex => _currentIndex;
-  List<Habit> get habits => _habitService.habits;
+  List<HabitInterface> get habits => _habitService.habits;
   String get userName => _userName;
   int get totalHabits => _totalHabits;
   int get currentStreak => _currentStreak;
@@ -45,35 +49,30 @@ class HomeViewModel extends ReactiveViewModel {
   }
 
   Future<void> _initialize() async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Loading your data...',
-      operation: () async {
-        await _loadUserData();
-        await _habitService.getUserHabits();
-        await _rescheduleNotificationsIfEnabled();
-      },
-      successMessage: 'Welcome back, $_userName!',
-    );
+    setBusy(true);
+    await _loadUserData();
+    await _habitService.getUserHabits();
+    await _rescheduleNotificationsIfEnabled();
+    setBusy(false);
   }
 
   Future<void> refreshData() async {
-    await _statusService.executeWithLoading(
-      loadingMessage: 'Refreshing your data...',
-      operation: () async {
-        await _dataService.loadAllData(forceDbLoad: true);
-        await _loadUserData();
-        await _habitService.getUserHabits();
-        await _rescheduleNotificationsIfEnabled();
-      },
-      successMessage: 'Data refreshed successfully',
+    setBusy(true);
+    await _dataService.loadAllData(forceDbLoad: true);
+    await _loadUserData();
+    await _habitService.getUserHabits();
+    await _rescheduleNotificationsIfEnabled();
+    setBusy(false);
+    _snackbarService.showCustomSnackBar(
+      message: 'Data refreshed successfully',
+      variant: SnackbarType.success,
     );
   }
 
   Future<void> _rescheduleNotificationsIfEnabled() async {
     try {
       if (_habitService.habits.isNotEmpty) {
-        await _notificationSchedulingService.rescheduleNotifications(
-        );
+        await _notificationSchedulingService.rescheduleNotifications();
       }
     } catch (e) {
       debugPrint('Failed to reschedule notifications: $e');

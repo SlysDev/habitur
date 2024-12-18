@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/time_model.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/services/notification_service.dart';
@@ -16,31 +17,31 @@ class NotificationSchedulingService {
   final SettingsService _settingsService = locator<SettingsService>();
   final UserService _userService = locator<UserService>();
 
-  Future<void> scheduleDefaultTrack(
-      int numberOfNotifs) async {
+  Future<void> scheduleDefaultTrack(int numberOfNotifs) async {
+    DateTime now = DateTime.now();
     final habits = await _habitService.getTodaysDueHabits();
     if (habits.isEmpty) return;
 
-    TimeModel firstNotifTime =
-        _settingsService.getSetting('1st Reminder Time')!.settingValue;
-    TimeModel secondNotifTime =
-        _settingsService.getSetting('2nd Reminder Time')!.settingValue;
-    TimeModel thirdNotifTime =
-        _settingsService.getSetting('3rd Reminder Time')!.settingValue;
+    if (_settingsService.getSetting('Daily Reminders')?.settingValue ?? false) {
+      TimeModel firstNotifTime =
+          _settingsService.getSetting('1st Reminder Time')?.settingValue;
+      TimeModel secondNotifTime =
+          _settingsService.getSetting('2nd Reminder Time')?.settingValue;
+      TimeModel thirdNotifTime =
+          _settingsService.getSetting('3rd Reminder Time')?.settingValue;
+      final habitCount = habits.length;
 
-    DateTime now = DateTime.now();
-    final habitCount = habits.length;
-
-    // Schedule general reminders
-    await _scheduleGeneralReminders(
-      now,
-      firstNotifTime,
-      secondNotifTime,
-      thirdNotifTime,
-      numberOfNotifs,
-      habitCount,
-      _userService.currentUser!.username,
-    );
+      // Schedule general reminders
+      await _scheduleGeneralReminders(
+        now,
+        firstNotifTime,
+        secondNotifTime,
+        thirdNotifTime,
+        numberOfNotifs,
+        habitCount,
+        _userService.currentUser!.username,
+      );
+    }
 
     // Schedule habit-specific smart reminders
     for (var habit in habits) {
@@ -92,7 +93,7 @@ class NotificationSchedulingService {
   }
 
   Future<void> _scheduleSmartRemindersForHabit(
-      Habit habit, DateTime now) async {
+      HabitInterface habit, DateTime now) async {
     final completionHistory = _habitService.getDaysCompleted(habit);
     if (completionHistory.isEmpty) return;
 
@@ -112,7 +113,7 @@ class NotificationSchedulingService {
       title: "Time for: ${habit.title}",
       body: _generateSmartReminderMessage(habit),
       date: reminderTime,
-      id: habit.id! * 100, // Unique ID for habit-specific notifications
+      id: habit.id!, // Unique ID for habit-specific notifications
       channelKey: "habit_smart_notifications",
     );
 
@@ -122,7 +123,7 @@ class NotificationSchedulingService {
       title: "Don't forget: ${habit.title}",
       body: "This is usually a great time for you to complete this habit!",
       date: followUpTime,
-      id: habit.id! * 100 + 1,
+      id: int.parse("${habit.id}1"),
       channelKey: "habit_smart_notifications",
     );
   }
@@ -180,7 +181,7 @@ class NotificationSchedulingService {
     return followUpDateTime;
   }
 
-  String _generateSmartReminderMessage(Habit habit) {
+  String _generateSmartReminderMessage(HabitInterface habit) {
     final messages = [
       "This is usually a great time for you to complete this habit!",
       "Based on your history, you're most successful with this habit around now.",
@@ -192,7 +193,6 @@ class NotificationSchedulingService {
 
   Future<void> rescheduleNotifications() async {
     await _notificationService.cancelAllScheduledNotifications();
-    await scheduleDefaultTrack(
-        3); // Default to 3 notifications per day
+    await scheduleDefaultTrack(3); // Default to 3 notifications per day
   }
 }

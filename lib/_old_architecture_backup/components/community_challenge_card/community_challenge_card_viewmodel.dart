@@ -34,7 +34,7 @@ class CommunityChallengeCardViewModel
 
   bool get isJoined =>
       data?.participants
-          .any((p) => p.user.uid == _authService.currentUser?.uid) ??
+          .any((p) => p.userId == _authService.currentUser?.uid) ??
       false;
 
   List<ParticipantData> get topParticipants {
@@ -64,7 +64,7 @@ class CommunityChallengeCardViewModel
       final currentUser = await _userService.getCurrentUser();
       if (currentUser != null) {
         _currentParticipant = challenge.participants
-            .firstWhere((p) => p.user.uid == currentUser.uid);
+            .firstWhere((p) => p.userId == currentUser.uid);
         notifyListeners();
       }
     } catch (e) {

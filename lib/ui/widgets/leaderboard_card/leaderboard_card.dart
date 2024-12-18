@@ -51,39 +51,45 @@ class LeaderboardCard extends StackedView<LeaderboardCardModel> {
               const SizedBox(width: 16),
               // User Avatar
               UserAvatar(
-                username: participant.user.username,
+                username: participant.username,
                 size: 1,
               ),
               const SizedBox(width: 12),
               // User Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      participant.user.username,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.5,
+              FutureBuilder(
+                  future: viewModel.getUserById(participant.userId),
+                  builder: (context, snapshot) {
+                    return Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            participant.username,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: -0.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          snapshot.connectionState == ConnectionState.waiting
+                              ? const CircularProgressIndicator()
+                              : Text(
+                                  'Level ${snapshot.data?.userLevel ?? 1}',
+                                  style: TextStyle(
+                                    color: kGray,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                        ],
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Level ${participant.user.userLevel}',
-                      style: TextStyle(
-                        color: kGray,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                    );
+                  }),
               // Completion Count
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -98,7 +104,7 @@ class LeaderboardCard extends StackedView<LeaderboardCardModel> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '${participant.fullCompletionCount}',
+                      '${participant.habit.totalProgress}',
                       style: const TextStyle(
                         color: kPrimaryColor,
                         fontWeight: FontWeight.w600,
