@@ -86,4 +86,3 @@ String getTimeSlot(DateTime time) {
 bool stringToBool(String value) {
   return value.toLowerCase() == 'true';
 }
-

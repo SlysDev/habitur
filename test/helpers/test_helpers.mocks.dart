@@ -7,10 +7,20 @@ import 'dart:async' as _i5;
 import 'dart:ui' as _i6;
 
 import 'package:flutter/material.dart' as _i4;
+import 'package:habitur/enums/activity_type.dart' as _i19;
+import 'package:habitur/enums/reaction_type.dart' as _i20;
+import 'package:habitur/models/activity_event.dart' as _i18;
 import 'package:habitur/models/friend_request.dart' as _i8;
+import 'package:habitur/models/habit.dart' as _i14;
 import 'package:habitur/models/habit_interface.dart' as _i9;
+import 'package:habitur/models/shared_habit.dart' as _i13;
+import 'package:habitur/models/stat_point.dart' as _i16;
 import 'package:habitur/models/user.dart' as _i10;
+import 'package:habitur/services/activity_service.dart' as _i17;
 import 'package:habitur/services/friends_service.dart' as _i7;
+import 'package:habitur/services/habit_service.dart' as _i11;
+import 'package:habitur/services/shared_habits_service.dart' as _i12;
+import 'package:habitur/services/user_service.dart' as _i15;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i3;
 import 'package:stacked_services/stacked_services.dart' as _i2;
@@ -695,6 +705,995 @@ class MockFriendsService extends _i1.Mock implements _i7.FriendsService {
   void disableFriendsService() => super.noSuchMethod(
         Invocation.method(
           #disableFriendsService,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [HabitService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockHabitService extends _i1.Mock implements _i11.HabitService {
+  @override
+  List<_i9.HabitInterface> get habits => (super.noSuchMethod(
+        Invocation.getter(#habits),
+        returnValue: <_i9.HabitInterface>[],
+        returnValueForMissingStub: <_i9.HabitInterface>[],
+      ) as List<_i9.HabitInterface>);
+
+  @override
+  _i5.Stream<List<_i9.HabitInterface>> get habitsStream => (super.noSuchMethod(
+        Invocation.getter(#habitsStream),
+        returnValue: _i5.Stream<List<_i9.HabitInterface>>.empty(),
+        returnValueForMissingStub: _i5.Stream<List<_i9.HabitInterface>>.empty(),
+      ) as _i5.Stream<List<_i9.HabitInterface>>);
+
+  @override
+  int get listenersCount => (super.noSuchMethod(
+        Invocation.getter(#listenersCount),
+        returnValue: 0,
+        returnValueForMissingStub: 0,
+      ) as int);
+
+  @override
+  _i5.Future<void> loadHabits() => (super.noSuchMethod(
+        Invocation.method(
+          #loadHabits,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> loadFromRemote() => (super.noSuchMethod(
+        Invocation.method(
+          #loadFromRemote,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> deleteHabit(String? habitId) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteHabit,
+          [habitId],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> incrementHabit(
+    String? habitId,
+    double? difficultyRating, {
+    int? amount = 1,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #incrementHabit,
+          [
+            habitId,
+            difficultyRating,
+          ],
+          {#amount: amount},
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> decrementHabit(
+    String? habitId, {
+    int? amount = 1,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #decrementHabit,
+          [habitId],
+          {#amount: amount},
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<_i9.HabitInterface>> getTodaysDueHabits() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getTodaysDueHabits,
+          [],
+        ),
+        returnValue:
+            _i5.Future<List<_i9.HabitInterface>>.value(<_i9.HabitInterface>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i9.HabitInterface>>.value(<_i9.HabitInterface>[]),
+      ) as _i5.Future<List<_i9.HabitInterface>>);
+
+  @override
+  bool isDue(_i9.HabitInterface? habit) => (super.noSuchMethod(
+        Invocation.method(
+          #isDue,
+          [habit],
+        ),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  int getWeekOfYear(DateTime? date) => (super.noSuchMethod(
+        Invocation.method(
+          #getWeekOfYear,
+          [date],
+        ),
+        returnValue: 0,
+        returnValueForMissingStub: 0,
+      ) as int);
+
+  @override
+  _i5.Future<void> resetDailyHabits() => (super.noSuchMethod(
+        Invocation.method(
+          #resetDailyHabits,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> resetWeeklyHabits() => (super.noSuchMethod(
+        Invocation.method(
+          #resetWeeklyHabits,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> resetMonthlyHabits() => (super.noSuchMethod(
+        Invocation.method(
+          #resetMonthlyHabits,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> resetHabits() => (super.noSuchMethod(
+        Invocation.method(
+          #resetHabits,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> calculateHabitStats() => (super.noSuchMethod(
+        Invocation.method(
+          #calculateHabitStats,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  List<DateTime> getDaysCompleted(_i9.HabitInterface? habit) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getDaysCompleted,
+          [habit],
+        ),
+        returnValue: <DateTime>[],
+        returnValueForMissingStub: <DateTime>[],
+      ) as List<DateTime>);
+
+  @override
+  _i5.Future<void> saveHabits(List<_i9.HabitInterface>? habits) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #saveHabits,
+          [habits],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<_i9.HabitInterface>> getUserHabits({String? userId}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getUserHabits,
+          [],
+          {#userId: userId},
+        ),
+        returnValue:
+            _i5.Future<List<_i9.HabitInterface>>.value(<_i9.HabitInterface>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i9.HabitInterface>>.value(<_i9.HabitInterface>[]),
+      ) as _i5.Future<List<_i9.HabitInterface>>);
+
+  @override
+  _i5.Future<List<_i9.HabitInterface>> getVisibleHabits({String? userId}) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getVisibleHabits,
+          [],
+          {#userId: userId},
+        ),
+        returnValue:
+            _i5.Future<List<_i9.HabitInterface>>.value(<_i9.HabitInterface>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i9.HabitInterface>>.value(<_i9.HabitInterface>[]),
+      ) as _i5.Future<List<_i9.HabitInterface>>);
+
+  @override
+  _i5.Future<void> addHabit(_i9.HabitInterface? habit) => (super.noSuchMethod(
+        Invocation.method(
+          #addHabit,
+          [habit],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> updateHabit(_i9.HabitInterface? habit) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateHabit,
+          [habit],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<_i9.HabitInterface?> getHabit(String? habitId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getHabit,
+          [habitId],
+        ),
+        returnValue: _i5.Future<_i9.HabitInterface?>.value(),
+        returnValueForMissingStub: _i5.Future<_i9.HabitInterface?>.value(),
+      ) as _i5.Future<_i9.HabitInterface?>);
+
+  @override
+  double calculateConsistencyFactor(_i9.HabitInterface? habit) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #calculateConsistencyFactor,
+          [habit],
+        ),
+        returnValue: 0.0,
+        returnValueForMissingStub: 0.0,
+      ) as double);
+
+  @override
+  void listenToReactiveValues(List<dynamic>? reactiveValues) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #listenToReactiveValues,
+          [reactiveValues],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addListener(void Function()? listener) => super.noSuchMethod(
+        Invocation.method(
+          #addListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeListener(void Function()? listener) => super.noSuchMethod(
+        Invocation.method(
+          #removeListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+        Invocation.method(
+          #notifyListeners,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [SharedHabitsService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSharedHabitsService extends _i1.Mock
+    implements _i12.SharedHabitsService {
+  @override
+  List<_i13.SharedHabit> get sharedHabits => (super.noSuchMethod(
+        Invocation.getter(#sharedHabits),
+        returnValue: <_i13.SharedHabit>[],
+        returnValueForMissingStub: <_i13.SharedHabit>[],
+      ) as List<_i13.SharedHabit>);
+
+  @override
+  int get listenersCount => (super.noSuchMethod(
+        Invocation.getter(#listenersCount),
+        returnValue: 0,
+        returnValueForMissingStub: 0,
+      ) as int);
+
+  @override
+  _i5.Future<List<_i13.SharedHabit>> getSharedHabits() => (super.noSuchMethod(
+        Invocation.method(
+          #getSharedHabits,
+          [],
+        ),
+        returnValue:
+            _i5.Future<List<_i13.SharedHabit>>.value(<_i13.SharedHabit>[]),
+        returnValueForMissingStub:
+            _i5.Future<List<_i13.SharedHabit>>.value(<_i13.SharedHabit>[]),
+      ) as _i5.Future<List<_i13.SharedHabit>>);
+
+  @override
+  _i5.Future<void> createSharedHabit(_i13.SharedHabit? sharedHabit) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #createSharedHabit,
+          [sharedHabit],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> updateSharedHabit(_i13.SharedHabit? sharedHabit) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateSharedHabit,
+          [sharedHabit],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> deleteSharedHabit(String? habitId) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteSharedHabit,
+          [habitId],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> incrementHabit(
+    String? habitId,
+    double? difficultyRating, {
+    int? amount = 1,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #incrementHabit,
+          [
+            habitId,
+            difficultyRating,
+          ],
+          {#amount: amount},
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> decrementHabit(
+    String? habitId, {
+    int? amount = 1,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #decrementHabit,
+          [habitId],
+          {#amount: amount},
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> updateParticipantProgress(
+    _i13.SharedHabit? sharedHabit,
+    String? userId,
+    _i14.Habit? participantHabitData,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateParticipantProgress,
+          [
+            sharedHabit,
+            userId,
+            participantHabitData,
+          ],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<_i13.SharedHabit?> getSharedHabitById(int? habitId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getSharedHabitById,
+          [habitId],
+        ),
+        returnValue: _i5.Future<_i13.SharedHabit?>.value(),
+        returnValueForMissingStub: _i5.Future<_i13.SharedHabit?>.value(),
+      ) as _i5.Future<_i13.SharedHabit?>);
+
+  @override
+  _i5.Future<_i13.SharedHabit?> convertHabitToSharedHabit(
+    _i14.Habit? habit,
+    List<_i10.UserModel>? participants,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #convertHabitToSharedHabit,
+          [
+            habit,
+            participants,
+          ],
+        ),
+        returnValue: _i5.Future<_i13.SharedHabit?>.value(),
+        returnValueForMissingStub: _i5.Future<_i13.SharedHabit?>.value(),
+      ) as _i5.Future<_i13.SharedHabit?>);
+
+  @override
+  void listenToReactiveValues(List<dynamic>? reactiveValues) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #listenToReactiveValues,
+          [reactiveValues],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addListener(void Function()? listener) => super.noSuchMethod(
+        Invocation.method(
+          #addListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeListener(void Function()? listener) => super.noSuchMethod(
+        Invocation.method(
+          #removeListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+        Invocation.method(
+          #notifyListeners,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [UserService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockUserService extends _i1.Mock implements _i15.UserService {
+  @override
+  int get listenersCount => (super.noSuchMethod(
+        Invocation.getter(#listenersCount),
+        returnValue: 0,
+        returnValueForMissingStub: 0,
+      ) as int);
+
+  @override
+  bool isSameDay(
+    DateTime? date1,
+    DateTime? date2,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #isSameDay,
+          [
+            date1,
+            date2,
+          ],
+        ),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  _i5.Future<void> updateCompletions(
+    _i10.UserModel? user, {
+    double? amount = 1.0,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateCompletions,
+          [user],
+          {#amount: amount},
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> undoCompletion(
+    _i10.UserModel? user, {
+    double? amount,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #undoCompletion,
+          [user],
+          {#amount: amount},
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> updateConfidenceLevel(
+    _i10.UserModel? user,
+    double? newConfidenceLevel,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateConfidenceLevel,
+          [
+            user,
+            newConfidenceLevel,
+          ],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  List<_i16.StatPoint> getStatsForDateRange(
+    _i10.UserModel? user,
+    DateTime? startDate,
+    DateTime? endDate,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getStatsForDateRange,
+          [
+            user,
+            startDate,
+            endDate,
+          ],
+        ),
+        returnValue: <_i16.StatPoint>[],
+        returnValueForMissingStub: <_i16.StatPoint>[],
+      ) as List<_i16.StatPoint>);
+
+  @override
+  List<_i16.StatPoint> getStats(_i10.UserModel? user) => (super.noSuchMethod(
+        Invocation.method(
+          #getStats,
+          [user],
+        ),
+        returnValue: <_i16.StatPoint>[],
+        returnValueForMissingStub: <_i16.StatPoint>[],
+      ) as List<_i16.StatPoint>);
+
+  @override
+  _i5.Future<void> unlogHabitCompletion() => (super.noSuchMethod(
+        Invocation.method(
+          #unlogHabitCompletion,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> recordAverageConfidenceLevel(List<_i14.Habit>? habits) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #recordAverageConfidenceLevel,
+          [habits],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> fillInMissingDays() => (super.noSuchMethod(
+        Invocation.method(
+          #fillInMissingDays,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> sortStats() => (super.noSuchMethod(
+        Invocation.method(
+          #sortStats,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> updateStats(List<_i14.Habit>? habits) => (super.noSuchMethod(
+        Invocation.method(
+          #updateStats,
+          [habits],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<_i10.UserModel?> getCurrentUser() => (super.noSuchMethod(
+        Invocation.method(
+          #getCurrentUser,
+          [],
+        ),
+        returnValue: _i5.Future<_i10.UserModel?>.value(),
+        returnValueForMissingStub: _i5.Future<_i10.UserModel?>.value(),
+      ) as _i5.Future<_i10.UserModel?>);
+
+  @override
+  _i5.Future<_i10.UserModel?> getUserById(String? userId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getUserById,
+          [userId],
+        ),
+        returnValue: _i5.Future<_i10.UserModel?>.value(),
+        returnValueForMissingStub: _i5.Future<_i10.UserModel?>.value(),
+      ) as _i5.Future<_i10.UserModel?>);
+
+  @override
+  _i5.Future<void> createUser(_i10.UserModel? user) => (super.noSuchMethod(
+        Invocation.method(
+          #createUser,
+          [user],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> updateUser(_i10.UserModel? user) => (super.noSuchMethod(
+        Invocation.method(
+          #updateUser,
+          [user],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> loadUser(String? userId) => (super.noSuchMethod(
+        Invocation.method(
+          #loadUser,
+          [userId],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> loadFromRemote() => (super.noSuchMethod(
+        Invocation.method(
+          #loadFromRemote,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> loadFromLocal() => (super.noSuchMethod(
+        Invocation.method(
+          #loadFromLocal,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  void listenToReactiveValues(List<dynamic>? reactiveValues) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #listenToReactiveValues,
+          [reactiveValues],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addListener(void Function()? listener) => super.noSuchMethod(
+        Invocation.method(
+          #addListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeListener(void Function()? listener) => super.noSuchMethod(
+        Invocation.method(
+          #removeListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+        Invocation.method(
+          #notifyListeners,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [ActivityService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockActivityService extends _i1.Mock implements _i17.ActivityService {
+  @override
+  List<_i18.ActivityEvent> get activities => (super.noSuchMethod(
+        Invocation.getter(#activities),
+        returnValue: <_i18.ActivityEvent>[],
+        returnValueForMissingStub: <_i18.ActivityEvent>[],
+      ) as List<_i18.ActivityEvent>);
+
+  @override
+  bool get hasMore => (super.noSuchMethod(
+        Invocation.getter(#hasMore),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get isLoading => (super.noSuchMethod(
+        Invocation.getter(#isLoading),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  bool get isEnabled => (super.noSuchMethod(
+        Invocation.getter(#isEnabled),
+        returnValue: false,
+        returnValueForMissingStub: false,
+      ) as bool);
+
+  @override
+  int get listenersCount => (super.noSuchMethod(
+        Invocation.getter(#listenersCount),
+        returnValue: 0,
+        returnValueForMissingStub: 0,
+      ) as int);
+
+  @override
+  _i5.Future<_i18.ActivityEvent?> getActivity(String? activityId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getActivity,
+          [activityId],
+        ),
+        returnValue: _i5.Future<_i18.ActivityEvent?>.value(),
+        returnValueForMissingStub: _i5.Future<_i18.ActivityEvent?>.value(),
+      ) as _i5.Future<_i18.ActivityEvent?>);
+
+  @override
+  _i5.Future<_i5.Stream<List<_i18.ActivityEvent>>> getActivitiesStream() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getActivitiesStream,
+          [],
+        ),
+        returnValue: _i5.Future<_i5.Stream<List<_i18.ActivityEvent>>>.value(
+            _i5.Stream<List<_i18.ActivityEvent>>.empty()),
+        returnValueForMissingStub:
+            _i5.Future<_i5.Stream<List<_i18.ActivityEvent>>>.value(
+                _i5.Stream<List<_i18.ActivityEvent>>.empty()),
+      ) as _i5.Future<_i5.Stream<List<_i18.ActivityEvent>>>);
+
+  @override
+  _i5.Future<void> loadInitialActivities() => (super.noSuchMethod(
+        Invocation.method(
+          #loadInitialActivities,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> loadMoreActivities() => (super.noSuchMethod(
+        Invocation.method(
+          #loadMoreActivities,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> createActivity(_i18.ActivityEvent? activity) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #createActivity,
+          [activity],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> createActivityForEvent(
+    String? userId,
+    String? username,
+    _i19.ActivityType? type,
+    String? habitId,
+    String? habitTitle, {
+    Map<String, dynamic>? metadata,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #createActivityForEvent,
+          [
+            userId,
+            username,
+            type,
+            habitId,
+            habitTitle,
+          ],
+          {#metadata: metadata},
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> likeActivity(String? activityId) => (super.noSuchMethod(
+        Invocation.method(
+          #likeActivity,
+          [activityId],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> unlikeActivity(String? activityId) => (super.noSuchMethod(
+        Invocation.method(
+          #unlikeActivity,
+          [activityId],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> deleteActivity(String? activityId) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteActivity,
+          [activityId],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> toggleReaction(
+    String? activityId,
+    _i20.ReactionType? type,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #toggleReaction,
+          [
+            activityId,
+            type,
+          ],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> addComment(
+    String? activityId,
+    _i18.Comment? comment,
+  ) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #addComment,
+          [
+            activityId,
+            comment,
+          ],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
+  void enableActivityService() => super.noSuchMethod(
+        Invocation.method(
+          #enableActivityService,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void disableActivityService() => super.noSuchMethod(
+        Invocation.method(
+          #disableActivityService,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void listenToReactiveValues(List<dynamic>? reactiveValues) =>
+      super.noSuchMethod(
+        Invocation.method(
+          #listenToReactiveValues,
+          [reactiveValues],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addListener(void Function()? listener) => super.noSuchMethod(
+        Invocation.method(
+          #addListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeListener(void Function()? listener) => super.noSuchMethod(
+        Invocation.method(
+          #removeListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+        Invocation.method(
+          #notifyListeners,
           [],
         ),
         returnValueForMissingStub: null,

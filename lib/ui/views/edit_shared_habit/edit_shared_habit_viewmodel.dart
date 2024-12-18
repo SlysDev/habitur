@@ -3,6 +3,7 @@ import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/user_service.dart';
+import 'package:habitur/util_functions.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/services/shared_habits_service.dart';
@@ -162,8 +163,10 @@ class EditSharedHabitViewModel extends BaseViewModel {
 
       // Navigate back after successful save
       notifyListeners();
+      navigateBack();
     } catch (e) {
       setError(e);
+      showErrorSnackbar('Error saving habit. Please try again.');
     }
     setBusy(false);
   }

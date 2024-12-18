@@ -186,7 +186,6 @@ class EditSharedHabitView extends StackedView<EditSharedHabitViewModel> {
                             ? () {}
                             : () {
                                 viewModel.saveHabit();
-                                viewModel.navigateBack();
                               },
                         text: viewModel.isBusy ? '...' : 'Save Habit',
                       ),

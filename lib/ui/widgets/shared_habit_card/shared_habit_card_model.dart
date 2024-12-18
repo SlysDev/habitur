@@ -60,7 +60,9 @@ class SharedHabitCardModel extends BaseViewModel {
 
   Future<void> incrementSharedHabit() async {
     try {
-    if (sharedHabit.getParticipantHabitById(_userService.currentUser?.uid ?? '').isCompleted) return;
+      if (sharedHabit
+          .getParticipantHabitById(_userService.currentUser?.uid ?? '')
+          .isCompleted) return;
       setBusy(true);
       final difficulty = await showDifficultyPopup();
       debugPrint('Incrementing shared habit with difficulty: $difficulty');
@@ -79,12 +81,12 @@ class SharedHabitCardModel extends BaseViewModel {
         }
         newConfidenceLevel = _getCurrentUserConfidenceLevel();
 
-      if (_statsCalculationService.isStreakMilestone(sharedHabit.streak)) {
-        await _dialogService.showCustomDialog(
-          variant: DialogType.streakMilestone,
-          data: {"streak": sharedHabit.streak},
-        );
-      }
+        if (_statsCalculationService.isStreakMilestone(sharedHabit.streak)) {
+          await _dialogService.showCustomDialog(
+            variant: DialogType.streakMilestone,
+            data: {"streak": sharedHabit.streak},
+          );
+        }
         rebuildUi();
       } catch (e) {
         debugPrint('Error incrementing shared habit: $e');
@@ -222,5 +224,4 @@ class SharedHabitCardModel extends BaseViewModel {
       setBusy(false);
     }
   }
-
 }
