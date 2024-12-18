@@ -28,7 +28,8 @@ class UserStatsService {
     var frames = current.toString().split('\n');
     if (frames.length > 2) {
       var frame = frames[2]; // Adjust index if necessary
-      var match = RegExp(r'#\d+\s+(\S+)\s+\(([^:]+):(\d+):\d+\)').firstMatch(frame);
+      var match =
+          RegExp(r'#\d+\s+(\S+)\s+\(([^:]+):(\d+):\d+\)').firstMatch(frame);
       if (match != null) {
         var functionName = match.group(1);
         var fileName = match.group(2)?.split('/').last;
@@ -233,7 +234,8 @@ class UserStatsService {
   }
 
   Future<void> logHabitIncrement(List<HabitInterface> habits) async {
-    _log('Logging habit increment for habits: ${habits.map((h) => h.id).toList()}');
+    _log(
+        'Logging habit increment for habits: ${habits.map((h) => h.id).toList()}');
     final user = _userService.currentUser;
     if (user == null) return;
 
@@ -287,7 +289,8 @@ class UserStatsService {
   }
 
   Future<void> unlogHabitIncrement(List<HabitInterface> habits) async {
-    _log('Unlogging habit increment for habits: ${habits.map((h) => h.id).toList()}');
+    _log(
+        'Unlogging habit increment for habits: ${habits.map((h) => h.id).toList()}');
     final user = _userService.currentUser;
     if (user == null || user.stats.isEmpty) return;
 

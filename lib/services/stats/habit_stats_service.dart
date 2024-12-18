@@ -61,16 +61,21 @@ class HabitStatsService {
       habit.stats.add(statPoint);
     }
 
-      // calculate confidence level, consistency factor, and slopes after the fact
-      habit.confidenceLevel = _statsCalculationService.calculateConfidenceLevel(habit);
-      habit.stats.last.confidenceLevel =
-          _statsCalculationService.calculateConfidenceLevel(habit);
-      habit.stats.last.consistencyFactor = _statsCalculationService
-          .calculateConsistencyFactor(habit.stats, habit.targetGoal);
-      habit.stats.last.slopeCompletions = _statsCalculationService.calculateStatSlope('completions', habit.stats);
-      habit.stats.last.slopeConfidenceLevel = _statsCalculationService.calculateStatSlope('confidenceLevel', habit.stats);
-      habit.stats.last.slopeConsistency = _statsCalculationService.calculateStatSlope('consistencyFactor', habit.stats);
-      habit.stats.last.slopeDifficultyRating = _statsCalculationService.calculateStatSlope('difficultyRating', habit.stats);
+    // calculate confidence level, consistency factor, and slopes after the fact
+    habit.confidenceLevel =
+        _statsCalculationService.calculateConfidenceLevel(habit);
+    habit.stats.last.confidenceLevel =
+        _statsCalculationService.calculateConfidenceLevel(habit);
+    habit.stats.last.consistencyFactor = _statsCalculationService
+        .calculateConsistencyFactor(habit.stats, habit.targetGoal);
+    habit.stats.last.slopeCompletions =
+        _statsCalculationService.calculateStatSlope('completions', habit.stats);
+    habit.stats.last.slopeConfidenceLevel = _statsCalculationService
+        .calculateStatSlope('confidenceLevel', habit.stats);
+    habit.stats.last.slopeConsistency = _statsCalculationService
+        .calculateStatSlope('consistencyFactor', habit.stats);
+    habit.stats.last.slopeDifficultyRating = _statsCalculationService
+        .calculateStatSlope('difficultyRating', habit.stats);
 
     if (habit.isCompleted) {
       // If the habit has reached its target and is now completed.

@@ -26,7 +26,8 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
     SharedHabitCardModel viewModel,
     Widget? child,
   ) {
-    double height = 128.0 + (viewModel.sharedHabit.title.length.toDouble() * 2.15);
+    double height =
+        128.0 + (viewModel.sharedHabit.title.length.toDouble() * 2.15);
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 400),
       curve: Curves.fastOutSlowIn,
@@ -53,16 +54,17 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
                     borderRadius: BorderRadius.circular(20),
                     label: 'Delete',
                   ),
-                  viewModel.isCurrentUserAuthor ? 
-                  SlidableAction(
-                    onPressed: (context) async {
-                      await viewModel.editSharedHabit();
-                    },
-                    backgroundColor: kDarkPrimaryColor,
-                    icon: Icons.edit,
-                    borderRadius: BorderRadius.circular(20),
-                    label: 'Edit',
-                  ) : Container(),
+                  viewModel.isCurrentUserAuthor
+                      ? SlidableAction(
+                          onPressed: (context) async {
+                            await viewModel.editSharedHabit();
+                          },
+                          backgroundColor: kDarkPrimaryColor,
+                          icon: Icons.edit,
+                          borderRadius: BorderRadius.circular(20),
+                          label: 'Edit',
+                        )
+                      : Container(),
                 ],
               ),
               child: Stack(
@@ -179,11 +181,13 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
             child: Align(
               alignment: Alignment.center,
               child: ConfettiWidget(
-                emissionFrequency: 0,
-                minBlastForce: 10,
-                numberOfParticles: 10,
-                blastDirectionality: BlastDirectionality.explosive,
                 confettiController: viewModel.controller,
+                blastDirectionality: BlastDirectionality.explosive,
+                emissionFrequency: 0.02,
+                numberOfParticles: 15,
+                gravity: 0.1,
+                maxBlastForce: 20,
+                minBlastForce: 10,
               ),
             ),
           ),

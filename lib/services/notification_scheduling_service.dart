@@ -23,24 +23,24 @@ class NotificationSchedulingService {
     if (habits.isEmpty) return;
 
     if (_settingsService.getSetting('Daily Reminders')?.settingValue ?? false) {
-    TimeModel firstNotifTime =
-        _settingsService.getSetting('1st Reminder Time')?.settingValue;
-    TimeModel secondNotifTime =
-        _settingsService.getSetting('2nd Reminder Time')?.settingValue;
-    TimeModel thirdNotifTime =
-        _settingsService.getSetting('3rd Reminder Time')?.settingValue;
-    final habitCount = habits.length;
+      TimeModel firstNotifTime =
+          _settingsService.getSetting('1st Reminder Time')?.settingValue;
+      TimeModel secondNotifTime =
+          _settingsService.getSetting('2nd Reminder Time')?.settingValue;
+      TimeModel thirdNotifTime =
+          _settingsService.getSetting('3rd Reminder Time')?.settingValue;
+      final habitCount = habits.length;
 
-    // Schedule general reminders
-    await _scheduleGeneralReminders(
-      now,
-      firstNotifTime,
-      secondNotifTime,
-      thirdNotifTime,
-      numberOfNotifs,
-      habitCount,
-      _userService.currentUser!.username,
-    );
+      // Schedule general reminders
+      await _scheduleGeneralReminders(
+        now,
+        firstNotifTime,
+        secondNotifTime,
+        thirdNotifTime,
+        numberOfNotifs,
+        habitCount,
+        _userService.currentUser!.username,
+      );
     }
 
     // Schedule habit-specific smart reminders

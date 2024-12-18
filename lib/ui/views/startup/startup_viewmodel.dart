@@ -19,7 +19,8 @@ class StartupViewModel extends BaseViewModel {
   final _userService = locator<UserService>();
   final _dataService = locator<DataService>();
   final _notificationService = locator<NotificationService>();
-  final _notificationSchedulingService = locator<NotificationSchedulingService>();
+  final _notificationSchedulingService =
+      locator<NotificationSchedulingService>();
   final _localStorageService = locator<LocalStorageService>();
   final _databaseService = locator<DatabaseService>();
   final _settingsService = locator<SettingsService>();
@@ -34,7 +35,7 @@ class StartupViewModel extends BaseViewModel {
       // Request notification permissions early
       await _notificationService.requestPermission();
 
-      // Load settings 
+      // Load settings
       await _settingsService.loadSettings();
 
       debugPrint(

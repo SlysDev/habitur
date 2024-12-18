@@ -138,8 +138,8 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                         ),
                         const SizedBox(width: 4),
                         Icon(
-                          Icons.local_fire_department,
-                          color: Colors.orange.withOpacity(0.8),
+                          Icons.local_fire_department_rounded,
+                          color: kOrangeAccent,
                           size: 20,
                         ),
                       ],

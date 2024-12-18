@@ -153,20 +153,21 @@ class EditSharedHabitView extends StackedView<EditSharedHabitViewModel> {
                                         participant.userId !=
                                         viewModel.currentUserId)
                                     .map(
-                                  (participant) => ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    title: Text(
-                                      participant.username,
-                                      style: const TextStyle(color: Colors.white),
+                                      (participant) => ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        title: Text(
+                                          participant.username,
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
+                                        trailing: IconButton(
+                                          icon: const Icon(Icons.close,
+                                              color: Colors.white),
+                                          onPressed: () => viewModel
+                                              .removeParticipant(participant),
+                                        ),
+                                      ),
                                     ),
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.close,
-                                          color: Colors.white),
-                                      onPressed: () =>
-                                          viewModel.removeParticipant(participant),
-                                    ),
-                                  ),
-                                ),
                                 verticalSpaceSmall,
                                 PrimaryButton(
                                   text: 'Select Participants',

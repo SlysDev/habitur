@@ -86,8 +86,8 @@ class SharedHabitDashboardView
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(
-                  Icons.local_fire_department,
-                  color: kLightRedAccent,
+                  Icons.local_fire_department_rounded,
+                  color: kOrangeAccent,
                   size: 48,
                 ),
                 const SizedBox(height: 8),
