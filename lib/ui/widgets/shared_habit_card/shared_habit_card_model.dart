@@ -79,6 +79,13 @@ class SharedHabitCardModel extends BaseViewModel {
           _controller.play();
         }
         newConfidenceLevel = _getCurrentUserConfidenceLevel();
+
+      if (_isStreakMilestone(sharedHabit.streak)) {
+        await _dialogService.showCustomDialog(
+          variant: DialogType.streakMilestone,
+          data: {"streak": sharedHabit.streak},
+        );
+      }
         rebuildUi();
       } catch (e) {
         debugPrint('Error incrementing shared habit: $e');
@@ -216,4 +223,9 @@ class SharedHabitCardModel extends BaseViewModel {
       setBusy(false);
     }
   }
+
+  bool _isStreakMilestone(int streak) {
+    return streak > 0 && (streak % 7 == 0 || streak % 30 == 0 || streak == 1);
+  }
+
 }

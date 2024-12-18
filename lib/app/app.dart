@@ -44,6 +44,10 @@ import '../ui/views/edit_habit/edit_habit_view.dart';
 import '../ui/views/habit_overview/habit_overview_view.dart';
 import '../ui/views/shared_habit_dashboard/shared_habit_dashboard_view.dart';
 
+import 'package:habitur/ui/dialogs/streak_milestone/streak_milestone_dialog.dart';
+
+import 'package:habitur/ui/dialogs/streak_milestone/streak_milestone_dialog.dart';
+
 // @stacked-import
 @StackedApp(
   routes: [
@@ -139,6 +143,10 @@ import '../ui/views/shared_habit_dashboard/shared_habit_dashboard_view.dart';
     LazySingleton(classType: StatsOrchestrationService),
     LazySingleton(classType: NotificationSchedulingService),
     // @stacked-service
+  ],
+  dialogs: [
+    StackedDialog(classType: StreakMilestoneDialog),
+// @stacked-dialog
   ],
   logger: StackedLogger(),
 )

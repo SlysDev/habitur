@@ -6,4 +6,5 @@ enum DialogType {
   loading,
   success,
   selectFriends,
+  streakMilestone,
 }

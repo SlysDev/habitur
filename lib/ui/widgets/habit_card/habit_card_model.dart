@@ -72,6 +72,14 @@ class HabitCardModel extends BaseViewModel {
 
       HabitInterface? updatedHabit;
       updatedHabit = await _habitService.getHabit(habit.id.toString());
+
+      if (_isStreakMilestone(habit.streak)) {
+        await _dialogService.showCustomDialog(
+          variant: DialogType.streakMilestone,
+          data: {"streak": habit.streak},
+        );
+      }
+
       if (_completed && updatedHabit!.isCompleted) {
         _controller.play();
       }
@@ -156,6 +164,10 @@ class HabitCardModel extends BaseViewModel {
     );
 
     return response?.data ?? 5.0;
+  }
+
+  bool _isStreakMilestone(int streak) {
+    return streak > 0 && (streak % 7 == 0 || streak % 30 == 0 || streak == 1);
   }
 
   ConfettiController get controller => _controller;
