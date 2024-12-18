@@ -177,6 +177,9 @@ class HabitService with ListenableServiceMixin {
     debugPrint('Total habits to check: ${habits.length}');
 
     for (var habit in habits) {
+      if (habit is SharedHabit) {
+        habit = habit.getParticipantHabitById(_authService.currentUser!.uid);
+      }
       debugPrint('Checking habit: ID: ${habit.id}, Title: ${habit.title}');
       if (habit.resetPeriod.toLowerCase() == 'daily' &&
           habit.daysCompleted.isNotEmpty) {
@@ -248,6 +251,9 @@ class HabitService with ListenableServiceMixin {
     bool needsNotificationReschedule = false;
 
     for (var habit in habits) {
+      if (habit is SharedHabit) {
+        habit = habit.getParticipantHabitById(_authService.currentUser!.uid);
+      }
       if (habit.resetPeriod.toLowerCase() == 'weekly' &&
           habit.daysCompleted.isNotEmpty) {
         final now = DateTime.now();
@@ -287,6 +293,9 @@ class HabitService with ListenableServiceMixin {
     bool needsNotificationReschedule = false;
 
     for (var habit in habits) {
+      if (habit is SharedHabit) {
+        habit = habit.getParticipantHabitById(_authService.currentUser!.uid);
+      }
       if (habit.resetPeriod.toLowerCase() == 'monthly' &&
           habit.daysCompleted.isNotEmpty) {
         final now = DateTime.now();
