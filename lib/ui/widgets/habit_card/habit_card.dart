@@ -159,7 +159,7 @@ class HabitCard extends StatelessWidget {
                   child: ConfettiWidget(
                     confettiController: model.controller,
                     blastDirectionality: BlastDirectionality.explosive,
-                    emissionFrequency: 0.02,
+                    emissionFrequency: 0,
                     numberOfParticles: 15,
                     gravity: 0.1,
                     maxBlastForce: 20,

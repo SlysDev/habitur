@@ -183,7 +183,7 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
               child: ConfettiWidget(
                 confettiController: viewModel.controller,
                 blastDirectionality: BlastDirectionality.explosive,
-                emissionFrequency: 0.02,
+                emissionFrequency: 0,
                 numberOfParticles: 15,
                 gravity: 0.1,
                 maxBlastForce: 20,

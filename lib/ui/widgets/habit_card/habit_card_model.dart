@@ -4,14 +4,11 @@ import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
 import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/enums/dialog_type.dart';
-import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/habit_interface.dart';
-import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/progress.dart';
-import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/habit_service.dart';
-import 'package:habitur/services/shared_habits_service.dart';
+import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -22,7 +19,7 @@ class HabitCardModel extends BaseViewModel {
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
   final _userService = locator<UserService>();
-  final _sharedHabitsService = locator<SharedHabitsService>();
+  final _statsCalculationService = locator<StatsCalculationService>();
   late final ConfettiController _controller;
 
   HabitInterface habit;
@@ -73,7 +70,7 @@ class HabitCardModel extends BaseViewModel {
       HabitInterface? updatedHabit;
       updatedHabit = await _habitService.getHabit(habit.id.toString());
 
-      if (_isStreakMilestone(habit.streak)) {
+      if (_statsCalculationService.isStreakMilestone(habit.streak)) {
         await _dialogService.showCustomDialog(
           variant: DialogType.streakMilestone,
           data: {"streak": habit.streak},
@@ -164,10 +161,6 @@ class HabitCardModel extends BaseViewModel {
     );
 
     return response?.data ?? 5.0;
-  }
-
-  bool _isStreakMilestone(int streak) {
-    return streak > 0 && (streak % 7 == 0 || streak % 30 == 0 || streak == 1);
   }
 
   ConfettiController get controller => _controller;

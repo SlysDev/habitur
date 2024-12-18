@@ -2,24 +2,23 @@ import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
-import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/models/shared_habit.dart';
-import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/shared_habits_service.dart';
+import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class SharedHabitCardModel extends BaseViewModel {
-  final _activityService = locator<ActivityService>();
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
   final _userService = locator<UserService>();
   final _sharedHabitsService = locator<SharedHabitsService>();
+  final _statsCalculationService = locator<StatsCalculationService>();
   late final ConfettiController _controller;
 
   SharedHabit sharedHabit;
@@ -57,11 +56,11 @@ class SharedHabitCardModel extends BaseViewModel {
       .isCompleted;
 
   bool get isCurrentUserAuthor =>
-      sharedHabit?.author?.uid == _userService.currentUser?.uid;
+      sharedHabit.author?.uid == _userService.currentUser?.uid;
 
   Future<void> incrementSharedHabit() async {
-    if (sharedHabit.isCompleted) return;
     try {
+    if (sharedHabit.getParticipantHabitById(_userService.currentUser?.uid ?? '').isCompleted) return;
       setBusy(true);
       final difficulty = await showDifficultyPopup();
       debugPrint('Incrementing shared habit with difficulty: $difficulty');
@@ -80,7 +79,7 @@ class SharedHabitCardModel extends BaseViewModel {
         }
         newConfidenceLevel = _getCurrentUserConfidenceLevel();
 
-      if (_isStreakMilestone(sharedHabit.streak)) {
+      if (_statsCalculationService.isStreakMilestone(sharedHabit.streak)) {
         await _dialogService.showCustomDialog(
           variant: DialogType.streakMilestone,
           data: {"streak": sharedHabit.streak},
@@ -222,10 +221,6 @@ class SharedHabitCardModel extends BaseViewModel {
     } finally {
       setBusy(false);
     }
-  }
-
-  bool _isStreakMilestone(int streak) {
-    return streak > 0 && (streak % 7 == 0 || streak % 30 == 0 || streak == 1);
   }
 
 }

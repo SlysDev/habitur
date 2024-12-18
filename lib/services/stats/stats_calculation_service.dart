@@ -638,4 +638,10 @@ class StatsCalculationService {
               .length;
     });
   }
+
+
+  bool isStreakMilestone(int streak) {
+    return streak > 0 && (streak % 7 == 0 || streak % 30 == 0 || streak == 1);
+  }
+
 }
