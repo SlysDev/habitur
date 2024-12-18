@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/user.dart';
-import 'package:habitur/ui/common/app_colors.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'select_friends_model.dart';
 

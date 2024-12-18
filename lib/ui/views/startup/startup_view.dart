@@ -26,6 +26,9 @@ class StartupView extends StackedView<StartupViewModel> {
             const SizedBox(height: 20),
             if (viewModel.isBusy)
               const CircularProgressIndicator(
+                color: kPrimaryColor,
+                strokeCap: StrokeCap.round,
+                strokeWidth: 6.0,
                 valueColor: AlwaysStoppedAnimation<Color>(kPrimaryColor),
               ),
           ],

@@ -1,4 +1,5 @@
 import 'package:habitur/services/notification_scheduling_service.dart';
+import 'package:habitur/services/shared_habits_service.dart';
 import 'package:habitur/services/stats/aggregate_stats_calculator_service.dart';
 import 'package:habitur/services/stats/habit_stats_service.dart';
 import 'package:habitur/services/stats/stats_orchestration_service.dart';
@@ -7,7 +8,6 @@ import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/status_service.dart';
 import 'package:habitur/services/sync_service.dart';
 import 'package:habitur/ui/views/edit_shared_habit/edit_shared_habit_view.dart';
-import 'package:habitur/ui/views/invite_participants/invite_participants_view.dart';
 import 'package:habitur/ui/views/startup/startup_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
@@ -101,10 +101,6 @@ import 'package:habitur/ui/dialogs/streak_milestone/streak_milestone_dialog.dart
     ),
     CustomRoute(
       page: SharedHabitDashboardView,
-      transitionsBuilder: TransitionsBuilders.fadeIn,
-    ),
-    CustomRoute(
-      page: InviteParticipantsView,
       transitionsBuilder: TransitionsBuilders.fadeIn,
     ),
     CustomRoute(
