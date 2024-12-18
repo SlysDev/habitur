@@ -1,295 +1,82 @@
-import 'dart:io';
-
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:habitur/data/local/auth_local_storage.dart';
-import 'package:habitur/data/local/habits_local_storage.dart';
-import 'package:habitur/models/friend_request.dart';
-import 'package:habitur/models/habit.dart';
-import 'package:habitur/models/habit_visibility.dart';
-import 'package:habitur/models/privacy_settings.dart';
-import 'package:habitur/models/setting.dart';
-import 'package:habitur/models/stat_point.dart';
-import 'package:habitur/models/time_model.dart';
-import 'package:habitur/models/user.dart';
-import 'package:habitur/notifications/notification_controller.dart';
-import 'package:habitur/providers/activity_provider.dart';
-import 'package:habitur/providers/add_habit_screen_provider.dart';
-import 'package:habitur/providers/community_challenge_manager.dart';
-import 'package:habitur/modules/friends_manager.dart';
-import 'package:habitur/providers/network_state_provider.dart';
-import 'package:habitur/screens/admin-screen.dart';
-import 'package:habitur/screens/community_leaderboard_screen.dart';
-import 'package:habitur/screens/habits_screen.dart';
-import 'package:habitur/screens/splash_screen.dart';
-import 'package:habitur/util_functions.dart';
-import 'constants.dart';
-// Screens
-import 'screens/welcome_screen.dart';
-import 'screens/register_screen.dart';
-import "screens/login_screen.dart";
-import 'screens/home_screen.dart';
-import 'screens/settings_screen.dart';
-import 'screens/edit_habit_screen.dart';
-import 'screens/statistics_screen.dart';
-// Packages
 import 'package:firebase_core/firebase_core.dart';
+import 'package:habitur/services/local_storage_service.dart';
+import 'package:habitur/ui/setup_snackbar_ui.dart';
+import 'package:stacked_services/stacked_services.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:logging/logging.dart';
+import 'app/app.locator.dart';
+import 'app/app.router.dart';
 import 'firebase_options.dart';
-import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-// Providers
-import 'data/local/user_local_storage.dart';
-import 'package:habitur/data/local/settings_local_storage.dart';
-import 'providers/loading_state_provider.dart';
-import 'providers/database.dart';
-import 'providers/habit_manager.dart';
-import 'providers/local_storage.dart';
-import 'providers/login_registration_state.dart';
-import 'package:path_provider/path_provider.dart' as path_provider;
+import 'services/notification_service.dart';
+import 'ui/setup_bottomsheet_ui.dart';
+import 'ui/setup_dialog_ui.dart';
+import 'constants.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  if (kIsWeb) {
-    await Hive.initFlutter();
-  } else {
-    Directory directory =
-        await path_provider.getApplicationDocumentsDirectory();
-    await Hive.initFlutter(directory.path);
-  }
+  // Configure logging
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    debugPrint('${record.level.name}: ${record.time}: ${record.message}');
+    if (record.error != null) {
+      debugPrint('Error: ${record.error}');
+    }
+    if (record.stackTrace != null) {
+      debugPrint('Stack trace:\n${record.stackTrace}');
+    }
+  });
 
-  Hive
-    ..registerAdapter(HabitAdapter())
-    ..registerAdapter(StatPointAdapter())
-    ..registerAdapter(SettingAdapter())
-    ..registerAdapter(TimeModelAdapter())
-    ..registerAdapter(HabitVisibilityAdapter())
-    ..registerAdapter(PrivacySettingsAdapter())
-    ..registerAdapter(SharingScopeAdapter())
-    ..registerAdapter(FriendRequestAdapter())
-    ..registerAdapter(UserModelAdapter());
-
-  await AwesomeNotifications().initialize(
-    null,
-    [
-      NotificationChannel(
-        channelGroupKey: 'basic_channel_group',
-        channelKey: 'basic_channel',
-        channelName: 'Basic notifications',
-        channelDescription: 'Notification channel for basic tests',
-        defaultColor: Color(0xFF9D50DD),
-        ledColor: Colors.white,
-      ),
-      NotificationChannel(
-        channelKey: 'habit_smart_notifications',
-        channelName: 'Habit Smart Notifications',
-        channelDescription: 'Notifications for smart habit reminders',
-        defaultColor: Color(0xFF9D50DD),
-        ledColor: Colors.white,
-        importance: NotificationImportance.High,
-      ),
-      NotificationChannel(
-        channelKey: 'repeat_notifications',
-        channelName: 'Repeat Notifications',
-        channelDescription: 'Notifications for repeating habits',
-        defaultColor: Color(0xFF9D50DD),
-        ledColor: Colors.white,
-        importance: NotificationImportance.High,
-      ),
-    ],
-    channelGroups: [
-      NotificationChannelGroup(
-        channelGroupKey: 'habit_notifications_group',
-        channelGroupName: 'Habit Notifications Group',
-      ),
-    ],
-    debug: true,
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  if (!await AwesomeNotifications().isNotificationAllowed()) {
-    AwesomeNotifications().requestPermissionToSendNotifications();
-  }
+  await setupLocator();
+  setupDialogUi();
+  setupBottomSheetUi();
+  setupSnackbarUi();
 
-  // Open HabitVisibility box
-  await Hive.openBox('habit_visibility');
+  final notificationService = locator<NotificationService>();
+  await notificationService.initialize();
+  final localStorageService = locator<LocalStorageService>();
+  await localStorageService.init();
 
-  runApp(Habitur());
+  runApp(const MainApp());
 }
 
-class Habitur extends StatefulWidget {
-  static final GlobalKey<NavigatorState> navigatorKey =
-      GlobalKey<NavigatorState>();
-  FirebaseAuth auth = FirebaseAuth.instance;
-
-  @override
-  State<Habitur> createState() => _HabiturState();
-}
-
-class _HabiturState extends State<Habitur> {
-  @override
-  void initState() {
-    // Only after at least the action method is set, the notification events are delivered
-    AwesomeNotifications().setListeners(
-        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-        onNotificationCreatedMethod:
-            NotificationController.onNotificationCreatedMethod,
-        onNotificationDisplayedMethod:
-            NotificationController.onNotificationDisplayedMethod,
-        onDismissActionReceivedMethod:
-            NotificationController.onDismissActionReceivedMethod);
-
-    super.initState();
-  }
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-        providers: [
-          ChangeNotifierProvider<UserLocalStorage>(
-              create: (context) => UserLocalStorage()),
-          ChangeNotifierProvider<LoginRegistrationState>(
-              create: (context) => LoginRegistrationState()),
-          ChangeNotifierProvider<HabitManager>(
-              create: (context) => HabitManager()),
-          ChangeNotifierProvider<HabitsLocalStorage>(
-              create: (context) => HabitsLocalStorage()),
-          ChangeNotifierProvider<UserLocalStorage>(
-              create: (context) => UserLocalStorage()),
-          ChangeNotifierProvider<LoadingStateProvider>(
-              create: (context) => LoadingStateProvider()),
-          ChangeNotifierProvider<SettingsLocalStorage>(
-              create: (context) => SettingsLocalStorage()),
-          ChangeNotifierProvider<AuthLocalStorage>(
-              create: (context) => AuthLocalStorage()),
-          ChangeNotifierProvider<LocalStorage>(
-              create: (context) => LocalStorage()),
-          ChangeNotifierProvider<NetworkStateProvider>(
-              create: (context) => NetworkStateProvider()),
-          ChangeNotifierProvider<AddHabitScreenProvider>(
-              create: (context) => AddHabitScreenProvider()),
-          ChangeNotifierProvider<CommunityChallengeManager>(
-              create: (context) => CommunityChallengeManager()),
-          ChangeNotifierProvider<ActivityProvider>(
-            create: (context) => ActivityProvider(
-              Provider.of<UserLocalStorage>(context, listen: false)
+    return MaterialApp(
+      title: 'Habitur',
+      debugShowCheckedModeBanner: false,
+      onGenerateRoute: StackedRouter().onGenerateRoute,
+      navigatorKey: StackedService.navigatorKey,
+      navigatorObservers: [
+        StackedService.routeObserver,
+      ],
+      themeMode: ThemeMode.dark,
+      darkTheme: ThemeData.dark().copyWith(
+        textTheme: ThemeData.dark().textTheme.apply(
+              bodyColor: Colors.white,
+              displayColor: Colors.white,
             ),
-          ),
-        ],
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            brightness: Brightness.dark,
-            scaffoldBackgroundColor: kBackgroundColor,
-            textTheme: GoogleFonts.dmSansTextTheme().copyWith(
-              bodyMedium: TextStyle(color: Colors.white),
+        primaryTextTheme: ThemeData.dark().textTheme.apply(
+              bodyColor: Colors.white,
+              displayColor: Colors.white,
             ),
-            primaryColor: kPrimaryColor,
-            expansionTileTheme: ExpansionTileThemeData(
-              expandedAlignment: Alignment.centerLeft,
-              iconColor: Colors.white,
-            ),
-            elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ButtonStyle(
-                  textStyle: MaterialStateProperty.all(kCtaBtnStyle),
-                  foregroundColor: MaterialStateProperty.all(kBackgroundColor),
-                  elevation: MaterialStateProperty.all(10),
-                  shadowColor:
-                      MaterialStateProperty.all(kPrimaryColor.withOpacity(0.3)),
-                  padding: MaterialStateProperty.all(
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 40)),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(kPrimaryColor),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ))),
-            ),
-            timePickerTheme: TimePickerThemeData(
-              backgroundColor: kBackgroundColor,
-              padding: EdgeInsets.all(30),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(40)),
-              dialBackgroundColor: kBackgroundColor,
-              dialHandColor: kPrimaryColor,
-              dialTextStyle: kMainDescription,
-              dayPeriodColor: kBackgroundColor,
-              dayPeriodShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
-              dayPeriodTextColor: Colors.white,
-              dayPeriodTextStyle: kMainDescription.copyWith(fontSize: 15),
-              hourMinuteShape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30)),
-              hourMinuteColor: kBackgroundColor,
-              hourMinuteTextColor: MaterialStateColor.resolveWith((states) =>
-                  states.contains(MaterialState.selected)
-                      ? Colors.white
-                      : kDarkGray),
-              hourMinuteTextStyle: kTitleTextStyle,
-              cancelButtonStyle: ButtonStyle(
-                  padding: MaterialStateProperty.all(EdgeInsets.only(top: 20)),
-                  textStyle: MaterialStateProperty.all(kMainDescription),
-                  foregroundColor: MaterialStateProperty.all(kGray),
-                  elevation: MaterialStateProperty.all(10),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ))),
-              confirmButtonStyle: ButtonStyle(
-                  padding: MaterialStateProperty.all(EdgeInsets.only(top: 20)),
-                  textStyle: MaterialStateProperty.all(
-                      kMainDescription.copyWith(fontWeight: FontWeight.bold)),
-                  foregroundColor: MaterialStateProperty.all(kPrimaryColor),
-                  elevation: MaterialStateProperty.all(10),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ))),
-            ),
-          ),
-          initialRoute: 'splash_screen',
-          onGenerateRoute: (settings) {
-            Widget page;
-            switch (settings.name) {
-              case 'splash_screen':
-                page = const SplashScreen();
-                break;
-              case 'welcome_screen':
-                page = WelcomeScreen();
-                break;
-              case 'login_screen':
-                page = LoginScreen();
-                break;
-              case 'register_screen':
-                page = RegisterScreen();
-                break;
-              case 'admin_screen':
-                page = const AdminScreen();
-                break;
-              case 'home_screen':
-                page = HomeScreen();
-                break;
-              case 'habits_screen':
-                page = HabitsScreen();
-                break;
-              case 'habits_screen_offline':
-                page =
-                    HabitsScreen(); // You can differentiate offline here if needed
-                break;
-              case 'settings_screen':
-                page = SettingsScreen();
-                break;
-              case 'statistics_screen':
-                page = const StatisticsScreen();
-                break;
-              default:
-                page = const SplashScreen(); // Default fallback
-                break;
-            }
-
-            return createFadeRoute(page);
-          },
-        ));
+        colorScheme: ColorScheme.dark(
+          primary: Colors.white,
+          onPrimary: Colors.black,
+          secondary: Colors.white,
+          onSecondary: Colors.black,
+          surface: Colors.grey[900]!,
+          onSurface: Colors.white,
+        ),
+      ),
+    );
   }
 }

@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:habitur/models/stat_point.dart';
+import 'package:habitur/models/progress.dart';
 import 'package:habitur/constants.dart';
 import 'package:hive/hive.dart';
 
@@ -38,6 +40,7 @@ class Habit {
   List<DateTime> daysCompleted = [];
   @HiveField(13)
   List<String> requiredDatesOfCompletion = [];
+  @HiveField(16, defaultValue: [])
   List<StatPoint> stats = [];
   @HiveField(14)
   bool smartNotifsEnabled;
@@ -45,20 +48,34 @@ class Habit {
   @HiveField(15)
   bool isVisible;
 
-  bool get isCompleted {
-    return currentProgress == targetGoal;
+  /// Gets the current progress state of the habit
+  Progress get progress =>
+      Progress(current: currentProgress, target: targetGoal);
+
+  /// Updates the current progress state of the habit
+  set progress(Progress newProgress) {
+    currentProgress = newProgress.current;
+    targetGoal = newProgress.target;
   }
 
-  double get completionRate {
-    if (daysCompleted.isEmpty) {
-      return 0.0;
-    }
+  bool get isCompleted => progress.isComplete;
 
-    double rate =
-        daysCompleted.length / DateTime.now().difference(dateCreated).inDays;
+  /// Gets the completion percentage of the habit (0.0 to 1.0)
+  double get completionPercentage => progress.percentage;
 
-    // Handle the case where the completion rate is greater than 1 (100%)
-    return rate > 1.0 ? 1.0 : rate;
+  /// Increments the habit's progress by the specified amount
+  void incrementProgress([int amount = 1]) {
+    progress = progress.increment(amount: amount);
+  }
+
+  /// Decrements the habit's progress by the specified amount
+  void decrementProgress([int amount = 1]) {
+    progress = progress.decrement(amount: amount);
+  }
+
+  /// Resets the habit's progress to zero
+  void resetProgress() {
+    progress = progress.reset();
   }
 
   Habit({
@@ -75,7 +92,7 @@ class Habit {
     this.requiredDatesOfCompletion = const [],
     this.isCommunityHabit = false,
     this.smartNotifsEnabled = false,
-    this.isVisible = true,  // Default to true for backward compatibility
+    this.isVisible = true, // Default to true for backward compatibility
     this.targetGoal = 1,
   }) {
     daysCompleted = [];
@@ -91,6 +108,8 @@ class Habit {
       'id': id,
       'lastSeen': lastSeen,
       'streak': streak,
+      'stats': stats.map((stat) => stat.toMap()).toList(),
+      'daysCompleted': daysCompleted,
       'highestStreak': highestStreak,
       'currentProgress': currentProgress,
       'totalProgress': totalProgress,
@@ -104,23 +123,52 @@ class Habit {
   }
 
   factory Habit.fromMap(Map<String, dynamic> map) {
-    return Habit(
+    List<String> parseRequiredDates(dynamic value) {
+      if (value == null) return [];
+      if (value is List) {
+        return value.map((item) => item.toString()).toList();
+      }
+      return [];
+    }
+
+    Habit habit = Habit(
       title: map['title'] as String? ?? '',
-      dateCreated: (map['dateCreated'] as DateTime?) ?? DateTime.now(),
-      resetPeriod: map['resetPeriod'] as String? ?? 'daily',
+      dateCreated: map['dateCreated'] is Timestamp
+          ? (map['dateCreated'] as Timestamp).toDate()
+          : (map['dateCreated'] as DateTime?) ?? DateTime.now(),
+      resetPeriod: (map['resetPeriod'] as String?)?.toLowerCase() ?? 'daily',
       id: map['id'] as int? ?? 0,
-      lastSeen: (map['lastSeen'] as DateTime?) ?? DateTime.now(),
+      lastSeen: map['lastSeen'] is Timestamp
+          ? (map['lastSeen'] as Timestamp).toDate()
+          : (map['lastSeen'] as DateTime?) ?? DateTime.now(),
       streak: map['streak'] as int? ?? 0,
       highestStreak: map['highestStreak'] as int? ?? 0,
       currentProgress: map['currentProgress'] as int? ?? 0,
       totalProgress: map['totalProgress'] as int? ?? 0,
       confidenceLevel: (map['confidenceLevel'] as num?)?.toDouble() ?? 0.0,
-      requiredDatesOfCompletion: (map['requiredDatesOfCompletion'] as List<String>?) ?? [],
+      requiredDatesOfCompletion:
+          parseRequiredDates(map['requiredDatesOfCompletion']),
       isCommunityHabit: map['isCommunityHabit'] as bool? ?? false,
       smartNotifsEnabled: map['smartNotifsEnabled'] as bool? ?? false,
-      isVisible: map['isVisible'] as bool? ?? true,  // Default to true for backward compatibility
+      isVisible: map['isVisible'] as bool? ?? true,
       targetGoal: map['targetGoal'] as int? ?? 1,
     );
+    habit.stats = (map['stats'] as List?)
+            ?.map((stat) => StatPoint.fromMap(stat))
+            .toList() ??
+        [];
+    if (map['daysCompleted'] == null) {
+      habit.daysCompleted = [];
+    } else {
+      habit.daysCompleted = (map['daysCompleted'] as List?)
+              ?.map((item) =>
+                  item is Timestamp ? item.toDate() : item as DateTime)
+              .toList() ??
+          [];
+    }
+    // you have to keep that cast in case days completed is null
+
+    return habit;
   }
 
   Habit copyWith({
@@ -165,5 +213,46 @@ class Habit {
       ..color = color ?? this.color
       ..daysCompleted = daysCompleted ?? this.daysCompleted
       ..stats = stats ?? this.stats;
+  }
+
+  @override
+  String toString() {
+    StringBuffer statsBuffer = StringBuffer();
+    for (var stat in stats) {
+      statsBuffer.writeln('${stat.date}: {');
+      statsBuffer.writeln('  completions: ${stat.completions}');
+      statsBuffer.writeln('  consistencyFactor: ${stat.consistencyFactor}');
+      statsBuffer.writeln('  confidenceLevel: ${stat.confidenceLevel}');
+      statsBuffer.writeln('  streak: ${stat.streak}');
+      statsBuffer.writeln('  difficultyRating: ${stat.difficultyRating}');
+      statsBuffer.writeln('  slopeCompletions: ${stat.slopeCompletions}');
+      statsBuffer
+          .writeln('  slopeConfidenceLevel: ${stat.slopeConfidenceLevel}');
+      statsBuffer.writeln('  slopeConsistency: ${stat.slopeConsistency}');
+      statsBuffer
+          .writeln('  slopeDifficultyRating: ${stat.slopeDifficultyRating}');
+      statsBuffer.writeln('}');
+    }
+
+    return 'Habit{\n'
+        'title: $title,\n'
+        'dateCreated: $dateCreated,\n'
+        'resetPeriod: $resetPeriod,\n'
+        'id: $id,\n'
+        'lastSeen: $lastSeen,\n'
+        'streak: $streak,\n'
+        'highestStreak: $highestStreak,\n'
+        'currentProgress: $currentProgress,\n'
+        'totalProgress: $totalProgress,\n'
+        'confidenceLevel: $confidenceLevel,\n'
+        'requiredDatesOfCompletion: $requiredDatesOfCompletion,\n'
+        'isCommunityHabit: $isCommunityHabit,\n'
+        'smartNotifsEnabled: $smartNotifsEnabled,\n'
+        'isVisible: $isVisible,\n'
+        'targetGoal: $targetGoal,\n'
+        'color: $color,\n'
+        'daysCompleted: $daysCompleted,\n'
+        'stats: $statsBuffer\n'
+        '}';
   }
 }

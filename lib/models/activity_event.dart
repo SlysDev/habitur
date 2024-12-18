@@ -1,19 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:habitur/util_functions.dart';
 
-enum ActivityType {
-  habitCompletion,
-  streakMilestone,
-  newHabit,
-}
-
-enum ReactionType {
-  like,
-  celebrate,
-  support,
-  inspire,
-  none
-}
+import '../enums/activity_type.dart';
+import '../enums/reaction_type.dart';
 
 class Comment {
   final String id;
@@ -88,7 +77,7 @@ class Reaction {
   factory Reaction.fromMap(Map<String, dynamic> map) {
     var timestamp = map['timestamp'];
     DateTime parsedTimestamp;
-    
+
     if (timestamp is Timestamp) {
       parsedTimestamp = timestamp.toDate();
     } else if (timestamp is String) {
@@ -205,7 +194,7 @@ class ActivityEvent {
       profilePicture: map['profilePicture'] as String?,
       type: ActivityType.values.firstWhere(
         (e) => e.toString().split('.').last == map['type'],
-        orElse: () => ActivityType.habitCompletion,
+        orElse: () => ActivityType.habitProgress,
       ),
       habitId: map['habitId'] as String,
       habitTitle: map['habitTitle'] as String,

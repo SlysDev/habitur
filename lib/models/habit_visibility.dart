@@ -6,10 +6,10 @@ part 'habit_visibility.g.dart';
 class HabitVisibility extends HiveObject {
   @HiveField(0)
   final String habitId;
-  
+
   @HiveField(1)
   bool isVisible;
-  
+
   HabitVisibility({
     required this.habitId,
     this.isVisible = false,
