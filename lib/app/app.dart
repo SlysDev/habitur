@@ -47,6 +47,14 @@ import 'package:habitur/ui/dialogs/streak_milestone/streak_milestone_dialog.dart
 
 import 'package:habitur/ui/dialogs/streak_milestone/streak_milestone_dialog.dart';
 
+import 'package:habitur/ui/bottom_sheets/action_selection/action_selection_sheet.dart';
+
+import 'package:habitur/ui/bottom_sheets/action_selection/action_selection_sheet.dart';
+
+import 'package:habitur/ui/dialogs/select_friends/select_friends_dialog.dart';
+
+import 'package:habitur/ui/dialogs/level_up/level_up_dialog.dart';
+
 // @stacked-import
 @StackedApp(
   routes: [
@@ -141,7 +149,13 @@ import 'package:habitur/ui/dialogs/streak_milestone/streak_milestone_dialog.dart
   ],
   dialogs: [
     StackedDialog(classType: StreakMilestoneDialog),
+    StackedDialog(classType: SelectFriendsDialog),
+    StackedDialog(classType: LevelUpDialog),
 // @stacked-dialog
+  ],
+  bottomsheets: [
+    StackedBottomsheet(classType: ActionSelectionSheet),
+// @stacked-bottom-sheet
   ],
   logger: StackedLogger(),
 )

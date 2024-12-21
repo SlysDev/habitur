@@ -9,7 +9,7 @@ import 'app/app.locator.dart';
 import 'app/app.router.dart';
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
-import 'ui/setup_bottomsheet_ui.dart';
+import 'ui/setup_bottom_sheet_ui.dart';
 import 'ui/setup_dialog_ui.dart';
 import 'constants.dart';
 

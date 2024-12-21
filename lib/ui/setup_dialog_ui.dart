@@ -1,3 +1,4 @@
+import 'package:habitur/ui/dialogs/level_up/level_up_dialog.dart';
 import 'package:habitur/ui/dialogs/streak_milestone/streak_milestone_dialog.dart';
 import 'package:habitur/ui/widgets/dialog/modern_dialog.dart';
 import 'package:habitur/ui/widgets/dialog/habit_difficulty_dialog.dart';
@@ -101,6 +102,7 @@ void setupDialogUi() {
         ),
     DialogType.streakMilestone: (context, sharedRequest, completer) =>
         StreakMilestoneDialog(request: sharedRequest, completer: completer),
+    DialogType.levelUp: (context, sharedRequest, completer) => LevelUpDialog(request: sharedRequest, completer: completer),
   };
 
   dialogService.registerCustomDialogBuilders(builders);
