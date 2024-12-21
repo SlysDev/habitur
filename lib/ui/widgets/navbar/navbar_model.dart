@@ -75,6 +75,13 @@ class NavBarModel extends BaseViewModel {
     navigateToPage(getPageFromIndex(index));
   }
 
+  Future<void> showAddSelectionSheet() async {
+    await _bottomSheetService.showCustomSheet(
+      variant: BottomSheetType.actionSelection,
+      barrierColor: Colors.black.withOpacity(0.2),
+    );
+  }
+
   Future<void> showAddHabitSheet() async {
     await _bottomSheetService.showCustomSheet(
       variant: BottomSheetType.addHabit,

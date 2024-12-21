@@ -8,11 +8,13 @@ import 'select_friends_model.dart';
 class SelectFriendsWidget extends StackedView<SelectFriendsModel> {
   final Function(List<UserModel>)? onSelectedFriendsChanged;
   final bool multiSelect;
+  final List<UserModel>? initialSelectedFriends;
 
   const SelectFriendsWidget({
     Key? key,
     this.onSelectedFriendsChanged,
     this.multiSelect = true,
+    this.initialSelectedFriends,
   }) : super(key: key);
 
   @override
@@ -176,5 +178,5 @@ class SelectFriendsWidget extends StackedView<SelectFriendsModel> {
 
   @override
   SelectFriendsModel viewModelBuilder(BuildContext context) =>
-      SelectFriendsModel();
+      SelectFriendsModel(initialSelectedFriends: initialSelectedFriends);
 }

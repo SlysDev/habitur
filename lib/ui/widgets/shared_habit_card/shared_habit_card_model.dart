@@ -7,6 +7,7 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/models/shared_habit.dart';
+import 'package:habitur/models/user.dart';
 import 'package:habitur/services/shared_habits_service.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/user_service.dart';
@@ -69,6 +70,8 @@ class SharedHabitCardModel extends BaseViewModel {
       final currentUser = _userService.currentUser;
       if (currentUser == null) return;
       try {
+        UserModel? userPreCompletion = _userService.currentUser;
+        int initialUserLevel = userPreCompletion?.userLevel ?? 1;
         final currentCompletions = _getCurrentUserProgress();
         debugPrint('Current completions: $currentCompletions');
         if (currentCompletions < sharedHabit.targetGoal) {
@@ -76,6 +79,14 @@ class SharedHabitCardModel extends BaseViewModel {
               sharedHabit.id.toString(), difficulty);
           await loadSharedHabitData(sharedHabit.id.toString());
         }
+        UserModel? userPostCompletion = _userService.currentUser;
+        if (initialUserLevel < (userPostCompletion?.userLevel ?? 1)) {
+          // show level up dialog
+          _dialogService.showCustomDialog(
+              variant: DialogType.levelUp,
+              data: {"level": userPostCompletion!.userLevel});
+        }
+
         if (sharedHabit.getParticipantHabitById(currentUser.uid).isCompleted) {
           _controller.play();
         }

@@ -9,6 +9,13 @@ class SelectFriendsModel extends StreamViewModel<List<String>> {
   final _friendsService = locator<FriendsService>();
   final _userService = locator<UserService>();
 
+  // Constructor with initial selected friends
+  SelectFriendsModel({List<UserModel>? initialSelectedFriends}) {
+    if (initialSelectedFriends != null) {
+      _selectedFriends.addAll(initialSelectedFriends);
+    }
+  }
+
   // Stream of friend UIDs
   @override
   Stream<List<String>> get stream => _friendsService.friendsStream;
