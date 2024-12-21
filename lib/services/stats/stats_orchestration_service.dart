@@ -37,7 +37,8 @@ class StatsOrchestrationService {
     final habitService = locator<HabitService>();
     final habits = await habitService.getUserHabits();
     debugPrint('Fetched user habits: ${habits.map((h) => h.title).join(', ')}');
-    await _userStatsService.logHabitIncrement(habits);
+    await _userStatsService.logHabitIncrement(habits,
+        isCompletion: updatedHabit.isCompleted);
     debugPrint('User stats updated after habit increment.');
     return updatedHabit;
   }

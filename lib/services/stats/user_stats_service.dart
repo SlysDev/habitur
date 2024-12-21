@@ -233,13 +233,27 @@ class UserStatsService {
     return statsInRange;
   }
 
-  Future<void> logHabitIncrement(List<HabitInterface> habits) async {
+  Future<void> logHabitIncrement(List<HabitInterface> habits,
+      {bool isCompletion = false}) async {
+    bool hasLeveledUp = false;
     _log(
         'Logging habit increment for habits: ${habits.map((h) => h.id).toList()}');
     final user = _userService.currentUser;
     if (user == null) return;
 
     final now = DateTime.now();
+
+    if (isCompletion) {
+      user.userXP = math.min(
+          (user.userXP +
+                  (10 + 20 * user.stats.last.confidenceLevel * user.userLevel))
+              .toInt(),
+          user.levelUpRequirement);
+      debugPrint(user.userXP.toString());
+      if ((user.userXP) >= (user.levelUpRequirement)) {
+        user.levelUp();
+      }
+    }
 
     final Map<String, dynamic> statsUpdates = {
       'date': now,
@@ -248,9 +262,7 @@ class UserStatsService {
           .toInt(),
       'confidenceLevel': _aggregateStatsCalculatorService.calculateStatAverage(
           'confidenceLevel', habits),
-      'streak': _aggregateStatsCalculatorService
-          .calculateStatAverage('streak', habits)
-          .toInt(),
+      'streak': user.stats.isEmpty ? 1 : (user.stats.last.streak + 1),
       'consistencyFactor': _aggregateStatsCalculatorService
           .calculateStatAverage('consistencyFactor', habits),
       'difficultyRating': _aggregateStatsCalculatorService.calculateStatAverage(
@@ -286,6 +298,7 @@ class UserStatsService {
       await _databaseService.updateUserStats(
           _authService.currentUser!.uid, user.stats!);
     }
+    await _userService.updateUser(user);
   }
 
   Future<void> unlogHabitIncrement(List<HabitInterface> habits) async {
@@ -299,6 +312,19 @@ class UserStatsService {
 
     if (currentDayIndex != -1) {
       StatPoint currentStat = user.stats[currentDayIndex];
+
+      // Reverse XP gain
+      int xpToRemove =
+          (10 + 20 * currentStat.confidenceLevel * user.userLevel).toInt();
+      if (xpToRemove > user.userXP) {
+        user.userLevel--;
+        user.userXP =
+            user.levelUpRequirement - (user.userXP - xpToRemove).abs();
+      } else {
+        user.userXP -= xpToRemove;
+      }
+
+      // Check if we need to decrease level
 
       // Reverse the stats updates using habit-based calculations
       currentStat.completions = math.max(0, currentStat.completions - 1);
@@ -314,6 +340,7 @@ class UserStatsService {
         await _databaseService.updateUserStats(
             _authService.currentUser!.uid, user.stats);
       }
+      await _userService.updateUser(user);
     }
   }
 

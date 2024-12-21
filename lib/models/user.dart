@@ -90,6 +90,11 @@ class UserModel extends HiveObject {
     this.privacySettings = const PrivacySettings(),
   });
 
+  void levelUp() {
+    userLevel++;
+    userXP = 0;
+  }
+
   factory UserModel.fromMap(Map<String, dynamic> map) {
     List<StatPoint> statPoints = [];
     if (map['stats'] != null && map['stats'] is Map) {
