@@ -6,6 +6,7 @@ import 'package:habitur/enums/activity_type.dart';
 import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/progress.dart';
+import 'package:habitur/models/user.dart';
 import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/habit_service.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
@@ -57,7 +58,19 @@ class HabitCardModel extends BaseViewModel {
       setBusy(true);
       final difficulty = await showDifficultyPopup();
       debugPrint('Incrementing habit with difficulty: $difficulty');
+      UserModel? userPreCompletion = _userService.currentUser;
+      int initialUserLevel = userPreCompletion?.userLevel ?? 1;
       await _habitService.incrementHabit(habit.id.toString(), difficulty);
+
+      UserModel? userPostCompletion = _userService.currentUser;
+      // Check to see if the user has to be leveled up
+      if (initialUserLevel < (userPostCompletion?.userLevel ?? 1)) {
+        // show level up dialog
+      _dialogService.showCustomDialog(
+          variant: DialogType.levelUp, data: {"level": userPostCompletion!.userLevel});
+      }
+
+
       debugPrint('Habit ${habit.id} completed. Adding activity...');
       await _activityService.createActivityForEvent(
           _userService.currentUser!.uid,

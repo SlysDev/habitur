@@ -5,24 +5,26 @@ import 'package:habitur/util_functions.dart';
 import 'package:intl/intl.dart';
 import 'package:stacked/stacked.dart';
 
-class HomeGreetingHeaderModel extends BaseViewModel {
+class HomeGreetingHeaderModel extends StreamViewModel {
   final _userService = locator<UserService>();
+
+  @override
+  Stream<UserModel?> get stream => _userService.userStream;
+
+  UserModel? get user => data ?? null;
+
   final DateTime _currentTime = DateTime.now();
 
-  String? _username;
-  String get username => _username ?? '';
+  String get username => user?.username ?? '';
 
-  String? _photoUrl;
-  String get photoUrl => _photoUrl ?? '';
+  String get photoUrl => user?.profilePicture ?? '';
 
-  int? _level;
-  int get level => _level ?? 1;
+  int get level => user?.userLevel ?? 1;
 
-  double? _xpProgress;
-  double get xpProgress => _xpProgress ?? 0.0;
+  double get xpProgress =>
+      ((user?.userXP ?? 0) / (user?.levelUpRequirement ?? 1)).toDouble();
 
-  int? _streak;
-  int get streak => _streak ?? 0;
+  int get streak => user == null ? 0 : user!.stats.isEmpty ? 0 : user!.stats.last.streak;
 
   String get timeOfDay => getTimeSlot(_currentTime);
 
@@ -31,29 +33,4 @@ class HomeGreetingHeaderModel extends BaseViewModel {
     return DateFormat('EEEE, MMMM d').format(now);
   }
 
-  Future<void> initialize() async {
-    setBusy(true);
-    try {
-      UserModel? user = await _userService.getCurrentUser();
-      if (user != null) {
-        _username = user.username;
-        _photoUrl = user.profilePicture ?? '';
-        _level = user.userLevel;
-        _xpProgress = user.userXP / user.levelUpRequirement;
-        _streak = user.stats.last.streak;
-      } else {
-        _username = 'User';
-        _photoUrl = '';
-        _level = 1;
-        _xpProgress = 0.0;
-        _streak = 0;
-      }
-      rebuildUi();
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(false);
-      rebuildUi();
-    }
-  }
 }

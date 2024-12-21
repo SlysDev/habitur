@@ -115,10 +115,11 @@ class EditSharedHabitViewModel extends BaseViewModel {
   }
 
   Future<void> selectParticipants() async {
+    final participantsAsUserModels = selectedParticipants.map((e) async => await _userService.getUserById(e.userId));
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.selectFriends,
       data: {
-        'preSelectedUsers': selectedParticipants,
+        'preSelectedUsers': participantsAsUserModels,
       },
     );
 

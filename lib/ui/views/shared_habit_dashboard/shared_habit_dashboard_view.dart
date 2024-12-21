@@ -155,13 +155,13 @@ class SharedHabitDashboardView
                       fontWeight: FontWeight.bold,
                     ),
               ),
-              TextButton(
-                onPressed: viewModel.inviteParticipants,
-                child: const Text(
-                  'Invite',
-                  style: TextStyle(color: kPrimaryColor),
-                ),
-              ),
+              // TextButton(
+              //   onPressed: viewModel.inviteParticipants,
+              //   child: const Text(
+              //     'Invite',
+              //     style: TextStyle(color: kPrimaryColor),
+              //   ),
+              // ),
             ],
           ),
           const SizedBox(height: 16),

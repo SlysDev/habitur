@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/ui/common/ui_helpers.dart';
+import 'package:habitur/ui/widgets/aside_button.dart';
 import 'package:habitur/ui/widgets/modern_card.dart';
 import 'package:habitur/ui/widgets/primary_button.dart';
+import 'package:habitur/ui/widgets/smart_notifications_toggle/smart_notifications_toggle.dart';
+import 'package:habitur/ui/widgets/target_goal_selector/target_goal_selector.dart';
 import 'package:habitur/ui/widgets/text_fields/form_text_field.dart';
+import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -49,10 +53,6 @@ class CreateSharedHabitSheet extends StackedView<CreateSharedHabitSheetModel> {
             Expanded(
               child: ListView(
                 children: [
-                  PrimaryButton(
-                      text: 'test H interface storaage',
-                      onPressed: viewModel.testHabitMixedStorage),
-                  verticalSpaceMedium,
                   FormTextField(
                     label: 'Habit Name',
                     hint: 'Enter habit name',
@@ -66,7 +66,9 @@ class CreateSharedHabitSheet extends StackedView<CreateSharedHabitSheetModel> {
                     maxLines: 3,
                   ),
                   verticalSpaceMedium,
-                  _buildSmartNotificationsToggle(viewModel, context),
+                  SmartNotificationsToggle(
+                      smartNotificationsEnabled: viewModel.smartNotifsEnabled,
+                      onSmartNotificationsChanged: viewModel.setSmartNotifs),
                   verticalSpaceMedium,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,26 +82,33 @@ class CreateSharedHabitSheet extends StackedView<CreateSharedHabitSheetModel> {
                       ),
                       verticalSpaceSmall,
                       ModernCard(
-                        padding: 0,
-                        child: DropdownButton<String>(
-                          borderRadius: BorderRadius.circular(15),
-                          padding: EdgeInsets.all(15),
-                          value: viewModel.selectedResetPeriod,
-                          isExpanded: true,
-                          dropdownColor: kBackgroundColor,
-                          style: const TextStyle(color: Colors.white),
-                          underline: Container(),
-                          items: ['Daily', 'Weekly', 'Monthly']
-                              .map((frequency) => DropdownMenuItem(
-                                    value: frequency,
-                                    child: Text(frequency),
-                                  ))
-                              .toList(),
-                          onChanged: (value) {
-                            if (value != null) viewModel.setFrequency(value);
-                          },
+                        child: TargetGoalSelector(
+                          targetGoal: viewModel.targetGoal,
+                          resetPeriodNoun: viewModel.resetPeriodNoun,
+                          onTargetGoalChanged: viewModel.setTargetGoal,
                         ),
                       ),
+                      // ModernCard(
+                      //   padding: 0,
+                      //   child: DropdownButton<String>(
+                      //     borderRadius: BorderRadius.circular(15),
+                      //     padding: EdgeInsets.all(15),
+                      //     value: viewModel.selectedResetPeriod,
+                      //     isExpanded: true,
+                      //     dropdownColor: kBackgroundColor,
+                      //     style: const TextStyle(color: Colors.white),
+                      //     underline: Container(),
+                      //     items: ['Daily', 'Weekly', 'Monthly']
+                      //         .map((frequency) => DropdownMenuItem(
+                      //               value: frequency,
+                      //               child: Text(frequency),
+                      //             ))
+                      //         .toList(),
+                      //     onChanged: (value) {
+                      //       if (value != null) viewModel.setFrequency(value);
+                      //     },
+                      //   ),
+                      // ),
                     ],
                   ),
                   verticalSpaceMedium,
@@ -126,6 +135,8 @@ class CreateSharedHabitSheet extends StackedView<CreateSharedHabitSheetModel> {
                             ...viewModel.selectedParticipants.map(
                               (participant) => ListTile(
                                 contentPadding: EdgeInsets.zero,
+                                leading:
+                                    UserAvatar(username: participant.username),
                                 title: Text(
                                   participant.username,
                                   style: const TextStyle(color: Colors.white),
@@ -139,7 +150,7 @@ class CreateSharedHabitSheet extends StackedView<CreateSharedHabitSheetModel> {
                               ),
                             ),
                             verticalSpaceSmall,
-                            PrimaryButton(
+                            AsideButton(
                               text: 'Select Participants',
                               onPressed: viewModel.selectParticipants,
                             ),

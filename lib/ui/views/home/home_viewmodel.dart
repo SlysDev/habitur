@@ -83,8 +83,8 @@ class HomeViewModel extends ReactiveViewModel {
     final user = await _userService.getCurrentUser();
     if (user != null) {
       _userName = user.username;
-      _totalHabits = _habitService.habits.length;
-      _currentStreak = user.stats.last.streak;
+      _totalHabits = _habitService.habits.isEmpty ? 0 : _habitService.habits.length;
+      _currentStreak = user.stats.isEmpty ? 0 : user.stats.last.streak;
       _userLevel = user.userLevel;
       _userXP = user.userXP;
       notifyListeners();

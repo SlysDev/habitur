@@ -1201,6 +1201,13 @@ class MockSharedHabitsService extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 class MockUserService extends _i1.Mock implements _i15.UserService {
   @override
+  _i5.Stream<_i10.UserModel?> get userStream => (super.noSuchMethod(
+        Invocation.getter(#userStream),
+        returnValue: _i5.Stream<_i10.UserModel?>.empty(),
+        returnValueForMissingStub: _i5.Stream<_i10.UserModel?>.empty(),
+      ) as _i5.Stream<_i10.UserModel?>);
+
+  @override
   int get listenersCount => (super.noSuchMethod(
         Invocation.getter(#listenersCount),
         returnValue: 0,

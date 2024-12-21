@@ -16,11 +16,12 @@ class UserService with ListenableServiceMixin {
   final _authService = locator<AuthService>();
   final _statsCalculationService = locator<StatsCalculationService>();
 
-  UserModel? _currentUser;
-  UserModel? get currentUser => _currentUser;
+  ReactiveValue<UserModel?> _currentUser = ReactiveValue<UserModel?>(null);
+  UserModel? get currentUser => _currentUser.value;
+  Stream<UserModel?> get userStream => _currentUser.values;
 
   UserService() {
-    listenToReactiveValues([]);
+    listenToReactiveValues([_currentUser]);
   }
 
   bool isSameDay(DateTime date1, DateTime date2) {
@@ -184,26 +185,26 @@ class UserService with ListenableServiceMixin {
   Future<void> createUser(UserModel user) async {
     await _databaseService.createUser(user);
     await _localStorageService.setCurrentUser(user);
-    _currentUser = user;
+    _currentUser.value = user;
     notifyListeners();
   }
 
   Future<void> updateUser(UserModel user) async {
     await _databaseService.updateUser(user);
     await _localStorageService.setCurrentUser(user);
-    _currentUser = user;
+    _currentUser.value = user;
     notifyListeners();
   }
 
   Future<void> loadUser(String userId) async {
     // Try to get from local storage first
-    _currentUser = await _localStorageService.getCurrentUser();
+    _currentUser.value = await _localStorageService.getCurrentUser();
 
     // If not in local storage or forced refresh, get from database
     if (_currentUser == null) {
-      _currentUser = await _databaseService.getUser(userId);
-      if (_currentUser != null) {
-        await _localStorageService.setCurrentUser(_currentUser!);
+      _currentUser.value = await _databaseService.getUser(userId);
+      if (_currentUser.value != null) {
+        await _localStorageService.setCurrentUser(_currentUser.value!);
       }
     }
     notifyListeners();
@@ -214,7 +215,7 @@ class UserService with ListenableServiceMixin {
     if (userID == null) throw Exception('User is logged out');
     final user = await _databaseService.getUser(userID);
     if (user != null) {
-      _currentUser = user;
+      _currentUser.value = user;
       await _localStorageService.setCurrentUser(user);
       notifyListeners();
     }
@@ -223,7 +224,7 @@ class UserService with ListenableServiceMixin {
   Future<void> loadFromLocal() async {
     final user = await _localStorageService.getCurrentUser();
     if (user != null) {
-      _currentUser = user;
+      _currentUser.value = user;
       notifyListeners();
     }
   }

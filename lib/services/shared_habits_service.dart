@@ -125,22 +125,24 @@ class SharedHabitsService with ListenableServiceMixin {
       final currentUser = _userService.currentUser;
       if (currentUser == null) return;
 
+      // Make sure current user is a participant
       final participantIndex = sharedHabit.participantData
           .indexWhere((p) => p.userId == currentUser.uid);
       if (participantIndex == -1) return;
 
       final participantHabitData =
-          sharedHabit.participantData[participantIndex].habit;
+          sharedHabit.getParticipantHabitById(currentUser.uid);
 
-      _statsOrchestrationService.processHabitIncrement(
-          habit: participantHabitData,
-          amount: amount,
-          difficultyRating: difficultyRating);
+      final updatedParticipantHabitData =
+          await _statsOrchestrationService.processHabitIncrement(
+              habit: participantHabitData,
+              amount: amount,
+              difficultyRating: difficultyRating);
       debugPrint('Habit incremented in stats service');
 
       // Update participant data
       await updateParticipantProgress(
-          sharedHabit, currentUser.uid, participantHabitData);
+          sharedHabit, currentUser.uid, updatedParticipantHabitData as Habit);
       debugPrint('Participant progress updated');
 
       // Save changes
@@ -167,6 +169,9 @@ class SharedHabitsService with ListenableServiceMixin {
 
       final participantHabitData =
           sharedHabit.participantData[participantIndex].habit;
+      if (participantHabitData.currentProgress - amount < 0) {
+        return;
+      }
 
       // Use HabitStatsService to handle the decrement
       _statsOrchestrationService.processHabitDecrement(

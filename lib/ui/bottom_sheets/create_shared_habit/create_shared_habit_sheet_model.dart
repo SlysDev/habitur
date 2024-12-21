@@ -36,6 +36,19 @@ class CreateSharedHabitSheetModel extends BaseViewModel {
   String _selectedResetPeriod = 'Daily';
   String get selectedResetPeriod => _selectedResetPeriod;
 
+  String get resetPeriodNoun {
+    switch (_selectedResetPeriod) {
+      case 'Daily':
+        return 'day';
+      case 'Weekly':
+        return 'week';
+      case 'Monthly':
+        return 'month';
+      default:
+        return 'day';
+    }
+  }
+
   bool _smartNotifsEnabled = false;
   bool get smartNotifsEnabled => _smartNotifsEnabled;
 
@@ -198,52 +211,5 @@ class CreateSharedHabitSheetModel extends BaseViewModel {
     } finally {
       setBusy(false);
     }
-  }
-
-  void testHabitMixedStorage() async {
-    // Create a regular habit
-    final regularHabit = Habit(
-      title: 'Regular Exercise',
-      id: DateTime.now().millisecondsSinceEpoch,
-      targetGoal: 30,
-      streak: 0,
-      currentProgress: 0,
-      totalProgress: 0,
-      resetPeriod: 'daily',
-      dateCreated: DateTime.now(),
-      confidenceLevel: 0.5,
-      lastSeen: DateTime.now(),
-      isShared: false,
-    );
-
-    // Create a shared habit
-    final sharedHabit = SharedHabit(
-      title: 'Group Workout',
-      id: DateTime.now().millisecondsSinceEpoch + 1,
-      targetGoal: 45,
-      streak: 0,
-      currentProgress: 0,
-      totalProgress: 0,
-      resetPeriod: 'daily',
-      dateCreated: DateTime.now(),
-      confidenceLevel: 0.7,
-      lastSeen: DateTime.now(),
-      participantData: [], // Empty for this example
-    );
-
-    // Create a list with mixed habit types
-    final mixedHabits = <HabitInterface>[regularHabit, sharedHabit];
-
-    // Add mixed habits to service
-    await _habitService.saveHabits(mixedHabits);
-
-    // Verify by printing
-    debugPrint(
-        'Regular Habit: ${regularHabit.title}, Shared: ${regularHabit.isShared}');
-    debugPrint(
-        'Shared Habit: ${sharedHabit.title}, Shared: ${sharedHabit.isShared}');
-    debugPrint('Habits in service: ${_habitService.habits.length}');
-    debugPrint(
-        'Habit Types: ${_habitService.habits.map((h) => h.runtimeType)}');
   }
 }

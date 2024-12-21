@@ -26,7 +26,8 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
             children: [
               // Avatar
               UserAvatar(
-                username: viewModel.isBusy ? '...' : viewModel.username,
+                username:
+                    viewModel.isBusy ? '...' : viewModel.user?.username ?? '',
               ),
               const SizedBox(width: 15),
 
@@ -99,7 +100,7 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      viewModel.level.toString(),
+                      viewModel.user?.userLevel.toString() ?? '1',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -129,7 +130,7 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                     Row(
                       children: [
                         Text(
-                          viewModel.streak.toString(),
+                          viewModel.user?.stats.last.streak.toString() ?? '',
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -210,9 +211,6 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
   }
 
   @override
-  HomeGreetingHeaderModel viewModelBuilder(BuildContext context) {
-    final viewModel = HomeGreetingHeaderModel();
-    viewModel.initialize();
-    return viewModel;
-  }
+  HomeGreetingHeaderModel viewModelBuilder(BuildContext context) =>
+      HomeGreetingHeaderModel();
 }

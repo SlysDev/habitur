@@ -45,7 +45,7 @@ class Habit implements HabitInterface {
   @HiveField(12, defaultValue: [])
   List<DateTime> daysCompleted = [];
   @HiveField(13)
-  List<String> requiredDatesOfCompletion = [];
+  List<String> requiredDatesOfCompletion;
   @HiveField(16, defaultValue: [])
   List<StatPoint> stats = [];
   @HiveField(14)

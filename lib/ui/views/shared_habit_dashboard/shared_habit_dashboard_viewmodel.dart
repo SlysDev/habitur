@@ -80,10 +80,12 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
   }
 
   void inviteParticipants() async {
+    final participantsAsUserModels = participants.map((e) async => await _userService.getUserById(e.userId));
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.selectFriends,
       title: 'Share Habit',
       description: 'Select friends to share "${_sharedHabit!.title}" with',
+      data: {'preSelectedUsers': participantsAsUserModels}
     );
 
     if (response?.data.isEmpty) return;
