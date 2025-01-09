@@ -26,6 +26,7 @@ class SentFriendRequestCardModel extends BaseViewModel {
   Future<void> initialize(FriendRequest request) async {
     _request = request;
     _recipient = await _userService.getUserById(_request.recipientUid);
+    notifyListeners();
   }
 
   Future<void> cancelFriendRequest() {
