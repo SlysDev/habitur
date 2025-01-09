@@ -271,6 +271,30 @@ class FriendsService {
     ));
   }
 
+  Future<void> deleteFriend(String friendUid) async {
+    final currentUserDoc =
+        _firestore.collection('users').doc(_authService.currentUser!.uid);
+    final friendDoc = await _getUserDocById(friendUid);
+
+    if (friendDoc == null) {
+      throw Exception('Friend not found');
+    }
+
+    await currentUserDoc.update({
+      'friends': FieldValue.arrayRemove([friendUid])
+    });
+
+    await friendDoc.update({
+      'friends': FieldValue.arrayRemove([_authService.currentUser!.uid])
+    });
+
+    // Persist to local storage
+    UserModel currentUser = _userService.currentUser!;
+    await _localStorageService.setCurrentUser(currentUser.copyWith(
+      friends: currentUser.friends.where((uid) => uid != friendUid).toList(),
+    ));
+  }
+
   // Friend data operations
   Future<List<HabitInterface>> getFriendVisibleHabits(String friendUid) async {
     List<HabitInterface> habits =

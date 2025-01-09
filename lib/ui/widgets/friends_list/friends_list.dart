@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
@@ -63,21 +64,36 @@ class FriendsList extends StackedView<FriendsListModel> {
               );
             }
 
-            return ListTile(
-              onTap: () =>
-                  onTap ??
-                  () {
-                    viewModel.showFriendProfile(friend);
-                  },
-              leading: UserAvatar(username: friend.username),
-              title: Text(
-                friend.username,
-                style: const TextStyle(color: Colors.white),
+            return Slidable(
+              key: ValueKey(friendUid),
+              startActionPane: ActionPane(
+                    motion: const StretchMotion(),
+                children: [
+                  SlidableAction(
+                    autoClose: true,
+                    onPressed: (context) => viewModel.deleteFriend(friendUid),
+                    backgroundColor: kLightRedAccent,
+                        borderRadius: BorderRadius.circular(20),
+                    label: 'Unfriend',
+                  ),
+                ],
               ),
-              trailing: StatChip(
-                color: kPrimaryColor,
-                label: friend.userLevel.toString(),
-                icon: Icons.star,
+              child: ListTile(
+                onTap: () =>
+                    onTap ??
+                    () {
+                      viewModel.showFriendProfile(friend);
+                    },
+                leading: UserAvatar(username: friend.username),
+                title: Text(
+                  friend.username,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                trailing: StatChip(
+                  color: kPrimaryColor,
+                  label: friend.userLevel.toString(),
+                  icon: Icons.star,
+                ),
               ),
             );
           },

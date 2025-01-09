@@ -25,6 +25,19 @@ class FriendsListModel extends StreamViewModel<List<String>> {
     return _friendUsers[friendUid];
   }
 
+  Future<void> deleteFriend(String friendUid) async {
+    setBusy(true);
+    try {
+      await _friendsService.deleteFriend(friendUid);
+      _friendUsers.remove(friendUid);
+      notifyListeners();
+    } catch (e) {
+      setError(e);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   void showFriendProfile(UserModel friend) {
     _dialogService.showCustomDialog(
       variant: DialogType.profile,
