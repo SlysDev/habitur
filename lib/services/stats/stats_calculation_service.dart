@@ -27,7 +27,7 @@ class StatsCalculationService {
   ///
   /// Returns the average value of the specified statistic over the period as a `double`.
   double calculateAverageValueForStat(
-      List<StatPoint> stats, String statisticName,
+      String statisticName, List<StatPoint> stats,
       {int period = 7}) {
     debugPrint(
         '>>>Calculating average for $statisticName with period: $period');
@@ -242,12 +242,12 @@ class StatsCalculationService {
   double calculateMovingAverage(List<StatPoint> stats, String statisticName,
       {int windowSize = 7}) {
     if (stats.length < windowSize)
-      return calculateAverageValueForStat(stats, statisticName);
+      return calculateAverageValueForStat(statisticName, stats);
 
     List<double> movingAverages = [];
     for (int i = windowSize; i <= stats.length; i++) {
       var window = stats.sublist(i - windowSize, i);
-      movingAverages.add(calculateAverageValueForStat(window, statisticName));
+      movingAverages.add(calculateAverageValueForStat(statisticName, window));
     }
 
     return movingAverages.isEmpty ? 0.0 : movingAverages.last;
@@ -263,7 +263,7 @@ class StatsCalculationService {
       List<StatPoint> stats, String statisticName) {
     if (stats.isEmpty) return 0.0;
 
-    double mean = calculateAverageValueForStat(stats, statisticName);
+    double mean = calculateAverageValueForStat(statisticName, stats);
     double sumSquaredDiff = stats.fold(0.0, (sum, stat) {
       double diff = stat.getStatByName(statisticName) - mean;
       return sum + (diff * diff);
@@ -281,7 +281,7 @@ class StatsCalculationService {
   /// Returns a list of `StatPoint` objects identified as outliers.
   List<StatPoint> detectOutliers(List<StatPoint> stats, String statisticName,
       {double threshold = 2.0}) {
-    double mean = calculateAverageValueForStat(stats, statisticName);
+    double mean = calculateAverageValueForStat(statisticName, stats);
     double stdDev = calculateStandardDeviation(stats, statisticName);
 
     return stats.where((stat) {
@@ -569,7 +569,7 @@ class StatsCalculationService {
       if (habit.stats.isEmpty) {
         sum += 0;
       } else {
-        sum += calculateAverageValueForStat(habit.stats, statisticName);
+        sum += calculateAverageValueForStat(statisticName, habit.stats);
       }
     }
     return sum / habits.length;

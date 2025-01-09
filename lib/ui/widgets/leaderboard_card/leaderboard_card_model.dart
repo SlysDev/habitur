@@ -15,14 +15,14 @@ class LeaderboardCardModel extends BaseViewModel {
   bool _isFriend = false;
   bool get isFriend => _isFriend;
 
-  bool get isCurrentUser => participant?.userId == _userService.currentUser?.uid;
+  bool get isCurrentUser =>
+      participant?.userId == _userService.currentUser?.uid;
   Future<void> initialize(ParticipantData participant) async {
     this.participant = participant;
     _isFriend = await _friendsService.isFriend(participant.userId);
 
     notifyListeners();
   }
-
 
   Future<void> showProfileDialog() async {
     bool isFriend = await _friendsService.isFriend(participant?.userId);

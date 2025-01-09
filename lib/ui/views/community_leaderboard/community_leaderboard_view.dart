@@ -176,7 +176,8 @@ class CommunityLeaderboardView
                     const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final participant = friendsProgress[index];
-                  return LeaderboardCard(participant: participant, rank: index + 1);
+                  return LeaderboardCard(
+                      participant: participant, rank: index + 1);
                 },
               );
             },

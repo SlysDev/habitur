@@ -60,8 +60,8 @@ class CommunityLeaderboardViewModel
 
   List<ParticipantData> get sortedParticipants {
     List<ParticipantData> sortedList = List.from(participants);
-    sortedList.sort(
-        (a, b) => b.habit.totalProgress.compareTo(a.habit.totalProgress));
+    sortedList
+        .sort((a, b) => b.habit.totalProgress.compareTo(a.habit.totalProgress));
     return sortedList;
   }
 
@@ -70,7 +70,10 @@ class CommunityLeaderboardViewModel
     return Future.wait(data!.participantData.map((participant) async {
       bool isFriend = await _friendsService.isFriend(participant.userId);
       return isFriend ? participant : null;
-    })).then((list) => list.where((participant) => participant != null).cast<ParticipantData>().toList());
+    })).then((list) => list
+        .where((participant) => participant != null)
+        .cast<ParticipantData>()
+        .toList());
   }
 
   double get totalProgress {

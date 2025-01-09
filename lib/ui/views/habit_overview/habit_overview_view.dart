@@ -81,7 +81,7 @@ class HabitOverviewView extends StackedView<HabitOverviewViewModel> {
                       SingleStatCard(
                         statText: _statsCalculationService
                             .calculateAverageValueForStat(
-                                viewModel.habit!.stats, 'completions')
+                                'completions', viewModel.habit!.stats)
                             .toStringAsFixed(1),
                         statDescription: 'Average Weekly Completions',
                         fontSize: screenWidth(context) / 12,

@@ -71,7 +71,7 @@ class ProfileDialogModel extends BaseViewModel {
 
   double getConfidenceLevel() {
     return _statsCalculationService.calculateAverageValueForStat(
-        _userModel?.stats ?? [], 'confidenceLevel');
+        'confidenceLevel', _userModel?.stats ?? []);
   }
 
   void closeDialog() {

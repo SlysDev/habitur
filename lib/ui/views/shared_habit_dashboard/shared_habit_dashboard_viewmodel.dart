@@ -287,7 +287,7 @@ class SharedHabitDashboardViewModel extends StreamViewModel {
   double getAverageWeeklyCompletions({String? userId}) {
     Habit habit = getUserHabit(userId: userId);
     return _statsCalculationService.calculateAverageValueForStat(
-        habit.stats, 'completions');
+        'completions', habit.stats);
   }
 
   double getAverageConsistency({String? userId, int period = 7}) {

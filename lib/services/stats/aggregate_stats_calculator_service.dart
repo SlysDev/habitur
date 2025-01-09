@@ -79,7 +79,7 @@ class AggregateStatsCalculatorService {
         sum += 0;
       } else {
         double averageValue = _statsCalculationService
-            .calculateAverageValueForStat(habit.stats, statisticName);
+            .calculateAverageValueForStat(statisticName, habit.stats);
         _log(
             'Habit ${habit.id} average value for $statisticName: $averageValue');
         _log('Adding $averageValue to sum');
