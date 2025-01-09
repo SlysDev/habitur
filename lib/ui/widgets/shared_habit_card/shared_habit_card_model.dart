@@ -1,8 +1,8 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/app/app.dialogs.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
-import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/progress.dart';
@@ -62,8 +62,9 @@ class SharedHabitCardModel extends BaseViewModel {
   Future<void> incrementSharedHabit() async {
     try {
       if (sharedHabit
-          .getParticipantHabitById(_userService.currentUser?.uid ?? '')
-          .isCompleted) return;
+              .getParticipantHabitById(_userService.currentUser?.uid ?? '')
+              ?.isCompleted ??
+          false) return;
       setBusy(true);
       final difficulty = await showDifficultyPopup();
       debugPrint('Incrementing shared habit with difficulty: $difficulty');
@@ -87,7 +88,8 @@ class SharedHabitCardModel extends BaseViewModel {
               data: {"level": userPostCompletion!.userLevel});
         }
 
-        if (sharedHabit.getParticipantHabitById(currentUser.uid).isCompleted) {
+        if (sharedHabit.getParticipantHabitById(currentUser.uid)?.isCompleted ??
+            false) {
           _controller.play();
         }
         newConfidenceLevel = _getCurrentUserConfidenceLevel();

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:habitur/app/app.bottomsheets.dart';
+import 'package:habitur/app/app.dialogs.dart';
 import 'package:habitur/services/local_storage_service.dart';
 import 'package:habitur/ui/setup_snackbar_ui.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -9,8 +12,6 @@ import 'app/app.locator.dart';
 import 'app/app.router.dart';
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
-import 'ui/setup_bottom_sheet_ui.dart';
-import 'ui/setup_dialog_ui.dart';
 import 'constants.dart';
 
 Future<void> main() async {
@@ -60,14 +61,18 @@ class MainApp extends StatelessWidget {
       ],
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData.dark().copyWith(
-        textTheme: ThemeData.dark().textTheme.apply(
-              bodyColor: Colors.white,
-              displayColor: Colors.white,
-            ),
-        primaryTextTheme: ThemeData.dark().textTheme.apply(
-              bodyColor: Colors.white,
-              displayColor: Colors.white,
-            ),
+        textTheme: GoogleFonts.dmSansTextTheme(
+          ThemeData.dark().textTheme,
+        ).apply(
+          bodyColor: Colors.white,
+          displayColor: Colors.white,
+        ),
+        primaryTextTheme: GoogleFonts.dmSansTextTheme(
+          ThemeData.dark().textTheme,
+        ).apply(
+          bodyColor: Colors.white,
+          displayColor: Colors.white,
+        ),
         colorScheme: ColorScheme.dark(
           primary: Colors.white,
           onPrimary: Colors.black,

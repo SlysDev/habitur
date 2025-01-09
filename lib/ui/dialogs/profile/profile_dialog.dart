@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/privacy_settings.dart';
-import 'package:habitur/ui/widgets/aside_button.dart';
 import 'package:habitur/ui/widgets/line_graph/line_graph.dart';
 import 'package:habitur/ui/widgets/rounded_progress_bar.dart';
 import 'package:habitur/ui/widgets/stat-chips/stat_chip.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:habitur/ui/widgets/visible_habit_list/visible_habit_list.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 import 'profile_dialog_model.dart';
 
 class ProfileDialog extends StackedView<ProfileDialogModel> {
-  const ProfileDialog(
-      {super.key,
-      required this.uid,
-      this.isFriendProfile = false,
-      required this.completer});
+  final DialogRequest request;
+  final Function(DialogResponse) completer;
 
-  final String uid;
-  final bool isFriendProfile;
-  final dynamic completer;
+  const ProfileDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   @override
   Widget builder(
@@ -75,7 +74,6 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  color: Colors.grey.withOpacity(0.1),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -101,7 +99,7 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey[600],
+                        color: kGray,
                       ),
                     ),
                   ],
@@ -113,7 +111,6 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
       );
     }
 
-    final userModel = viewModel.userModel!;
     return Stack(
       children: [
         Positioned.fill(
@@ -163,33 +160,6 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(15, 30, 15, 15),
-      child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 24,
-            decoration: BoxDecoration(
-              color: kPrimaryColor,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: kPrimaryColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildOverviewTab(ProfileDialogModel viewModel) {
     if (viewModel.userModel == null) return Container();
 
@@ -202,29 +172,42 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
           SizedBox(height: 20),
           UserAvatar(
             username: viewModel.userModel?.username ?? 'No username found',
+            size: 2,
           ),
           SizedBox(height: 16),
           Text(
             viewModel.userModel?.username ?? 'No username found',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 10),
-          Text(
-            viewModel.userModel?.bio.isEmpty ?? true
-                ? 'No bio available.'
-                : viewModel.userModel!.bio,
-            style: kMainDescription.copyWith(
-              fontWeight: FontWeight.w400,
-              fontSize: 18,
-              color: kGray,
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
             ),
-            textAlign: TextAlign.center,
+            decoration: BoxDecoration(
+              color: kFadedBlue.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              viewModel.userModel?.bio.isEmpty ?? true
+                  ? 'No bio available.'
+                  : viewModel.userModel?.bio ?? '...',
+              style: const TextStyle(
+                color: kGray,
+                fontSize: 14,
+                height: 1.4,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           const SizedBox(height: 30),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _buildLevelProgressBar(viewModel),
               const SizedBox(width: 20),
@@ -243,12 +226,13 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
       alignment: Alignment.center,
       children: [
         SizedBox(
-          width: 140,
+          width: 100,
           child: RoundedProgressBar(
             progress: viewModel.userModel!.userXP /
                 viewModel.userModel!.levelUpRequirement,
             color: kPrimaryColor,
-            lineHeight: 50.0,
+            lineHeight: 45.0,
+            width: 100,
           ),
         ),
         Text(
@@ -257,7 +241,6 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
             fontSize: 32,
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            fontFamily: 'DM Sans',
           ),
         ),
       ],
@@ -271,7 +254,7 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
       icon: Icons.sentiment_satisfied_rounded,
       label: viewModel.getConfidenceLevel().toStringAsFixed(2),
       color: kLightGreenAccent,
-      size: 1.8,
+      size: 1.55,
     );
   }
 
@@ -279,8 +262,8 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
     if (viewModel.userModel == null) return Container();
 
     return VisibleHabitList(
-      userId: uid,
-      isFriendProfile: isFriendProfile,
+      userId: request.data?['uid'],
+      isFriendProfile: request.data?['isFriendProfile'],
       habitsScope: viewModel.userModel?.privacySettings?.habitsScope,
       habits: viewModel.isCurrentUser ? viewModel.getCurrentUserHabits() : null,
     );
@@ -292,7 +275,7 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
                 SharingScope.everyone ||
             (viewModel.userModel?.privacySettings?.statsScope ==
                     SharingScope.friends &&
-                isFriendProfile);
+                request.data?['isFriendProfile']);
     debugPrint('User model: ${viewModel.userModel?.toString()}');
     debugPrint(
         'Profile dialog: User has ${userHasChosenToShareStats ? '' : 'not '}chosen to share their stats');
@@ -341,31 +324,16 @@ class ProfileDialog extends StackedView<ProfileDialogModel> {
     }
   }
 
-  Widget _buildHabitsContent(ProfileDialogModel viewModel) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: _buildHabitsTab(viewModel),
-    );
-  }
-
-  Widget _buildStatsContent(ProfileDialogModel viewModel) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: _buildStatsTab(viewModel),
-    );
-  }
-
   @override
   void onViewModelReady(ProfileDialogModel viewModel) {
     viewModel.loadUserData();
   }
 
   @override
-  ProfileDialogModel viewModelBuilder(
-    BuildContext context,
-  ) {
+  ProfileDialogModel viewModelBuilder(BuildContext context) {
     final viewModel = ProfileDialogModel();
-    viewModel.initialize(uid, isFriendProfile, completer);
+    viewModel.initialize(
+        request.data?['uid'] ?? '', request.data?['isFriendProfile'] ?? false);
     return viewModel;
   }
 }

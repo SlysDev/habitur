@@ -24,16 +24,16 @@ class DataService {
     debugPrint('\n=== Starting loadAllData() ===');
     debugPrint('forceDbLoad: $forceDbLoad');
 
+    debugPrint('Initializing storage...');
+    await _localStorageService.init();
+    debugPrint('Storage initialized');
+
     try {
       if (forceDbLoad) {
         debugPrint('Clearing local storage...');
         await _localStorageService.clearAllData();
         debugPrint('Local storage cleared');
       }
-
-      debugPrint('Initializing storage...');
-      await _localStorageService.init();
-      debugPrint('Storage initialized');
 
       debugPrint('Loading user data...');
       await _loadUserData(forceDbLoad: forceDbLoad);
@@ -93,11 +93,14 @@ class DataService {
       if (await _shouldLoadFromDb(
           await _localStorageService.settingsLastUpdated ?? DateTime.now(),
           forceDbLoad)) {
+        debugPrint('loading settings from remote');
         await _settingsService.loadFromRemote();
       } else {
+        debugPrint('loading settings from LS #1');
         await _settingsService.loadFromLocal();
       }
     } else {
+      debugPrint('loading settings from LS #2');
       await _settingsService.loadFromLocal();
     }
   }

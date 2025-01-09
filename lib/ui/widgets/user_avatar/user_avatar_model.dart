@@ -7,6 +7,9 @@ class UserAvatarModel extends BaseViewModel {
   }
 
   Color generateColorFromString(String str) {
+    if (str == '') {
+      return Colors.grey;
+    }
     // Generate a consistent color for the same username
     int hash = str.codeUnits.fold(0, (prev, curr) => prev + curr);
     // Use predefined material colors for better aesthetics

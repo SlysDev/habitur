@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
-import 'package:habitur/ui/widgets/dialog/profile_dialog/profile_dialog.dart';
 import 'package:habitur/ui/widgets/stat-chips/stat_chip.dart';
 import 'friends_list_model.dart';
 

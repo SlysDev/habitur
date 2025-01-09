@@ -50,7 +50,7 @@ class HabitCard extends StatelessWidget {
                 },
                 child: Slidable(
                   startActionPane: ActionPane(
-                    motion: const DrawerMotion(),
+                    motion: const StretchMotion(),
                     children: [
                       SlidableAction(
                         autoClose: true,
@@ -131,7 +131,7 @@ class HabitCard extends StatelessWidget {
                                     : kFadedGreen.withOpacity(0.5),
                                 width: 100,
                                 lineHeight: height,
-                                radius: 17.5,
+                                radius: 20,
                               ),
                               Positioned.fill(
                                 child: Icon(

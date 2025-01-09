@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/habit_interface.dart';
+import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/stat_point.dart';
+import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
 
 class AggregateStatsCalculatorService {
   final _statsCalculationService = locator<StatsCalculationService>();
+  final _authService = locator<AuthService>();
 
   void _log(String message) {
     var current = StackTrace.current;
@@ -59,6 +62,17 @@ class AggregateStatsCalculatorService {
     if (habits.isEmpty) return 0.0;
     double sum = 0.0;
     for (HabitInterface habit in habits) {
+      if (habit is SharedHabit) {
+        Habit? retrievedHabit =
+            habit.getParticipantHabitById(_authService.currentUser!.uid);
+        if (retrievedHabit != null) {
+          habit = retrievedHabit;
+        } else {
+          debugPrint(
+              'Could not find participant habit for habit ID: ${habit.id}');
+          continue;
+        }
+      }
       if (habit.stats.isEmpty) {
         _log('Habit ${habit.id} has no stats');
         _log('Adding 0 to sum');

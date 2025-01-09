@@ -1,46 +1,44 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/ui/widgets/primary_button.dart';
+import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
-class HabitDifficultyPopup extends StatefulWidget {
-  const HabitDifficultyPopup({
-    super.key,
-    required this.onDifficultySelected,
-  });
+import 'difficulty_popup_dialog_model.dart';
 
-  final Function(double) onDifficultySelected;
+class DifficultyPopupDialog extends StackedView<DifficultyPopupDialogModel> {
+  final DialogRequest request;
+  final Function(DialogResponse) completer;
 
-  @override
-  State<HabitDifficultyPopup> createState() => _HabitDifficultyPopupState();
-}
-
-class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
-  double chosenDifficulty = 5.0; // Initial difficulty
-  Color highlightColor = kPrimaryColor.withOpacity(0.3);
-
-  void updateDifficulty(double newDifficulty) {
-    setState(() {
-      chosenDifficulty = newDifficulty;
-    });
-  }
+  const DifficultyPopupDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget builder(
+    BuildContext context,
+    DifficultyPopupDialogModel viewModel,
+    Widget? child,
+  ) {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-      child: AlertDialog(
-        surfaceTintColor: Colors.black,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        content: Container(
+      child: Dialog(
+        backgroundColor: kBackgroundColor,
+        child: Container(
           alignment: Alignment.center,
-          height: 400,
-          width: 350,
+          height: 325,
+          width: 300,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('How difficult was this habit to complete?',
-                  style: kHeadingTextStyle, textAlign: TextAlign.center),
+              Text(
+                'How difficult was this habit to complete?',
+                style: kHeadingTextStyle,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -48,25 +46,25 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
                   _DifficultyButton(
                     emoji: '🤯',
                     difficulty: 10.0,
-                    chosenDifficulty: chosenDifficulty,
-                    highlightColor: highlightColor,
-                    onTap: updateDifficulty,
+                    chosenDifficulty: viewModel.chosenDifficulty,
+                    highlightColor: viewModel.highlightColor,
+                    onTap: viewModel.updateDifficulty,
                   ),
                   const SizedBox(width: 10),
                   _DifficultyButton(
                     emoji: '😕',
                     difficulty: 6.6,
-                    chosenDifficulty: chosenDifficulty,
-                    highlightColor: highlightColor,
-                    onTap: updateDifficulty,
+                    chosenDifficulty: viewModel.chosenDifficulty,
+                    highlightColor: viewModel.highlightColor,
+                    onTap: viewModel.updateDifficulty,
                   ),
                   const SizedBox(width: 10),
                   _DifficultyButton(
                     emoji: '🙂',
                     difficulty: 3.3,
-                    chosenDifficulty: chosenDifficulty,
-                    highlightColor: highlightColor,
-                    onTap: updateDifficulty,
+                    chosenDifficulty: viewModel.chosenDifficulty,
+                    highlightColor: viewModel.highlightColor,
+                    onTap: viewModel.updateDifficulty,
                   ),
                 ],
               ),
@@ -77,16 +75,16 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
                   _DifficultyButton(
                     emoji: '😌',
                     difficulty: 0.0,
-                    chosenDifficulty: chosenDifficulty,
-                    highlightColor: highlightColor,
-                    onTap: updateDifficulty,
+                    chosenDifficulty: viewModel.chosenDifficulty,
+                    highlightColor: viewModel.highlightColor,
+                    onTap: viewModel.updateDifficulty,
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              PrimaryButton(
-                onPressed: () => widget.onDifficultySelected(chosenDifficulty),
-                text: 'Done',
+              ElevatedButton(
+                onPressed: () => viewModel.submitDialog(),
+                child: const Text('Done'),
               ),
             ],
           ),
@@ -94,6 +92,10 @@ class _HabitDifficultyPopupState extends State<HabitDifficultyPopup> {
       ),
     );
   }
+
+  @override
+  DifficultyPopupDialogModel viewModelBuilder(BuildContext context) =>
+      DifficultyPopupDialogModel();
 }
 
 class _DifficultyButton extends StatelessWidget {

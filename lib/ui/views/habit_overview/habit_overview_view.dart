@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
+import 'package:habitur/ui/common/ui_helpers.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/ui/views/habit_overview/habit_overview_viewmodel.dart';
@@ -12,7 +13,7 @@ import '../../widgets/habit_heat_map/habit_heat_map.dart';
 import '../../widgets/insight_display/insight_display.dart';
 import '../../widgets/modern_card.dart';
 import '../../widgets/multi_stat_line_graph/multi_stat_line_graph.dart';
-import '../../widgets/single-stat-card.dart';
+import '../../widgets/single_stat_card.dart';
 
 class HabitOverviewView extends StackedView<HabitOverviewViewModel> {
   final String habitId;
@@ -67,14 +68,14 @@ class HabitOverviewView extends StackedView<HabitOverviewViewModel> {
                       SingleStatCard(
                         statText: viewModel.habit?.streak.toString() ?? '',
                         statDescription: 'Streak',
-                        fontSize: 40,
+                        fontSize: screenWidth(context) / 12,
                         color: Colors.orange.shade300,
                       ),
                       SingleStatCard(
                         statText:
                             viewModel.habit?.highestStreak.toString() ?? '',
                         statDescription: 'Highest Streak',
-                        fontSize: 40,
+                        fontSize: screenWidth(context) / 12,
                         color: Colors.white,
                       ),
                       SingleStatCard(
@@ -83,7 +84,7 @@ class HabitOverviewView extends StackedView<HabitOverviewViewModel> {
                                 viewModel.habit!.stats, 'completions')
                             .toStringAsFixed(1),
                         statDescription: 'Average Weekly Completions',
-                        fontSize: 40,
+                        fontSize: screenWidth(context) / 12,
                         color: Colors.green.shade300,
                       ),
                       SingleStatCard(
@@ -91,7 +92,7 @@ class HabitOverviewView extends StackedView<HabitOverviewViewModel> {
                             ? '${(_statsCalculationService.calculateConsistencyFactor(viewModel.habit!.stats, viewModel.habit!.targetGoal, period: viewModel.habit!.stats.length) * 100).toStringAsFixed(0)}%'
                             : '${(_statsCalculationService.calculateConsistencyFactor(viewModel.habit!.stats, viewModel.habit!.targetGoal) * 100).toStringAsFixed(0)}%',
                         statDescription: '7-day Consistency',
-                        fontSize: 40,
+                        fontSize: screenWidth(context) / 12,
                         color: Colors.teal.shade300,
                       ),
                     ],

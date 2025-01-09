@@ -42,7 +42,8 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
             },
             child: Slidable(
               startActionPane: ActionPane(
-                motion: const DrawerMotion(),
+                extentRatio: 0.275,
+                motion: const StretchMotion(),
                 children: [
                   SlidableAction(
                     autoClose: true,
@@ -54,17 +55,16 @@ class SharedHabitCard extends StackedView<SharedHabitCardModel> {
                     borderRadius: BorderRadius.circular(20),
                     label: 'Delete',
                   ),
-                  viewModel.isCurrentUserAuthor
-                      ? SlidableAction(
-                          onPressed: (context) async {
-                            await viewModel.editSharedHabit();
-                          },
-                          backgroundColor: kDarkPrimaryColor,
-                          icon: Icons.edit,
-                          borderRadius: BorderRadius.circular(20),
-                          label: 'Edit',
-                        )
-                      : Container(),
+                  if (viewModel.isCurrentUserAuthor)
+                    SlidableAction(
+                      onPressed: (context) async {
+                        await viewModel.editSharedHabit();
+                      },
+                      backgroundColor: kDarkPrimaryColor,
+                      icon: Icons.edit,
+                      borderRadius: BorderRadius.circular(20),
+                      label: 'Edit',
+                    ),
                 ],
               ),
               child: Stack(

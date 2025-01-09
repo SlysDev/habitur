@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/friend_request.dart';
+import 'package:habitur/ui/common/ui_helpers.dart';
 import 'package:habitur/ui/widgets/loading_indicator.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
@@ -54,7 +55,7 @@ class ReceivedFriendRequestCard
                         UserAvatar(
                           username: viewModel.sender?.username ?? '',
                         ),
-                        const SizedBox(width: 8),
+                        horizontalSpaceMediumNew,
                         Expanded(
                           child: Text(
                             viewModel.sender?.username ?? 'User not found',

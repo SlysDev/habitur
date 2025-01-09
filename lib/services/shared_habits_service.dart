@@ -132,6 +132,9 @@ class SharedHabitsService with ListenableServiceMixin {
 
       final participantHabitData =
           sharedHabit.getParticipantHabitById(currentUser.uid);
+      if (participantHabitData == null) {
+        throw Exception('Looks like you aren\'t a participant in this habit');
+      }
 
       final updatedParticipantHabitData =
           await _statsOrchestrationService.processHabitIncrement(
@@ -210,6 +213,13 @@ class SharedHabitsService with ListenableServiceMixin {
       print('Error updating participant progress: $e');
       rethrow;
     }
+  }
+
+  Stream<SharedHabit> getSharedHabitStreamById(int habitId) {
+    if (habitId == -1) {
+      return const Stream.empty();
+    }
+    return _databaseService.getSharedHabitStreamById(habitId.toString());
   }
 
   Future<SharedHabit?> getSharedHabitById(int habitId) async {
@@ -310,6 +320,23 @@ class SharedHabitsService with ListenableServiceMixin {
       debugPrint('Error converting habit to shared habit: $e');
       debugPrint('$s');
       return null;
+    }
+  }
+
+  Future<void> clearCurrentUserSharedHabits() async {
+    try {
+      final currentUser = _userService.currentUser;
+      if (currentUser == null) return;
+
+      // Clear shared habits from database
+      await _databaseService.clearUserSharedHabitData(currentUser.uid);
+
+      // Clear shared habits from local list
+      _sharedHabits.removeWhere((h) => h.author?.uid == currentUser.uid);
+      notifyListeners();
+    } catch (e) {
+      print('Error clearing user shared habits: $e');
+      rethrow;
     }
   }
 }

@@ -74,8 +74,7 @@ class StatisticsView extends StackedView<StatisticsViewModel> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem(
-                    'Total Habits', viewModel.totalHabits.toString()),
+                _buildStatItem('Habits', viewModel.totalHabits.toString()),
                 _buildStatItem('Completion Rate',
                     '${(viewModel.completionRate * 100).toStringAsFixed(1)}%'),
                 _buildStatItem('Best Streak', viewModel.bestStreak.toString()),

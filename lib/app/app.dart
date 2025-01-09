@@ -7,6 +7,8 @@ import 'package:habitur/services/stats/user_stats_service.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/services/status_service.dart';
 import 'package:habitur/services/sync_service.dart';
+import 'package:habitur/ui/bottom_sheets/add_habit/add_habit_sheet.dart';
+import 'package:habitur/ui/bottom_sheets/create_shared_habit/create_shared_habit_sheet.dart';
 import 'package:habitur/ui/views/edit_shared_habit/edit_shared_habit_view.dart';
 import 'package:habitur/ui/views/startup/startup_view.dart';
 import 'package:stacked/stacked.dart';
@@ -54,6 +56,18 @@ import 'package:habitur/ui/bottom_sheets/action_selection/action_selection_sheet
 import 'package:habitur/ui/dialogs/select_friends/select_friends_dialog.dart';
 
 import 'package:habitur/ui/dialogs/level_up/level_up_dialog.dart';
+
+import 'package:habitur/ui/dialogs/modern/modern_dialog.dart';
+
+import 'package:habitur/ui/dialogs/profile/profile_dialog.dart';
+
+import 'package:habitur/ui/dialogs/difficulty_popup/difficulty_popup_dialog.dart';
+
+import 'package:habitur/ui/dialogs/success/success_dialog.dart';
+
+import 'package:habitur/ui/dialogs/success/success_dialog.dart';
+
+import 'package:habitur/ui/dialogs/basic/basic_dialog.dart';
 
 // @stacked-import
 @StackedApp(
@@ -151,10 +165,17 @@ import 'package:habitur/ui/dialogs/level_up/level_up_dialog.dart';
     StackedDialog(classType: StreakMilestoneDialog),
     StackedDialog(classType: SelectFriendsDialog),
     StackedDialog(classType: LevelUpDialog),
+    StackedDialog(classType: ModernDialog),
+    StackedDialog(classType: ProfileDialog),
+    StackedDialog(classType: DifficultyPopupDialog),
+    StackedDialog(classType: SuccessDialog),
+    StackedDialog(classType: BasicDialog),
 // @stacked-dialog
   ],
   bottomsheets: [
     StackedBottomsheet(classType: ActionSelectionSheet),
+    StackedBottomsheet(classType: AddHabitSheet),
+    StackedBottomsheet(classType: CreateSharedHabitSheet),
 // @stacked-bottom-sheet
   ],
   logger: StackedLogger(),

@@ -16,11 +16,21 @@ class CommunityHabitListViewModel
 
   List<CommunityChallenge> get challenges => data ?? [];
 
-  void initialize(bool isAdmin) {
+  void initialize(bool isAdmin) async {
     _isAdmin = isAdmin;
+    await resetCurrentUserCurrentCompletions();
   }
 
   Future<void> refreshChallenges() async {
+    await resetCurrentUserCurrentCompletions();
+    notifySourceChanged();
+  }
+
+  Future<void> resetCurrentUserCurrentCompletions() async {
+    for (CommunityChallenge challenge in challenges) {
+      await _communityService
+          .resetCurrentUserCurrentCompletions(challenge.id.toString());
+    }
     notifySourceChanged();
   }
 }

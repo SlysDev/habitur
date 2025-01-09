@@ -108,7 +108,8 @@ class EditHabitViewModel extends BaseViewModel {
 
     setBusy(true);
     try {
-      final habit = Habit(
+      Habit originalHabit = await _habitService.getHabit(habitId) as Habit;
+      final habit = originalHabit.copyWith(
         id: int.parse(habitId),
         title: titleController.text,
         dateCreated: DateTime.now(),

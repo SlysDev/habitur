@@ -41,7 +41,7 @@ class StartupViewModel extends BaseViewModel {
       debugPrint(
         'Clearing user data for user: ${_authService.currentUser?.uid ?? ''}',
       );
-      await _databaseService.clearUserData(_authService.currentUser?.uid ?? '');
+      // await _databaseService.clearUserData(_authService.currentUser?.uid ?? '');
       // Load all necessary data
       await _dataService.loadAllData();
 

@@ -79,7 +79,6 @@ class MultiStatLineGraph extends StackedView<MultiStatLineGraphModel> {
         dropdownColor: kFadedBlue,
         style: const TextStyle(
           color: Colors.white,
-          fontFamily: 'DM Sans',
           fontSize: 16,
         ),
         underline: Container(),
@@ -115,7 +114,6 @@ class MultiStatLineGraph extends StackedView<MultiStatLineGraphModel> {
                   viewModel.mappedStatName,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontFamily: 'DM Sans',
                     fontSize: 16,
                   ),
                 ),
@@ -150,7 +148,6 @@ class MultiStatLineGraph extends StackedView<MultiStatLineGraphModel> {
                   viewModel.getDisplayNameForStat(value),
                   style: const TextStyle(
                     color: Colors.white,
-                    fontFamily: 'DM Sans',
                   ),
                 ),
               );

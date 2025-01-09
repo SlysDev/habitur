@@ -61,7 +61,7 @@ class StreakMilestoneDialog extends StackedView<StreakMilestoneDialogModel> {
             ),
             SizedBox(height: 20),
             GestureDetector(
-              onTap: () => completer(DialogResponse(confirmed: true)),
+              onTap: () => viewModel.closeDialog(),
               child: Container(
                 height: 50,
                 width: double.infinity,

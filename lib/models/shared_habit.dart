@@ -159,7 +159,7 @@ class SharedHabit extends Habit implements HabitInterface {
         '}';
   }
 
-  Habit getParticipantHabitById(String userId) {
+  Habit? getParticipantHabitById(String userId) {
     return participantData.firstWhere((p) => p.userId == userId).habit;
   }
 }

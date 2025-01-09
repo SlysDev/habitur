@@ -128,6 +128,7 @@ class Habit implements HabitInterface {
       'isCommunityHabit': isCommunityHabit,
       'smartNotifsEnabled': smartNotifsEnabled,
       'isVisible': isVisible,
+      'isShared': isShared,
       'targetGoal': targetGoal,
     };
   }
@@ -163,6 +164,7 @@ class Habit implements HabitInterface {
       isCommunityHabit: map['isCommunityHabit'] as bool? ?? false,
       smartNotifsEnabled: map['smartNotifsEnabled'] as bool? ?? false,
       isVisible: map['isVisible'] as bool? ?? true,
+      isShared: map['isShared'] as bool? ?? false,
       targetGoal: map['targetGoal'] as int? ?? 1,
     );
     habit.stats = (map['stats'] as List?)
@@ -220,6 +222,7 @@ class Habit implements HabitInterface {
     bool? isCommunityHabit,
     bool? smartNotifsEnabled,
     bool? isVisible,
+    bool? isShared,
     List<DateTime>? daysCompleted,
     List<String>? requiredDatesOfCompletion,
     List<StatPoint>? stats,
@@ -239,6 +242,7 @@ class Habit implements HabitInterface {
           requiredDatesOfCompletion ?? this.requiredDatesOfCompletion,
       isCommunityHabit: isCommunityHabit ?? this.isCommunityHabit,
       smartNotifsEnabled: smartNotifsEnabled ?? this.smartNotifsEnabled,
+      isShared: isShared ?? this.isShared,
       isVisible: isVisible ?? this.isVisible,
       targetGoal: targetGoal ?? this.targetGoal,
     )

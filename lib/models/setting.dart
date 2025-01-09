@@ -1,3 +1,5 @@
+import 'package:habitur/models/privacy_settings.dart';
+import 'package:habitur/models/time_model.dart';
 import 'package:hive/hive.dart';
 
 part 'setting.g.dart';
@@ -25,7 +27,11 @@ class SettingModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'settingValue': settingValue,
+      'settingValue': settingValue is TimeModel
+          ? {'hour': settingValue.hour, 'minute': settingValue.minute}
+          : settingValue is SharingScope
+              ? settingValue.toString()
+              : settingValue,
       'settingName': settingName,
       'settingDescription': settingDescription,
     };

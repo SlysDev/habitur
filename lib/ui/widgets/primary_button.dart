@@ -88,7 +88,7 @@ class PrimaryButton extends StatelessWidget {
                 Text(
                   text,
                   style: TextStyle(
-                    color: effectiveTextColor,
+                    color: effectiveTextColor.withOpacity(isDisabled ? 0.5 : 1),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.3,

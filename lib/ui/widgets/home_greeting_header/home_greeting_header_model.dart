@@ -24,7 +24,11 @@ class HomeGreetingHeaderModel extends StreamViewModel {
   double get xpProgress =>
       ((user?.userXP ?? 0) / (user?.levelUpRequirement ?? 1)).toDouble();
 
-  int get streak => user == null ? 0 : user!.stats.isEmpty ? 0 : user!.stats.last.streak;
+  int get streak => user == null
+      ? 0
+      : user!.stats.isEmpty
+          ? 0
+          : user!.stats.last.streak;
 
   String get timeOfDay => getTimeSlot(_currentTime);
 
@@ -32,5 +36,4 @@ class HomeGreetingHeaderModel extends StreamViewModel {
     final now = DateTime.now();
     return DateFormat('EEEE, MMMM d').format(now);
   }
-
 }

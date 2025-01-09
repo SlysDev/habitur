@@ -26,7 +26,7 @@ SnackbarConfig _successSnackbarConfig() {
 SnackbarConfig _defaultSnackbarConfig(
     {Color color = Colors.white,
     double barBlur = 3.0,
-    double verticalHeight = 120,
+    double verticalHeight = 30,
     Color textColor = Colors.white,
     Icon icon = const Icon(Icons.info)}) {
   return SnackbarConfig(
@@ -39,7 +39,7 @@ SnackbarConfig _defaultSnackbarConfig(
     borderColor: color.withOpacity(0.6),
     borderWidth: 1.0,
     icon: icon,
-    snackPosition: SnackPosition.BOTTOM,
+    snackPosition: SnackPosition.TOP,
     animationDuration: const Duration(milliseconds: 1000),
     isDismissible: true,
     forwardAnimationCurve: Curves.easeInOutCubicEmphasized,

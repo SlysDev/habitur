@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
+import 'package:habitur/ui/widgets/modern_card.dart';
 import 'package:habitur/ui/widgets/static_card.dart';
 
 class SingleStatCard extends StatelessWidget {
@@ -8,7 +9,7 @@ class SingleStatCard extends StatelessWidget {
     required this.statText,
     required this.statDescription,
     required this.color,
-    this.fontSize = 40,
+    this.fontSize = 35,
   });
   final String statText;
   final String statDescription;
@@ -17,7 +18,8 @@ class SingleStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StaticCard(
+    return ModernCard(
+      padding: 20,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -31,7 +33,7 @@ class SingleStatCard extends StatelessWidget {
             Text(
               statDescription,
               style: kMainDescription.copyWith(
-                  color: Colors.grey, fontSize: fontSize / 2.75),
+                  color: Colors.grey, fontSize: fontSize / 2.30),
               textAlign: TextAlign.center,
             ),
           ],

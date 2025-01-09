@@ -6,7 +6,6 @@ import 'package:habitur/ui/widgets/text_fields/form_text_field.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
-import 'package:habitur/ui/widgets/dialog/profile_dialog/profile_dialog.dart';
 import 'package:habitur/ui/widgets/friends_list/friends_list.dart';
 import 'package:habitur/ui/widgets/aside_button.dart';
 import 'profile_drawer_model.dart';
@@ -56,8 +55,7 @@ class ProfileDrawer extends StackedView<ProfileDrawerModel> {
               text: 'Send Request',
               onPressed: () async {
                 if (usernameController.text.isEmpty) return;
-                await viewModel.sendFriendRequest(
-                    usernameController.text, context);
+                await viewModel.sendFriendRequest(usernameController.text);
                 Navigator.of(dialogContext).pop();
               },
             ),
@@ -146,7 +144,8 @@ class ProfileDrawer extends StackedView<ProfileDrawerModel> {
                                   ),
                                 ),
                                 child: UserAvatar(
-                                  username: viewModel.currentUser.username,
+                                  username:
+                                      viewModel.currentUser?.username ?? '',
                                   size: 2,
                                 ),
                               ),
@@ -174,7 +173,7 @@ class ProfileDrawer extends StackedView<ProfileDrawerModel> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            viewModel.currentUser.username,
+                            viewModel.currentUser?.username ?? '...',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
@@ -186,7 +185,7 @@ class ProfileDrawer extends StackedView<ProfileDrawerModel> {
                             Padding(
                               padding: const EdgeInsets.only(top: 4),
                               child: Text(
-                                viewModel.currentUser.email!,
+                                viewModel.currentUser?.email ?? '...',
                                 style: const TextStyle(
                                   color: kGray,
                                   fontSize: 14,
@@ -205,7 +204,7 @@ class ProfileDrawer extends StackedView<ProfileDrawerModel> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                viewModel.currentUser.bio!,
+                                viewModel.currentUser?.bio ?? '...',
                                 style: const TextStyle(
                                   color: kGray,
                                   fontSize: 14,
@@ -272,7 +271,7 @@ class ProfileDrawer extends StackedView<ProfileDrawerModel> {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            onTap: () => viewModel.navigateToSettings(context),
+                            onTap: () => viewModel.navigateToSettings(),
                           ),
                         ),
                         ListTile(

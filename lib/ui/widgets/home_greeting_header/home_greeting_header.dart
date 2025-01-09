@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/ui/widgets/days_of_week_widget/days_of_week_widget.dart';
 import 'package:habitur/ui/widgets/network_indicator/network_indicator.dart';
@@ -46,13 +47,13 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                         children: [
                           TextSpan(
                             text: 'Good ${viewModel.timeOfDay},\n',
-                            style: TextStyle(
+                            style: GoogleFonts.dmSans(
                               color: Colors.white.withOpacity(0.7),
                             ),
                           ),
                           TextSpan(
                             text: viewModel.isBusy ? '...' : viewModel.username,
-                            style: const TextStyle(
+                            style: GoogleFonts.dmSans(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
@@ -130,7 +131,10 @@ class HomeGreetingHeader extends StackedView<HomeGreetingHeaderModel> {
                     Row(
                       children: [
                         Text(
-                          viewModel.user?.stats.last.streak.toString() ?? '',
+                          viewModel.user?.stats.isEmpty ?? true
+                              ? '0'
+                              : viewModel.user?.stats.last.streak.toString() ??
+                                  '0',
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,

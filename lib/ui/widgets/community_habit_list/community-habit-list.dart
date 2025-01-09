@@ -73,10 +73,9 @@ class CommunityHabitList extends StackedView<CommunityHabitListViewModel> {
   }
 
   @override
-  CommunityHabitListViewModel viewModelBuilder(BuildContext context) =>
-      CommunityHabitListViewModel();
-
-  @override
-  void onViewModelReady(CommunityHabitListViewModel viewModel) =>
-      viewModel.initialize(isAdmin);
+  CommunityHabitListViewModel viewModelBuilder(BuildContext context) {
+    final viewModel = CommunityHabitListViewModel();
+    viewModel.initialize(isAdmin);
+    return viewModel;
+  }
 }

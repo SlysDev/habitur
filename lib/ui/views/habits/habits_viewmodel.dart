@@ -1,4 +1,4 @@
-import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/app/app.dialogs.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/app/app.locator.dart';

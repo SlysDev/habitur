@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:habitur/models/privacy_settings.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/time_model.dart';
 
@@ -78,6 +79,7 @@ Image kHabiturLogo = Image.asset('assets/images/logo.png');
 // Settings
 
 List<SettingModel> kDefaultSettings = [
+  // Existing notification settings
   SettingModel(settingValue: true, settingName: 'Daily Reminders'),
   SettingModel(settingValue: 3, settingName: 'Number of Reminders'),
   SettingModel(
@@ -89,6 +91,18 @@ List<SettingModel> kDefaultSettings = [
   SettingModel(
       settingValue: const TimeModel(hour: 22, minute: 0),
       settingName: '3rd Reminder Time'),
+
+  // App settings
+  SettingModel(settingValue: 'true', settingName: 'notifications'),
+  SettingModel(settingValue: 'true', settingName: 'communityFeatures'),
+
+  // Privacy & sharing settings
+  SettingModel(settingValue: SharingScope.friends, settingName: 'statsScope'),
+  SettingModel(settingValue: SharingScope.friends, settingName: 'habitsScope'),
+  SettingModel(settingValue: 'true', settingName: 'shareActivities'),
+  SettingModel(settingValue: 'true', settingName: 'shareHabitCompletions'),
+  SettingModel(settingValue: 'true', settingName: 'shareStreakMilestones'),
+  SettingModel(settingValue: 'true', settingName: 'shareNewHabits'),
 ];
 
 const InputDecoration kTextFieldDecoration = InputDecoration(

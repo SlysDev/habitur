@@ -24,7 +24,9 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
 
   final CommunityChallenge challenge;
 
-  CommunityChallengeCardViewModel({required this.challenge});
+  CommunityChallengeCardViewModel({required this.challenge}) {
+    resetCurrentUserCurrentCompletions();
+  }
 
   List<ParticipantData> get participants => challenge.participantData;
 
@@ -49,8 +51,10 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
     if (user == null) {
       return 0.0;
     }
-    final currentCompletions = challenge.currentFullCompletions;
-    final requiredCompletions = challenge.requiredFullCompletions;
+    final currentCompletions =
+        challenge.getParticipantHabitById(user.uid)?.currentProgress ?? 0;
+    final requiredCompletions =
+        challenge.getParticipantHabitById(user.uid)?.targetGoal ?? 1;
     return currentCompletions / requiredCompletions;
   }
 
@@ -63,7 +67,9 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
         habit: Habit.fromSharedHabit(challenge),
       ),
     );
-    return currentUserParticipant.habit.totalProgress > 0;
+    return currentUserParticipant.habit.isCompleted;
+
+    totalProgress > 0;
   }
 
   double get currentUserCompletionProgress {
@@ -132,5 +138,11 @@ class CommunityChallengeCardViewModel extends BaseViewModel {
     } finally {
       setBusy(false);
     }
+  }
+
+  Future<void> resetCurrentUserCurrentCompletions() async {
+    await _communityService
+        .resetCurrentUserCurrentCompletions(challenge.id.toString());
+    rebuildUi();
   }
 }

@@ -99,6 +99,7 @@ class HabitStatsService {
       // Update the stat point's streak value.
       habit.stats.last.streak = habit.streak;
     }
+    habit.lastSeen = DateTime.now();
 
     // Save changes to local storage and remote database.
     return habit;
@@ -170,6 +171,7 @@ class HabitStatsService {
       statPoint.streak = habit.streak;
     }
 
+    habit.lastSeen = DateTime.now();
     return habit;
   }
 

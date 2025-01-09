@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/friend_request.dart';
-import 'package:habitur/ui/widgets/dialog/profile_dialog/profile_dialog.dart';
+import 'package:habitur/ui/common/ui_helpers.dart';
+import 'package:habitur/ui/widgets/loading_indicator.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 
@@ -22,7 +23,8 @@ class SentFriendRequestCard extends StackedView<SentFriendRequestCardModel> {
       onTap: () {
         viewModel.showProfileDialog();
       },
-      child: Opacity(
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 300),
         opacity: request.isAccepted || request.isDeclined ? 0.5 : 1,
         child: Container(
           decoration: BoxDecoration(
@@ -33,39 +35,78 @@ class SentFriendRequestCard extends StackedView<SentFriendRequestCardModel> {
               width: 1,
             ),
           ),
-          margin: EdgeInsets.all(16),
-          child: ListTile(
-            leading: UserAvatar(
-              username: viewModel.recipient?.username ?? '',
-              size: 40.0,
-            ),
-            title: Text(
-              viewModel.recipient?.username ?? '',
-              overflow: TextOverflow.ellipsis,
-            ),
-            subtitle: Text('Sent ${viewModel.relativeDate}'),
-            trailing: request.isAccepted || request.isDeclined
-                ? Text(
-                    request.isAccepted
-                        ? 'Accepted'
-                        : request.isDeclined
-                            ? 'Declined'
-                            : 'Pending',
-                    style: TextStyle(
-                      color: request.isAccepted
-                          ? kLightGreenAccent
-                          : request.isDeclined
-                              ? kLightRedAccent
-                              : null,
+          margin: const EdgeInsets.all(16),
+          child: viewModel.isBusy
+              ? const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: LoadingIndicator(
+                      size: 32,
+                      strokeWidth: 2.5,
                     ),
-                  )
-                : IconButton(
-                    icon: Icon(Icons.cancel_outlined, color: kLightRedAccent),
-                    onPressed: () async {
-                      await viewModel.cancelFriendRequest();
-                    },
                   ),
-          ),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          UserAvatar(
+                            username: viewModel.recipient?.username ?? '',
+                          ),
+                          horizontalSpaceMediumNew,
+                          Expanded(
+                            child: Text(
+                              viewModel.recipient?.username ?? 'User not found',
+                              style: const TextStyle(fontSize: 16),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (!request.isAccepted && !request.isDeclined)
+                            IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(Icons.cancel_outlined,
+                                  color: kLightRedAccent),
+                              onPressed: () async {
+                                await viewModel.cancelFriendRequest();
+                              },
+                            )
+                          else
+                            Text(
+                              request.isAccepted
+                                  ? 'Accepted'
+                                  : request.isDeclined
+                                      ? 'Declined'
+                                      : 'Pending',
+                              style: TextStyle(
+                                color: request.isAccepted
+                                    ? kLightGreenAccent
+                                    : request.isDeclined
+                                        ? kLightRedAccent
+                                        : null,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 4.0,
+                        bottom: 8.0,
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Sent ${viewModel.relativeDate}',
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

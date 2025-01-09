@@ -48,9 +48,9 @@ class SyncService with ListenableServiceMixin {
       _isSyncing.value = true;
       final now = DateTime.now();
 
-      await _firestore.collection('users').doc(uid).update({
+      await _firestore.collection('users').doc(uid).set({
         'lastUpdated': now,
-      });
+      }, SetOptions(merge: true));
 
       _cachedLastUpdated = now;
     } catch (e) {

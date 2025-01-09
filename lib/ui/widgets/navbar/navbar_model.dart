@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/app/app.bottomsheets.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
-
-import '../../../enums/bottom_sheet_type.dart';
 
 class NavBarModel extends BaseViewModel {
   final _navigationService = locator<NavigationService>();

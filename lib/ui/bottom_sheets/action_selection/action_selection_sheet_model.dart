@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/app/app.bottomsheets.dart';
 import 'package:habitur/app/app.locator.dart';
-import 'package:habitur/enums/bottom_sheet_type.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';

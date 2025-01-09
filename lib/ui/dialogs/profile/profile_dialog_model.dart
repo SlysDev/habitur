@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
-import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/habit_visibility.dart';
 import 'package:habitur/models/user.dart';
@@ -24,16 +23,13 @@ class ProfileDialogModel extends BaseViewModel {
 
   UserModel? _userModel;
 
-  dynamic _completer;
-
   UserModel? get userModel => _userModel;
 
   bool get isCurrentUser => _uid == _authService.currentUser!.uid;
 
-  void initialize(String uid, bool isFriendProfile, dynamic completer) {
+  void initialize(String uid, bool isFriendProfile) {
     _uid = uid;
     _isFriendProfile = isFriendProfile;
-    _completer = completer;
   }
 
   Future<void> loadUserData() async {
@@ -79,8 +75,6 @@ class ProfileDialogModel extends BaseViewModel {
   }
 
   void closeDialog() {
-    _completer(DialogResponse(
-      confirmed: true,
-    ));
+    _dialogService.completeDialog(DialogResponse(confirmed: true));
   }
 }

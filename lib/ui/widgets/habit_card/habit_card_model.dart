@@ -1,9 +1,9 @@
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:habitur/app/app.dialogs.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
 import 'package:habitur/enums/activity_type.dart';
-import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/models/user.dart';
@@ -66,10 +66,10 @@ class HabitCardModel extends BaseViewModel {
       // Check to see if the user has to be leveled up
       if (initialUserLevel < (userPostCompletion?.userLevel ?? 1)) {
         // show level up dialog
-      _dialogService.showCustomDialog(
-          variant: DialogType.levelUp, data: {"level": userPostCompletion!.userLevel});
+        _dialogService.showCustomDialog(
+            variant: DialogType.levelUp,
+            data: {"level": userPostCompletion!.userLevel});
       }
-
 
       debugPrint('Habit ${habit.id} completed. Adding activity...');
       await _activityService.createActivityForEvent(
@@ -90,7 +90,7 @@ class HabitCardModel extends BaseViewModel {
         );
       }
 
-      if (_completed && updatedHabit!.isCompleted) {
+      if (updatedHabit!.isCompleted) {
         _controller.play();
       }
       debugPrint('Habit incremented successfully');

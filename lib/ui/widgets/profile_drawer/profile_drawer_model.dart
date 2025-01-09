@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/app/app.dialogs.dart';
 import 'package:habitur/app/app.locator.dart';
-import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/app/app.router.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
@@ -8,36 +9,28 @@ import 'package:habitur/services/user_service.dart';
 import 'package:habitur/services/friends_service.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class ProfileDrawerModel extends BaseViewModel {
+class ProfileDrawerModel extends StreamViewModel {
   final _authService = locator<AuthService>();
   final _userService = locator<UserService>();
   final _friendsService = locator<FriendsService>();
   final _dialogService = locator<DialogService>();
+  final _navigationService = locator<NavigationService>();
 
-  late UserModel _currentUser;
-  UserModel get currentUser => _currentUser;
+  @override
+  Stream<UserModel?> get stream => _userService.userStream;
+
+  UserModel? get currentUser => data;
+
+  // late UserModel _currentUser;
+  // UserModel get currentUser => _currentUser;
 
   bool get hasEmail =>
-      _currentUser.email != null && _currentUser.email!.isNotEmpty;
-  bool get hasBio => _currentUser.bio != null && _currentUser.bio!.isNotEmpty;
+      currentUser?.email != null && currentUser!.email.isNotEmpty;
+  bool get hasBio => currentUser?.bio != null && currentUser!.bio.isNotEmpty;
 
-  Future<void> initialize() async {
-    setBusy(true);
-    try {
-      UserModel? user = await _userService.getCurrentUser();
-      if (user != null) {
-        _currentUser = user;
-        notifyListeners();
-      }
-      notifyListeners();
-    } catch (e) {
-      setError(e);
-    } finally {
-      setBusy(false);
-    }
-  }
+  Future<void> initialize() async {}
 
-  Future<void> sendFriendRequest(String username, BuildContext context) async {
+  Future<void> sendFriendRequest(String username) async {
     setBusy(true);
     try {
       await _friendsService.sendFriendRequestByUsername(username);
@@ -49,14 +42,14 @@ class ProfileDrawerModel extends BaseViewModel {
     }
   }
 
-  void navigateToSettings(BuildContext context) {
-    Navigator.pushNamed(context, '/settings');
+  void navigateToSettings() {
+    _navigationService.navigateToSettingsView();
   }
 
   void showProfileDialog() {
     _dialogService.showCustomDialog(
       variant: DialogType.profile,
-      data: {'user': _currentUser, 'isFriendProfile': false},
+      data: {'uid': currentUser?.uid ?? '', 'isFriendProfile': false},
     );
   }
 

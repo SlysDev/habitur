@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:habitur/constants.dart';
 import 'package:habitur/models/friend_request.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/habit_interface.dart';
@@ -29,10 +30,10 @@ class LocalStorageService with ListenableServiceMixin {
     try {
       await _initHive();
       // Check if we need to clear data due to schema changes
-      final needsSchemaUpdate = await getValue('needs_schema_update') ?? true;
+      final needsSchemaUpdate = await getSetting('needs_schema_update') ?? true;
       if (needsSchemaUpdate) {
         await _clearHiveData();
-        await setValue('needs_schema_update', false);
+        await setSetting('needs_schema_update', false);
       }
 
       await _migrateDataIfNeeded();
@@ -107,14 +108,14 @@ class LocalStorageService with ListenableServiceMixin {
 
   Future<void> _migrateDataIfNeeded() async {
     try {
-      final version = await getValue('data_version') ?? 0;
+      final version = await getSetting('data_version') ?? 0;
       if (version < 1) {
         await _migrateToVersion1();
-        await setValue('data_version', 1);
+        await setSetting('data_version', 1);
       }
       if (version < 2) {
         await _migrateToVersion2();
-        await setValue('data_version', 2);
+        await setSetting('data_version', 2);
       }
     } catch (e) {
       debugPrint('Error during migration: $e');
@@ -130,7 +131,7 @@ class LocalStorageService with ListenableServiceMixin {
           .whereType<Habit>()
           .map((habit) => habit.toMap())
           .toList();
-      await setValue('habits_backup_v0', habitBackups);
+      await setSetting('habits_backup_v0', habitBackups);
 
       // Clear and update data
       await habitsBox.clear();
@@ -151,7 +152,7 @@ class LocalStorageService with ListenableServiceMixin {
     } catch (e) {
       print('Error during migration: $e');
       // Restore from backup if needed
-      final backup = await getValue('habits_backup_v0');
+      final backup = await getSetting('habits_backup_v0');
       if (backup != null) {
         final habitsBox = Hive.box('habits');
         await habitsBox.clear();
@@ -169,7 +170,7 @@ class LocalStorageService with ListenableServiceMixin {
 
       // Create backup of current data
       final userBackup = Map<String, dynamic>.from(userBox.toMap());
-      await setValue('user_backup_v1', userBackup);
+      await setSetting('user_backup_v1', userBackup);
 
       // Clear the box to prevent type conflicts
       await userBox.clear();
@@ -194,7 +195,7 @@ class LocalStorageService with ListenableServiceMixin {
     } catch (e) {
       debugPrint('Error during user data migration: $e');
       // Restore from backup if needed
-      final backup = await getValue('user_backup_v1');
+      final backup = await getSetting('user_backup_v1');
       if (backup != null) {
         debugPrint('Restoring user data from backup...');
         final userBox = await Hive.openBox('user');
@@ -296,7 +297,7 @@ class LocalStorageService with ListenableServiceMixin {
   Future<void> updateMostRecentStat(StatPoint stat) async {
     await _ensureBoxOpen('user');
     UserModel? user = await getCurrentUser();
-    if (user == null || user.stats == null) return;
+    if (user == null || user.stats.isEmpty) return;
     user.stats.last = stat;
   }
 
@@ -469,22 +470,67 @@ class LocalStorageService with ListenableServiceMixin {
   // Settings Operations
   Future<List<SettingModel>> getSettings() async {
     await _ensureBoxOpen('settings');
-    final Map<dynamic, dynamic>? settingsMap = _settingsBox?.get('settings');
-    if (settingsMap == null) return [];
-
-    return settingsMap.entries
-        .map<SettingModel>((e) => SettingModel.fromMap({e.key: e.value}))
-        .toList();
+    // Get all settings except 'lastUpdated'
+    debugPrint('here are the box values: ${_settingsBox?.values}');
+    final settings = _settingsBox?.keys
+            .where((key) => key != 'lastUpdated')
+            .map((key) {
+              final value = _settingsBox?.get(key);
+              if (value is SettingModel) {
+                return value;
+              } else {
+                debugPrint('Invalid setting type for key: $key, value: $value');
+                return null;
+              }
+            })
+            .whereType<SettingModel>()
+            .toList() ??
+        [];
+    return settings;
   }
 
   Future<void> saveSettings(List<SettingModel> settings) async {
     await _ensureBoxOpen('settings');
-    final Map<String, dynamic> settingsMap = {};
-    for (var setting in settings) {
-      settingsMap[setting.settingName] = setting.settingValue;
+    // Clear existing settings but preserve lastUpdated
+    final lastUpdated = await settingsLastUpdated;
+    // await _settingsBox?.clear();
+    if (lastUpdated != null) {
+      await _settingsBox?.put('lastUpdated', lastUpdated);
     }
-    await _settingsBox?.put('settings', settingsMap);
+
+    // Save each setting individually
+    for (var setting in settings) {
+      await _settingsBox?.put(setting.settingName, setting);
+    }
     await setSettingsLastUpdated(DateTime.now());
+  }
+
+  Future<void> saveSetting(SettingModel setting) async {
+    await _ensureBoxOpen('settings');
+    debugPrint(
+        'Saving setting: ${setting.settingName} = ${setting.settingValue}');
+
+    // Save setting
+    await _settingsBox?.put(setting.settingName, setting);
+
+    // Update timestamp
+    await setSettingsLastUpdated(DateTime.now());
+
+    debugPrint('Setting saved successfully');
+  }
+  // add a method to reset settings to their defaults in LS using kDefaultSettings from constants.dart
+
+  Future<void> resetSettingsToDefaults() async {
+    try {
+      await _settingsBox?.clear();
+      for (var setting in kDefaultSettings) {
+        await _settingsBox?.put(setting.settingName, setting);
+      }
+      await setSettingsLastUpdated(DateTime.now());
+    } catch (e) {
+      debugPrint('Error resetting settings: $e');
+      rethrow;
+    }
   }
 
   // Last updated getters
@@ -531,17 +577,36 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   Future<void> clearAllData() async {
-    await _userBox?.clear();
-    await _habitsBox?.clear();
-    await _settingsBox?.clear();
+    try {
+      if (_userBox?.isOpen ?? false) {
+        await _userBox?.clear();
+      } else {
+        debugPrint('User box is already closed.');
+      }
+
+      if (_habitsBox?.isOpen ?? false) {
+        await _habitsBox?.clear();
+      } else {
+        debugPrint('Habits box is already closed.');
+      }
+
+      if (_settingsBox?.isOpen ?? false) {
+        await _settingsBox?.clear();
+      } else {
+        debugPrint('Settings box is already closed.');
+      }
+    } catch (e) {
+      debugPrint('Error clearing all data: $e');
+      rethrow;
+    }
   }
 
-  Future<dynamic> getValue(String key) async {
+  Future<dynamic> getSetting(String key) async {
     await _ensureBoxOpen('settings');
     return _settingsBox?.get(key);
   }
 
-  Future<void> setValue(String key, dynamic value) async {
+  Future<void> setSetting(String key, dynamic value) async {
     await _ensureBoxOpen('settings');
     await _settingsBox?.put(key, value);
   }
@@ -549,7 +614,7 @@ class LocalStorageService with ListenableServiceMixin {
   Future<void> clearUserData() async {
     try {
       await _habitsBox?.clear();
-      await resetSettings();
+      await resetSettingsToDefaults();
       notifyListeners();
     } catch (e) {
       debugPrint('Error clearing user data: $e');
@@ -557,44 +622,7 @@ class LocalStorageService with ListenableServiceMixin {
     }
   }
 
-  Future<void> resetSettings() async {
-    try {
-      final defaultSettings = [
-        SettingModel(
-          settingValue: true,
-          settingName: 'Daily Reminders',
-          settingDescription: 'Enable daily reminders',
-        ),
-        SettingModel(
-          settingValue: 3,
-          settingName: 'Number of Reminders',
-          settingDescription: 'Number of daily reminders',
-        ),
-        SettingModel(
-          settingValue: TimeModel(hour: 10, minute: 0),
-          settingName: '1st Reminder Time',
-          settingDescription: 'First reminder of the day',
-        ),
-        SettingModel(
-          settingValue: TimeModel(hour: 16, minute: 0),
-          settingName: '2nd Reminder Time',
-          settingDescription: 'Second reminder of the day',
-        ),
-        SettingModel(
-          settingValue: TimeModel(hour: 22, minute: 0),
-          settingName: '3rd Reminder Time',
-          settingDescription: 'Third reminder of the day',
-        ),
-      ];
-
-      await _settingsBox?.clear();
-      for (var setting in defaultSettings) {
-        await _settingsBox?.put(setting.settingName, setting);
-      }
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error resetting settings: $e');
-      rethrow;
-    }
+  Future<void> deleteAllHabits() async {
+    await _habitsBox?.clear();
   }
 }

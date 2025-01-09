@@ -194,9 +194,11 @@ class LineGraph extends StatelessWidget {
                     if (showChangeIndicator && data.length >= 2)
                       StatChangeIndicator(
                         oldValue: data[data.length - 2]
-                            .getStatByName(statName)
-                            .toDouble() * statName == 'difficultyRating' ? -1 : 1,
-                        newValue: data.last.getStatByName(statName).toDouble() * statName == 'difficultyRating' ? -1 : 1,
+                                .getStatByName(statName)
+                                .toDouble() *
+                            (statName == 'difficultyRating' ? -1 : 1),
+                        newValue: data.last.getStatByName(statName).toDouble() *
+                            (statName == 'difficultyRating' ? -1 : 1),
                       ),
                   ],
                 ),

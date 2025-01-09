@@ -58,10 +58,16 @@ class UserStatsService {
         'rankedHabits': <String>[],
       };
     }
+    double totalGoalAchievementRates = 0;
+    _statsCalculationService
+        .calculateGoalAchievementRates(habits)
+        .forEach((key, value) => totalGoalAchievementRates += value);
 
     var stats = {
       'totalHabitsCompleted':
           _statsCalculationService.getTotalHabitsCompleted(habits),
+      'completionRate': totalGoalAchievementRates /
+          _statsCalculationService.calculateGoalAchievementRates(habits).length,
       'longestStreak': _statsCalculationService.getLongestStreak(habits),
       'weekCompletions': _statsCalculationService.getWeekCompletions(habits),
       'overallProgress':
@@ -246,7 +252,12 @@ class UserStatsService {
     if (isCompletion) {
       user.userXP = math.min(
           (user.userXP +
-                  (10 + 20 * user.stats.last.confidenceLevel * user.userLevel))
+                  (10 +
+                      20 *
+                          (user.stats.isEmpty
+                              ? 0
+                              : user.stats.last.confidenceLevel) *
+                          user.userLevel))
               .toInt(),
           user.levelUpRequirement);
       debugPrint(user.userXP.toString());
@@ -262,7 +273,11 @@ class UserStatsService {
           .toInt(),
       'confidenceLevel': _aggregateStatsCalculatorService.calculateStatAverage(
           'confidenceLevel', habits),
-      'streak': user.stats.isEmpty ? 1 : (user.stats.last.streak + 1),
+      'streak': user.stats.isEmpty
+          ? 1
+          : (!(user.stats.last.completions > 0)
+              ? user.stats.last.streak + 1
+              : user.stats.last.streak),
       'consistencyFactor': _aggregateStatsCalculatorService
           .calculateStatAverage('consistencyFactor', habits),
       'difficultyRating': _aggregateStatsCalculatorService.calculateStatAverage(
@@ -348,5 +363,19 @@ class UserStatsService {
     _log('Getting stats for user: ${user.uid}');
     if (user.stats == null) return [];
     return user.stats!.map((stat) => stat).toList(); // make a copy
+  }
+
+  Future<void> clearCurrentUserStats() async {
+    _log('Clearing current user stats');
+    final user = _userService.currentUser;
+    if (user == null) return;
+
+    user.stats = [];
+    await _localStorageService.updateUserStats(user.stats!);
+    if (_authService.currentUser != null) {
+      await _databaseService.updateUserStats(
+          _authService.currentUser!.uid, user.stats!);
+    }
+    await _userService.updateUser(user);
   }
 }

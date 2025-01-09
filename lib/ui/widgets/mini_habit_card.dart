@@ -64,11 +64,14 @@ class MiniHabitCard extends StatelessWidget {
                           : 0.0),
                 ],
               ),
-              const SizedBox(height: 12),
-              RoundedProgressBar(
-                progress: habit.currentProgress / habit.targetGoal,
-                color: kPrimaryColor,
-                lineHeight: 8.0,
+              const SizedBox(height: 16),
+              Center(
+                child: RoundedProgressBar(
+                  progress: habit.currentProgress / habit.targetGoal,
+                  color: kPrimaryColor,
+                  lineHeight: 8.0,
+                  width: MediaQuery.of(context).size.width * 0.61,
+                ),
               ),
             ],
           ),

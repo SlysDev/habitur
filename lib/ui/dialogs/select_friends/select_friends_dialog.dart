@@ -24,34 +24,38 @@ class SelectFriendsDialog extends StackedView<SelectFriendsDialogModel> {
     SelectFriendsDialogModel viewModel,
     Widget? child,
   ) {
-    return Dialog(
-      backgroundColor: kBackgroundColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: () => viewModel.closeDialog(),
+      child: Dialog(
+        backgroundColor: kBackgroundColor,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHeader(context, completer),
-            const SizedBox(height: 16),
-            Expanded(
-              child: SelectFriendsWidget(
-                multiSelect: true,
-                initialSelectedFriends: viewModel.selectedFriends,
-                onSelectedFriendsChanged: (selectedFriends) {
-                  viewModel.setSelectedFriends(selectedFriends);
-                },
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 600),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHeader(context, completer),
+              const SizedBox(height: 16),
+              Expanded(
+                child: SelectFriendsWidget(
+                  multiSelect: true,
+                  initialSelectedFriends: viewModel.selectedFriends,
+                  onSelectedFriendsChanged: (selectedFriends) {
+                    viewModel.setSelectedFriends(selectedFriends);
+                  },
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            _buildActionButtons(context, completer, viewModel.selectedFriends),
-          ],
+              const SizedBox(height: 16),
+              _buildActionButtons(
+                  context, completer, viewModel.selectedFriends, viewModel),
+            ],
+          ),
         ),
       ),
     );
@@ -60,7 +64,7 @@ class SelectFriendsDialog extends StackedView<SelectFriendsDialogModel> {
   @override
   SelectFriendsDialogModel viewModelBuilder(BuildContext context) {
     final viewModel = SelectFriendsDialogModel();
-    viewModel.init(request.data['preSelectedUsers']);
+    viewModel.init(request.data?['preSelectedUsers'] ?? []);
     return viewModel;
   }
 }
@@ -85,14 +89,14 @@ Widget _buildHeader(BuildContext context, Function completer) {
   );
 }
 
-Widget _buildActionButtons(
-    BuildContext context, Function completer, List<UserModel> selectedFriends) {
+Widget _buildActionButtons(BuildContext context, Function completer,
+    List<UserModel> selectedFriends, SelectFriendsDialogModel viewModel) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Expanded(
         child: ElevatedButton(
-          onPressed: () => completer(DialogResponse(confirmed: false)),
+          onPressed: () => viewModel.closeDialog(friendsSelected: true),
           style: ElevatedButton.styleFrom(
             backgroundColor: kFadedBlue,
             padding: const EdgeInsets.symmetric(vertical: 12),

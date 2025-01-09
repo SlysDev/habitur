@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/ui/widgets/aside_button.dart';
+import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
 import 'package:habitur/ui/widgets/primary_button.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/constants.dart';
@@ -13,55 +14,67 @@ class RegisterView extends StackedView<RegisterViewModel> {
       BuildContext context, RegisterViewModel viewModel, Widget? child) {
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Container(
-                height: 100.0,
-                child: kHabiturLogo,
-              ),
-              const SizedBox(height: 48.0),
-              TextField(
-                keyboardType: TextInputType.emailAddress,
-                textAlign: TextAlign.center,
-                onChanged: viewModel.setEmail,
-                decoration: kTextFieldDecoration.copyWith(
-                  hintText: 'Enter your email',
+      body: LoadingOverlay(
+        isLoading: viewModel.isBusy,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Container(
+                  height: 100.0,
+                  child: kHabiturLogo,
                 ),
-              ),
-              const SizedBox(height: 8.0),
-              TextField(
-                obscureText: true,
-                textAlign: TextAlign.center,
-                onChanged: viewModel.setPassword,
-                decoration: kTextFieldDecoration.copyWith(
-                  hintText: 'Enter your password',
+                const SizedBox(height: 48.0),
+                TextField(
+                  keyboardType: TextInputType.emailAddress,
+                  textAlign: TextAlign.center,
+                  onChanged: viewModel.setUsername,
+                  decoration: kTextFieldDecoration.copyWith(
+                    hintText: 'Enter your username',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8.0),
-              TextField(
-                obscureText: true,
-                textAlign: TextAlign.center,
-                onChanged: viewModel.setConfirmPassword,
-                decoration: kTextFieldDecoration.copyWith(
-                  hintText: 'Confirm your password',
+                const SizedBox(height: 8.0),
+                TextField(
+                  keyboardType: TextInputType.emailAddress,
+                  textAlign: TextAlign.center,
+                  onChanged: viewModel.setEmail,
+                  decoration: kTextFieldDecoration.copyWith(
+                    hintText: 'Enter your email',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24.0),
-              PrimaryButton(
-                onPressed: viewModel.register,
-                text: 'Register',
-              ),
-              const SizedBox(height: 12.0),
-              AsideButton(
-                onPressed: viewModel.navigateToLogin,
-                text: 'Already have an account? Log in',
-              ),
-            ],
+                const SizedBox(height: 8.0),
+                TextField(
+                  obscureText: true,
+                  textAlign: TextAlign.center,
+                  onChanged: viewModel.setPassword,
+                  decoration: kTextFieldDecoration.copyWith(
+                    hintText: 'Enter your password',
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                TextField(
+                  obscureText: true,
+                  textAlign: TextAlign.center,
+                  onChanged: viewModel.setConfirmPassword,
+                  decoration: kTextFieldDecoration.copyWith(
+                    hintText: 'Confirm your password',
+                  ),
+                ),
+                const SizedBox(height: 24.0),
+                PrimaryButton(
+                  onPressed: viewModel.register,
+                  text: 'Register',
+                ),
+                const SizedBox(height: 12.0),
+                AsideButton(
+                  onPressed: viewModel.navigateToLogin,
+                  text: 'Already have an account? Log in',
+                ),
+              ],
+            ),
           ),
         ),
       ),

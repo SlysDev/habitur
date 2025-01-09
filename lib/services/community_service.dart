@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/participant_data.dart';
-import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/user_service.dart';
+import 'package:intl/intl.dart';
 import 'package:stacked/stacked.dart';
 
 import '../app/app.locator.dart';
@@ -49,6 +49,11 @@ class CommunityService with ListenableServiceMixin {
                 resetPeriod: data['habit']['resetPeriod'],
                 dateCreated:
                     (data['habit']['dateCreated'] as Timestamp).toDate(),
+                // force conversion to List<String> (it'll be a list of strings regardless)
+                requiredDatesOfCompletion: data['habit']
+                        ['requiredDatesOfCompletion']
+                    .map<String>((e) => e as String)
+                    .toList(),
               ),
               participants: participants,
             );
@@ -80,39 +85,93 @@ class CommunityService with ListenableServiceMixin {
           .where('id', isEqualTo: int.parse(challengeId))
           .snapshots()
           .asyncMap((snapshot) async {
-        if (snapshot.docs.isEmpty) {
-          throw Exception('Challenge not found');
+        try {
+          if (snapshot.docs.isEmpty) {
+            throw Exception('Challenge not found');
+          }
+          final doc = snapshot.docs.first;
+          final data = doc.data()!;
+          final participants = await _loadParticipants(data['id'].toString());
+          data['participantDataList'] = participants;
+          CommunityChallenge challenge = CommunityChallenge(
+            description: data['description'],
+            id: data['id'],
+            startDate: (data['startDate'] as Timestamp).toDate(),
+            endDate: (data['endDate'] as Timestamp).toDate(),
+            requiredFullCompletions: data['requiredFullCompletions'],
+            currentFullCompletions: data['currentFullCompletions'] ?? 0,
+            habit: Habit(
+              title: data['habit']['title'],
+              targetGoal: data['habit']['targetGoal'],
+              lastSeen: DateTime.now(),
+              isCommunityHabit: true,
+              id: data['habit']['id'],
+              resetPeriod: data['habit']['resetPeriod'],
+              dateCreated: (data['habit']['dateCreated'] as Timestamp).toDate(),
+              requiredDatesOfCompletion: data['habit']
+                      ['requiredDatesOfCompletion']
+                  .map<String>((e) => e as String)
+                  .toList(),
+            ),
+            participants: participants,
+          );
+          debugPrint('Challenge loaded:');
+          debugPrint(challenge
+              .toString()
+              .split('\n')
+              .map((line) => '  $line')
+              .join('\n'));
+          return challenge;
+        } catch (e, s) {
+          debugPrint('Error loading challenge: $e');
+          debugPrint('Stack trace: $s');
+          rethrow;
         }
-        final doc = snapshot.docs.first;
-        final data = doc.data()!;
-        final participants = await _loadParticipants(data['id'].toString());
-        data['participantDataList'] = participants;
-        CommunityChallenge challenge = CommunityChallenge(
-          description: data['description'],
-          id: data['id'],
-          startDate: (data['startDate'] as Timestamp).toDate(),
-          endDate: (data['endDate'] as Timestamp).toDate(),
-          requiredFullCompletions: data['requiredFullCompletions'],
-          currentFullCompletions: data['currentFullCompletions'] ?? 0,
-          habit: Habit(
-            title: data['habit']['title'],
-            targetGoal: data['habit']['targetGoal'],
-            lastSeen: DateTime.now(),
-            isCommunityHabit: true,
-            id: data['habit']['id'],
-            resetPeriod: data['habit']['resetPeriod'],
-            dateCreated: (data['habit']['dateCreated'] as Timestamp).toDate(),
-          ),
-          participants: participants,
-        );
-        debugPrint('Challenge loaded:');
-        debugPrint(challenge
-            .toString()
-            .split('\n')
-            .map((line) => '  $line')
-            .join('\n'));
-        return challenge;
       });
+
+  Future<void> resetCurrentUserCurrentCompletions(String challengeId) async {
+    debugPrint('running reset current user completions for CCs');
+    ParticipantData userData = await getCurrentUserParticipantData(challengeId);
+
+    if (userData.habit.resetPeriod.toLowerCase() == 'daily' &&
+        userData.habit.daysCompleted.isNotEmpty) {
+      debugPrint('resetting current user daily habit');
+      final lastCompletionDate = userData.habit.daysCompleted.last;
+      final today = DateTime.now();
+
+      final lastCompletionNormalized = DateTime(lastCompletionDate.year,
+          lastCompletionDate.month, lastCompletionDate.day);
+      final todayNormalized = DateTime(today.year, today.month, today.day);
+
+      final daysDifference =
+          todayNormalized.difference(lastCompletionNormalized).inDays;
+
+      if (daysDifference > 0) {
+        int missedRequiredDays = 0;
+
+        for (int i = 1; i <= daysDifference; i++) {
+          final missedDay = todayNormalized.subtract(Duration(days: i));
+          final dayOfWeek = DateFormat('EEEE').format(missedDay);
+
+          if (userData.habit.requiredDatesOfCompletion.contains(dayOfWeek)) {
+            missedRequiredDays++;
+          }
+        }
+
+        if (missedRequiredDays >= 1) {
+          userData.habit.resetProgress();
+        }
+
+        if (missedRequiredDays > 1) {
+          userData.habit.streak = 0;
+        }
+        userData.habit.lastSeen = DateTime.now();
+      }
+    }
+    await updateParticipantProgress(
+        participant: userData, challengeId: challengeId);
+  }
+
   Future<ParticipantData> getCurrentUserParticipantData(
       String challengeId) async {
     final user = await _userService.getCurrentUser();
@@ -129,17 +188,38 @@ class CommunityService with ListenableServiceMixin {
         habit: Habit(
           title: challenge.title,
           targetGoal: challenge.targetGoal,
-          lastSeen: challenge.lastSeen,
+          lastSeen: DateTime.now(),
           isCommunityHabit: true,
           id: challenge.id,
           resetPeriod: challenge.resetPeriod,
           dateCreated: DateTime.now(),
+          requiredDatesOfCompletion: challenge.requiredDatesOfCompletion,
         ),
       );
     }
 
-    return participants
-        .firstWhere((participant) => participant.userId == user.uid);
+    try {
+      return participants
+          .firstWhere((participant) => participant.userId == user.uid);
+    } catch (e) {
+      debugPrint(
+          'Participant data not found for current user, creating new data');
+      CommunityChallenge challenge = getChallengeById(int.parse(challengeId));
+      return ParticipantData(
+        username: user.username,
+        userId: user.uid,
+        habit: Habit(
+          title: challenge.title,
+          targetGoal: challenge.targetGoal,
+          lastSeen: DateTime.now(),
+          isCommunityHabit: true,
+          id: challenge.id,
+          resetPeriod: challenge.resetPeriod,
+          dateCreated: DateTime.now(),
+          requiredDatesOfCompletion: challenge.requiredDatesOfCompletion,
+        ),
+      );
+    }
   }
 
   Future<void> updateParticipantProgress(
@@ -291,6 +371,10 @@ class CommunityService with ListenableServiceMixin {
               id: data['habit']['id'],
               resetPeriod: data['habit']['resetPeriod'],
               dateCreated: (data['habit']['dateCreated'] as Timestamp).toDate(),
+              requiredDatesOfCompletion: data['habit']
+                      ['requiredDatesOfCompletion']
+                  .map<String>((e) => e as String)
+                  .toList(),
             ),
             participants: await _loadParticipants(data['id'].toString()),
           );
@@ -384,6 +468,26 @@ class CommunityService with ListenableServiceMixin {
         challenge.participantData)
       ..sort((a, b) => b.habit.totalProgress.compareTo(a.habit.totalProgress));
     return sortedParticipants.take(3).toList();
+  }
+
+  Future<void> clearCurrentUserChallengeData() async {
+    if (!_authService.isLoggedIn) {
+      throw Exception('User not logged in');
+    }
+
+    final userId = _authService.userId;
+    final challengesSnapshot =
+        await _firestore.collection('community-challenges').get();
+
+    for (var doc in challengesSnapshot.docs) {
+      final challengeId = doc.id;
+      await _firestore
+          .collection('community-challenges')
+          .doc(challengeId)
+          .collection('participantDataList')
+          .doc(userId)
+          .delete();
+    }
   }
 
   // Removed methods `enableCommunityFeatures` and `disableCommunityFeatures` as they are now in `SettingsService`.

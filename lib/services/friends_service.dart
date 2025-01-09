@@ -7,6 +7,7 @@ import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/habit_service.dart';
+import 'package:habitur/services/local_storage_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked_annotations.dart';
 
@@ -16,6 +17,7 @@ class FriendsService {
   final _authService = locator<AuthService>();
   final _habitService = locator<HabitService>();
   final _userService = locator<UserService>();
+  final _localStorageService = locator<LocalStorageService>();
 
   // Core friend operations
   Stream<List<String>> get friendsStream {
@@ -109,6 +111,12 @@ class FriendsService {
     await currentUserDoc.set({
       'sentFriendRequests': FieldValue.arrayUnion([friendRequest.toMap()])
     }, SetOptions(merge: true));
+
+    // Persist to local storage
+    UserModel currentUser = _userService.currentUser!;
+    await _localStorageService.setCurrentUser(currentUser.copyWith(
+      sentFriendRequests: [...currentUser.sentFriendRequests, friendRequest],
+    ));
   }
 
   Future<void> sendFriendRequestByUsername(String username) async {
@@ -198,6 +206,15 @@ class FriendsService {
       'friends': FieldValue.arrayUnion([_authService.currentUser!.uid]),
       'sentFriendRequests': FieldValue.arrayUnion([request.toMap()])
     });
+
+    // Persist to local storage
+    UserModel currentUser = _userService.currentUser!;
+    await _localStorageService.setCurrentUser(currentUser.copyWith(
+      friends: [...currentUser.friends, request.senderUid],
+      receivedFriendRequests: currentUser.receivedFriendRequests
+          .where((r) => r.senderUid != request.senderUid)
+          .toList(),
+    ));
   }
 
   Future<void> declineFriendRequest(FriendRequest request) async {
@@ -217,6 +234,14 @@ class FriendsService {
     await senderDoc.update({
       'sentFriendRequests': FieldValue.arrayRemove([request.toFirebaseMap()])
     });
+
+    // Persist to local storage
+    UserModel currentUser = _userService.currentUser!;
+    await _localStorageService.setCurrentUser(currentUser.copyWith(
+      receivedFriendRequests: currentUser.receivedFriendRequests
+          .where((r) => r.senderUid != request.senderUid)
+          .toList(),
+    ));
   }
 
   Future<void> cancelFriendRequest(FriendRequest request) async {
@@ -236,6 +261,14 @@ class FriendsService {
       'receivedFriendRequests':
           FieldValue.arrayRemove([request.toFirebaseMap()])
     });
+
+    // Persist to local storage
+    UserModel currentUser = _userService.currentUser!;
+    await _localStorageService.setCurrentUser(currentUser.copyWith(
+      sentFriendRequests: currentUser.sentFriendRequests
+          .where((r) => r.recipientUid != request.recipientUid)
+          .toList(),
+    ));
   }
 
   // Friend data operations

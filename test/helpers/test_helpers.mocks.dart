@@ -966,15 +966,14 @@ class MockHabitService extends _i1.Mock implements _i11.HabitService {
       ) as _i5.Future<_i9.HabitInterface?>);
 
   @override
-  double calculateConsistencyFactor(_i9.HabitInterface? habit) =>
-      (super.noSuchMethod(
+  _i5.Future<void> clearCurrentUserHabits() => (super.noSuchMethod(
         Invocation.method(
-          #calculateConsistencyFactor,
-          [habit],
+          #clearCurrentUserHabits,
+          [],
         ),
-        returnValue: 0.0,
-        returnValueForMissingStub: 0.0,
-      ) as double);
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   void listenToReactiveValues(List<dynamic>? reactiveValues) =>
@@ -1157,6 +1156,16 @@ class MockSharedHabitsService extends _i1.Mock
         returnValue: _i5.Future<_i13.SharedHabit?>.value(),
         returnValueForMissingStub: _i5.Future<_i13.SharedHabit?>.value(),
       ) as _i5.Future<_i13.SharedHabit?>);
+
+  @override
+  _i5.Future<void> clearCurrentUserSharedHabits() => (super.noSuchMethod(
+        Invocation.method(
+          #clearCurrentUserSharedHabits,
+          [],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
 
   @override
   void listenToReactiveValues(List<dynamic>? reactiveValues) =>
@@ -1400,10 +1409,15 @@ class MockUserService extends _i1.Mock implements _i15.UserService {
       ) as _i5.Future<void>);
 
   @override
-  _i5.Future<void> loadUser(String? userId) => (super.noSuchMethod(
+  _i5.Future<void> loadUser(
+    String? userId, {
+    dynamic forceDB = false,
+  }) =>
+      (super.noSuchMethod(
         Invocation.method(
           #loadUser,
           [userId],
+          {#forceDB: forceDB},
         ),
         returnValue: _i5.Future<void>.value(),
         returnValueForMissingStub: _i5.Future<void>.value(),

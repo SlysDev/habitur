@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/app/app.dialogs.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/user_service.dart';
@@ -115,7 +115,8 @@ class EditSharedHabitViewModel extends BaseViewModel {
   }
 
   Future<void> selectParticipants() async {
-    final participantsAsUserModels = selectedParticipants.map((e) async => await _userService.getUserById(e.userId));
+    final participantsAsUserModels = selectedParticipants
+        .map((e) async => await _userService.getUserById(e.userId));
     final response = await _dialogService.showCustomDialog(
       variant: DialogType.selectFriends,
       data: {

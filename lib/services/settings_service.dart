@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/models/time_model.dart';
 import 'package:habitur/services/auth_service.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:habitur/services/local_storage_service.dart';
@@ -18,84 +19,187 @@ class SettingsService with ListenableServiceMixin {
   final _userService = locator<UserService>();
   final _networkService = locator<NetworkService>();
 
-  List<SettingModel> _settings = [];
-  List<SettingModel> get settings => _settings;
+  final _settings = ReactiveValue<List<SettingModel>>([]);
+  Stream<List<SettingModel>> get settingsStream => _settings.values;
+  List<SettingModel> get settings => _settings.value;
 
   SettingsService() {
-    listenToReactiveValues([]);
+    listenToReactiveValues([_settings]);
+    debugPrint('SettingsService initialized');
+    // Load settings immediately
+    loadSettings().then((_) {
+      debugPrint('Initial settings loaded: ${_settings.value.length} settings');
+    });
+  }
+
+  // Add debug helper
+  void _logSettings(String context) {
+    debugPrint('[$context] Settings count: ${_settings.value.length}');
+    debugPrint('[$context] Settings:');
+    for (var s in _settings.value) {
+      debugPrint('- ${s.settingName}: ${s.settingValue}');
+    }
   }
 
   Future<void> loadSettings() async {
-    final isConnected = _networkService.isConnected;
-    final futures = <Future<void>>[];
+    debugPrint('Loading settings...');
+    _logSettings('Before Load');
 
-    futures.add(loadFromLocal());
-    if (isConnected) {
-      futures.add(loadFromRemote());
+    final isConnected = _networkService.isConnected;
+
+    // Load local first
+    await loadFromLocal();
+    await _databaseService.setSettings(
+        _authService.currentUser!.uid, _settings.value);
+
+    // Only load remote if connected and local is empty
+    // if (isConnected && _settings.value.whereType<SettingModel>().isEmpty) {
+    // if (true) {
+    //   await loadFromRemote();
+    // }
+
+    _logSettings('After Load');
+  }
+
+  // add a method to reset settings to defaults (in Local storage, database, and reactive value)
+
+  Future<void> resetSettingsToDefaults() async {
+    debugPrint('Resetting settings to defaults...');
+    final userId = _authService.currentUser?.uid;
+    if (userId == null) throw Exception('No user logged in');
+
+    // Reset local storage
+    await _localStorageService.resetSettingsToDefaults();
+
+    // Reset database
+    await _databaseService.resetUserSettings(userId);
+
+    // Reset reactive value
+    _settings.value = kDefaultSettings;
+
+    notifyListeners();
+  }
+
+  // Add validation helper
+  bool _isValidSetting(SettingModel setting) {
+    return setting.settingName.isNotEmpty && setting.settingValue.isNotEmpty;
+  }
+
+  // Add helper method
+  List<SettingModel> _mergeWithDefaults(List<SettingModel> currentSettings) {
+    final mergedSettings = List<SettingModel>.from(currentSettings);
+
+    for (var defaultSetting in kDefaultSettings) {
+      if (!mergedSettings
+          .any((s) => s.settingName == defaultSetting.settingName)) {
+        debugPrint('Adding missing setting: ${defaultSetting.settingName}');
+        mergedSettings.add(defaultSetting);
+      }
     }
 
-    await Future.wait(futures);
+    return mergedSettings;
   }
 
   Future<void> loadFromRemote() async {
+    debugPrint('Loading settings from DB...');
     final String? userID =
         _authService.currentUser?.uid ?? _userService.currentUser?.uid;
     if (userID == null) throw Exception('User ID is null');
 
-    _settings = await _databaseService.getSettings(userID);
-    final settingsString =
-        _settings.map((s) => '${s.settingName}: ${s.settingValue}').join('\n');
-    debugPrint('Settings:\n$settingsString');
-    if (_settings.isEmpty) {
-      _settings = kDefaultSettings;
+    final tempSettings = await _databaseService.getSettings(userID);
+    String tempSettingsString = '';
+    for (var s in tempSettings) {
+      tempSettingsString += '${s.settingName}=${s.settingValue}, ';
     }
-    await _localStorageService.saveSettings(_settings);
-    notifyListeners();
+    debugPrint('temp settingss: $tempSettingsString');
+    var validSettings = tempSettings.where(_isValidSetting).toList();
+
+    debugPrint('Raw DB settings: ${tempSettings.length}');
+    debugPrint('Valid DB settings: ${validSettings.length}');
+
+    // Merge with defaults
+    _settings.value = _mergeWithDefaults(validSettings);
+    if (validSettings != tempSettings) {
+      await _databaseService.setSettings(userID, _settings.value);
+    }
+    debugPrint('Final settings count after merge: ${_settings.value.length}');
+
+    await _localStorageService.saveSettings(_settings.value);
   }
 
   Future<void> loadFromLocal() async {
-    _settings = await _localStorageService.getSettings();
-    if (_settings.isEmpty) {
-      _settings = kDefaultSettings;
-      await _localStorageService.saveSettings(_settings);
+    debugPrint('Loading from local storage...');
+    final localSettings = await _localStorageService.getSettings();
+    var validSettings =
+        localSettings.where((s) => s.settingName.isNotEmpty).toList();
+
+    debugPrint('Raw local settings: ${localSettings.length}');
+    for (var s in localSettings) {
+      debugPrint('--> ${s.settingName}');
     }
-    notifyListeners();
+    debugPrint('Valid local settings: ${validSettings.length}');
+
+    // Merge with defaults
+    _settings.value = _mergeWithDefaults(validSettings);
+    debugPrint('Final settings count after merge: ${_settings.value.length}');
+
+    _logSettings('Local Load Complete');
   }
 
   Future<void> updateSetting(SettingModel setting) async {
-    final index =
-        _settings.indexWhere((s) => s.settingName == setting.settingName);
-    if (index != -1) {
-      _settings[index] = setting;
-    } else {
-      _settings.add(setting);
+    debugPrint(
+        'Updating setting: ${setting.settingName}=${setting.settingValue}');
+    _logSettings('Before Update');
+
+    if (setting.settingName.isEmpty) {
+      throw Exception('Invalid setting name');
     }
 
-    await _localStorageService.saveSettings(_settings);
-    // update to impl. singular setting function to LS
+    // Create new list and update
+    final newSettings = List<SettingModel>.from(_settings.value);
+    final index =
+        newSettings.indexWhere((s) => s.settingName == setting.settingName);
+
+    if (index != -1) {
+      newSettings[index] = setting;
+    } else {
+      newSettings.add(setting);
+    }
+
+    // Update reactive value
+    _settings.value = newSettings;
+
+    _logSettings('After Update');
+
+    // Save changes
+    await _localStorageService.saveSettings(_settings.value);
+    debugPrint('Settings saved to local storage: ${_settings.value.length}');
 
     final userID =
         _authService.currentUser?.uid ?? _userService.currentUser?.uid;
     if (userID != null) {
-      debugPrint('Updating setting for user $userID in DB');
-      debugPrint(
-          'Setting: ${setting.settingName}, Value: ${setting.settingValue}');
       await _databaseService.updateSetting(userID, setting);
     }
-
-    notifyListeners();
   }
 
   SettingModel? getSetting(String name) {
+    debugPrint('Getting setting: $name');
+    debugPrint(
+        'Available settings: ${_settings.value.map((s) => s.settingName).join(', ')}');
+
     try {
-      return _settings.firstWhere((s) => s.settingName == name);
+      final setting = _settings.value.firstWhere((s) => s.settingName == name);
+      debugPrint(
+          'Found setting: ${setting.settingName} = ${setting.settingValue}');
+      return setting;
     } catch (e) {
+      debugPrint('Setting not found: $name');
       return null;
     }
   }
 
   bool getCommunityFeaturesEnabled() {
-    final setting = _settings.firstWhere(
+    final setting = _settings.value.firstWhere(
       (s) => s.settingName == 'communityFeatures',
       orElse: () =>
           SettingModel(settingName: 'communityFeatures', settingValue: 'true'),

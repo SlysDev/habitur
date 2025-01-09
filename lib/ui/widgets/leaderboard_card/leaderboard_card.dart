@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/ui/common/ui_helpers.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 
@@ -26,7 +27,11 @@ class LeaderboardCard extends StackedView<LeaderboardCardModel> {
       onTap: viewModel.showProfileDialog,
       child: Card(
         elevation: 4,
-        color: kFadedBlue.withOpacity(0.5),
+        color: viewModel.isFriend
+            ? kFadedGreen.withOpacity(0.25)
+            : viewModel.isCurrentUser
+                ? kGray.withOpacity(0.4)
+                : kFadedBlue.withOpacity(0.5),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
@@ -65,7 +70,9 @@ class LeaderboardCard extends StackedView<LeaderboardCardModel> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            participant.username,
+                            viewModel.isCurrentUser
+                                ? 'You'
+                                : participant.username,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -90,6 +97,9 @@ class LeaderboardCard extends StackedView<LeaderboardCardModel> {
                       ),
                     );
                   }),
+              if (viewModel.isFriend)
+                const Icon(Icons.group, color: kFadedGreen),
+              horizontalSpaceMediumNew,
               // Completion Count
               Container(
                 padding: const EdgeInsets.symmetric(

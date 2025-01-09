@@ -33,7 +33,7 @@ class StatisticsViewModel extends BaseViewModel {
   List<StatPoint> get statPoints => _statPoints;
   Map<dynamic, dynamic> get userMetrics => _userMetrics;
 
-  int get totalHabits => userMetrics['totalHabitsCompleted'];
+  int get totalHabits => _habits.length;
   double get completionRate => _completionRate;
   int get bestStreak => userMetrics['longestStreak'];
   List<HabitInterface> get habits => _habits;

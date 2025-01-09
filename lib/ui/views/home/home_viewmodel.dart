@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/app/app.bottomsheets.dart';
 import 'package:habitur/enums/snackbar_type.dart';
+import 'package:habitur/models/community_challenge.dart';
 import 'package:habitur/models/habit_interface.dart';
+import 'package:habitur/services/community_service.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -13,7 +16,6 @@ import 'package:habitur/services/data_service.dart';
 import 'package:habitur/services/status_service.dart';
 import 'package:habitur/services/notification_scheduling_service.dart';
 import 'package:habitur/services/settings_service.dart';
-import '../../../enums/bottom_sheet_type.dart';
 
 class HomeViewModel extends ReactiveViewModel {
   final _navigationService = locator<NavigationService>();
@@ -26,6 +28,7 @@ class HomeViewModel extends ReactiveViewModel {
       locator<NotificationSchedulingService>();
   final _settingsService = locator<SettingsService>();
   final _snackbarService = locator<SnackbarService>();
+  final _communityService = locator<CommunityService>();
 
   int _currentIndex = 0;
   String _userName = '';
@@ -83,7 +86,8 @@ class HomeViewModel extends ReactiveViewModel {
     final user = await _userService.getCurrentUser();
     if (user != null) {
       _userName = user.username;
-      _totalHabits = _habitService.habits.isEmpty ? 0 : _habitService.habits.length;
+      _totalHabits =
+          _habitService.habits.isEmpty ? 0 : _habitService.habits.length;
       _currentStreak = user.stats.isEmpty ? 0 : user.stats.last.streak;
       _userLevel = user.userLevel;
       _userXP = user.userXP;

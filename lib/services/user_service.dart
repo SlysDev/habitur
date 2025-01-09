@@ -196,16 +196,16 @@ class UserService with ListenableServiceMixin {
     notifyListeners();
   }
 
-  Future<void> loadUser(String userId) async {
-    // Try to get from local storage first
-    _currentUser.value = await _localStorageService.getCurrentUser();
-
-    // If not in local storage or forced refresh, get from database
-    if (_currentUser == null) {
+  Future<void> loadUser(String userId, {forceDB = false}) async {
+    UserModel? localStorageUser = await _localStorageService.getCurrentUser();
+    if (forceDB || localStorageUser == null) {
       _currentUser.value = await _databaseService.getUser(userId);
       if (_currentUser.value != null) {
         await _localStorageService.setCurrentUser(_currentUser.value!);
       }
+    } else {
+      // use LS value
+      _currentUser.value = localStorageUser;
     }
     notifyListeners();
   }

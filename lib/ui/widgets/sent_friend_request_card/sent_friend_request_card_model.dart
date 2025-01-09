@@ -1,5 +1,5 @@
+import 'package:habitur/app/app.dialogs.dart';
 import 'package:habitur/app/app.locator.dart';
-import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/models/friend_request.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/friends_service.dart';

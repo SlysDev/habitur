@@ -3,11 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/constants.dart';
-import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/enums/snackbar_type.dart';
-import 'package:habitur/ui/widgets/error_tile.dart';
-import 'package:habitur/ui/widgets/status_card/status_card.dart';
-import 'package:habitur/ui/widgets/status_card/status_card_model.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 String generateUniqueId() {
@@ -84,5 +80,6 @@ String getTimeSlot(DateTime time) {
 }
 
 bool stringToBool(String value) {
+  debugPrint('Converting $value to bool');
   return value.toLowerCase() == 'true';
 }
