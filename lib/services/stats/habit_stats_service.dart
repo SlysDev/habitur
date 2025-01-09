@@ -15,6 +15,8 @@ import 'package:habitur/services/user_service.dart';
 import 'package:habitur/util_functions.dart';
 import 'dart:math' as math;
 
+import 'package:intl/intl.dart';
+
 class HabitStatsService {
   final _localStorageService = locator<LocalStorageService>();
   final _databaseService = locator<DatabaseService>();
@@ -189,6 +191,83 @@ class HabitStatsService {
         _authService.currentUser!.uid,
         habit,
       );
+    }
+  }
+
+  void fillInMissingDays(HabitInterface habit) {
+    // Create a DateTime object for the start date of the habit
+    DateTime startDate = habit.dateCreated;
+
+    if (habit.stats.isEmpty) {
+      StatPoint newStatPoint = StatPoint(
+        date: startDate,
+        completions: 0,
+        confidenceLevel: 0,
+        streak: 0,
+        consistencyFactor: 0,
+        difficultyRating: 0,
+        slopeCompletions: 0,
+        slopeConsistency: 0,
+        slopeConfidenceLevel: 0,
+        slopeDifficultyRating: 0,
+      );
+      habit.stats.add(newStatPoint);
+    }
+
+    // Iterate through each day from the start date to the current date
+    for (DateTime day =
+            DateTime(startDate.year, startDate.month, startDate.day);
+        day.isBefore(DateTime(
+            DateTime.now().year, DateTime.now().month, DateTime.now().day));
+        day = day.add(habit.resetPeriod == 'Monthly'
+            ? const Duration(days: 31)
+            : (habit.resetPeriod == 'Weekly'
+                ? const Duration(days: 7)
+                : const Duration(days: 1)))) {
+      // Check if a StatPoint already exists for the current day
+      if (habit.stats.indexWhere((dataPoint) =>
+              DateTime(dataPoint.date.year, dataPoint.date.month,
+                  dataPoint.date.day) ==
+              day) ==
+          -1) {
+        String currentDayOfWeek = DateFormat("EEEE").format(day);
+        bool isOffDay =
+            !habit.requiredDatesOfCompletion.contains(currentDayOfWeek);
+        // If no StatPoint exists, create a new one with 0 completions
+        StatPoint newStatPoint = StatPoint(
+          date: day,
+          completions: isOffDay ? habit.stats.last.completions : 0,
+          confidenceLevel: isOffDay
+              ? habit.stats.last.confidenceLevel
+              : _statsCalculationService.calculateConfidenceLevel(habit),
+          streak: isOffDay ? 0 : 1,
+          consistencyFactor: isOffDay
+              ? habit.stats.last.consistencyFactor
+              : _statsCalculationService.calculateConsistencyFactor(
+                  habit.stats, habit.targetGoal),
+          difficultyRating: isOffDay
+              ? habit.stats.last.difficultyRating
+              : _statsCalculationService.calculateAverageValueForStat(
+                  'difficultyRating', habit.stats),
+          slopeCompletions: isOffDay
+              ? habit.stats.last.slopeCompletions
+              : _statsCalculationService.calculateStatSlope(
+                  'completions', habit.stats),
+          slopeConsistency: isOffDay
+              ? habit.stats.last.slopeConsistency
+              : _statsCalculationService.calculateStatSlope(
+                  'consistencyFactor', habit.stats),
+          slopeConfidenceLevel: isOffDay
+              ? habit.stats.last.slopeConfidenceLevel
+              : _statsCalculationService.calculateStatSlope(
+                  'confidenceLevel', habit.stats),
+          slopeDifficultyRating: isOffDay
+              ? habit.stats.last.slopeDifficultyRating
+              : _statsCalculationService.calculateStatSlope(
+                  'difficultyRating', habit.stats),
+        );
+        habit.stats.add(newStatPoint);
+      }
     }
   }
 }

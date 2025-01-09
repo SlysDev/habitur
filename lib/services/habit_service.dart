@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/models/habit.dart';
-import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/services/auth_service.dart';
@@ -11,11 +10,8 @@ import 'package:habitur/services/local_storage_service.dart';
 import 'package:habitur/services/stats/habit_stats_service.dart';
 import 'package:habitur/services/stats/stats_orchestration_service.dart';
 import 'package:habitur/services/user_service.dart';
-import 'package:habitur/util_functions.dart';
 import 'package:intl/intl.dart';
 import 'package:stacked/stacked.dart';
-import 'dart:math' as math;
-import 'package:stacked_services/stacked_services.dart';
 import 'package:habitur/services/notification_scheduling_service.dart';
 
 class HabitService with ListenableServiceMixin {
@@ -23,6 +19,7 @@ class HabitService with ListenableServiceMixin {
   final _localStorageService = locator<LocalStorageService>();
   final _authService = locator<AuthService>();
   final _statsOrchestrationService = locator<StatsOrchestrationService>();
+  final _habitStatsService = locator<HabitStatsService>();
 
   final ReactiveValue<List<HabitInterface>> _habits =
       ReactiveValue<List<HabitInterface>>([]);
@@ -227,6 +224,7 @@ class HabitService with ListenableServiceMixin {
 
           if (missedRequiredDays > 1) {
             habit.streak = 0;
+            _habitStatsService.fillInMissingDays(habit);
             hasChanges = true;
             debugPrint('Habit ID: ${habit.id} - Streak reset to 0');
           }
