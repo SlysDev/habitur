@@ -6,6 +6,7 @@ import 'package:habitur/ui/widgets/home_greeting_header/home_greeting_header.dar
 import 'package:habitur/ui/widgets/modern_card.dart';
 import 'package:habitur/ui/widgets/navbar/navbar.dart';
 import 'package:habitur/ui/widgets/profile_drawer/profile_drawer.dart';
+import 'package:habitur/ui/widgets/profile_drawer_button/profile_drawer_button.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/constants.dart';
 import 'home_viewmodel.dart';
@@ -26,10 +27,7 @@ class HomeView extends StackedView<HomeViewModel> {
         backgroundColor: Colors.transparent,
         actions: [
           Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.person_rounded, color: Colors.white),
-              onPressed: () => Scaffold.of(context).openEndDrawer(),
-            ),
+            builder: (context) => const ProfileDrawerButton(),
           ),
         ],
       ),
@@ -45,7 +43,7 @@ class HomeView extends StackedView<HomeViewModel> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        HomeGreetingHeader(),
+                        const HomeGreetingHeader(),
                         const SizedBox(height: 24),
                         viewModel.communityFeaturesEnabled
                             ? SocialFeed(

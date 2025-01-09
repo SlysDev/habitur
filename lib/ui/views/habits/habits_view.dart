@@ -5,6 +5,7 @@ import 'package:habitur/ui/widgets/home_greeting_header/home_greeting_header.dar
 import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
 import 'package:habitur/ui/widgets/navbar/navbar.dart';
 import 'package:habitur/ui/widgets/profile_drawer/profile_drawer.dart';
+import 'package:habitur/ui/widgets/profile_drawer_button/profile_drawer_button.dart';
 import 'package:stacked/stacked.dart';
 import 'habits_viewmodel.dart';
 
@@ -22,10 +23,7 @@ class HabitsView extends StackedView<HabitsViewModel> {
           backgroundColor: Colors.transparent,
           actions: [
             Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.person_rounded, color: Colors.white),
-                onPressed: () => Scaffold.of(context).openEndDrawer(),
-              ),
+              builder: (context) => const ProfileDrawerButton(),
             ),
           ],
         ),
