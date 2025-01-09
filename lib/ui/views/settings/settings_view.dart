@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/models/privacy_settings.dart';
+import 'package:habitur/models/time_model.dart';
+import 'package:habitur/ui/common/ui_helpers.dart';
 import 'package:habitur/ui/widgets/aside_button.dart';
 import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
 import 'package:habitur/ui/widgets/modern_card.dart';
@@ -60,18 +62,16 @@ class SettingsView extends StackedView<SettingsViewModel> {
                           label: 'Bio',
                         ),
                         const SizedBox(height: 16),
+                        PrimaryButton(
+                            text: 'Update Profile',
+                            onPressed: viewModel.updateProfile),
+                        if (!viewModel.isEmailVerified) verticalSpaceMediumNew,
+                        if (!viewModel.isEmailVerified)
+                          AsideButton(
+                              text: 'Verify Email',
+                              onPressed: viewModel.verifyEmail),
                         Row(
-                          children: [
-                            PrimaryButton(
-                                text: 'Update Profile',
-                                onPressed: viewModel.updateProfile),
-                            if (!viewModel.isEmailVerified)
-                              const SizedBox(width: 24),
-                            if (!viewModel.isEmailVerified)
-                              AsideButton(
-                                  text: 'Verify Email',
-                                  onPressed: viewModel.verifyEmail),
-                          ],
+                          children: [],
                         ),
                       ],
                     ),
@@ -162,6 +162,76 @@ class SettingsView extends StackedView<SettingsViewModel> {
                                 'shareNewHabits', value);
                           },
                         ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Reminders Section
+                  ModernCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.notifications_active_rounded,
+                                color: kPrimaryColor, size: 28),
+                            const SizedBox(width: 12),
+                            Text('Reminders',
+                                style:
+                                    kHeadingTextStyle.copyWith(fontSize: 24)),
+                          ],
+                        ),
+                        const SizedBox(height: 25),
+                        _buildSwitchTile(
+                          title: 'Daily Reminders',
+                          subtitle: 'Enable daily habit reminders',
+                          value: viewModel.dailyRemindersEnabled,
+                          onChanged: (bool value) =>
+                              viewModel.updateSetting('Daily Reminders', value),
+                        ),
+                        if (viewModel.dailyRemindersEnabled) ...[
+                          const Divider(),
+                          _buildReminderCountTile(
+                            title: 'Number of Reminders',
+                            subtitle: 'How many reminders per day',
+                            value: viewModel.numberOfReminders,
+                            onChanged: (int value) => viewModel.updateSetting(
+                                'Number of Reminders', value),
+                          ),
+                          const Divider(),
+                          _buildTimePickerTile(
+                            context: context,
+                            title: 'First Reminder',
+                            subtitle: 'Set time for first daily reminder',
+                            value: viewModel.firstReminderTime,
+                            onChanged: (TimeModel time) => viewModel
+                                .updateSetting('1st Reminder Time', time),
+                          ),
+                          if (viewModel.numberOfReminders >= 2) ...[
+                            const Divider(),
+                            _buildTimePickerTile(
+                              context: context,
+                              title: 'Second Reminder',
+                              subtitle: 'Set time for second daily reminder',
+                              value: viewModel.secondReminderTime,
+                              onChanged: (TimeModel time) => viewModel
+                                  .updateSetting('2nd Reminder Time', time),
+                            ),
+                          ],
+                          if (viewModel.numberOfReminders >= 3) ...[
+                            const Divider(),
+                            _buildTimePickerTile(
+                              context: context,
+                              title: 'Third Reminder',
+                              subtitle: 'Set time for third daily reminder',
+                              value: viewModel.thirdReminderTime,
+                              onChanged: (TimeModel time) => viewModel
+                                  .updateSetting('3rd Reminder Time', time),
+                            ),
+                          ],
+                        ],
                       ],
                     ),
                   ),
@@ -322,7 +392,7 @@ class SettingsView extends StackedView<SettingsViewModel> {
   }) {
     return SwitchListTile.adaptive(
       title: Text(title),
-      subtitle: Text(subtitle),
+      subtitle: Text(subtitle, style: TextStyle(color: kGray)),
       value: value,
       onChanged: onChanged,
     );
@@ -361,6 +431,7 @@ class SettingsView extends StackedView<SettingsViewModel> {
               ],
             ),
           ),
+          horizontalSpaceMediumNew,
           Container(
             decoration: BoxDecoration(
               color: kDarkGray.withOpacity(0.3),
@@ -391,6 +462,94 @@ class SettingsView extends StackedView<SettingsViewModel> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReminderCountTile({
+    required String title,
+    required String subtitle,
+    required int value,
+    required ValueChanged<int> onChanged,
+  }) {
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(subtitle, style: TextStyle(color: kGray)),
+      trailing: Container(
+        decoration: BoxDecoration(
+          color: kDarkGray.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: kPrimaryColor.withOpacity(0.2)),
+        ),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<int>(
+            value: value,
+            items: [1, 2, 3].map((count) {
+              return DropdownMenuItem(
+                value: count,
+                child: Text(
+                  count.toString(),
+                  style: TextStyle(
+                    color: kPrimaryColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              );
+            }).toList(),
+            onChanged: (newValue) {
+              if (newValue != null) onChanged(newValue);
+            },
+            icon: Icon(Icons.arrow_drop_down, color: kPrimaryColor),
+            dropdownColor: kDarkGray,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimePickerTile({
+    required String title,
+    required String subtitle,
+    required TimeModel value,
+    required ValueChanged<TimeModel> onChanged,
+    required BuildContext context,
+  }) {
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(subtitle, style: TextStyle(color: kGray)),
+      trailing: TextButton(
+        onPressed: () async {
+          final TimeOfDay? picked = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay(hour: value.hour, minute: value.minute),
+            builder: (BuildContext context, Widget? child) {
+              return Theme(
+                data: Theme.of(context).copyWith(
+                  colorScheme: ColorScheme.dark(
+                    primary: kPrimaryColor,
+                    onPrimary: Colors.white,
+                    surface: kDarkGray,
+                    onSurface: Colors.white,
+                  ),
+                ),
+                child: child!,
+              );
+            },
+          );
+          if (picked != null) {
+            onChanged(TimeModel(hour: picked.hour, minute: picked.minute));
+          }
+        },
+        child: Text(
+          '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}',
+          style: TextStyle(
+            color: kPrimaryColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }

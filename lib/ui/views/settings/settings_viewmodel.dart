@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:habitur/enums/dialog_type.dart';
+import 'package:habitur/app/app.dialogs.dart';
+import 'package:habitur/models/time_model.dart';
 import 'package:habitur/services/database_service.dart';
 import 'package:habitur/services/habit_service.dart';
 import 'package:habitur/services/local_storage_service.dart';
+import 'package:habitur/services/shared_habits_service.dart';
+import 'package:habitur/services/stats/user_stats_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:habitur/util_functions.dart';
 import 'package:stacked/stacked.dart';
@@ -21,7 +24,7 @@ import '../../views/social_feed/social_feed.dart';
 import '../../../services/activity_service.dart';
 import '../../../services/friends_service.dart';
 
-class SettingsViewModel extends BaseViewModel {
+class SettingsViewModel extends StreamViewModel<List<SettingModel>> {
   final _authService = locator<AuthService>();
   final _settingsService = locator<SettingsService>();
   final _notificationService = locator<NotificationService>();
@@ -35,41 +38,92 @@ class SettingsViewModel extends BaseViewModel {
   final _communityService = locator<CommunityService>();
   final _activityService = locator<ActivityService>();
   final _friendsService = locator<FriendsService>();
+  final _habitService = locator<HabitService>();
+  final _userStatsService = locator<UserStatsService>();
+  final _sharedHabitsService = locator<SharedHabitsService>();
 
   TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController bioController = TextEditingController();
 
-  bool _isEmailVerified = false;
-  bool get isEmailVerified => _isEmailVerified;
+  @override
+  Stream<List<SettingModel>> get stream => _settingsService.settingsStream;
+  List<SettingModel> get settings => data ?? [];
 
-  bool _notificationsEnabled = false;
-  bool get notificationsEnabled => _notificationsEnabled;
+  bool get isEmailVerified => _authService.currentUser?.emailVerified ?? false;
 
-  bool _communityFeaturesEnabled = true;
-  bool get communityFeaturesEnabled => _communityFeaturesEnabled;
+  bool get notificationsEnabled => stringToBool(
+      _settingsService.getSetting('notifications')?.settingValue?.toString() ??
+          'true');
 
-  bool _isAdmin = false;
-  bool get isAdmin => _isAdmin;
+  bool get communityFeaturesEnabled => stringToBool(_settingsService
+          .getSetting('communityFeatures')
+          ?.settingValue
+          ?.toString() ??
+      'true');
+
+  bool get isAdmin => _userService.currentUser?.isAdmin ?? false;
 
   // Privacy settings
-  SharingScope _statsScope = SharingScope.friends;
-  SharingScope get statsScope => _statsScope;
+  SharingScope get statsScope =>
+      _settingsService.getSetting('statsScope')?.settingValue
+          as SharingScope? ??
+      SharingScope.friends;
 
-  SharingScope _habitsScope = SharingScope.friends;
-  SharingScope get habitsScope => _habitsScope;
+  SharingScope get habitsScope =>
+      _settingsService.getSetting('habitsScope')?.settingValue
+          as SharingScope? ??
+      SharingScope.friends;
 
-  bool _shareActivities = true;
-  bool get shareActivities => _shareActivities;
+  bool get shareActivities => stringToBool(
+      _settingsService.getSetting('shareActivities')?.settingValue.toString() ??
+          'true');
 
-  bool _shareHabitCompletions = true;
-  bool get shareHabitCompletions => _shareHabitCompletions;
+  bool get shareHabitCompletions => stringToBool(_settingsService
+          .getSetting('shareHabitCompletions')
+          ?.settingValue as String? ??
+      'true');
 
-  bool _shareStreakMilestones = true;
-  bool get shareStreakMilestones => _shareStreakMilestones;
+  bool get shareStreakMilestones => stringToBool(_settingsService
+          .getSetting('shareStreakMilestones')
+          ?.settingValue as String? ??
+      'true');
 
-  bool _shareNewHabits = true;
-  bool get shareNewHabits => _shareNewHabits;
+  bool get shareNewHabits => stringToBool(
+      _settingsService.getSetting('shareNewHabits')?.settingValue as String? ??
+          'true');
+
+  // Reminder settings
+  bool get dailyRemindersEnabled => stringToBool(
+        _settingsService
+                .getSetting('Daily Reminders')
+                ?.settingValue
+                .toString() ??
+            'true',
+      );
+
+  int get numberOfReminders =>
+      int.tryParse(_settingsService
+              .getSetting('Number of Reminders')
+              ?.settingValue
+              .toString() ??
+          '3') ??
+      3;
+
+  TimeModel get firstReminderTime =>
+      _settingsService.getSetting('1st Reminder Time')?.settingValue
+          as TimeModel? ??
+      TimeModel(hour: 10, minute: 0);
+
+  TimeModel get secondReminderTime =>
+      _settingsService.getSetting('2nd Reminder Time')?.settingValue
+          as TimeModel? ??
+      TimeModel(hour: 16, minute: 0);
+
+  TimeModel get thirdReminderTime =>
+      _settingsService.getSetting('3rd Reminder Time')?.settingValue
+          as TimeModel? ??
+      TimeModel(hour: 22, minute: 0);
 
   @override
   void dispose() {
@@ -88,34 +142,9 @@ class SettingsViewModel extends BaseViewModel {
         usernameController = TextEditingController(text: user.username);
         emailController = TextEditingController(text: user.email);
         bioController = TextEditingController(text: user.bio);
-        _isEmailVerified = _authService.currentUser?.emailVerified ?? false;
-        _isAdmin = user.isAdmin;
       }
 
       await _settingsService.loadSettings();
-      final settings = _settingsService.settings;
-
-      // Load settings from the list
-      _notificationsEnabled =
-          _getSetting('notifications')?.settingValue as bool? ?? false;
-      _communityFeaturesEnabled =
-          _getSetting('communityFeatures')?.settingValue as bool? ?? true;
-
-      _statsScope = _getSetting('statsScope')?.settingValue as SharingScope? ??
-          SharingScope.friends;
-      _habitsScope =
-          _getSetting('habitsScope')?.settingValue as SharingScope? ??
-              SharingScope.friends;
-      _shareActivities = stringToBool(
-          _getSetting('shareActivities')?.settingValue as String? ?? 'true');
-      _shareHabitCompletions = stringToBool(
-          _getSetting('shareHabitCompletions')?.settingValue as String? ??
-              'true');
-      _shareStreakMilestones = stringToBool(
-          _getSetting('shareStreakMilestones')?.settingValue as String? ??
-              'true');
-      _shareNewHabits = stringToBool(
-          _getSetting('shareNewHabits')?.settingValue as String? ?? 'true');
     } catch (e, s) {
       debugPrint('----------------- Failed to load settings:');
       debugPrint(e.toString());
@@ -128,13 +157,6 @@ class SettingsViewModel extends BaseViewModel {
     } finally {
       setBusy(false);
     }
-  }
-
-  SettingModel? _getSetting(String name) {
-    return _settingsService.settings.firstWhere(
-      (s) => s.settingName == name,
-      orElse: () => SettingModel(settingName: name, settingValue: null),
-    );
   }
 
   Future<void> verifyEmail() async {
@@ -183,43 +205,13 @@ class SettingsViewModel extends BaseViewModel {
   Future<void> updateSetting<T>(String settingName, T value) async {
     setBusy(true);
     try {
+      final settingValue = value is bool ? value.toString() : value;
       final setting = SettingModel(
         settingName: settingName,
-        settingValue: value,
+        settingValue: settingValue,
       );
 
       await _settingsService.updateSetting(setting);
-
-      // Update local state based on setting name
-      switch (settingName) {
-        case 'notifications':
-          _notificationsEnabled = value as bool;
-          if (_notificationsEnabled) {
-            await _notificationService.requestPermission();
-          }
-          break;
-        case 'communityFeatures':
-          _communityFeaturesEnabled = value as bool;
-          break;
-        case 'statsScope':
-          _statsScope = value as SharingScope;
-          break;
-        case 'habitsScope':
-          _habitsScope = value as SharingScope;
-          break;
-        case 'shareActivities':
-          _shareActivities = value as bool;
-          break;
-        case 'shareHabitCompletions':
-          _shareHabitCompletions = value as bool;
-          break;
-        case 'shareStreakMilestones':
-          _shareStreakMilestones = value as bool;
-          break;
-        case 'shareNewHabits':
-          _shareNewHabits = value as bool;
-          break;
-      }
       rebuildUi();
     } catch (e) {
       await _dialogService.showDialog(
@@ -232,8 +224,6 @@ class SettingsViewModel extends BaseViewModel {
   }
 
   void toggleCommunityFeatures(bool isEnabled) async {
-    _communityFeaturesEnabled = isEnabled;
-    notifyListeners();
     setBusy(true);
     if (isEnabled) {
       await _settingsService.enableCommunityFeatures();
@@ -282,10 +272,12 @@ class SettingsViewModel extends BaseViewModel {
     if (response?.confirmed ?? false) {
       setBusy(true);
       try {
-        await _localStorageService.clearAllHiveData();
-        await _databaseService.clearUserData(_authService.currentUser!.uid);
+        await _habitService.clearCurrentUserHabits();
+        await _userStatsService.clearCurrentUserStats();
+        await _sharedHabitsService.clearCurrentUserSharedHabits();
         await _settingsService.resetToDefaults();
         await _navigationService.clearStackAndShow(Routes.startupView);
+        await _communityService.clearCurrentUserChallengeData();
       } catch (e) {
         await _dialogService.showDialog(
           title: 'Error',
