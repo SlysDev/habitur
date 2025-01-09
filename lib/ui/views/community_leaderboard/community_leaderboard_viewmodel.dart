@@ -1,13 +1,19 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:habitur/app/app.dialogs.dart';
+import 'package:habitur/models/habit.dart';
+import 'package:habitur/services/auth_service.dart';
+import 'package:habitur/services/stats/habit_stats_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:confetti/confetti.dart';
 import '../../../app/app.locator.dart';
 import '../../../app/app.router.dart';
 import '../../../models/community_challenge.dart';
 import '../../../models/participant_data.dart';
 import '../../../services/community_service.dart';
 import '../../../services/habit_service.dart';
+import '../../../services/friends_service.dart';
 
 class CommunityLeaderboardViewModel
     extends StreamViewModel<CommunityChallenge> {
@@ -15,6 +21,10 @@ class CommunityLeaderboardViewModel
   final _habitService = locator<HabitService>();
   final _navigationService = locator<NavigationService>();
   final _dialogService = locator<DialogService>();
+  final _habitStatsService = locator<HabitStatsService>();
+  final _authService = locator<AuthService>();
+  final _friendsService = locator<FriendsService>();
+  late final ConfettiController _controller;
 
   String? _challengeId;
 
@@ -23,7 +33,14 @@ class CommunityLeaderboardViewModel
     debugPrint('This is what\'s coming in: $challengeId');
     _challengeId = challengeId;
     debugPrint('Challenge id: $_challengeId');
+    _controller = ConfettiController(duration: const Duration(seconds: 1));
     initialise();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -31,6 +48,7 @@ class CommunityLeaderboardViewModel
       ? _communityService.getChallengeByIdStream(_challengeId!)
       : _communityService.activeChallengesStream.map((challenges) {
           if (challenges.isEmpty) throw Exception('No active challenges');
+          debugPrint('Here is the challenge: ${challenges.first}');
           return challenges.first;
         });
 
@@ -40,9 +58,44 @@ class CommunityLeaderboardViewModel
     return data?.participantData ?? [];
   }
 
+  List<ParticipantData> get sortedParticipants {
+    List<ParticipantData> sortedList = List.from(participants);
+    sortedList.sort(
+        (a, b) => b.habit.totalProgress.compareTo(a.habit.totalProgress));
+    return sortedList;
+  }
+
+  Future<List<ParticipantData>> get friendsProgress async {
+    if (data == null) return [];
+    return Future.wait(data!.participantData.map((participant) async {
+      bool isFriend = await _friendsService.isFriend(participant.userId);
+      return isFriend ? participant : null;
+    })).then((list) => list.where((participant) => participant != null).cast<ParticipantData>().toList());
+  }
+
   double get totalProgress {
     if (data == null) return 0;
     return data!.currentFullCompletions / data!.requiredFullCompletions;
+  }
+
+  ParticipantData? get currentUserParticipantData {
+    if (data == null) return null;
+    return data!.participantData.firstWhere(
+      (participant) => participant.userId == _authService.currentUser!.uid,
+      orElse: () => ParticipantData(
+        userId: '',
+        username: '',
+        habit: Habit(
+          id: 0,
+          title: '',
+          currentProgress: 0,
+          targetGoal: data!.targetGoal,
+          resetPeriod: 'Daily',
+          lastSeen: DateTime.now(),
+          dateCreated: DateTime.now(),
+        ),
+      ),
+    );
   }
 
   Future<void> incrementProgress() async {
@@ -60,26 +113,32 @@ class CommunityLeaderboardViewModel
       }
       // increment current completions first
       if (participantData.habit.currentProgress < data!.targetGoal) {
-        participantData.habit.currentProgress += 1;
+        participantData.habit = await _habitStatsService.processHabitIncrement(
+            participantData.habit,
+            amount: 1,
+            difficultyRating: 5) as Habit;
         if (participantData.habit.currentProgress == data!.targetGoal) {
-          // update participant full completions
-          participantData.habit.totalProgress += 1;
           // update challenge completions
           challengeCurrentFullCompletions += 1;
           await _communityService.updateChallengeProgress(
             data!.id.toString(),
             challengeCurrentFullCompletions,
           );
+          _controller.play();
         }
       }
       await _communityService.updateParticipantProgress(
           challengeId: data!.id.toString(), participant: participantData);
-      await _habitService.incrementHabit(data!.id.toString(), 0);
+      // what is this doing?
+      // await _habitService.incrementHabit(data!.id.toString(), 0);
     } catch (e, s) {
-      await _dialogService.showDialog(
+      setBusy(false);
+      await _dialogService.showCustomDialog(
         title: 'Error',
         description: 'Failed to update progress: ${e.toString()}',
+        variant: DialogType.modern,
       );
+      debugPrint(e.toString());
       debugPrint(s.toString());
     } finally {
       setBusy(false);
@@ -109,4 +168,6 @@ class CommunityLeaderboardViewModel
   void navigateBack() {
     _navigationService.back();
   }
+
+  ConfettiController get controller => _controller;
 }

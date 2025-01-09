@@ -1,11 +1,19 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/ui/common/ui_helpers.dart';
+import 'package:habitur/ui/widgets/friends_progress_list/friends_progress_list.dart';
 import 'package:habitur/ui/widgets/leaderboard_card/leaderboard_card.dart';
 import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
+import 'package:habitur/ui/widgets/modern_card.dart';
 import 'package:habitur/ui/widgets/navbar/navbar.dart';
 import 'package:habitur/ui/widgets/primary_button.dart';
+import 'package:habitur/ui/widgets/static_card.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/constants.dart';
+import 'package:confetti/confetti.dart';
 import '../../widgets/rounded_progress_bar.dart';
 import 'community_leaderboard_viewmodel.dart';
 
@@ -24,118 +32,251 @@ class CommunityLeaderboardView
     CommunityLeaderboardViewModel viewModel,
     Widget? child,
   ) {
-    debugPrint('Building leaderboard view...');
-    debugPrint('Challenge id: $challengeId');
-    return LoadingOverlay(
-      isLoading: viewModel.isBusy || viewModel.currentChallenge == null,
-      child: Scaffold(
-        backgroundColor: kBackgroundColor,
-        body: Container(
-          child: SafeArea(
-            bottom: false,
-            child: Stack(
-              children: [
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            padding: EdgeInsets.all(16),
-                            icon: Icon(Icons.arrow_back),
-                            onPressed: () {
-                              viewModel.navigateBack();
-                            },
-                          ),
-                        ],
-                      ),
-                      Text(
-                        viewModel.currentChallenge?.title ??
-                            'Community Challenge',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: kPrimaryColor,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        viewModel.currentChallenge?.description ?? '',
-                        style: kMainDescription,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 40),
-                      if (viewModel.currentChallenge != null) ...[
-                        RoundedProgressBar(
-                          progress: viewModel.totalProgress,
-                          lineHeight: 40,
-                          color: kPrimaryColor,
-                        ),
-                        const SizedBox(height: 30),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '${viewModel.currentChallenge!.currentFullCompletions} / ${viewModel.currentChallenge!.requiredFullCompletions}',
-                              style: kMainDescription.copyWith(
-                                color: Colors.white,
-                                fontSize: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            const Icon(Icons.people, size: 24),
-                          ],
-                        ),
-                        const SizedBox(height: 30),
-                        Expanded(
-                          child: ListView.separated(
-                            itemCount: viewModel.participants.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 10),
-                            itemBuilder: (context, index) {
-                              final participant = viewModel.participants[index];
-                              return Container(
-                                margin:
-                                    index == viewModel.participants.length - 1
-                                        ? EdgeInsets.only(bottom: 75)
-                                        : EdgeInsets.only(bottom: 0),
-                                child: LeaderboardCard(
-                                    participant: viewModel.participants[index],
-                                    rank: index + 1),
-                              );
-                            },
+    return Scaffold(
+      backgroundColor: kBackgroundColor,
+      body: Stack(
+        children: [
+          LoadingOverlay(
+            isLoading: viewModel.isBusy || viewModel.currentChallenge == null,
+            child: CustomScrollView(
+              slivers: [
+                _buildAppBar(context, viewModel),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: ConfettiWidget(
+                            confettiController: viewModel.controller,
+                            blastDirectionality:
+                                BlastDirectionality.directional,
+                            blastDirection: 3 * pi / 2,
+                            emissionFrequency: 0,
+                            numberOfParticles: 25,
+                            gravity: 0.1,
+                            maxBlastForce: 20,
+                            minBlastForce: 10,
                           ),
                         ),
+                        _buildCurrentUserProgress(context, viewModel),
+                        verticalSpaceMedium,
+                        _buildFriendsProgressList(context, viewModel),
+                        verticalSpaceMedium,
+                        _buildLeaderboardSection(context, viewModel),
+                        SizedBox(height: screenHeight(context) / 6),
                       ],
-                    ],
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    width: double.infinity,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.8),
-                          Colors.transparent,
-                        ],
-                      ),
                     ),
                   ),
                 ),
               ],
             ),
           ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 125,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.black],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: PrimaryButton(
+        isDisabled:
+            viewModel.currentUserParticipantData?.habit.currentProgress ==
+                viewModel.currentChallenge?.targetGoal,
+        text: 'Complete',
+        onPressed: viewModel.incrementProgress,
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+  Widget _buildAppBar(
+      BuildContext context, CommunityLeaderboardViewModel viewModel) {
+    return SliverAppBar(
+      surfaceTintColor: kDarkGray,
+      backgroundColor: kBackgroundColor,
+      expandedHeight: 250,
+      pinned: true,
+      flexibleSpace: FlexibleSpaceBar(
+        title: Text(
+          viewModel.currentChallenge?.title ?? '...',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        floatingActionButton: PrimaryButton(
-            text: 'Complete', onPressed: viewModel.incrementProgress),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        background: Container(
+          color: kBackgroundColor,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.emoji_events,
+                  color: kPrimaryColor,
+                  size: 48,
+                ),
+                verticalSpaceMediumNew,
+                Text(
+                  viewModel.currentChallenge?.description ?? '',
+                  style: kMainDescription,
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFriendsProgressList(
+      BuildContext context, CommunityLeaderboardViewModel viewModel) {
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Friends Progress',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 16),
+          FutureBuilder<List<ParticipantData>>(
+            future: viewModel.friendsProgress,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return const Center(
+                    child: Text('Error loading friends progress'));
+              }
+              final friendsProgress = snapshot.data ?? [];
+              return ListView.separated(
+                padding: const EdgeInsets.all(0),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: friendsProgress.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final participant = friendsProgress[index];
+                  return LeaderboardCard(participant: participant, rank: index + 1);
+                },
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeaderboardSection(
+      BuildContext context, CommunityLeaderboardViewModel viewModel) {
+    return Column(
+      children: [
+        ModernCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Leaderboard',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              SizedBox(height: 40),
+              Center(
+                child: RoundedProgressBar(
+                  progress: viewModel.totalProgress,
+                  lineHeight: 40,
+                  width: screenWidth(context) / 1.5,
+                  color: kPrimaryColor,
+                ),
+              ),
+              verticalSpaceMediumNew,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${viewModel.currentChallenge?.currentFullCompletions ?? 0} / ${viewModel.currentChallenge?.requiredFullCompletions ?? 1}',
+                    style: kSubDescription,
+                  ),
+                  horizontalSpaceSmallNew,
+                  const Icon(Icons.people, size: 24, color: kGray),
+                ],
+              ),
+              verticalSpaceMediumNew,
+              ListView.separated(
+                padding: const EdgeInsets.all(0),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: viewModel.sortedParticipants.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final participant = viewModel.sortedParticipants[index];
+                  return LeaderboardCard(
+                    participant: participant,
+                    rank: index + 1,
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCurrentUserProgress(
+      BuildContext context, CommunityLeaderboardViewModel viewModel) {
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Your Progress',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 16),
+          LinearProgressIndicator(
+            value:
+                (viewModel.currentUserParticipantData?.habit.currentProgress ??
+                        0) /
+                    (viewModel.currentChallenge?.targetGoal ?? 1),
+            backgroundColor: kDarkGray,
+            borderRadius: BorderRadius.circular(15),
+            valueColor: const AlwaysStoppedAnimation<Color>(kPrimaryColor),
+            minHeight: 8,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${viewModel.currentUserParticipantData?.habit.currentProgress ?? 0}/${viewModel.currentChallenge?.targetGoal ?? 1} completions',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: kGray,
+                ),
+          ),
+        ],
       ),
     );
   }
@@ -143,7 +284,6 @@ class CommunityLeaderboardView
   @override
   CommunityLeaderboardViewModel viewModelBuilder(BuildContext context) {
     final viewModel = CommunityLeaderboardViewModel();
-    debugPrint('beginning to init view model w/ challenge id: $challengeId');
     viewModel.initialize(challengeId: challengeId);
     return viewModel;
   }
