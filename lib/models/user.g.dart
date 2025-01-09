@@ -18,26 +18,32 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
     };
     return UserModel(
       username: fields[0] as String,
-      bio: fields[1] as String,
       email: fields[2] as String,
       uid: fields[3] as String,
-      userLevel: fields[4] as int,
-      userXP: fields[5] as int,
-      isAdmin: fields[6] as bool,
+      bio: fields[1] == null ? '' : fields[1] as String,
+      userLevel: fields[4] == null ? 1 : fields[4] as int,
+      userXP: fields[5] == null ? 0 : fields[5] as int,
+      isAdmin: fields[6] == null ? false : fields[6] as bool,
+      stats: fields[7] == null ? [] : (fields[7] as List).cast<StatPoint>(),
+      friends: fields[8] == null ? [] : (fields[8] as List).cast<String>(),
+      receivedFriendRequests:
+          fields[9] == null ? [] : (fields[9] as List).cast<FriendRequest>(),
+      sentFriendRequests:
+          fields[10] == null ? [] : (fields[10] as List).cast<FriendRequest>(),
       profilePicture: fields[11] as String?,
-      stats: (fields[7] as List?)?.cast<StatPoint>(),
-      friends: (fields[8] as List?)?.cast<String>(),
-      receivedFriendRequests: (fields[9] as List?)?.cast<FriendRequest>(),
-      sentFriendRequests: (fields[10] as List?)?.cast<FriendRequest>(),
-      habitVisibilitySettings: (fields[12] as List?)?.cast<HabitVisibility>(),
-      privacySettings: fields[13] as PrivacySettings?,
+      habitVisibilitySettings: (fields[12] as List).cast<HabitVisibility>(),
+      isBlocked: fields[14] == null ? false : fields[14] as bool,
+      blockedAt: fields[15] as DateTime?,
+      blockReason: fields[16] as String?,
+      hasSharedHabits: fields[17] == null ? false : fields[17] as bool,
+      privacySettings: fields[13] as PrivacySettings,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(18)
       ..writeByte(0)
       ..write(obj.username)
       ..writeByte(1)
@@ -65,7 +71,15 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       ..writeByte(12)
       ..write(obj.habitVisibilitySettings)
       ..writeByte(13)
-      ..write(obj.privacySettings);
+      ..write(obj.privacySettings)
+      ..writeByte(14)
+      ..write(obj.isBlocked)
+      ..writeByte(15)
+      ..write(obj.blockedAt)
+      ..writeByte(16)
+      ..write(obj.blockReason)
+      ..writeByte(17)
+      ..write(obj.hasSharedHabits);
   }
 
   @override

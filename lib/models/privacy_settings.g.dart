@@ -17,22 +17,26 @@ class PrivacySettingsAdapter extends TypeAdapter<PrivacySettings> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return PrivacySettings(
-      statsScope: fields[0] as SharingScope,
-      habitsScope: fields[1] as SharingScope,
-      shareConfidenceLevel: fields[2] as bool,
-      shareConsistencyFactor: fields[3] as bool,
-      shareActivities: fields[4] as bool,
-      shareHabitCompletions: fields[5] as bool,
-      shareStreakMilestones: fields[6] as bool,
-      shareNewHabits: fields[7] as bool,
-      shareProfilePicture: fields[8] as bool,
+      statsScope:
+          fields[0] == null ? SharingScope.friends : fields[0] as SharingScope,
+      habitsScope:
+          fields[1] == null ? SharingScope.friends : fields[1] as SharingScope,
+      shareConfidenceLevel: fields[2] == null ? true : fields[2] as bool,
+      shareConsistencyFactor: fields[3] == null ? true : fields[3] as bool,
+      shareActivities: fields[4] == null ? true : fields[4] as bool,
+      shareHabitCompletions: fields[5] == null ? true : fields[5] as bool,
+      shareStreakMilestones: fields[6] == null ? true : fields[6] as bool,
+      shareNewHabits: fields[7] == null ? true : fields[7] as bool,
+      shareCommunityChallengeCompletions:
+          fields[9] == null ? true : fields[9] as bool,
+      shareProfilePicture: fields[8] == null ? true : fields[8] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, PrivacySettings obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.statsScope)
       ..writeByte(1)
@@ -49,6 +53,8 @@ class PrivacySettingsAdapter extends TypeAdapter<PrivacySettings> {
       ..write(obj.shareStreakMilestones)
       ..writeByte(7)
       ..write(obj.shareNewHabits)
+      ..writeByte(9)
+      ..write(obj.shareCommunityChallengeCompletions)
       ..writeByte(8)
       ..write(obj.shareProfilePicture);
   }

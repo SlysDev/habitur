@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+
+class RoundedProgressBar extends StatelessWidget {
+  const RoundedProgressBar({
+    Key? key,
+    required this.progress,
+    this.color = Colors.white,
+    this.lineHeight = 12.0,
+    this.width = 100.0,
+    this.radius = 48.0,
+    this.padding = 0,
+  }) : super(key: key);
+
+  final double progress;
+  final Color color;
+  final double lineHeight;
+  final double width;
+  final double radius;
+  final double padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: width,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: color.withOpacity(0.2), width: 1.0),
+          borderRadius: BorderRadius.circular(radius),
+        ),
+        child: LinearPercentIndicator(
+          padding: EdgeInsets.all(padding),
+          percent: progress,
+          barRadius: Radius.circular(radius),
+          lineHeight: lineHeight,
+          width: width - 2,
+          animation: true,
+          animationDuration: 600,
+          curve: Curves.ease,
+          animateFromLastPercent: true,
+          progressColor: color,
+          backgroundColor: color.withOpacity(0.1),
+        ),
+      ),
+    );
+  }
+}

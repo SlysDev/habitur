@@ -14,7 +14,7 @@ class UserModel extends HiveObject {
   @HiveField(0)
   String username;
 
-  @HiveField(1)
+  @HiveField(1, defaultValue: '')
   String bio;
 
   @HiveField(2)
@@ -23,25 +23,25 @@ class UserModel extends HiveObject {
   @HiveField(3)
   String uid;
 
-  @HiveField(4)
+  @HiveField(4, defaultValue: 1)
   int userLevel;
 
-  @HiveField(5)
+  @HiveField(5, defaultValue: 0)
   int userXP;
 
-  @HiveField(6)
+  @HiveField(6, defaultValue: false)
   bool isAdmin;
 
-  @HiveField(7)
+  @HiveField(7, defaultValue: [])
   List<StatPoint> stats;
 
-  @HiveField(8)
+  @HiveField(8, defaultValue: [])
   List<String> friends;
 
-  @HiveField(9)
+  @HiveField(9, defaultValue: [])
   List<FriendRequest> receivedFriendRequests;
 
-  @HiveField(10)
+  @HiveField(10, defaultValue: [])
   List<FriendRequest> sentFriendRequests;
 
   @HiveField(11)
@@ -53,48 +53,59 @@ class UserModel extends HiveObject {
   @HiveField(13)
   PrivacySettings privacySettings;
 
+  @HiveField(14, defaultValue: false)
+  bool isBlocked;
+
+  @HiveField(15)
+  DateTime? blockedAt;
+
+  @HiveField(16)
+  String? blockReason;
+
+  @HiveField(17, defaultValue: false)
+  bool hasSharedHabits;
+
   int get levelUpRequirement {
     return 100 * pow(1.5, userLevel).ceil();
   }
 
   UserModel({
     required this.username,
-    this.bio = '',
     required this.email,
     required this.uid,
+    this.bio = '',
     this.userLevel = 1,
     this.userXP = 0,
     this.isAdmin = false,
+    this.stats = const [],
+    this.friends = const [],
+    this.receivedFriendRequests = const [],
+    this.sentFriendRequests = const [],
     this.profilePicture,
-    List<StatPoint>? stats,
-    List<String>? friends,
-    List<FriendRequest>? receivedFriendRequests,
-    List<FriendRequest>? sentFriendRequests,
-    List<HabitVisibility>? habitVisibilitySettings,
-    PrivacySettings? privacySettings,
-  })  : this.stats = stats ?? [],
-        this.friends = friends ?? [],
-        this.receivedFriendRequests = receivedFriendRequests ?? [],
-        this.sentFriendRequests = sentFriendRequests ?? [],
-        this.habitVisibilitySettings = habitVisibilitySettings ?? [],
-        this.privacySettings = privacySettings ?? PrivacySettings();
+    this.habitVisibilitySettings = const [],
+    this.isBlocked = false,
+    this.blockedAt,
+    this.blockReason,
+    this.hasSharedHabits = false,
+    this.privacySettings = const PrivacySettings(),
+  });
+
+  void levelUp() {
+    userLevel++;
+    userXP = 0;
+  }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
-    debugPrint('UserModel.fromMap: Converting map to UserModel');
-    debugPrint('Stats data: ${map['stats']}');
-    
-    List<StatPoint>? statPoints;
+    List<StatPoint> statPoints = [];
     if (map['stats'] != null && map['stats'] is Map) {
       var statsMap = map['stats'] as Map<String, dynamic>;
       if (statsMap['statPoints'] != null) {
         try {
           statPoints = List<StatPoint>.from(
-            statsMap['statPoints'].map((x) => StatPoint.fromMap(x))
-          );
+              statsMap['statPoints'].map((x) => StatPoint.fromMap(x)));
           debugPrint('Successfully converted ${statPoints.length} stat points');
         } catch (e) {
           debugPrint('Error converting stat points: $e');
-          statPoints = [];
         }
       }
     }
@@ -108,26 +119,28 @@ class UserModel extends HiveObject {
       userXP: map['userXP']?.toInt() ?? 0,
       isAdmin: map['isAdmin'] ?? false,
       stats: statPoints,
-      friends: map['friends'] != null
-          ? List<String>.from(map['friends'])
-          : null,
+      friends: map['friends'] != null ? List<String>.from(map['friends']) : [],
       receivedFriendRequests: map['receivedFriendRequests'] != null
-          ? List<FriendRequest>.from(
-              map['receivedFriendRequests']?.map((x) => FriendRequest.fromMap(x)))
-          : null,
+          ? List<FriendRequest>.from(map['receivedFriendRequests']
+              ?.map((x) => FriendRequest.fromMap(x)))
+          : [],
       sentFriendRequests: map['sentFriendRequests'] != null
           ? List<FriendRequest>.from(
               map['sentFriendRequests']?.map((x) => FriendRequest.fromMap(x)))
-          : null,
+          : [],
       profilePicture: map['profilePicture'],
       habitVisibilitySettings: map['habitVisibilitySettings'] != null
-          ? List<HabitVisibility>.from(
-              map['habitVisibilitySettings']
-                  ?.map((x) => HabitVisibility.fromMap(x)))
-          : null,
+          ? List<HabitVisibility>.from(map['habitVisibilitySettings']
+              ?.map((x) => HabitVisibility.fromMap(x)))
+          : [],
+      isBlocked: map['isBlocked'] ?? false,
+      blockedAt:
+          map['blockedAt'] != null ? DateTime.parse(map['blockedAt']) : null,
+      blockReason: map['blockReason'],
+      hasSharedHabits: map['hasSharedHabits'] ?? false,
       privacySettings: map['privacySettings'] != null
           ? PrivacySettings.fromMap(map['privacySettings'])
-          : PrivacySettings(),
+          : const PrivacySettings(),
     );
   }
 
@@ -142,18 +155,25 @@ class UserModel extends HiveObject {
       'isAdmin': isAdmin,
       'stats': stats?.map((x) => x.toMap()).toList(),
       'friends': friends,
-      'receivedFriendRequests': receivedFriendRequests?.map((x) => x.toMap()).toList(),
+      'receivedFriendRequests':
+          receivedFriendRequests?.map((x) => x.toMap()).toList(),
       'sentFriendRequests': sentFriendRequests?.map((x) => x.toMap()).toList(),
       'profilePicture': profilePicture,
-      'habitVisibilitySettings': habitVisibilitySettings?.map((x) => x.toMap()).toList(),
+      'habitVisibilitySettings':
+          habitVisibilitySettings?.map((x) => x.toMap()).toList(),
+      'isBlocked': isBlocked,
+      'blockedAt': blockedAt?.toIso8601String(),
+      'blockReason': blockReason,
+      'hasSharedHabits': hasSharedHabits,
       'privacySettings': privacySettings.toMap(),
     };
   }
 
   @override
   String toString() {
-    return 'UserModel(username: $username, bio: $bio, email: $email, uid: $uid, profilePicture: $profilePicture, userLevel: $userLevel, userXP: $userXP, isAdmin: $isAdmin, stats: $stats, friends: $friends, receivedFriendRequests: $receivedFriendRequests, sentFriendRequests: $sentFriendRequests, habitVisibilitySettings: $habitVisibilitySettings, privacySettings: $privacySettings)';
+    return 'UserModel(username: $username, bio: $bio, email: $email, uid: $uid, profilePicture: $profilePicture, userLevel: $userLevel, userXP: $userXP, isAdmin: $isAdmin, stats: $stats, friends: $friends, receivedFriendRequests: $receivedFriendRequests, sentFriendRequests: $sentFriendRequests, habitVisibilitySettings: $habitVisibilitySettings, isBlocked: $isBlocked, blockedAt: $blockedAt, blockReason: $blockReason, hasSharedHabits: $hasSharedHabits, privacySettings: $privacySettings)';
   }
+
   UserModel copyWith({
     String? username,
     String? bio,
@@ -168,6 +188,10 @@ class UserModel extends HiveObject {
     List<FriendRequest>? sentFriendRequests,
     String? profilePicture,
     List<HabitVisibility>? habitVisibilitySettings,
+    bool? isBlocked,
+    DateTime? blockedAt,
+    String? blockReason,
+    bool? hasSharedHabits,
     PrivacySettings? privacySettings,
   }) {
     return UserModel(
@@ -180,10 +204,16 @@ class UserModel extends HiveObject {
       isAdmin: isAdmin ?? this.isAdmin,
       stats: stats ?? this.stats,
       friends: friends ?? this.friends,
-      receivedFriendRequests: receivedFriendRequests ?? this.receivedFriendRequests,
+      receivedFriendRequests:
+          receivedFriendRequests ?? this.receivedFriendRequests,
       sentFriendRequests: sentFriendRequests ?? this.sentFriendRequests,
       profilePicture: profilePicture ?? this.profilePicture,
-      habitVisibilitySettings: habitVisibilitySettings ?? this.habitVisibilitySettings,
+      habitVisibilitySettings:
+          habitVisibilitySettings ?? this.habitVisibilitySettings,
+      isBlocked: isBlocked ?? this.isBlocked,
+      blockedAt: blockedAt ?? this.blockedAt,
+      blockReason: blockReason ?? this.blockReason,
+      hasSharedHabits: hasSharedHabits ?? this.hasSharedHabits,
       privacySettings: privacySettings ?? this.privacySettings,
     );
   }

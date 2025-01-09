@@ -5,9 +5,6 @@ import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/participant_data.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/user.dart';
-import 'package:habitur/providers/community_challenge_manager.dart';
-import 'package:habitur/data/local/user_local_storage.dart';
-import 'package:provider/provider.dart';
 
 class CommunityChallenge extends SharedHabit {
   String description;
@@ -16,30 +13,6 @@ class CommunityChallenge extends SharedHabit {
   DateTime endDate;
   int requiredFullCompletions;
   int currentFullCompletions = 0;
-  List<ParticipantData> _participantDataList = [];
-
-  UnmodifiableListView<ParticipantData> get participants =>
-      UnmodifiableListView(
-        _participantDataList,
-      );
-
-  void addParticipant(ParticipantData participantData) {
-    _participantDataList.add(participantData);
-  }
-
-  void loadParticipants(List<ParticipantData> participantDataList) {
-    _participantDataList = participantDataList;
-  }
-
-  void sortParticipantData() {
-    _participantDataList
-        .sort((a, b) => b.fullCompletionCount.compareTo(a.fullCompletionCount));
-  }
-
-  List<ParticipantData> getTopThreeParticipants() {
-    sortParticipantData();
-    return _participantDataList.sublist(0, 3);
-  }
 
   CommunityChallenge({
     required this.description,
@@ -49,13 +22,24 @@ class CommunityChallenge extends SharedHabit {
     required this.requiredFullCompletions,
     this.currentFullCompletions = 0,
     required Habit habit,
+    List<ParticipantData>? participants,
   }) : super(
+          title: habit.title,
           description: description,
           id: id,
-          startDate: startDate,
-          endDate: endDate,
-          participantData: [], // Empty list for participants
-          creators: [], // Empty list for creators
-          habit: habit,
+          participantData: participants ?? [], // Empty list for participants
+          author: null, // Empty list for creators
+          targetGoal: habit.targetGoal,
+          streak: habit.streak,
+          currentProgress: habit.currentProgress,
+          totalProgress: habit.totalProgress,
+          highestStreak: habit.highestStreak,
+          resetPeriod: habit.resetPeriod,
+          dateCreated: habit.dateCreated,
+          confidenceLevel: habit.confidenceLevel,
+          lastSeen: habit.lastSeen,
+          daysCompleted: habit.daysCompleted,
+          requiredDatesOfCompletion: habit.requiredDatesOfCompletion,
+          smartNotifsEnabled: habit.smartNotifsEnabled,
         );
 }

@@ -6,17 +6,17 @@ part of 'setting.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class SettingAdapter extends TypeAdapter<Setting> {
+class SettingModelAdapter extends TypeAdapter<SettingModel> {
   @override
   final int typeId = 2;
 
   @override
-  Setting read(BinaryReader reader) {
+  SettingModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Setting(
+    return SettingModel(
       settingValue: fields[2] as dynamic,
       settingName: fields[0] as String,
       settingDescription: fields[1] as String,
@@ -24,7 +24,7 @@ class SettingAdapter extends TypeAdapter<Setting> {
   }
 
   @override
-  void write(BinaryWriter writer, Setting obj) {
+  void write(BinaryWriter writer, SettingModel obj) {
     writer
       ..writeByte(3)
       ..writeByte(0)
@@ -41,7 +41,7 @@ class SettingAdapter extends TypeAdapter<Setting> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SettingAdapter &&
+      other is SettingModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

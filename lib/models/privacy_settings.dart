@@ -15,34 +15,37 @@ enum SharingScope {
 
 @HiveType(typeId: 5)
 class PrivacySettings {
-  @HiveField(0)
-  SharingScope statsScope;
-  
-  @HiveField(1)
-  SharingScope habitsScope;
-  
-  @HiveField(2)
-  bool shareConfidenceLevel;
-  
-  @HiveField(3)
-  bool shareConsistencyFactor;
-  
-  @HiveField(4)
-  bool shareActivities;
-  
-  @HiveField(5)
-  bool shareHabitCompletions;
-  
-  @HiveField(6)
-  bool shareStreakMilestones;
-  
-  @HiveField(7)
-  bool shareNewHabits;
+  @HiveField(0, defaultValue: SharingScope.friends)
+  final SharingScope statsScope;
 
-  @HiveField(8)
-  bool shareProfilePicture;
+  @HiveField(1, defaultValue: SharingScope.friends)
+  final SharingScope habitsScope;
 
-  PrivacySettings({
+  @HiveField(2, defaultValue: true)
+  final bool shareConfidenceLevel;
+
+  @HiveField(3, defaultValue: true)
+  final bool shareConsistencyFactor;
+
+  @HiveField(4, defaultValue: true)
+  final bool shareActivities;
+
+  @HiveField(5, defaultValue: true)
+  final bool shareHabitCompletions;
+
+  @HiveField(6, defaultValue: true)
+  final bool shareStreakMilestones;
+
+  @HiveField(7, defaultValue: true)
+  final bool shareNewHabits;
+
+  @HiveField(9, defaultValue: true)
+  final bool shareCommunityChallengeCompletions;
+
+  @HiveField(8, defaultValue: true)
+  final bool shareProfilePicture;
+
+  const PrivacySettings({
     this.statsScope = SharingScope.friends,
     this.habitsScope = SharingScope.friends,
     this.shareConfidenceLevel = true,
@@ -51,13 +54,14 @@ class PrivacySettings {
     this.shareHabitCompletions = true,
     this.shareStreakMilestones = true,
     this.shareNewHabits = true,
+    this.shareCommunityChallengeCompletions = true,
     this.shareProfilePicture = true,
   });
 
   // Helper method to check if stats sharing is enabled
-  bool get isStatsSharingEnabled => 
-    statsScope != SharingScope.none && 
-    (shareConfidenceLevel || shareConsistencyFactor);
+  bool get isStatsSharingEnabled =>
+      statsScope != SharingScope.none &&
+      (shareConfidenceLevel || shareConsistencyFactor);
 
   // Helper method to check if habits should be shared with a specific user
   bool shouldShareStatsWith(bool isFriend) {
@@ -115,12 +119,16 @@ class PrivacySettings {
   static SharingScope? _scopeFromString(dynamic value) {
     if (value == null) return null;
     if (value is SharingScope) return value;
-    
-    switch(value.toString().toLowerCase()) {
-      case 'none': return SharingScope.none;
-      case 'friends': return SharingScope.friends;
-      case 'everyone': return SharingScope.everyone;
-      default: return null;
+
+    switch (value.toString().toLowerCase()) {
+      case 'none':
+        return SharingScope.none;
+      case 'friends':
+        return SharingScope.friends;
+      case 'everyone':
+        return SharingScope.everyone;
+      default:
+        return null;
     }
   }
 
@@ -139,10 +147,13 @@ class PrivacySettings {
       statsScope: statsScope ?? this.statsScope,
       habitsScope: habitsScope ?? this.habitsScope,
       shareConfidenceLevel: shareConfidenceLevel ?? this.shareConfidenceLevel,
-      shareConsistencyFactor: shareConsistencyFactor ?? this.shareConsistencyFactor,
+      shareConsistencyFactor:
+          shareConsistencyFactor ?? this.shareConsistencyFactor,
       shareActivities: shareActivities ?? this.shareActivities,
-      shareHabitCompletions: shareHabitCompletions ?? this.shareHabitCompletions,
-      shareStreakMilestones: shareStreakMilestones ?? this.shareStreakMilestones,
+      shareHabitCompletions:
+          shareHabitCompletions ?? this.shareHabitCompletions,
+      shareStreakMilestones:
+          shareStreakMilestones ?? this.shareStreakMilestones,
       shareNewHabits: shareNewHabits ?? this.shareNewHabits,
       shareProfilePicture: shareProfilePicture ?? this.shareProfilePicture,
     );

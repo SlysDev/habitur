@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:habitur/models/privacy_settings.dart';
 import 'package:habitur/models/setting.dart';
 import 'package:habitur/models/time_model.dart';
 
@@ -16,6 +17,8 @@ const kFadedGreen = Color.fromRGBO(98, 150, 119, 1);
 const kOrangeAccent = Color.fromRGBO(252, 161, 125, 1);
 const kLightGreenAccent = Color.fromRGBO(129, 193, 151, 1);
 const kFadedRed = Color.fromRGBO(209, 102, 102, 0.7);
+const kGradientStartColor = Color.fromRGBO(4, 73, 149, 1);
+const kGradientEndColor = Color.fromRGBO(136, 191, 252, 1);
 // Text Style
 const kSubHeadingTextStyle = TextStyle(
   fontSize: 18,
@@ -46,10 +49,8 @@ const kCtaBtnStyle = TextStyle(
   fontWeight: FontWeight.bold,
 );
 
-const TextStyle kMainDescription = TextStyle(
-  fontSize: 16,
-  fontWeight: FontWeight.normal,
-);
+const TextStyle kMainDescription =
+    TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: Colors.white);
 
 const TextStyle kSubDescription = TextStyle(
   fontSize: 14,
@@ -77,19 +78,62 @@ Image kHabiturLogo = Image.asset('assets/images/logo.png');
 
 // Settings
 
-List<Setting> kDefaultSettings = [
-  Setting(settingValue: true, settingName: 'Daily Reminders'),
-  Setting(settingValue: 3, settingName: 'Number of Reminders'),
-  Setting(
+List<SettingModel> kDefaultSettings = [
+  // Existing notification settings
+  SettingModel(settingValue: true, settingName: 'Daily Reminders'),
+  SettingModel(settingValue: 3, settingName: 'Number of Reminders'),
+  SettingModel(
       settingValue: const TimeModel(hour: 10, minute: 0),
       settingName: '1st Reminder Time'),
-  Setting(
+  SettingModel(
       settingValue: const TimeModel(hour: 16, minute: 0),
       settingName: '2nd Reminder Time'),
-  Setting(
+  SettingModel(
       settingValue: const TimeModel(hour: 22, minute: 0),
       settingName: '3rd Reminder Time'),
+
+  // App settings
+  SettingModel(settingValue: 'true', settingName: 'notifications'),
+  SettingModel(settingValue: 'true', settingName: 'communityFeatures'),
+
+  // Privacy & sharing settings
+  SettingModel(settingValue: SharingScope.friends, settingName: 'statsScope'),
+  SettingModel(settingValue: SharingScope.friends, settingName: 'habitsScope'),
+  SettingModel(settingValue: 'true', settingName: 'shareActivities'),
+  SettingModel(settingValue: 'true', settingName: 'shareHabitCompletions'),
+  SettingModel(settingValue: 'true', settingName: 'shareStreakMilestones'),
+  SettingModel(settingValue: 'true', settingName: 'shareNewHabits'),
 ];
+
+const InputDecoration kTextFieldDecoration = InputDecoration(
+  hintStyle: TextStyle(color: kGray, fontSize: 16),
+  contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+  filled: true,
+  fillColor: Color(0xFF1E2938),
+  border: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide.none,
+  ),
+  enabledBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide(color: Color(0xFF2A3747), width: 1.0),
+  ),
+  focusedBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide(color: kPrimaryColor, width: 2.0),
+  ),
+  errorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide(color: Color(0xFFE57373), width: 1.0),
+  ),
+  focusedErrorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.all(Radius.circular(12.0)),
+    borderSide: BorderSide(color: Color(0xFFEF5350), width: 2.0),
+  ),
+  isDense: true,
+  hintMaxLines: 1,
+  alignLabelWithHint: true,
+);
 
 InputDecoration kFilledTextFieldInputDecoration = InputDecoration(
   filled: true,

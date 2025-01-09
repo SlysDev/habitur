@@ -66,7 +66,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '883088681674',
     projectId: 'habitur-740df',
     storageBucket: 'habitur-740df.appspot.com',
-    iosClientId: '883088681674-g6pteodcri7808sennrd0l9h6j3e352i.apps.googleusercontent.com',
+    iosClientId:
+        '883088681674-g6pteodcri7808sennrd0l9h6j3e352i.apps.googleusercontent.com',
     iosBundleId: 'com.example.habitur',
   );
 
@@ -76,7 +77,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '883088681674',
     projectId: 'habitur-740df',
     storageBucket: 'habitur-740df.appspot.com',
-    iosClientId: '883088681674-g6pteodcri7808sennrd0l9h6j3e352i.apps.googleusercontent.com',
+    iosClientId:
+        '883088681674-g6pteodcri7808sennrd0l9h6j3e352i.apps.googleusercontent.com',
     iosBundleId: 'com.example.habitur',
   );
 }
