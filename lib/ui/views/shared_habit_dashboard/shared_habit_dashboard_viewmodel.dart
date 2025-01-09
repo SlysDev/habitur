@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/app/app.dialogs.dart';
 import 'package:habitur/app/app.locator.dart';
 import 'package:habitur/app/app.router.dart';
-import 'package:habitur/enums/dialog_type.dart';
 import 'package:habitur/enums/snackbar_type.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/models/participant_data.dart';
+import 'package:habitur/models/stat_point.dart';
 import 'package:habitur/models/user.dart';
 import 'package:habitur/services/shared_habits_service.dart';
 import 'package:habitur/services/stats/habit_stats_service.dart';
@@ -14,7 +15,7 @@ import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class SharedHabitDashboardViewModel extends BaseViewModel {
+class SharedHabitDashboardViewModel extends StreamViewModel {
   final _sharedHabitsService = locator<SharedHabitsService>();
   final _userService = locator<UserService>();
   final _navigationService = locator<NavigationService>();
@@ -23,19 +24,65 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
   final _snackbarService = locator<SnackbarService>();
   final _statsCalculationService = locator<StatsCalculationService>();
 
+  @override
   String? _sharedHabitId;
   SharedHabit? _sharedHabit;
   SharedHabit? get sharedHabit => _sharedHabit;
 
+  Stream<SharedHabit> get stream =>
+      _sharedHabitsService.getSharedHabitStreamById(_sharedHabit?.id ?? -1);
+
+  SharedHabit? get sharedHabitStreamData => data;
+
+  List<ParticipantData> get participantsStreamData =>
+      sharedHabitStreamData?.participantData ?? [];
+
+  List<ParticipantData> get sortedParticipantsStreamData {
+    if (sharedHabitStreamData == null) return [];
+    return List.from(sharedHabitStreamData!.participantData)
+      ..sort((a, b) {
+        // First sort by completion status
+        if (a.habit.isCompleted != b.habit.isCompleted) {
+          return b.habit.isCompleted ? 1 : -1;
+        }
+        // Then by streak count
+        return b.habit.streak.compareTo(a.habit.streak);
+      });
+  }
+
   List<ParticipantData> get participants => _sharedHabit?.participantData ?? [];
+
+  List<ParticipantData> get sortedParticipants {
+    if (_sharedHabit == null) return [];
+    return List.from(_sharedHabit!.participantData)
+      ..sort((a, b) {
+        // First sort by completion status
+        if (a.habit.isCompleted != b.habit.isCompleted) {
+          return b.habit.isCompleted ? 1 : -1;
+        }
+        // Then by streak count
+        return b.habit.streak.compareTo(a.habit.streak);
+      });
+  }
+
   int get currentProgress => _getCurrentUserProgress();
   int get targetGoal => _sharedHabit?.targetGoal ?? 0;
   int get groupStreak => _calculateGroupStreak();
   int get totalGroupCompletions => _calculateTotalGroupCompletions();
   int get highestGroupStreak => _calculateHighestGroupStreak();
   int get totalActiveDays => _calculateTotalActiveDays();
+  List<StatPoint> get aggregatedStats =>
+      _sharedHabit?.participantData.expand((p) => p.habit.stats).toList() ?? [];
   bool get isCurrentUserAuthor =>
       _sharedHabit?.author?.uid == _userService.currentUser?.uid;
+
+  int _currentCarouselIndex = 0;
+  int get currentCarouselIndex => _currentCarouselIndex;
+
+  void setCurrentCarouselIndex(int index) {
+    _currentCarouselIndex = index;
+    notifyListeners();
+  }
 
   Future<void> init(SharedHabit sharedHabit) async {
     _sharedHabit = sharedHabit;
@@ -80,13 +127,13 @@ class SharedHabitDashboardViewModel extends BaseViewModel {
   }
 
   void inviteParticipants() async {
-    final participantsAsUserModels = participants.map((e) async => await _userService.getUserById(e.userId));
+    final participantsAsUserModels =
+        participants.map((e) async => await _userService.getUserById(e.userId));
     final response = await _dialogService.showCustomDialog(
-      variant: DialogType.selectFriends,
-      title: 'Share Habit',
-      description: 'Select friends to share "${_sharedHabit!.title}" with',
-      data: {'preSelectedUsers': participantsAsUserModels}
-    );
+        variant: DialogType.selectFriends,
+        title: 'Share Habit',
+        description: 'Select friends to share "${_sharedHabit!.title}" with',
+        data: {'preSelectedUsers': participantsAsUserModels});
 
     if (response?.data.isEmpty) return;
 

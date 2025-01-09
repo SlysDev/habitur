@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:habitur/models/shared_habit.dart';
 import 'package:habitur/ui/common/ui_helpers.dart';
+import 'package:habitur/ui/widgets/habit_heat_map/habit_heat_map.dart';
+import 'package:habitur/ui/widgets/heat_map/heat_map.dart';
 import 'package:habitur/ui/widgets/loading_overlay/loading_overlay.dart';
 import 'package:habitur/ui/widgets/multi_stat_line_graph/multi_stat_line_graph.dart';
-import 'package:habitur/ui/widgets/single-stat-card.dart';
+import 'package:habitur/ui/widgets/single_stat_card.dart';
 import 'package:habitur/ui/widgets/user_avatar/user_avatar.dart';
 import 'package:stacked/stacked.dart';
 import 'shared_habit_dashboard_viewmodel.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/ui/widgets/modern_card.dart';
+import 'package:dots_indicator/dots_indicator.dart';
 
 class SharedHabitDashboardView
     extends StackedView<SharedHabitDashboardViewModel> {
@@ -69,11 +72,11 @@ class SharedHabitDashboardView
     return SliverAppBar(
       surfaceTintColor: kDarkGray,
       backgroundColor: kBackgroundColor,
-      expandedHeight: 300,
+      expandedHeight: 250,
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
-          viewModel.sharedHabit?.title ?? '...',
+          viewModel.sharedHabitStreamData?.title ?? '...',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -172,13 +175,15 @@ class SharedHabitDashboardView
             ),
             child: ListView.separated(
               shrinkWrap: true,
-              itemCount: viewModel.participants.length,
+              itemCount:
+                  viewModel.sortedParticipants.length, // Use sortedParticipants
               separatorBuilder: (context, index) => const Divider(
                 height: 1,
                 color: kFadedBlue,
               ),
               itemBuilder: (context, index) {
-                final participant = viewModel.participants[index];
+                final participant = viewModel.sortedParticipantsStreamData[
+                    index]; // Use sortedParticipants
                 return FutureBuilder(
                     future: viewModel.getParticipantUsername(participant),
                     builder: (context, snapshot) {
@@ -247,12 +252,44 @@ class SharedHabitDashboardView
                                     ],
                                   ),
                                 ),
-                                Text(
-                                  '︎✅ ${participant.habit.totalProgress}',
-                                  style: const TextStyle(
-                                    color: kLightGreenAccent,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Row(
+                                  children: [
+                                    // Streak info
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: kOrangeAccent.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.local_fire_department_rounded,
+                                            color: kOrangeAccent,
+                                            size: 16,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${participant.habit.streak}',
+                                            style: const TextStyle(
+                                              color: kOrangeAccent,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    // Total completions
+                                    Text(
+                                      '︎✅ ${participant.habit.totalProgress}',
+                                      style: const TextStyle(
+                                        color: kLightGreenAccent,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -297,59 +334,77 @@ class SharedHabitDashboardView
                     'Highest Streak',
                     viewModel.highestGroupStreak.toString(),
                   ),
-                  _buildStatItem(
-                    context,
-                    'Active Days',
-                    viewModel.totalActiveDays.toString(),
+                ],
+              ),
+              verticalSpaceMedium,
+              HabitHeatMap(data: viewModel.aggregatedStats),
+            ],
+          ),
+        ),
+        verticalSpaceMedium,
+        _buildParticipantStatsCarousel(context, viewModel),
+        verticalSpaceMedium,
+        ModernCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Your Stats',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              verticalSpaceMedium,
+              MultiStatLineGraph(
+                data: viewModel.getUserHabit().stats,
+                showStatTitle: true,
+                height: 250,
+                showChangeIndicator: true,
+              ),
+              verticalSpaceMedium,
+              HabitHeatMap(data: viewModel.getUserHabit().stats),
+              verticalSpaceMedium,
+              GridView.count(
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                shrinkWrap: true,
+                children: [
+                  SingleStatCard(
+                    statText: viewModel.getUserHabit().streak.toString() ?? '',
+                    statDescription: 'Streak',
+                    fontSize: screenWidth(context) / 12,
+                    color: Colors.orange.shade300,
+                  ),
+                  SingleStatCard(
+                    statText:
+                        viewModel.getUserHabit().highestStreak.toString() ?? '',
+                    statDescription: 'Highest Streak',
+                    fontSize: screenWidth(context) / 12,
+                    color: Colors.white,
+                  ),
+                  SingleStatCard(
+                    statText: viewModel
+                        .getAverageWeeklyCompletions()
+                        .toStringAsFixed(1),
+                    statDescription: 'Average Weekly Completions',
+                    fontSize: screenWidth(context) / 12,
+                    color: Colors.green.shade300,
+                  ),
+                  SingleStatCard(
+                    statText: (viewModel.getAverageConsistency() * 100)
+                            .toStringAsFixed(0) +
+                        '%',
+                    statDescription: '7-day Consistency',
+                    fontSize: screenWidth(context) / 12,
+                    color: Colors.teal.shade300,
                   ),
                 ],
               ),
             ],
           ),
-        ),
-        verticalSpaceMedium,
-        MultiStatLineGraph(
-          data: viewModel.getUserHabit().stats,
-          showStatTitle: true,
-          height: 250,
-          showChangeIndicator: true,
-        ),
-        verticalSpaceMedium,
-        GridView.count(
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          crossAxisSpacing: 30,
-          mainAxisSpacing: 30,
-          shrinkWrap: true,
-          children: [
-            SingleStatCard(
-              statText: viewModel.getUserHabit().streak.toString() ?? '',
-              statDescription: 'Streak',
-              fontSize: 40,
-              color: Colors.orange.shade300,
-            ),
-            SingleStatCard(
-              statText: viewModel.getUserHabit().highestStreak.toString() ?? '',
-              statDescription: 'Highest Streak',
-              fontSize: 40,
-              color: Colors.white,
-            ),
-            SingleStatCard(
-              statText:
-                  viewModel.getAverageWeeklyCompletions().toStringAsFixed(1),
-              statDescription: 'Average Weekly Completions',
-              fontSize: 40,
-              color: Colors.green.shade300,
-            ),
-            SingleStatCard(
-              statText:
-                  (viewModel.getAverageConsistency() * 100).toStringAsFixed(0) +
-                      '%',
-              statDescription: '7-day Consistency',
-              fontSize: 40,
-              color: Colors.teal.shade300,
-            ),
-          ],
         ),
       ],
     );
@@ -456,4 +511,116 @@ class _CustomShimmerLoadingState extends State<CustomShimmerLoading>
       },
     );
   }
+}
+
+Widget _buildParticipantStatsCarousel(
+    BuildContext context, SharedHabitDashboardViewModel viewModel) {
+  return ModernCard(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Participant Stats',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        verticalSpaceMedium,
+        SizedBox(
+          height: 475,
+          child: PageView.builder(
+            itemCount: viewModel.sortedParticipantsStreamData.length,
+            onPageChanged: viewModel.setCurrentCarouselIndex,
+            itemBuilder: (context, index) {
+              final participant = viewModel.sortedParticipantsStreamData[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    FutureBuilder<String>(
+                      future: viewModel.getParticipantUsername(participant),
+                      builder: (context, snapshot) {
+                        return Column(
+                          children: [
+                            UserAvatar(
+                              username: snapshot.data ?? '',
+                              size: 2,
+                            ),
+                            verticalSpaceSmall,
+                            Text(
+                              snapshot.data ?? '...',
+                              style: kHeadingTextStyle.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    verticalSpaceMedium,
+                    GridView.count(
+                      padding: EdgeInsets.zero,
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      children: [
+                        SingleStatCard(
+                          statText: participant.habit.streak.toString(),
+                          statDescription: 'Current Streak',
+                          fontSize: 32,
+                          color: Colors.orange.shade300,
+                        ),
+                        SingleStatCard(
+                          statText: participant.habit.highestStreak.toString(),
+                          statDescription: 'Highest Streak',
+                          fontSize: 32,
+                          color: Colors.white,
+                        ),
+                        SingleStatCard(
+                          statText: viewModel
+                              .getAverageWeeklyCompletions(
+                                  userId: participant.userId)
+                              .toStringAsFixed(1),
+                          statDescription: 'Weekly Average',
+                          fontSize: 32,
+                          color: Colors.green.shade300,
+                        ),
+                        SingleStatCard(
+                          statText:
+                              '${(viewModel.getAverageConsistency(userId: participant.userId) * 100).toStringAsFixed(0)}%',
+                          statDescription: 'Consistency',
+                          fontSize: 30,
+                          color: Colors.teal.shade300,
+                        ),
+                      ],
+                    ),
+                    verticalSpaceMedium,
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        Center(
+          child: DotsIndicator(
+            dotsCount: viewModel.sortedParticipants.length,
+            position: viewModel.currentCarouselIndex,
+            decorator: DotsDecorator(
+              activeColor: kPrimaryColor,
+              size: const Size(8.0, 8.0),
+              activeSize: const Size(16.0, 8.0),
+              activeShape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
