@@ -54,6 +54,12 @@ class Habit implements HabitInterface {
   @HiveField(15)
   bool isVisible;
 
+  @HiveField(19, defaultValue: '')
+  String measurementUnit; // e.g. "miles", "pages"
+
+  @HiveField(20, defaultValue: false)
+  bool usesMeasurement; // Whether this habit tracks numeric amounts
+
   /// Gets the current progress state of the habit
   Progress get progress =>
       Progress(current: currentProgress, target: targetGoal);
@@ -104,6 +110,8 @@ class Habit implements HabitInterface {
     this.smartNotifsEnabled = false,
     this.isVisible = true, // Default to true for backward compatibility
     this.targetGoal = 1,
+    this.usesMeasurement = false,
+    this.measurementUnit = '',
   }) {
     daysCompleted = [];
     stats = [];
@@ -130,6 +138,8 @@ class Habit implements HabitInterface {
       'isVisible': isVisible,
       'isShared': isShared,
       'targetGoal': targetGoal,
+      'measurementUnit': measurementUnit,
+      'usesMeasurement': usesMeasurement,
     };
   }
 
@@ -166,6 +176,8 @@ class Habit implements HabitInterface {
       isVisible: map['isVisible'] as bool? ?? true,
       isShared: map['isShared'] as bool? ?? false,
       targetGoal: map['targetGoal'] as int? ?? 1,
+      measurementUnit: map['measurementUnit'] as String? ?? '',
+      usesMeasurement: map['usesMeasurement'] as bool? ?? false,
     );
     habit.stats = (map['stats'] as List?)
             ?.map((stat) => StatPoint.fromMap(stat))
