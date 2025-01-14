@@ -27,7 +27,6 @@ class MeasurementToggle extends StackedView<MeasurementToggleModel> {
   ) {
     return ModernCard(
       color: kFadedBlue,
-      opacity: 0.1,
       padding: 10,
       child: Column(
         children: [
