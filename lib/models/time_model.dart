@@ -28,4 +28,11 @@ class TimeModel {
   factory TimeModel.fromDateTime(DateTime dateTime) {
     return TimeModel(hour: dateTime.hour, minute: dateTime.minute);
   }
+
+  factory TimeModel.fromMap(Map<String, dynamic> map) {
+    return TimeModel(
+      hour: map['hour'],
+      minute: map['minute'],
+    );
+  }
 }
