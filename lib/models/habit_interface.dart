@@ -34,6 +34,8 @@ abstract class HabitInterface {
   bool get isVisible;
   bool get isCommunityHabit;
   bool get isShared;
+  bool get usesMeasurement;
+  String get measurementUnit;
 
   // All Setters
 
@@ -52,6 +54,8 @@ abstract class HabitInterface {
   set isVisible(bool isVisible);
   set isCommunityHabit(bool isCommunityHabit);
   set isShared(bool isShared);
+  set usesMeasurement(bool usesMeasurement);
+  set measurementUnit(String measurementUnit);
 
   // Core Functional Methods
   void incrementProgress([int amount]);
