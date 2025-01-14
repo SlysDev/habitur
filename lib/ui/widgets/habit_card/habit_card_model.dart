@@ -22,6 +22,7 @@ class HabitCardModel extends BaseViewModel {
   final _userService = locator<UserService>();
   final _statsCalculationService = locator<StatsCalculationService>();
   late final ConfettiController _controller;
+  ConfettiController get controller => _controller;
 
   HabitInterface habit;
   bool _completed = false;
@@ -176,5 +177,37 @@ class HabitCardModel extends BaseViewModel {
     return response?.data ?? 5.0;
   }
 
-  ConfettiController get controller => _controller;
+  Future<void> incrementMeasuredHabit() async {
+    if (habit.isCompleted) return;
+    try {
+      setBusy(true);
+      // First, show measurement popup if needed
+      int amount = 1; // Default
+      if (habit.usesMeasurement) {
+        final measurementResponse = await _dialogService.showCustomDialog(
+          variant: DialogType.habitMeasurementPopup,
+          barrierDismissible: false,
+          // Use the new MeasurementPopupDialog
+        );
+        if (measurementResponse?.data != null) {
+          amount = measurementResponse!.data as int;
+        }
+      }
+
+      // Then show difficulty popup
+      final difficulty = await showDifficultyPopup();
+      await _habitService.incrementHabit(habit.id.toString(), difficulty,
+          amount: amount);
+
+      // ...the rest of your existing logic...
+      rebuildUi();
+    } catch (e, s) {
+      setError(Exception(e.toString()));
+      debugPrint('Error in incrementMeasuredHabit: $e');
+      debugPrint(s.toString());
+    } finally {
+      setBusy(false);
+      rebuildUi();
+    }
+  }
 }
