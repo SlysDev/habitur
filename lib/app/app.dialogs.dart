@@ -9,6 +9,7 @@ import 'package:stacked_services/stacked_services.dart';
 import 'app.locator.dart';
 import '../ui/dialogs/basic/basic_dialog.dart';
 import '../ui/dialogs/difficulty_popup/difficulty_popup_dialog.dart';
+import '../ui/dialogs/habit_measurement_popup/habit_measurement_popup_dialog.dart';
 import '../ui/dialogs/level_up/level_up_dialog.dart';
 import '../ui/dialogs/modern/modern_dialog.dart';
 import '../ui/dialogs/profile/profile_dialog.dart';
@@ -25,6 +26,7 @@ enum DialogType {
   difficultyPopup,
   success,
   basic,
+  habitMeasurementPopup,
 }
 
 void setupDialogUi() {
@@ -47,6 +49,8 @@ void setupDialogUi() {
         SuccessDialog(request: request, completer: completer),
     DialogType.basic: (context, request, completer) =>
         BasicDialog(request: request, completer: completer),
+    DialogType.habitMeasurementPopup: (context, request, completer) =>
+        HabitMeasurementPopupDialog(request: request, completer: completer),
   };
 
   dialogService.registerCustomDialogBuilders(builders);

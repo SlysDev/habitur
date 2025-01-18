@@ -50,6 +50,12 @@ class AddHabitSheetModel extends BaseViewModel {
   bool _smartNotificationsEnabled = false;
   bool get smartNotificationsEnabled => _smartNotificationsEnabled;
 
+  bool _usesMeasurement = false;
+  String _measurementUnit = '';
+
+  bool get usesMeasurement => _usesMeasurement;
+  String get measurementUnit => _measurementUnit;
+
   void setResetPeriod(String period) {
     if (period != 'Daily') {
       resetActiveDaysToDefault();
@@ -95,6 +101,16 @@ class AddHabitSheetModel extends BaseViewModel {
     rebuildUi();
   }
 
+  void setUsesMeasurement(bool value) {
+    _usesMeasurement = value;
+    notifyListeners();
+  }
+
+  void setMeasurementUnit(String value) {
+    _measurementUnit = value;
+    notifyListeners();
+  }
+
   Future<void> createHabit() async {
     if (titleController.text.isEmpty) {
       // Show error
@@ -121,6 +137,8 @@ class AddHabitSheetModel extends BaseViewModel {
         targetGoal: _targetGoal,
         requiredDatesOfCompletion: _selectedDays.toList(),
         smartNotifsEnabled: _smartNotificationsEnabled,
+        usesMeasurement: _usesMeasurement,
+        measurementUnit: _measurementUnit,
       );
 
       await _habitService.addHabit(habit);

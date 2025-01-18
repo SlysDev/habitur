@@ -55,6 +55,7 @@ class HabitCardModel extends BaseViewModel {
 
   Future<void> incrementHabit() async {
     if (habit.isCompleted) return;
+    if (habit.usesMeasurement) return incrementMeasuredHabit();
     try {
       setBusy(true);
       final difficulty = await showDifficultyPopup();
@@ -187,6 +188,7 @@ class HabitCardModel extends BaseViewModel {
         final measurementResponse = await _dialogService.showCustomDialog(
           variant: DialogType.habitMeasurementPopup,
           barrierDismissible: false,
+          data: {"maxValue": habit.targetGoal.toDouble()},
           // Use the new MeasurementPopupDialog
         );
         if (measurementResponse?.data != null) {

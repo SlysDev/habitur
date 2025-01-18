@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/ui/common/ui_helpers.dart';
 import 'package:habitur/ui/widgets/day_of_week_selector/day_of_week_selector.dart';
+import 'package:habitur/ui/widgets/measurement_toggle/measurement_toggle.dart';
 import 'package:habitur/ui/widgets/modern_card.dart';
 import 'package:habitur/ui/widgets/primary_button.dart';
 import 'package:habitur/ui/widgets/reset_period_selector/reset_period_selector.dart';
@@ -108,6 +109,13 @@ class AddHabitSheet extends StackedView<AddHabitSheetModel> {
                       resetPeriodNoun: viewModel.resetPeriodNoun,
                       onTargetGoalChanged: viewModel.setTargetGoal,
                     ),
+                  ),
+                  const SizedBox(height: 24),
+                  MeasurementToggle(
+                    usesMeasurement: viewModel.usesMeasurement,
+                    measurementUnit: viewModel.measurementUnit,
+                    onUsesMeasurementChanged: viewModel.setUsesMeasurement,
+                    onMeasurementUnitChanged: viewModel.setMeasurementUnit,
                   ),
                   const SizedBox(height: 40),
 

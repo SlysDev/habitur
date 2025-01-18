@@ -238,6 +238,8 @@ class Habit implements HabitInterface {
     List<DateTime>? daysCompleted,
     List<String>? requiredDatesOfCompletion,
     List<StatPoint>? stats,
+    bool? usesMeasurement,
+    String? measurementUnit,
   }) {
     return Habit(
       title: title ?? this.title,

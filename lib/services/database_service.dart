@@ -438,7 +438,9 @@ class DatabaseService with ListenableServiceMixin {
               .entries
               .map<SettingModel>((e) => SettingModel.fromMap({
                     'settingName': e.key,
-                    'settingValue': e.value['settingValue'] is Map ? TimeModel.fromMap(e.value['settingValue']) : e.value['settingValue'],
+                    'settingValue': e.value['settingValue'] is Map
+                        ? TimeModel.fromMap(e.value['settingValue'])
+                        : e.value['settingValue'],
                     'settingDescription:': e.value['settingDescription'] ?? ''
                   }))
               .toList())

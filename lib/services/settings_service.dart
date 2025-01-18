@@ -82,7 +82,10 @@ class SettingsService with ListenableServiceMixin {
 
   // Add validation helper
   bool _isValidSetting(SettingModel setting) {
-    return setting.settingName.isNotEmpty && (setting.settingValue is String ? setting.settingValue.isNotEmpty : setting.settingValue != null);
+    return setting.settingName.isNotEmpty &&
+        (setting.settingValue is String
+            ? setting.settingValue.isNotEmpty
+            : setting.settingValue != null);
   }
 
   // Add helper method

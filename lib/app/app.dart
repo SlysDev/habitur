@@ -69,6 +69,8 @@ import 'package:habitur/ui/dialogs/success/success_dialog.dart';
 
 import 'package:habitur/ui/dialogs/basic/basic_dialog.dart';
 
+import 'package:habitur/ui/dialogs/habit_measurement_popup/habit_measurement_popup_dialog.dart';
+
 // @stacked-import
 @StackedApp(
   routes: [
@@ -170,6 +172,7 @@ import 'package:habitur/ui/dialogs/basic/basic_dialog.dart';
     StackedDialog(classType: DifficultyPopupDialog),
     StackedDialog(classType: SuccessDialog),
     StackedDialog(classType: BasicDialog),
+    StackedDialog(classType: HabitMeasurementPopupDialog),
 // @stacked-dialog
   ],
   bottomsheets: [

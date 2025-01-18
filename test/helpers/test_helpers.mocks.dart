@@ -668,6 +668,16 @@ class MockFriendsService extends _i1.Mock implements _i7.FriendsService {
       ) as _i5.Future<void>);
 
   @override
+  _i5.Future<void> deleteFriend(String? friendUid) => (super.noSuchMethod(
+        Invocation.method(
+          #deleteFriend,
+          [friendUid],
+        ),
+        returnValue: _i5.Future<void>.value(),
+        returnValueForMissingStub: _i5.Future<void>.value(),
+      ) as _i5.Future<void>);
+
+  @override
   _i5.Future<List<_i9.HabitInterface>> getFriendVisibleHabits(
           String? friendUid) =>
       (super.noSuchMethod(
@@ -1128,6 +1138,17 @@ class MockSharedHabitsService extends _i1.Mock
         returnValue: _i5.Future<void>.value(),
         returnValueForMissingStub: _i5.Future<void>.value(),
       ) as _i5.Future<void>);
+
+  @override
+  _i5.Stream<_i13.SharedHabit> getSharedHabitStreamById(int? habitId) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getSharedHabitStreamById,
+          [habitId],
+        ),
+        returnValue: _i5.Stream<_i13.SharedHabit>.empty(),
+        returnValueForMissingStub: _i5.Stream<_i13.SharedHabit>.empty(),
+      ) as _i5.Stream<_i13.SharedHabit>);
 
   @override
   _i5.Future<_i13.SharedHabit?> getSharedHabitById(int? habitId) =>

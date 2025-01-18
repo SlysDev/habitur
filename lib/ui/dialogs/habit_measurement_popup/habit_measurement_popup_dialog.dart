@@ -6,7 +6,8 @@ import 'package:stacked_services/stacked_services.dart';
 
 import './habit_measurement_popup_dialog_model.dart';
 
-class HabitMeasurementPopupDialog extends StackedView<HabitMeasurementPopupDialogModel> {
+class HabitMeasurementPopupDialog
+    extends StackedView<HabitMeasurementPopupDialogModel> {
   final DialogRequest request;
   final Function(DialogResponse) completer;
 
@@ -41,7 +42,7 @@ class HabitMeasurementPopupDialog extends StackedView<HabitMeasurementPopupDialo
               Slider(
                 value: viewModel.currentValue,
                 min: 0,
-                max: 100, // or more, depending on your use case
+                max: request.data?["maxValue"], // or more, depending on your use case
                 divisions: 100,
                 onChanged: viewModel.updateValue,
               ),

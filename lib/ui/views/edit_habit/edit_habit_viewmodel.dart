@@ -25,6 +25,12 @@ class EditHabitViewModel extends BaseViewModel {
     'Sunday'
   ];
 
+  bool _usesMeasurement = false;
+  String _measurementUnit = '';
+
+  bool get usesMeasurement => _usesMeasurement;
+  String get measurementUnit => _measurementUnit;
+
   String get resetPeriodNoun {
     switch (resetPeriod) {
       case 'Daily':
@@ -54,6 +60,8 @@ class EditHabitViewModel extends BaseViewModel {
           resetPeriod = habit.resetPeriod;
           targetGoal = habit.targetGoal;
           smartNotificationsEnabled = habit.smartNotifsEnabled;
+          _usesMeasurement = habit.usesMeasurement;
+          _measurementUnit = habit.measurementUnit;
         }
       } catch (e) {
         setError(e);
@@ -100,6 +108,16 @@ class EditHabitViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  void setUsesMeasurement(bool value) {
+    _usesMeasurement = value;
+    notifyListeners();
+  }
+
+  void setMeasurementUnit(String value) {
+    _measurementUnit = value;
+    notifyListeners();
+  }
+
   Future<void> saveHabit() async {
     if (titleController.text.isEmpty) {
       setError('Please enter a habit title');
@@ -118,6 +136,8 @@ class EditHabitViewModel extends BaseViewModel {
         targetGoal: targetGoal,
         smartNotifsEnabled: smartNotificationsEnabled,
         requiredDatesOfCompletion: selectedDays,
+        usesMeasurement: _usesMeasurement,
+        measurementUnit: _measurementUnit,
       );
 
       if (habitId.isEmpty) {

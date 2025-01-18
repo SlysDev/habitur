@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/ui/common/ui_helpers.dart';
+import 'package:habitur/ui/widgets/measurement_toggle/measurement_toggle.dart';
 import 'package:habitur/ui/widgets/modern_card.dart';
 import 'package:habitur/ui/widgets/primary_button.dart';
 import 'package:habitur/ui/widgets/text_fields/form_text_field.dart';
@@ -115,6 +116,13 @@ class EditHabitView extends StackedView<EditHabitViewModel> {
                           resetPeriodNoun: viewModel.resetPeriodNoun,
                           onTargetGoalChanged: viewModel.adjustTargetGoal,
                         ),
+                      ),
+                      const SizedBox(height: 24),
+                      MeasurementToggle(
+                        usesMeasurement: viewModel.usesMeasurement,
+                        measurementUnit: viewModel.measurementUnit,
+                        onUsesMeasurementChanged: viewModel.setUsesMeasurement,
+                        onMeasurementUnitChanged: viewModel.setMeasurementUnit,
                       ),
                       const SizedBox(height: 40),
 

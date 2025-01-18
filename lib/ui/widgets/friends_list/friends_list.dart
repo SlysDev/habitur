@@ -67,13 +67,13 @@ class FriendsList extends StackedView<FriendsListModel> {
             return Slidable(
               key: ValueKey(friendUid),
               startActionPane: ActionPane(
-                    motion: const StretchMotion(),
+                motion: const StretchMotion(),
                 children: [
                   SlidableAction(
                     autoClose: true,
                     onPressed: (context) => viewModel.deleteFriend(friendUid),
                     backgroundColor: kLightRedAccent,
-                        borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(20),
                     label: 'Unfriend',
                   ),
                 ],
