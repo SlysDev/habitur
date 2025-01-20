@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/enums/snackbar_type.dart';
+import 'package:habitur/models/habit_interface.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/services/habit_service.dart';
@@ -12,39 +13,7 @@ class EditHabitViewModel extends BaseViewModel {
   final _habitService = locator<HabitService>();
   final _navigationService = locator<NavigationService>();
   final _snackbarService = locator<SnackbarService>();
-
-  final TextEditingController titleController = TextEditingController();
-  String resetPeriod = 'Daily';
-  int targetGoal = 1;
-  bool smartNotificationsEnabled = false;
-  final List<String> selectedDays = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday'
-  ];
-
-  bool _usesMeasurement = false;
-  String _measurementUnit = '';
-
-  bool get usesMeasurement => _usesMeasurement;
-  String get measurementUnit => _measurementUnit;
-
-  String get resetPeriodNoun {
-    switch (resetPeriod) {
-      case 'Daily':
-        return 'day';
-      case 'Weekly':
-        return 'week';
-      case 'Monthly':
-        return 'month';
-      default:
-        return 'day';
-    }
-  }
+  HabitInterface? habitData;
 
   EditHabitViewModel({required this.habitId}) {
     _initializeHabit();
@@ -56,19 +25,8 @@ class EditHabitViewModel extends BaseViewModel {
       try {
         final habit = await _habitService.getHabit(habitId);
         if (habit != null) {
-          debugPrint(
-              'habit required dates: ${habit.requiredDatesOfCompletion}');
-          debugPrint('habit resetPeriod: ${habit.resetPeriod}');
-          selectedDays.clear();
-          selectedDays.addAll(habit.requiredDatesOfCompletion);
-          debugPrint('selectedDays: $selectedDays');
-          titleController.text = habit.title;
-          resetPeriod = habit.resetPeriod;
-          targetGoal = habit.targetGoal;
-          debugPrint('smartNotifsEnabled: ${habit.smartNotifsEnabled}');
-          smartNotificationsEnabled = habit.smartNotifsEnabled;
-          _usesMeasurement = habit.usesMeasurement;
-          _measurementUnit = habit.measurementUnit;
+          habitData = habit;
+          debugPrint('Loaded habit: ${habit.title}');
         }
         rebuildUi();
       } catch (e) {
@@ -78,89 +36,21 @@ class EditHabitViewModel extends BaseViewModel {
     }
   }
 
-  void setResetPeriod(String period) {
-    resetPeriod = period;
-    notifyListeners();
-  }
-
-  void adjustTargetGoal(int adjustment) {
-    targetGoal = (targetGoal + adjustment).clamp(1, 10);
-    notifyListeners();
-  }
-
-  void setSmartNotifications(bool enabled) {
-    smartNotificationsEnabled = enabled;
-    notifyListeners();
-  }
-
-  void toggleDay(String day) {
-    if (selectedDays.contains(day)) {
-      selectedDays.remove(day);
-    } else {
-      selectedDays.add(day);
-    }
-    notifyListeners();
-  }
-
-  void resetActiveDaysToDefault() {
-    selectedDays.clear();
-    selectedDays.addAll([
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday'
-    ]);
-    notifyListeners();
-  }
-
-  void setUsesMeasurement(bool value) {
-    _usesMeasurement = value;
-    notifyListeners();
-  }
-
-  void setMeasurementUnit(String value) {
-    _measurementUnit = value;
-    notifyListeners();
-  }
-
-  Future<void> saveHabit() async {
-    if (titleController.text.isEmpty) {
-      setError('Please enter a habit title');
-      _snackbarService.showCustomSnackBar(
-          message: 'Title is empty', variant: SnackbarType.error);
-      return;
-    }
-    debugPrint('saving habit');
-
+  Future<void> saveHabit(HabitInterface formData) async {
+    debugPrint('Saving habit with title: ${formData.title}');
     setBusy(true);
     try {
-      Habit originalHabit = await _habitService.getHabit(habitId) as Habit;
-      final habit = originalHabit.copyWith(
-        id: int.parse(habitId),
-        title: titleController.text,
-        dateCreated: DateTime.now(),
-        lastSeen: DateTime.now(),
-        resetPeriod: resetPeriod,
-        targetGoal: targetGoal,
-        smartNotifsEnabled: smartNotificationsEnabled,
-        requiredDatesOfCompletion: selectedDays,
-        usesMeasurement: _usesMeasurement,
-        measurementUnit: _measurementUnit,
-      );
-
-      if (habitId.isEmpty) {
-        await _habitService.addHabit(habit);
-      } else {
-        await _habitService.updateHabit(habit);
-      }
-
-      // Navigate back after successful save
-      notifyListeners();
+      await _habitService.updateHabit(formData);
+      // Update local state to reflect changes
+      habitData = formData;
+      rebuildUi();
+      _navigationService.back();
     } catch (e) {
       setError(e);
+      _snackbarService.showCustomSnackBar(
+        message: 'Failed to save habit',
+        variant: SnackbarType.error,
+      );
     }
     setBusy(false);
   }
@@ -180,7 +70,6 @@ class EditHabitViewModel extends BaseViewModel {
 
   @override
   void dispose() {
-    titleController.dispose();
     super.dispose();
   }
 

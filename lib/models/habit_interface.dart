@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/progress.dart';
 import 'package:habitur/models/stat_point.dart';
 
@@ -39,6 +40,7 @@ abstract class HabitInterface {
 
   // All Setters
 
+  set title (String title);
   set lastSeen(DateTime lastSeen);
   set streak(int streak);
   set highestStreak(int highestStreak);
@@ -49,6 +51,7 @@ abstract class HabitInterface {
   set daysCompleted(List<DateTime> daysCompleted);
   set stats(List<StatPoint> stats);
   set requiredDatesOfCompletion(List<String> requiredDatesOfCompletion);
+  set resetPeriod (String resetPeriod);
   set color(Color color);
   set smartNotifsEnabled(bool smartNotifsEnabled);
   set isVisible(bool isVisible);
@@ -68,4 +71,22 @@ abstract class HabitInterface {
   // Optional: Add a custom toString method for debugging
   @override
   String toString();
+
+  // Add this static constructor
+  static HabitInterface empty() {
+    return Habit(
+      id: 0,
+      title: '',
+      dateCreated: DateTime.now(),
+      resetPeriod: 'Daily',
+      targetGoal: 1,
+      lastSeen: DateTime.now(),
+      requiredDatesOfCompletion: [
+        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+      ],
+      smartNotifsEnabled: false,
+      usesMeasurement: false,
+      measurementUnit: '',
+    );
+  }
 }
