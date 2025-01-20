@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:habitur/enums/snackbar_type.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/services/habit_service.dart';
@@ -10,11 +11,12 @@ class EditHabitViewModel extends BaseViewModel {
   final String habitId;
   final _habitService = locator<HabitService>();
   final _navigationService = locator<NavigationService>();
+  final _snackbarService = locator<SnackbarService>();
 
   final TextEditingController titleController = TextEditingController();
   String resetPeriod = 'Daily';
   int targetGoal = 1;
-  bool smartNotificationsEnabled = true;
+  bool smartNotificationsEnabled = false;
   final List<String> selectedDays = [
     'Monday',
     'Tuesday',
@@ -54,15 +56,21 @@ class EditHabitViewModel extends BaseViewModel {
       try {
         final habit = await _habitService.getHabit(habitId);
         if (habit != null) {
+          debugPrint(
+              'habit required dates: ${habit.requiredDatesOfCompletion}');
+          debugPrint('habit resetPeriod: ${habit.resetPeriod}');
           selectedDays.clear();
           selectedDays.addAll(habit.requiredDatesOfCompletion);
+          debugPrint('selectedDays: $selectedDays');
           titleController.text = habit.title;
           resetPeriod = habit.resetPeriod;
           targetGoal = habit.targetGoal;
+          debugPrint('smartNotifsEnabled: ${habit.smartNotifsEnabled}');
           smartNotificationsEnabled = habit.smartNotifsEnabled;
           _usesMeasurement = habit.usesMeasurement;
           _measurementUnit = habit.measurementUnit;
         }
+        rebuildUi();
       } catch (e) {
         setError(e);
       }
@@ -121,8 +129,11 @@ class EditHabitViewModel extends BaseViewModel {
   Future<void> saveHabit() async {
     if (titleController.text.isEmpty) {
       setError('Please enter a habit title');
+      _snackbarService.showCustomSnackBar(
+          message: 'Title is empty', variant: SnackbarType.error);
       return;
     }
+    debugPrint('saving habit');
 
     setBusy(true);
     try {

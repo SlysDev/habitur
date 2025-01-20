@@ -42,7 +42,8 @@ class HabitMeasurementPopupDialog
               Slider(
                 value: viewModel.currentValue,
                 min: 0,
-                max: request.data?["maxValue"], // or more, depending on your use case
+                max: request
+                    .data?["maxValue"], // or more, depending on your use case
                 divisions: 100,
                 onChanged: viewModel.updateValue,
               ),

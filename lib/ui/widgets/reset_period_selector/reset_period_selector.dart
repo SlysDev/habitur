@@ -26,7 +26,7 @@ class ResetPeriodSelector extends StatelessWidget {
         const SizedBox(height: 8),
         Row(
           children: ['Daily', 'Weekly', 'Monthly'].map((period) {
-            bool isSelected = resetPeriod == period;
+            bool isSelected = resetPeriod.toLowerCase() == period.toLowerCase();
             return Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),

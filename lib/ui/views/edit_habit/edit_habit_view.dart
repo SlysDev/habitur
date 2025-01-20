@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/ui/common/ui_helpers.dart';
+import 'package:habitur/ui/widgets/habit_form/habit_form.dart';
 import 'package:habitur/ui/widgets/measurement_toggle/measurement_toggle.dart';
 import 'package:habitur/ui/widgets/modern_card.dart';
 import 'package:habitur/ui/widgets/primary_button.dart';
@@ -60,83 +61,31 @@ class EditHabitView extends StackedView<EditHabitViewModel> {
                 const SizedBox(height: 30),
 
                 Expanded(
-                  child: ListView(
-                    children: [
-                      SizedBox(
-                        height: 16,
-                      ),
-                      // Habit name input
-                      FormTextField(
-                        label: 'Habit Name',
-                        controller: viewModel.titleController,
-                        hint: 'Meditate, Exercise, Read...',
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Smart notifications toggle
-                      SmartNotificationsToggle(
-                        smartNotificationsEnabled:
-                            viewModel.smartNotificationsEnabled,
-                        onSmartNotificationsChanged:
-                            viewModel.setSmartNotifications,
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Reset period selector
-                      ModernCard(
-                        child: ResetPeriodSelector(
-                          resetPeriod: viewModel.resetPeriod,
-                          onResetPeriodChanged: (period) {
-                            viewModel.setResetPeriod(period);
-                            viewModel
-                                .notifyListeners(); // Ensure listeners are notified
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // Days of week selector
-                      viewModel.resetPeriod == 'Daily'
-                          ? ModernCard(
-                              child: DaysOfWeekSelector(
-                                selectedDays: viewModel.selectedDays,
-                                onDayToggled: viewModel.toggleDay,
-                              ),
-                            )
-                          : Container(),
-                      viewModel.resetPeriod == 'Daily'
-                          ? const SizedBox(height: 24)
-                          : Container(),
-
-                      // Target goal selector
-                      ModernCard(
-                        child: TargetGoalSelector(
-                          targetGoal: viewModel.targetGoal,
-                          resetPeriodNoun: viewModel.resetPeriodNoun,
-                          onTargetGoalChanged: viewModel.adjustTargetGoal,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      MeasurementToggle(
-                        usesMeasurement: viewModel.usesMeasurement,
-                        measurementUnit: viewModel.measurementUnit,
-                        onUsesMeasurementChanged: viewModel.setUsesMeasurement,
-                        onMeasurementUnitChanged: viewModel.setMeasurementUnit,
-                      ),
-                      const SizedBox(height: 40),
-
-                      // Save button
-                      PrimaryButton(
-                        onPressed: viewModel.isBusy
-                            ? () {}
-                            : () {
-                                viewModel.saveHabit();
-                                viewModel.navigateBack();
-                              },
-                        text: viewModel.isBusy ? '...' : 'Save Habit',
-                      ),
-                    ],
+                  child: HabitForm(
+                    titleController: viewModel.titleController,
+                    resetPeriod: viewModel.resetPeriod,
+                    targetGoal: viewModel.targetGoal,
+                    smartNotificationsEnabled:
+                        viewModel.smartNotificationsEnabled,
+                    selectedDays: viewModel.selectedDays,
+                    usesMeasurement: viewModel.usesMeasurement,
+                    measurementUnit: viewModel.measurementUnit,
+                    onResetPeriodChanged: viewModel.setResetPeriod,
+                    onTargetGoalChanged: viewModel.adjustTargetGoal,
+                    onSmartNotificationsChanged:
+                        viewModel.setSmartNotifications,
+                    onDayToggled: viewModel.toggleDay,
+                    onUsesMeasurementChanged: viewModel.setUsesMeasurement,
+                    onMeasurementUnitChanged: viewModel.setMeasurementUnit,
+                    submitButton: PrimaryButton(
+                      onPressed: () async {
+                        if (!viewModel.isBusy) {
+                          await viewModel.saveHabit();
+                          await viewModel.navigateBack();
+                        }
+                      },
+                      text: viewModel.isBusy ? '...' : 'Save Habit',
+                    ),
                   ),
                 ),
               ],
@@ -148,6 +97,8 @@ class EditHabitView extends StackedView<EditHabitViewModel> {
   }
 
   @override
-  EditHabitViewModel viewModelBuilder(BuildContext context) =>
-      EditHabitViewModel(habitId: habitId ?? '');
+  EditHabitViewModel viewModelBuilder(BuildContext context) {
+    debugPrint('here is the habit id: $habitId');
+    return EditHabitViewModel(habitId: habitId ?? '');
+  }
 }

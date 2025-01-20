@@ -6,7 +6,7 @@ class MeasurementToggleModel extends BaseViewModel {
   final String initialMeasurementUnit;
   final Function(bool) onUsesMeasurementChanged;
   final Function(String) onMeasurementUnitChanged;
-  
+
   late TextEditingController unitController;
   bool _usesMeasurement = false;
 
@@ -15,8 +15,8 @@ class MeasurementToggleModel extends BaseViewModel {
     required String measurementUnit,
     required this.onUsesMeasurementChanged,
     required this.onMeasurementUnitChanged,
-  }) : initialUsesMeasurement = usesMeasurement,
-       initialMeasurementUnit = measurementUnit {
+  })  : initialUsesMeasurement = usesMeasurement,
+        initialMeasurementUnit = measurementUnit {
     _usesMeasurement = usesMeasurement;
     unitController = TextEditingController(text: measurementUnit);
     unitController.addListener(_onUnitChanged);

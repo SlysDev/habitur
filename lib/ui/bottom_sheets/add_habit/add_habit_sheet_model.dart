@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:habitur/enums/activity_type.dart';
+import 'package:habitur/enums/snackbar_type.dart';
 import 'package:habitur/services/activity_service.dart';
 import 'package:habitur/services/user_service.dart';
 import 'package:habitur/util_functions.dart';
@@ -14,6 +15,7 @@ class AddHabitSheetModel extends BaseViewModel {
   final _bottomSheetService = locator<BottomSheetService>();
   final _userService = locator<UserService>();
   final _activityService = locator<ActivityService>();
+  final _snackbarService = locator<SnackbarService>();
 
   final titleController = TextEditingController();
 
@@ -113,7 +115,8 @@ class AddHabitSheetModel extends BaseViewModel {
 
   Future<void> createHabit() async {
     if (titleController.text.isEmpty) {
-      // Show error
+      _snackbarService.showCustomSnackBar(
+          message: 'Title is empty', variant: SnackbarType.error);
       return;
     }
 
