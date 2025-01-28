@@ -21,8 +21,8 @@ class SharedHabitAdapter extends TypeAdapter<SharedHabit> {
       id: fields[11] == null ? 0 : fields[11] as int,
       description: fields[17] == null ? '' : fields[17] as String?,
       targetGoal: fields[3] as int?,
-      author: fields[20] as UserModel?,
-      participantData: (fields[19] as List?)?.cast<ParticipantData>(),
+      author: fields[22] as UserModel?,
+      participantData: (fields[21] as List?)?.cast<ParticipantData>(),
       streak: fields[2] as int,
       currentProgress: fields[4] as int,
       totalProgress: fields[5] as int,
@@ -39,16 +39,18 @@ class SharedHabitAdapter extends TypeAdapter<SharedHabit> {
       ..proficiencyRating = fields[1] as int
       ..isShared = fields[18] == null ? false : fields[18] as bool
       ..stats = fields[16] == null ? [] : (fields[16] as List).cast<StatPoint>()
-      ..isVisible = fields[15] as bool;
+      ..isVisible = fields[15] as bool
+      ..measurementUnit = fields[19] == null ? '' : fields[19] as String
+      ..usesMeasurement = fields[20] == null ? false : fields[20] as bool;
   }
 
   @override
   void write(BinaryWriter writer, SharedHabit obj) {
     writer
+      ..writeByte(23)
       ..writeByte(21)
-      ..writeByte(19)
       ..write(obj.participantData)
-      ..writeByte(20)
+      ..writeByte(22)
       ..write(obj.author)
       ..writeByte(0)
       ..write(obj.title)
@@ -87,7 +89,11 @@ class SharedHabitAdapter extends TypeAdapter<SharedHabit> {
       ..writeByte(14)
       ..write(obj.smartNotifsEnabled)
       ..writeByte(15)
-      ..write(obj.isVisible);
+      ..write(obj.isVisible)
+      ..writeByte(19)
+      ..write(obj.measurementUnit)
+      ..writeByte(20)
+      ..write(obj.usesMeasurement);
   }
 
   @override

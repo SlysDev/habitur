@@ -14,7 +14,8 @@ import 'package:habitur/services/user_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class HabitCardModel extends BaseViewModel {
+class HabitCardModel extends ReactiveViewModel {
+  // Change to ReactiveViewModel
   final _habitService = locator<HabitService>();
   final _activityService = locator<ActivityService>();
   final _dialogService = locator<DialogService>();
@@ -26,7 +27,7 @@ class HabitCardModel extends BaseViewModel {
 
   HabitInterface habit;
   bool _completed = false;
-  bool get completed => _completed;
+  bool get completed => currentHabit.isCompleted;
 
   HabitCardModel({required this.habit}) {
     _completed = habit.isCompleted;
@@ -45,10 +46,10 @@ class HabitCardModel extends BaseViewModel {
   }
 
   /// Gets the current progress of the habit
-  Progress get progress => habit.progress;
+  Progress get progress => currentHabit.progress;
 
   /// Gets the completion percentage for UI display
-  double get progressPercentage => progress.percentage;
+  double get progressPercentage => currentHabit.progress.percentage;
 
   /// Gets a formatted string representation of the progress
   String get progressText => progress.toString();
@@ -212,4 +213,11 @@ class HabitCardModel extends BaseViewModel {
       rebuildUi();
     }
   }
+
+  @override
+  List<ListenableServiceMixin> get listenableServices => [_habitService];
+
+  // Update the habit getter to always get fresh data
+  HabitInterface get currentHabit =>
+      _habitService.habits.firstWhere((h) => h.id == habit.id);
 }

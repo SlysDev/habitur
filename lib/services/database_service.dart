@@ -143,12 +143,17 @@ class DatabaseService with ListenableServiceMixin {
 
   Future<void> updateHabit(String userId, Habit habit) async {
     try {
+      final habitMap = habit.toMap();
+      // Ensure measurement fields are explicitly included
+      habitMap['usesMeasurement'] = habit.usesMeasurement;
+      habitMap['measurementUnit'] = habit.measurementUnit;
+
       await _firestore
           .collection('users')
           .doc(userId)
           .collection('habits')
           .doc(habit.id.toString())
-          .set(habit.toMap(), SetOptions(merge: true));
+          .set(habitMap, SetOptions(merge: true));
     } catch (e) {
       debugPrint('Error updating habit: $e');
       rethrow;

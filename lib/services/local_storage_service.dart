@@ -142,6 +142,10 @@ class LocalStorageService with ListenableServiceMixin {
             (habitData['resetPeriod'] as String?)?.toLowerCase() ?? 'daily';
         habitData['resetPeriod'] = resetPeriod;
 
+        // Ensure measurement fields are preserved
+        habitData['usesMeasurement'] = habitData['usesMeasurement'] ?? false;
+        habitData['measurementUnit'] = habitData['measurementUnit'] ?? '';
+
         final habit = Habit.fromMap(habitData);
         await habitsBox.add(habit);
       }
@@ -343,11 +347,13 @@ class LocalStorageService with ListenableServiceMixin {
   }
 
   Future<void> updateHabit(HabitInterface habit) async {
-    debugPrint('habit being inserted: ${habit.toString()}');
+    // Ensure measurement fields are included in the habit map
+    var habitMap = habit.toMap();
+    habitMap['usesMeasurement'] = habit.usesMeasurement;
+    habitMap['measurementUnit'] = habit.measurementUnit;
+
     await _habitsBox!.put(habit.id, habit);
-    debugPrint('Updated habit in LS with ID: ${habit.id}');
-    debugPrint(
-        'Habit values after update: ${_habitsBox!.get(habit.id).toString()}');
+    debugPrint('HERE is the habit I put in LS: $habit');
     await setHabitsLastUpdated(DateTime.now());
   }
 

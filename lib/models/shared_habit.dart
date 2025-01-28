@@ -9,10 +9,10 @@ part 'shared_habit.g.dart';
 
 @HiveType(typeId: 9)
 class SharedHabit extends Habit implements HabitInterface {
-  @HiveField(19)
+  @HiveField(21)
   List<ParticipantData> participantData = [];
 
-  @HiveField(20)
+  @HiveField(22)
   UserModel? author;
 
   SharedHabit({

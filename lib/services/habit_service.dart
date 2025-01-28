@@ -39,6 +39,21 @@ class HabitService with ListenableServiceMixin {
     final userService = locator<UserService>();
     debugPrint('Loading habits...');
     var localHabits = _localStorageService.getHabitData();
+
+    // Validate measurement fields
+    localHabits = localHabits.map((habit) {
+      if (habit is Habit) {
+        // Ensure measurement fields are preserved
+        if (habit.usesMeasurement == null) {
+          habit.usesMeasurement = false;
+        }
+        if (habit.measurementUnit == null) {
+          habit.measurementUnit = '';
+        }
+      }
+      return habit;
+    }).toList();
+
     debugPrint(
         'Local habits: ${localHabits.map((h) => 'ID: ${h.id}, Title: ${h.title}')}');
 
@@ -418,22 +433,18 @@ class HabitService with ListenableServiceMixin {
   }
 
   Future<void> updateHabit(HabitInterface habit) async {
-    debugPrint('()()()(): updating this dang habit ${habit.toString()}');
-    // update the habit in _habits as well
+    debugPrint(
+        'Updating habit: ${habit.title} with usesMeasurement: ${habit.usesMeasurement}');
     final index = _habits.value.indexWhere((h) => h.id == habit.id);
     if (index != -1) {
-      _habits.value = [
-        ..._habits.value.sublist(0, index),
-        habit,
-        ..._habits.value.sublist(index + 1),
-      ];
+      _habits.value = List.from(_habits.value)..[index] = habit;
     }
+
     await _localStorageService.updateHabit(habit);
-    if (habit is Habit) {
-      await _databaseService.updateHabit(_authService.currentUser!.uid, habit);
-    } else if (habit is SharedHabit) {
-      await _databaseService.updateSharedHabit(habit);
-    }
+    await _databaseService.updateInterfaceHabit(
+        _authService.currentUser!.uid, habit);
+
+    notifyListeners();
   }
 
   Future<HabitInterface?> getHabit(String habitId) async {

@@ -53,9 +53,8 @@ class EditHabitView extends StackedView<EditHabitViewModel> {
 
                 Expanded(
                   child: HabitForm(
-                    initialData: viewModel.habitData,
-                    onSubmit: (HabitInterface data) async => await viewModel.saveHabit(data),
-                    submitButtonText: viewModel.isBusy ? '...' : 'Save Habit',
+                    habitId: habitId,
+                    // ...existing code...
                   ),
                 ),
               ],

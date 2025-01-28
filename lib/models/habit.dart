@@ -303,6 +303,8 @@ class Habit implements HabitInterface {
         'color: $color,\n'
         'daysCompleted: $daysCompleted,\n'
         'stats: $statsBuffer\n'
+        'usesMeasurement: $usesMeasurement,\n'
+        'measurementUnit: $measurementUnit,\n'
         '}';
   }
 }

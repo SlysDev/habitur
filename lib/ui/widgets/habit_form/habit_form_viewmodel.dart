@@ -2,10 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/models/habit_interface.dart';
 import 'package:stacked/stacked.dart';
+import 'package:habitur/app/app.locator.dart';
+import 'package:habitur/services/habit_service.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class HabitFormViewModel extends BaseViewModel {
+  final _habitService = locator<HabitService>();
+  final _navigationService = locator<NavigationService>();
   final TextEditingController titleController = TextEditingController();
-  late HabitInterface _habitData;
+
+  // Initialize immediately with empty data
+  HabitInterface _habitData = HabitInterface.empty();
+  String _habitId = '';
+  bool _isInitialized = false;
+  bool get isInitialized => _isInitialized;
 
   // Expose getters for UI consumption
   String get resetPeriod => _habitData.resetPeriod;
@@ -28,14 +38,36 @@ class HabitFormViewModel extends BaseViewModel {
     }
   }
 
-  void initializeWithHabit(HabitInterface? initialData) {
-    if (initialData != null) {
-      debugPrint('Initializing form with habit: ${initialData.title}');
-      _habitData = initialData;
-    } else {
-      _habitData = HabitInterface.empty();
+  Future<void> initializeHabit(String? habitId) async {
+    _habitId = habitId ?? '';
+    setBusy(true);
+
+    if (_habitId.isNotEmpty) {
+      final existingHabit = await _habitService.getHabit(_habitId);
+      if (existingHabit != null) {
+        _habitData = existingHabit;
+      }
     }
+
     titleController.text = _habitData.title;
+    _isInitialized = true;
+    setBusy(false);
+    notifyListeners();
+  }
+
+  Future<void> saveHabit() async {
+    setBusy(true);
+    if (_habitId.isEmpty) {
+      await _habitService.addHabit(_habitData as Habit);
+    } else {
+      await _habitService.updateHabit(_habitData as Habit);
+    }
+    _navigationService.back();
+    setBusy(false);
+  }
+
+  void setTitle(String title) {
+    _habitData.title = title;
     rebuildUi();
   }
 

@@ -13,35 +13,37 @@ import 'habit_form_viewmodel.dart';
 // ... other imports
 
 class HabitForm extends StackedView<HabitFormViewModel> {
-  final Function(HabitInterface) onSubmit;
+  final String? habitId;
   final String submitButtonText;
-  final HabitInterface? initialData;
 
   const HabitForm({
     Key? key,
-    required this.onSubmit,
-    required this.submitButtonText,
-    this.initialData,
+    this.habitId,
+    this.submitButtonText = 'Save Habit',
   }) : super(key: key);
 
   @override
-  Widget builder(BuildContext context, HabitFormViewModel viewModel, Widget? child) {
+  Widget builder(
+      BuildContext context, HabitFormViewModel viewModel, Widget? child) {
+    if (viewModel.isBusy || !viewModel.isInitialized) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return ListView(
       children: [
         const SizedBox(height: 16),
         FormTextField(
           label: 'Habit Name',
           controller: viewModel.titleController,
+          onChanged: viewModel.setTitle,
           hint: 'Meditate, Exercise, Read...',
         ),
         const SizedBox(height: 24),
-
         SmartNotificationsToggle(
           smartNotificationsEnabled: viewModel.smartNotificationsEnabled,
           onSmartNotificationsChanged: viewModel.setSmartNotifications,
         ),
         const SizedBox(height: 24),
-
         ModernCard(
           child: ResetPeriodSelector(
             resetPeriod: viewModel.resetPeriod,
@@ -49,7 +51,6 @@ class HabitForm extends StackedView<HabitFormViewModel> {
           ),
         ),
         const SizedBox(height: 24),
-
         if (viewModel.resetPeriod == 'Daily') ...[
           ModernCard(
             child: DaysOfWeekSelector(
@@ -59,7 +60,6 @@ class HabitForm extends StackedView<HabitFormViewModel> {
           ),
           const SizedBox(height: 24),
         ],
-
         ModernCard(
           child: TargetGoalSelector(
             targetGoal: viewModel.targetGoal,
@@ -68,7 +68,6 @@ class HabitForm extends StackedView<HabitFormViewModel> {
           ),
         ),
         const SizedBox(height: 24),
-
         MeasurementToggle(
           usesMeasurement: viewModel.usesMeasurement,
           measurementUnit: viewModel.measurementUnit,
@@ -76,9 +75,10 @@ class HabitForm extends StackedView<HabitFormViewModel> {
           onMeasurementUnitChanged: viewModel.setMeasurementUnit,
         ),
         const SizedBox(height: 40),
-
         PrimaryButton(
-          onPressed: () => onSubmit(viewModel.getFormData()),
+          onPressed: () async {
+            await viewModel.saveHabit();
+          },
           text: submitButtonText,
         ),
       ],
@@ -87,9 +87,10 @@ class HabitForm extends StackedView<HabitFormViewModel> {
 
   @override
   HabitFormViewModel viewModelBuilder(BuildContext context) {
-    final viewModel = HabitFormViewModel();
-    debugPrint('here is the initial data: $initialData');
-    viewModel.initializeWithHabit(initialData);
-    return viewModel;
+    final vm = HabitFormViewModel();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      vm.initializeHabit(habitId);
+    });
+    return vm;
   }
 }

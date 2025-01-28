@@ -9,7 +9,7 @@ import 'add_habit_sheet_model.dart';
 class AddHabitSheet extends StackedView<AddHabitSheetModel> {
   final Function(SheetResponse response)? completer;
   final SheetRequest request;
-  
+
   const AddHabitSheet({
     Key? key,
     required this.completer,
@@ -42,10 +42,9 @@ class AddHabitSheet extends StackedView<AddHabitSheetModel> {
               ),
             ),
             const SizedBox(height: 30),
-
             Expanded(
               child: HabitForm(
-                onSubmit: viewModel.createHabit,
+                habitId: null,
                 submitButtonText: viewModel.isBusy ? '...' : 'Create Habit',
               ),
             ),
@@ -56,5 +55,6 @@ class AddHabitSheet extends StackedView<AddHabitSheetModel> {
   }
 
   @override
-  AddHabitSheetModel viewModelBuilder(BuildContext context) => AddHabitSheetModel();
+  AddHabitSheetModel viewModelBuilder(BuildContext context) =>
+      AddHabitSheetModel();
 }

@@ -18,52 +18,5 @@ class AddHabitSheetModel extends BaseViewModel {
   final _activityService = locator<ActivityService>();
   final _snackbarService = locator<SnackbarService>();
 
-  Future<void> createHabit(HabitInterface formData) async {
-    if (formData.title.isEmpty) {
-      _snackbarService.showCustomSnackBar(
-        message: 'Title is empty',
-        variant: SnackbarType.error
-      );
-      return;
-    }
-
-    if (formData.requiredDatesOfCompletion.isEmpty) {
-      return;
-    }
-
-    setBusy(true);
-
-    try {
-      final habit = Habit(
-        title: formData.title,
-        dateCreated: DateTime.now(),
-        resetPeriod: formData.resetPeriod,
-        id: int.parse(generateUniqueId()),
-        lastSeen: DateTime.now(),
-        targetGoal: formData.targetGoal,
-        requiredDatesOfCompletion: formData.requiredDatesOfCompletion,
-        smartNotifsEnabled: formData.smartNotifsEnabled,
-        usesMeasurement: formData.usesMeasurement,
-        measurementUnit: formData.measurementUnit,
-      );
-
-      await _habitService.addHabit(habit);
-      await _activityService.createActivityForEvent(
-        _userService.currentUser!.uid,
-        _userService.currentUser!.username,
-        ActivityType.newHabit,
-        habit.id.toString(),
-        habit.title,
-        metadata: {
-          'targetGoal': formData.targetGoal,
-          'frequency': formData.resetPeriod,
-        }
-      );
-      _bottomSheetService.completeSheet(SheetResponse(confirmed: true));
-    } catch (e) {
-      debugPrint('Error creating habit: $e');
-    }
-    
-    setBusy(false);
-  }
+  // Remove createHabit, now handled in HabitFormViewModel
 }

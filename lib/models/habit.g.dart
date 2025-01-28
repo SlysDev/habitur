@@ -33,6 +33,8 @@ class HabitAdapter extends TypeAdapter<Habit> {
       smartNotifsEnabled: fields[14] as bool,
       isVisible: fields[15] as bool,
       targetGoal: fields[3] as int,
+      usesMeasurement: fields[20] == null ? false : fields[20] as bool,
+      measurementUnit: fields[19] == null ? '' : fields[19] as String,
     )
       ..proficiencyRating = fields[1] as int
       ..daysCompleted =
@@ -44,7 +46,7 @@ class HabitAdapter extends TypeAdapter<Habit> {
   @override
   void write(BinaryWriter writer, Habit obj) {
     writer
-      ..writeByte(19)
+      ..writeByte(21)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(17)
@@ -82,7 +84,11 @@ class HabitAdapter extends TypeAdapter<Habit> {
       ..writeByte(14)
       ..write(obj.smartNotifsEnabled)
       ..writeByte(15)
-      ..write(obj.isVisible);
+      ..write(obj.isVisible)
+      ..writeByte(19)
+      ..write(obj.measurementUnit)
+      ..writeByte(20)
+      ..write(obj.usesMeasurement);
   }
 
   @override
