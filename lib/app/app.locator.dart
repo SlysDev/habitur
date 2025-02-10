@@ -22,6 +22,7 @@ import '../services/friends_service.dart';
 import '../services/habit_service.dart';
 import '../services/insight_generator_service.dart';
 import '../services/local_storage_service.dart';
+import '../services/measurement_analytics_service.dart';
 import '../services/network_service.dart';
 import '../services/notification_scheduling_service.dart';
 import '../services/notification_service.dart';
@@ -74,4 +75,5 @@ Future<void> setupLocator({
   locator.registerLazySingleton(() => AggregateStatsCalculatorService());
   locator.registerLazySingleton(() => StatsOrchestrationService());
   locator.registerLazySingleton(() => NotificationSchedulingService());
+  locator.registerLazySingleton(() => MeasurementAnalyticsService());
 }

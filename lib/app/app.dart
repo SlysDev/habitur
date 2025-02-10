@@ -71,6 +71,8 @@ import 'package:habitur/ui/dialogs/basic/basic_dialog.dart';
 
 import 'package:habitur/ui/dialogs/habit_measurement_popup/habit_measurement_popup_dialog.dart';
 
+import 'package:habitur/services/measurement_analytics_service.dart';
+
 // @stacked-import
 @StackedApp(
   routes: [
@@ -161,7 +163,8 @@ import 'package:habitur/ui/dialogs/habit_measurement_popup/habit_measurement_pop
     LazySingleton(classType: AggregateStatsCalculatorService),
     LazySingleton(classType: StatsOrchestrationService),
     LazySingleton(classType: NotificationSchedulingService),
-    // @stacked-service
+    LazySingleton(classType: MeasurementAnalyticsService),
+// @stacked-service
   ],
   dialogs: [
     StackedDialog(classType: StreakMilestoneDialog),
