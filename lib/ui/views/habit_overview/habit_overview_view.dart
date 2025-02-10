@@ -3,6 +3,7 @@ import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:habitur/constants.dart';
 import 'package:habitur/services/stats/stats_calculation_service.dart';
 import 'package:habitur/ui/common/ui_helpers.dart';
+import 'package:habitur/ui/widgets/measurement_stats_display/measurement_stats_display.dart';
 import 'package:stacked/stacked.dart';
 import 'package:habitur/models/habit.dart';
 import 'package:habitur/ui/views/habit_overview/habit_overview_viewmodel.dart';
@@ -14,6 +15,8 @@ import '../../widgets/insight_display/insight_display.dart';
 import '../../widgets/modern_card.dart';
 import '../../widgets/multi_stat_line_graph/multi_stat_line_graph.dart';
 import '../../widgets/single_stat_card.dart';
+import '../../widgets/time_of_day_analysis/time_of_day_analysis.dart';
+import '../../widgets/measurement_analytics/measurement_analytics.dart';
 
 class HabitOverviewView extends StackedView<HabitOverviewViewModel> {
   final String habitId;
@@ -47,6 +50,26 @@ class HabitOverviewView extends StackedView<HabitOverviewViewModel> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 children: [
                   const SizedBox(height: 40),
+                  if (viewModel.habit?.usesMeasurement ?? false) ...[
+                    MeasurementStatsDisplay(
+                      stats: viewModel.habit!.stats,
+                      measurementUnit: viewModel.habit!.measurementUnit,
+                      targetGoal: viewModel.habit!.targetGoal.toDouble(),
+                      currentProgress:
+                          viewModel.habit!.currentProgress.toDouble(),
+                    ),
+                    const SizedBox(height: 40),
+                    MeasurementAnalytics(
+                      stats: viewModel.habit!.stats,
+                      measurementUnit: viewModel.habit!.measurementUnit,
+                      targetGoal: viewModel.habit!.targetGoal.toDouble(),
+                    ),
+                    const SizedBox(height: 40),
+                    TimeOfDayAnalysis(
+                      stats: viewModel.habit!.stats,
+                      measurementUnit: viewModel.habit!.measurementUnit,
+                    ),
+                  ],
                   MultiStatLineGraph(
                     data: viewModel.habit!.stats,
                     showStatTitle: true,
